@@ -1,85 +1,42 @@
-******** Paused (not available) till somewhen in later 2025 ********
----
+# SikuliGO
 
-Due to private priorities I did not have the time during 2024 nor could I concentrate on SikuliX.
-I cannot yet predict when or if I continue.
+![SikuliX Logo](docs/images/logo.png)
 
----
+This repository is being reshaped into a GoLang-first implementation of SikuliX-style visual automation.
 
-[![SikuliX](https://raw.githubusercontent.com/RaiMan/SikuliX1/master/Support/sikulix-red.png)](https://sikulix.github.io)
+## Project Intent
 
----
-**What is SikuliX**<br>SikuliX automates anything you see on the screen of your desktop computer 
-running Windows, Mac or some Linux/Unix. It uses image recognition powered by OpenCV to identify 
-GUI components and can act on them with mouse and keyboard actions.
-This is handy in cases when there is no easy access to a GUI's internals or 
-the source code of the application or web page you want to act on. [More details](http://sikulix.com)
+- Build a feature-complete GoLang port of the core Sikuli API concepts.
+- Preserve behavioral parity where it matters (image matching, regions, patterns, finder semantics).
+- Provide a modern, testable architecture with explicit contracts and deterministic matching behavior.
+- Establish a maintainable foundation for cross-platform automation features.
 
-Great thanks for the new logo and all the help with the new webpage to [@Waleed Sadek](https://github.com/waleedsadek-panx)
+## Current Focus
 
----
-**2.0.6 (branch release_2.0.x) preparing for release - snapshots available**
+- Core API scaffolding in `pkg/sikuli`
+- Matching engine implementation in `internal/cv`
+- Golden/parity test harness in `internal/testharness`
 
-**Latest Upload: April 17th, 2023**
+## Repository Layout
 
-**Direct IDE downloads** &nbsp;&nbsp;&nbsp;&nbsp;
-[> for Windows <](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.sikulix&a=sikulixidewin&v=2.0.6-SNAPSHOT&e=jar)&nbsp;&nbsp;&nbsp;&nbsp;[> for macOS Intel <](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.sikulix&a=sikulixidemac&v=2.0.6-SNAPSHOT&e=jar)&nbsp;&nbsp;&nbsp;&nbsp;[> for macOS Silicon Mx <](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.sikulix&a=sikulixidemacm&v=2.0.6-SNAPSHOT&e=jar)&nbsp;&nbsp;&nbsp;&nbsp;[> for Linux <](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.sikulix&a=sikulixidelux&v=2.0.6-SNAPSHOT&e=jar) 
+- `pkg` : public GoLang API packages
+- `internal` : internal GoLang implementation packages
+- `docs` : documentation and assets (including logo)
+- `legacy` : previous Java-era project directories retained for reference
 
-You get files like `sikulixidemac-2.0.6-20210708.194940-1.jar`, which you can place wherever you want and rename them to whatever you want. 
+## Getting Started
 
-**JAVA: must be Java 11 or later** (best places to get it: [Eclipse Temurin](https://adoptium.net) or [Azul](https://www.azul.com/downloads/?package=jdk#download-openjdk))
-
-**OCR (macOS/Linux):** now using Tess4J/Tesseract 5 - have a Tesseract 5.x ready (tesseract runs on commandline)
-
-**OpenCV Support:** Windows/macOS have it bundled - for Linux you have to make it ready yourself 
-
-[more information coming sooner or later ;-)]()
-
----
-**2.1.0 (branch master) currently not useable - development suspended**
-<hr>
-
-**Latest stable version is 2.0.5** (still works with Java 8, does not run on Mac mX machines)
-
-[Important: Read about changes/issues/enhancements](https://github.com/RaiMan/SikuliX1/wiki/About-actual-release-version)
-
-[List of fixes](https://github.com/RaiMan/SikuliX1/wiki/ZZZ-Bug-Fixes)
-
-[Get SikuliX ready to use](https://raimans-sikulix.gitbook.io/untitled/)
- 
-For use in **Java Maven projects** the dependency coordinates are:
+```bash
+go mod tidy
+go test ./...
 ```
-<dependency>
-  <groupId>com.sikulix</groupId>
-  <artifactId>sikulixapi</artifactId>
-  <version>2.0.5</version>
-</dependency>
-```
-<hr>
 
-**My Development environment**
+## Project History and Credits
 
- - Java 17 (current JDK LTS release)
- - Source and target level for Java is version 11
- - Maven project
- - Windows 11 latest (Pro 64-Bit)
- - latest macOS 12 (Monterey) on Intel and M1 machines
- - Ubuntu latest LTS version running in Oracle VM VirtualBox on Windows 10
- - Using IntelliJ IDEA CE in all environments
+Sikuli started in 2009 as an open-source research effort at the MIT User Interface Design Group, led by **Tsung-Hsiang Chang** and **Tom Yeh**, with early development connected to **Prof. Rob Miller**'s work at **MIT CSAIL**. The project introduced a practical idea that was unusual at the time: instead of relying on internal application APIs, users could automate **Graphical User Interfaces (GUI)** by teaching scripts what to click through screenshots of buttons, icons, and other visual elements. Even the name reflected that vision, drawing from the Huichol concept of the "**God's Eye**," a symbol of seeing and understanding what is otherwise hidden.
 
-<hr>
+In 2012, after the original creators moved on, the project's active development continued under **RaiMan** and evolved into **SikuliX**. That branch carried the platform forward for real-world desktop and web automation, using scripting ecosystems such as **Jython/Python**, **Java**, and **Ruby**, and refining image-based interaction workflows over time. Because this style of automation simulates real **mouse** and **keyboard** behavior, it has always worked best in environments with an active graphical session rather than truly **headless** execution.
 
-#### Contributions are welcome and appreciated
- - for `bugreports and requests for features or enhancements` use the issue tracker here
- - for `bugfixes` related to the latest release version you should create a pull request against the release branch (currently `release_2.0.x`), so your fix will be in the next bug-fix release (see milestones).
-- for `smaller bugfixes and/or feature enhancements` related to the running development (currently branch master as version 2.1.0-SNAPSHOT and dev_... branches) you should create a pull request against the target branch
-- a pull request should target only one branch. It is the resposibility and job of the maintainer to apply the changes to other branches in case 
-- for `more complex revisions and/or enhancements` you should ask for a development branch together with a short description of your ideas
- 
- **Please respect the following rules and guidelines when contributing**
-  - Start with smaller fixes. E.g. choose an issue from the issue tracker and try to fix it. Or fix issues you encounter while using SikuliX.
-  - Only fix cosmetic stuff if it's related to an issue you want to fix.
-  - Before you change stuff like dependencies / overall code style and so on, talk with the maintainer beforehand.<br>Sometimes there is a a reason that things are as they are (... and sometimes not :-)).
-  - Try to accept the individual coding styles of the acting contributors, even if some of the stuff might be sub-optimal in your eyes.<br>But feel free to talk about your ideas and the reasons behind.
+The GoLang port in this repository began in **2026**, when the project was restructured around a root-level GoLang module with dedicated `pkg` and `internal` packages.
 
- 
+This repository continues that lineage as a **GoLang-first** implementation effort. It stands on the work of the original Sikuli authors, **RaiMan**, and the broader contributor community that kept visual automation practical and accessible over the years.

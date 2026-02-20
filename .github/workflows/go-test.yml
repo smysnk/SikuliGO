@@ -1,0 +1,37 @@
+name: GoLang Tests
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "internal/**"
+      - "pkg/**"
+      - "docs/**"
+      - "go.mod"
+      - ".github/workflows/go-test.yml"
+  pull_request:
+    paths:
+      - "internal/**"
+      - "pkg/**"
+      - "docs/**"
+      - "go.mod"
+      - ".github/workflows/go-test.yml"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up GoLang
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Tidy module
+        run: go mod tidy
+
+      - name: Run tests
+        run: go test ./...
