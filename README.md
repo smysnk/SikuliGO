@@ -17,12 +17,20 @@ This repository is being reshaped into a GoLang-first implementation of SikuliX-
 - Matching engine implementation in `internal/cv`
 - Golden/parity test harness in `internal/testharness`
 
+## Port Strategy Docs
+
+- Docs home: [sikuligo.github.io](https://sikuligo.github.io)
+- Consolidated strategy: [sikuligo.github.io/port-strategy](https://sikuligo.github.io/port-strategy)
+- Locked architecture: [sikuligo.github.io/architecture-lock](https://sikuligo.github.io/architecture-lock)
+- API freeze: [sikuligo.github.io/api-signature-freeze](https://sikuligo.github.io/api-signature-freeze)
+- Defaults table: [sikuligo.github.io/default-behavior-table](https://sikuligo.github.io/default-behavior-table)
+
 ## Repository Layout
 
-- `pkg` : public GoLang API packages
-- `internal` : internal GoLang implementation packages
-- `docs` : documentation and assets (including logo)
-- `legacy` : previous Java-era project directories retained for reference
+- [`pkg`](pkg) : public GoLang API packages
+- [`internal`](internal) : internal GoLang implementation packages
+- [`docs`](docs) : documentation and assets (including logo)
+- [`legacy`](legacy) : previous Java-era project directories retained for reference
 
 ## Getting Started
 

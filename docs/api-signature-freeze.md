@@ -1,30 +1,116 @@
-# API Signature Freeze (Workstream 1)
+# API Signature Freeze
 
-This freeze covers the first GoLang-compatible core for:
+This freeze covers the complete currently exported GoLang API in `pkg/sikuli`.
 
-- `Image`
-- `Pattern`
-- `Match`
-- `Finder`
-- `Region`
-- `Screen`
-- settings defaults
-
-## Public constructors
+## Exported constants
 
 ```go
-func NewImageFromGray(name string, src *image.Gray) (*Image, error)
-func NewImageFromAny(name string, src image.Image) (*Image, error)
-func NewImageFromMatrix(name string, rows [][]uint8) (*Image, error)
-func NewPattern(img *Image) (*Pattern, error)
-func NewFinder(source *Image) (*Finder, error)
+const DefaultSimilarity = 0.70
+const ExactSimilarity = 0.99
+const DefaultAutoWaitTimeout = 3.0
+const DefaultWaitScanRate = 3.0
+const DefaultObserveScanRate = 3.0
+```
+
+## Exported sentinel errors
+
+```go
+var ErrFindFailed error
+var ErrTimeout error
+var ErrInvalidTarget error
+var ErrBackendUnsupported error
+```
+
+## Exported interfaces
+
+```go
+type ImageAPI interface {
+  Name() string
+  Width() int
+  Height() int
+  Gray() *image.Gray
+  Clone() *Image
+}
+
+type PatternAPI interface {
+  Image() *Image
+  Similar(sim float64) *Pattern
+  Similarity() float64
+  Exact() *Pattern
+  TargetOffset(dx, dy int) *Pattern
+  Offset() Point
+  Resize(factor float64) *Pattern
+  ResizeFactor() float64
+  Mask() *image.Gray
+}
+
+type FinderAPI interface {
+  Find(pattern *Pattern) (Match, error)
+  FindAll(pattern *Pattern) ([]Match, error)
+  LastMatches() []Match
+}
+```
+
+## Exported data types and methods
+
+### Point
+
+```go
+type Point struct {
+  X int
+  Y int
+}
+func NewPoint(x, y int) Point
+```
+
+### Rect
+
+```go
+type Rect struct {
+  X int
+  Y int
+  W int
+  H int
+}
+func NewRect(x, y, w, h int) Rect
+func (r Rect) Empty() bool
+func (r Rect) Contains(p Point) bool
+func (r Rect) String() string
+```
+
+### Region
+
+```go
+type Region struct {
+  Rect
+  ThrowException  bool
+  AutoWaitTimeout float64
+  WaitScanRate    float64
+  ObserveScanRate float64
+}
 func NewRegion(x, y, w, h int) Region
+func (r Region) Center() Point
+func (r Region) Grow(dx, dy int) Region
+func (r Region) Offset(dx, dy int) Region
+```
+
+### Screen
+
+```go
+type Screen struct {
+  ID     int
+  Bounds Rect
+}
 func NewScreen(id int, bounds Rect) Screen
 ```
 
-## Frozen `Image` surface
+### Image
 
 ```go
+type Image struct
+func NewImageFromGray(name string, src *image.Gray) (*Image, error)
+func NewImageFromAny(name string, src image.Image) (*Image, error)
+func NewImageFromMatrix(name string, rows [][]uint8) (*Image, error)
 func (i *Image) Name() string
 func (i *Image) Width() int
 func (i *Image) Height() int
@@ -32,9 +118,11 @@ func (i *Image) Gray() *image.Gray
 func (i *Image) Clone() *Image
 ```
 
-## Frozen `Pattern` surface
+### Pattern
 
 ```go
+type Pattern struct
+func NewPattern(img *Image) (*Pattern, error)
 func (p *Pattern) Image() *Image
 func (p *Pattern) Similar(sim float64) *Pattern
 func (p *Pattern) Similarity() float64
@@ -48,9 +136,24 @@ func (p *Pattern) WithMaskMatrix(rows [][]uint8) (*Pattern, error)
 func (p *Pattern) Mask() *image.Gray
 ```
 
-## Frozen `Finder` surface
+### Match
 
 ```go
+type Match struct {
+  Rect
+  Score  float64
+  Target Point
+  Index  int
+}
+func NewMatch(x, y, w, h int, score float64, off Point) Match
+func (m Match) String() string
+```
+
+### Finder
+
+```go
+type Finder struct
+func NewFinder(source *Image) (*Finder, error)
 func (f *Finder) SetMatcher(m core.Matcher)
 func (f *Finder) Find(pattern *Pattern) (Match, error)
 func (f *Finder) FindAll(pattern *Pattern) ([]Match, error)
@@ -59,13 +162,23 @@ func SortMatchesByRowColumn(matches []Match)
 func SortMatchesByColumnRow(matches []Match)
 ```
 
-## Frozen `Region` and `Screen` baseline
+### Runtime settings
 
 ```go
-func (r Region) Center() Point
-func (r Region) Grow(dx, dy int) Region
-func (r Region) Offset(dx, dy int) Region
+type RuntimeSettings struct {
+  ImageCache       int
+  ShowActions      bool
+  WaitScanRate     float64
+  ObserveScanRate  float64
+  AutoWaitTimeout  float64
+  MinSimilarity    float64
+  FindFailedThrows bool
+}
+func GetSettings() RuntimeSettings
+func UpdateSettings(apply func(*RuntimeSettings)) RuntimeSettings
+func ResetSettings() RuntimeSettings
 ```
 
-Any additions are non-breaking. Any signature change to these functions requires
-an explicit API freeze update.
+## Compatibility rule
+
+Any signature change to exported members listed above requires an explicit update to this document. Additions are allowed when they are non-breaking.
