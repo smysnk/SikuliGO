@@ -1,0 +1,308 @@
+package sikuli
+
+import (
+	"errors"
+	"testing"
+	"time"
+)
+
+func TestRegionDefaultsAndSetters(t *testing.T) {
+	r := NewRegion(10, 20, 30, 40)
+	if !r.ThrowException {
+		t.Fatalf("ThrowException default should be true")
+	}
+	if r.AutoWaitTimeout != DefaultAutoWaitTimeout {
+		t.Fatalf("AutoWaitTimeout default mismatch: got=%v", r.AutoWaitTimeout)
+	}
+	if r.WaitScanRate != DefaultWaitScanRate {
+		t.Fatalf("WaitScanRate default mismatch: got=%v", r.WaitScanRate)
+	}
+	if r.ObserveScanRate != DefaultObserveScanRate {
+		t.Fatalf("ObserveScanRate default mismatch: got=%v", r.ObserveScanRate)
+	}
+
+	r.SetThrowException(false)
+	if r.ThrowException {
+		t.Fatalf("SetThrowException(false) failed")
+	}
+	r.ResetThrowException()
+	if !r.ThrowException {
+		t.Fatalf("ResetThrowException() failed")
+	}
+
+	r.SetAutoWaitTimeout(-1)
+	if r.AutoWaitTimeout != 0 {
+		t.Fatalf("SetAutoWaitTimeout clamp failed: got=%v", r.AutoWaitTimeout)
+	}
+	r.SetWaitScanRate(0)
+	if r.WaitScanRate != DefaultWaitScanRate {
+		t.Fatalf("SetWaitScanRate default fallback failed: got=%v", r.WaitScanRate)
+	}
+	r.SetObserveScanRate(-2)
+	if r.ObserveScanRate != DefaultObserveScanRate {
+		t.Fatalf("SetObserveScanRate default fallback failed: got=%v", r.ObserveScanRate)
+	}
+}
+
+func TestRegionGeometryHelpers(t *testing.T) {
+	r := NewRegion(10, 20, 30, 40)
+	c := r.Center()
+	if c.X != 25 || c.Y != 40 {
+		t.Fatalf("center mismatch: got=(%d,%d)", c.X, c.Y)
+	}
+
+	grown := r.Grow(5, 10)
+	if grown.X != 5 || grown.Y != 10 || grown.W != 40 || grown.H != 60 {
+		t.Fatalf("grow mismatch: got=%+v", grown)
+	}
+
+	offset := r.Offset(-3, 4)
+	if offset.X != 7 || offset.Y != 24 || offset.W != 30 || offset.H != 40 {
+		t.Fatalf("offset mismatch: got=%+v", offset)
+	}
+
+	moved := r.MoveTo(1, 2)
+	if moved.X != 1 || moved.Y != 2 || moved.W != 30 || moved.H != 40 {
+		t.Fatalf("move mismatch: got=%+v", moved)
+	}
+
+	size := r.SetSize(-1, 7)
+	if size.W != 0 || size.H != 7 {
+		t.Fatalf("set size clamp mismatch: got=%+v", size)
+	}
+
+	if !r.Contains(NewPoint(10, 20)) {
+		t.Fatalf("expected top-left point to be contained")
+	}
+	if r.Contains(NewPoint(40, 60)) {
+		t.Fatalf("expected right/bottom edge point to be excluded")
+	}
+
+	inside := NewRegion(12, 22, 5, 6)
+	if !r.ContainsRegion(inside) {
+		t.Fatalf("expected region to contain nested region")
+	}
+	outside := NewRegion(0, 0, 5, 5)
+	if r.ContainsRegion(outside) {
+		t.Fatalf("expected region not to contain outside region")
+	}
+
+	other := NewRegion(25, 35, 20, 20)
+	union := r.Union(other)
+	if union.X != 10 || union.Y != 20 || union.W != 35 || union.H != 40 {
+		t.Fatalf("union mismatch: got=%+v", union)
+	}
+
+	inter := r.Intersection(other)
+	if inter.X != 25 || inter.Y != 35 || inter.W != 15 || inter.H != 20 {
+		t.Fatalf("intersection mismatch: got=%+v", inter)
+	}
+
+	noOverlap := r.Intersection(NewRegion(200, 200, 10, 10))
+	if noOverlap.W != 0 || noOverlap.H != 0 {
+		t.Fatalf("expected empty intersection: got=%+v", noOverlap)
+	}
+}
+
+func TestPatternNormalization(t *testing.T) {
+	img, err := NewImageFromMatrix("needle", [][]uint8{
+		{1, 2},
+		{3, 4},
+	})
+	if err != nil {
+		t.Fatalf("new image: %v", err)
+	}
+	p, err := NewPattern(img)
+	if err != nil {
+		t.Fatalf("new pattern: %v", err)
+	}
+
+	p.Similar(2)
+	if p.Similarity() != 1 {
+		t.Fatalf("similarity upper clamp failed: %v", p.Similarity())
+	}
+	p.Similar(-0.5)
+	if p.Similarity() != 0 {
+		t.Fatalf("similarity lower clamp failed: %v", p.Similarity())
+	}
+
+	p.Resize(0)
+	if p.ResizeFactor() != 1 {
+		t.Fatalf("resize fallback failed: %v", p.ResizeFactor())
+	}
+}
+
+func TestFinderExistsAndHas(t *testing.T) {
+	hay, err := NewImageFromMatrix("hay", [][]uint8{
+		{10, 10, 10, 10, 10},
+		{10, 0, 255, 10, 10},
+		{10, 255, 0, 10, 10},
+		{10, 10, 10, 10, 10},
+	})
+	if err != nil {
+		t.Fatalf("new hay image: %v", err)
+	}
+	needle, err := NewImageFromMatrix("needle", [][]uint8{
+		{0, 255},
+		{255, 0},
+	})
+	if err != nil {
+		t.Fatalf("new needle image: %v", err)
+	}
+	p, err := NewPattern(needle)
+	if err != nil {
+		t.Fatalf("new pattern: %v", err)
+	}
+	p.Exact()
+
+	f, err := NewFinder(hay)
+	if err != nil {
+		t.Fatalf("new finder: %v", err)
+	}
+	m, ok, err := f.Exists(p)
+	if err != nil {
+		t.Fatalf("exists should not fail: %v", err)
+	}
+	if !ok {
+		t.Fatalf("expected Exists to report match")
+	}
+	if m.X != 1 || m.Y != 1 {
+		t.Fatalf("exists match coordinates mismatch: got=(%d,%d)", m.X, m.Y)
+	}
+	has, err := f.Has(p)
+	if err != nil {
+		t.Fatalf("has should not fail: %v", err)
+	}
+	if !has {
+		t.Fatalf("expected Has to be true")
+	}
+
+	missingNeedle, err := NewImageFromMatrix("missing", [][]uint8{
+		{4, 4},
+		{4, 4},
+	})
+	if err != nil {
+		t.Fatalf("new missing needle: %v", err)
+	}
+	missingPattern, err := NewPattern(missingNeedle)
+	if err != nil {
+		t.Fatalf("new missing pattern: %v", err)
+	}
+	missingPattern.Exact()
+	_, ok, err = f.Exists(missingPattern)
+	if err != nil {
+		t.Fatalf("exists missing should not hard fail: %v", err)
+	}
+	if ok {
+		t.Fatalf("expected missing pattern not to exist")
+	}
+}
+
+func TestRuntimeSettingsLifecycle(t *testing.T) {
+	ResetSettings()
+	s := GetSettings()
+	if s.MinSimilarity != DefaultSimilarity {
+		t.Fatalf("default MinSimilarity mismatch: %v", s.MinSimilarity)
+	}
+
+	s = UpdateSettings(func(in *RuntimeSettings) {
+		in.MinSimilarity = 0.9
+		in.ShowActions = true
+	})
+	if s.MinSimilarity != 0.9 || !s.ShowActions {
+		t.Fatalf("update did not apply: %+v", s)
+	}
+
+	s = ResetSettings()
+	if s.MinSimilarity != DefaultSimilarity || s.ShowActions {
+		t.Fatalf("reset failed: %+v", s)
+	}
+}
+
+func TestImageCrop(t *testing.T) {
+	img, err := NewImageFromMatrix("src", [][]uint8{
+		{1, 2, 3, 4},
+		{5, 6, 7, 8},
+		{9, 10, 11, 12},
+	})
+	if err != nil {
+		t.Fatalf("new image: %v", err)
+	}
+	crop, err := img.Crop(NewRect(1, 1, 2, 2))
+	if err != nil {
+		t.Fatalf("crop failed: %v", err)
+	}
+	if crop.Width() != 2 || crop.Height() != 2 {
+		t.Fatalf("crop dimensions mismatch: got=%dx%d", crop.Width(), crop.Height())
+	}
+	if crop.Gray().GrayAt(1, 1).Y != 6 || crop.Gray().GrayAt(2, 2).Y != 11 {
+		t.Fatalf("crop pixel mismatch")
+	}
+	_, err = img.Crop(NewRect(100, 100, 3, 3))
+	if err == nil {
+		t.Fatalf("expected crop outside bounds to fail")
+	}
+}
+
+func TestRegionFindExistsWaitParityScaffold(t *testing.T) {
+	hay, err := NewImageFromMatrix("hay", [][]uint8{
+		{10, 10, 10, 10, 10, 10},
+		{10, 10, 0, 255, 10, 10},
+		{10, 10, 255, 0, 10, 10},
+		{10, 10, 10, 10, 10, 10},
+	})
+	if err != nil {
+		t.Fatalf("new hay image: %v", err)
+	}
+	needle, err := NewImageFromMatrix("needle", [][]uint8{
+		{0, 255},
+		{255, 0},
+	})
+	if err != nil {
+		t.Fatalf("new needle image: %v", err)
+	}
+	p, err := NewPattern(needle)
+	if err != nil {
+		t.Fatalf("new pattern: %v", err)
+	}
+	p.Exact()
+
+	region := NewRegion(1, 0, 4, 4)
+	m, err := region.Find(hay, p)
+	if err != nil {
+		t.Fatalf("region find failed: %v", err)
+	}
+	if m.X != 2 || m.Y != 1 {
+		t.Fatalf("region find coordinates mismatch: got=(%d,%d)", m.X, m.Y)
+	}
+
+	existsMatch, ok, err := region.Exists(hay, p, 0)
+	if err != nil {
+		t.Fatalf("region exists failed: %v", err)
+	}
+	if !ok || existsMatch.X != 2 || existsMatch.Y != 1 {
+		t.Fatalf("region exists mismatch: ok=%v match=%+v", ok, existsMatch)
+	}
+
+	has, err := region.Has(hay, p, 0)
+	if err != nil {
+		t.Fatalf("region has failed: %v", err)
+	}
+	if !has {
+		t.Fatalf("region has should be true")
+	}
+
+	missingRegion := NewRegion(0, 0, 2, 2)
+	_, ok, err = missingRegion.Exists(hay, p, 20*time.Millisecond)
+	if err != nil {
+		t.Fatalf("missing exists should not error: %v", err)
+	}
+	if ok {
+		t.Fatalf("missing region should not contain target")
+	}
+
+	_, err = missingRegion.Wait(hay, p, 20*time.Millisecond)
+	if !errors.Is(err, ErrTimeout) {
+		t.Fatalf("wait timeout mismatch: got=%v", err)
+	}
+}

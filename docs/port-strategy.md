@@ -88,6 +88,8 @@ This keeps `pkg/sikuli` stable while allowing alternate implementations (e.g., `
 
 Status: complete baseline implemented.
 
+Current extension state: Region geometry/runtime helper surface, Finder existence helpers, and Region-scoped search/wait parity scaffolding are implemented and covered by unit tests.
+
 ### Workstream 2: Matching engine and parity harness
 
 - Implement deterministic image matching (threshold + sort ordering + mask/resize support).
@@ -122,13 +124,15 @@ Status: planned.
 
 | Area | Scope | Priority | Status | Notes |
 |---|---|---|---|---|
-| Geometry primitives | `Point`, `Rect`, `Region` construction and transforms | P0 | Implemented baseline | expand region parity methods next |
+| Geometry primitives | `Point`, `Rect`, `Region` construction and transforms | P0 | Implemented extended | includes region union/intersection/containment and runtime setters |
 | Screen abstraction | `Screen` id/bounds object | P1 | Implemented baseline | add monitor discovery later |
 | Image model | `Image` constructors, copy, dimensions | P0 | Implemented baseline | add advanced image utilities later |
 | Pattern semantics | similarity, exact, offset, resize, mask | P0 | Implemented baseline | currently fully covered by default table |
 | Match result model | score, target, index, geometry | P0 | Implemented baseline | extend with comparator helpers if needed |
-| Finder single target | `Find` + fail semantics | P0 | Implemented baseline | aligned with sentinel error protocol |
+| Finder single target | `Find` + fail semantics | P0 | Implemented extended | includes `Exists` and `Has` helper semantics |
 | Finder multi-target | `FindAll` ordering + indexing | P0 | Implemented baseline | deterministic order locked |
+| Region-scoped search | `Region.Find/Exists/Has/Wait` with timeout polling | P0 | Implemented extended | uses source crop + finder backend |
+| Image crop protocol | `Image.Crop(rect)` absolute-coordinate crop behavior | P0 | Implemented extended | enables region-scoped search protocol |
 | Finder protocol swappability | `SetMatcher(core.Matcher)` | P0 | Implemented baseline | enables backend evolution |
 | Global settings | `RuntimeSettings` get/update/reset | P1 | Implemented baseline | expand settings map as parity grows |
 | Signature compatibility layer | `ImageAPI`, `PatternAPI`, `FinderAPI` | P0 | Implemented baseline | freeze enforced in docs |

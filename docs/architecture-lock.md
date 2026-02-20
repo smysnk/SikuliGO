@@ -7,6 +7,8 @@ This document defines the locked package boundaries, object responsibilities, an
 - `pkg/sikuli`:
   - Public types, defaults, and errors.
   - Public API orchestration (`Finder` delegates matching work to `core.Matcher`).
+  - Region/Finder helper semantics (`Region` geometry/runtime setters, `Finder.Exists/Has`).
+  - Region-scoped search protocol (`Region.Find/Exists/Has/Wait`) over source image crops.
 - `internal/core`:
   - Matching protocol contracts and transport objects.
   - Shared image operations used by backends.
@@ -68,6 +70,20 @@ type Matcher interface {
 ```
 
 `pkg/sikuli.Finder` must consume only this protocol and must not depend on backend-specific types.
+
+## Protocol lock: region-scoped search
+
+`Region` search methods are layered on top of the same matcher protocol and are locked to this behavior:
+
+1. crop the given source image to the region rect via `Image.Crop`
+2. create a `Finder` over the cropped image
+3. run `Find`/`Exists`/`Has`/`Wait` semantics against that scope
+
+Timeout semantics for `Region.Exists/Wait` are polling-based and driven by:
+
+- explicit timeout argument when `> 0`
+- `Region.AutoWaitTimeout` when `Wait` receives `<= 0`
+- `Region.WaitScanRate` for polling interval
 
 ## Protocol lock: request and validation
 

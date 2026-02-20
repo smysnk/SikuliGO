@@ -1,6 +1,9 @@
 package sikuli
 
-import "image"
+import (
+	"image"
+	"time"
+)
 
 // This file intentionally defines the frozen workstream-1 public signatures.
 // If these interfaces are changed, update docs/api-signature-freeze.md.
@@ -31,8 +34,25 @@ type FinderAPI interface {
 	LastMatches() []Match
 }
 
+type RegionAPI interface {
+	Center() Point
+	Grow(dx, dy int) Region
+	Offset(dx, dy int) Region
+	MoveTo(x, y int) Region
+	SetSize(w, h int) Region
+	Contains(p Point) bool
+	ContainsRegion(other Region) bool
+	Union(other Region) Region
+	Intersection(other Region) Region
+	Find(source *Image, pattern *Pattern) (Match, error)
+	Exists(source *Image, pattern *Pattern, timeout time.Duration) (Match, bool, error)
+	Has(source *Image, pattern *Pattern, timeout time.Duration) (bool, error)
+	Wait(source *Image, pattern *Pattern, timeout time.Duration) (Match, error)
+}
+
 var (
 	_ ImageAPI   = (*Image)(nil)
 	_ PatternAPI = (*Pattern)(nil)
 	_ FinderAPI  = (*Finder)(nil)
+	_ RegionAPI  = (*Region)(nil)
 )

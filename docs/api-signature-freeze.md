@@ -49,6 +49,22 @@ type FinderAPI interface {
   FindAll(pattern *Pattern) ([]Match, error)
   LastMatches() []Match
 }
+
+type RegionAPI interface {
+  Center() Point
+  Grow(dx, dy int) Region
+  Offset(dx, dy int) Region
+  MoveTo(x, y int) Region
+  SetSize(w, h int) Region
+  Contains(p Point) bool
+  ContainsRegion(other Region) bool
+  Union(other Region) Region
+  Intersection(other Region) Region
+  Find(source *Image, pattern *Pattern) (Match, error)
+  Exists(source *Image, pattern *Pattern, timeout time.Duration) (Match, bool, error)
+  Has(source *Image, pattern *Pattern, timeout time.Duration) (bool, error)
+  Wait(source *Image, pattern *Pattern, timeout time.Duration) (Match, error)
+}
 ```
 
 ## Exported data types and methods
@@ -92,6 +108,21 @@ func NewRegion(x, y, w, h int) Region
 func (r Region) Center() Point
 func (r Region) Grow(dx, dy int) Region
 func (r Region) Offset(dx, dy int) Region
+func (r Region) MoveTo(x, y int) Region
+func (r Region) SetSize(w, h int) Region
+func (r Region) Contains(p Point) bool
+func (r Region) ContainsRegion(other Region) bool
+func (r Region) Union(other Region) Region
+func (r Region) Intersection(other Region) Region
+func (r *Region) SetThrowException(flag bool)
+func (r *Region) ResetThrowException()
+func (r *Region) SetAutoWaitTimeout(sec float64)
+func (r *Region) SetWaitScanRate(rate float64)
+func (r *Region) SetObserveScanRate(rate float64)
+func (r Region) Find(source *Image, pattern *Pattern) (Match, error)
+func (r Region) Exists(source *Image, pattern *Pattern, timeout time.Duration) (Match, bool, error)
+func (r Region) Has(source *Image, pattern *Pattern, timeout time.Duration) (bool, error)
+func (r Region) Wait(source *Image, pattern *Pattern, timeout time.Duration) (Match, error)
 ```
 
 ### Screen
@@ -116,6 +147,7 @@ func (i *Image) Width() int
 func (i *Image) Height() int
 func (i *Image) Gray() *image.Gray
 func (i *Image) Clone() *Image
+func (i *Image) Crop(rect Rect) (*Image, error)
 ```
 
 ### Pattern
@@ -157,6 +189,8 @@ func NewFinder(source *Image) (*Finder, error)
 func (f *Finder) SetMatcher(m core.Matcher)
 func (f *Finder) Find(pattern *Pattern) (Match, error)
 func (f *Finder) FindAll(pattern *Pattern) ([]Match, error)
+func (f *Finder) Exists(pattern *Pattern) (Match, bool, error)
+func (f *Finder) Has(pattern *Pattern) (bool, error)
 func (f *Finder) LastMatches() []Match
 func SortMatchesByRowColumn(matches []Match)
 func SortMatchesByColumnRow(matches []Match)

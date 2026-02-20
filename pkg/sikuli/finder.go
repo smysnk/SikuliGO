@@ -70,6 +70,24 @@ func (f *Finder) FindAll(pattern *Pattern) ([]Match, error) {
 	return matches, nil
 }
 
+// Exists returns the first match when present. Missing targets return (Match{}, false, nil).
+func (f *Finder) Exists(pattern *Pattern) (Match, bool, error) {
+	match, err := f.Find(pattern)
+	if err != nil {
+		if err == ErrFindFailed {
+			return Match{}, false, nil
+		}
+		return Match{}, false, err
+	}
+	return match, true, nil
+}
+
+// Has reports whether the target exists and bubbles non-find errors.
+func (f *Finder) Has(pattern *Pattern) (bool, error) {
+	_, ok, err := f.Exists(pattern)
+	return ok, err
+}
+
 func (f *Finder) LastMatches() []Match {
 	if len(f.last) == 0 {
 		return nil
@@ -120,4 +138,3 @@ func SortMatchesByColumnRow(matches []Match) {
 		return matches[i].X < matches[j].X
 	})
 }
-

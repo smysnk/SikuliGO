@@ -86,3 +86,27 @@ func (i *Image) Clone() *Image {
 	return &Image{name: i.name, gray: copyGray}
 }
 
+func (i *Image) Crop(rect Rect) (*Image, error) {
+	if i == nil || i.gray == nil {
+		return nil, fmt.Errorf("%w: image is nil", ErrInvalidTarget)
+	}
+	if rect.Empty() {
+		return nil, fmt.Errorf("%w: crop rect is empty", ErrInvalidTarget)
+	}
+	srcBounds := i.gray.Bounds()
+	crop := image.Rect(rect.X, rect.Y, rect.X+rect.W, rect.Y+rect.H).Intersect(srcBounds)
+	if crop.Empty() {
+		return nil, fmt.Errorf("%w: crop rect outside source bounds", ErrInvalidTarget)
+	}
+
+	out := image.NewGray(crop)
+	for y := crop.Min.Y; y < crop.Max.Y; y++ {
+		srcStart := i.gray.PixOffset(crop.Min.X, y)
+		srcEnd := i.gray.PixOffset(crop.Max.X, y)
+		dstStart := out.PixOffset(crop.Min.X, y)
+		copy(out.Pix[dstStart:dstStart+crop.Dx()], i.gray.Pix[srcStart:srcEnd])
+	}
+
+	name := fmt.Sprintf("%s@crop[%d,%d %dx%d]", i.name, crop.Min.X, crop.Min.Y, crop.Dx(), crop.Dy())
+	return &Image{name: name, gray: out}, nil
+}

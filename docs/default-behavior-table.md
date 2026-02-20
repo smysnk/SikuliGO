@@ -20,13 +20,25 @@ This table captures current default and protocol behavior for all existing expor
 | `Region` | `AutoWaitTimeout` | `3.0` | Set by `NewRegion` |
 | `Region` | `WaitScanRate` | `3.0` | Set by `NewRegion` |
 | `Region` | `ObserveScanRate` | `3.0` | Set by `NewRegion` |
+| `Region` | `SetThrowException(flag)` | sets exact flag value | mutates receiver |
+| `Region` | `ResetThrowException()` | `true` | mutates receiver |
+| `Region` | `SetAutoWaitTimeout(sec)` | negative values clamp to `0` | mutates receiver |
+| `Region` | `SetWaitScanRate(rate)` | non-positive values fallback to `DefaultWaitScanRate` | mutates receiver |
+| `Region` | `SetObserveScanRate(rate)` | non-positive values fallback to `DefaultObserveScanRate` | mutates receiver |
 | `Pattern` | `similarity` | `0.70` | Set by `NewPattern` |
 | `Pattern` | `resizeFactor` | `1.0` | Set by `NewPattern` |
 | `Pattern` | `targetOffset` | `(0,0)` | Set by `NewPattern` |
 | `Pattern` | `mask` | `nil` | No mask unless provided |
+| `Image` | `Crop(rect)` | preserves absolute coordinate bounds in crop | errors if rect is empty or fully outside source |
 | `Match` | `Target` | center + offset | computed in `NewMatch` |
 | `Finder` | matcher backend | `NCCMatcher` | set by `NewFinder` |
 | `Finder` | `last` cache | `nil` | populated after find operations |
+| `Finder` | `Exists(pattern)` | `(Match{}, false, nil)` on missing targets | does not return `ErrFindFailed` for misses |
+| `Finder` | `Has(pattern)` | `false` on missing targets | forwards non-find errors |
+| `Region` | `Find(source, pattern)` | one-shot match within region crop | returns `ErrFindFailed` if not found |
+| `Region` | `Exists(source, pattern, timeout)` | one-shot when timeout `<= 0` | polls using `WaitScanRate` when timeout `> 0` |
+| `Region` | `Has(source, pattern, timeout)` | bool wrapper over `Exists` | forwards non-find errors |
+| `Region` | `Wait(source, pattern, timeout)` | uses `AutoWaitTimeout` when timeout `<= 0` | returns `ErrTimeout` on miss |
 | `RuntimeSettings` | `ImageCache` | `64` | initial global value |
 | `RuntimeSettings` | `ShowActions` | `false` | initial global value |
 | `RuntimeSettings` | `WaitScanRate` | `3.0` | initial global value |
@@ -44,6 +56,10 @@ This table captures current default and protocol behavior for all existing expor
 | `Pattern.Resize(factor)` | values `<= 0` become `1.0` |
 | `Pattern.WithMask(mask)` | `nil` clears mask |
 | `Pattern.WithMaskMatrix(rows)` | empty rows clear mask |
+| `Region.SetSize(w,h)` | negative dimensions clamp to `0` |
+| `Region.SetAutoWaitTimeout(sec)` | negative values clamp to `0` |
+| `Region.SetWaitScanRate(rate)` | non-positive values fallback to `DefaultWaitScanRate` |
+| `Region.SetObserveScanRate(rate)` | non-positive values fallback to `DefaultObserveScanRate` |
 
 ## Matcher request protocol defaults
 

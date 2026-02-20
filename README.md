@@ -45,9 +45,7 @@ Sikuli started in 2009 as an open-source research effort at the MIT User Interfa
 
 In 2012, after the original creators moved on, the project's active development continued under **RaiMan** and evolved into **SikuliX**. That branch carried the platform forward for real-world desktop and web automation, using scripting ecosystems such as **Jython/Python**, **Java**, and **Ruby**, and refining image-based interaction workflows over time. Because this style of automation simulates real **mouse** and **keyboard** behavior, it has always worked best in environments with an active graphical session rather than truly **headless** execution.
 
-The GoLang port in this repository began in **2026**, when the project was restructured around a root-level GoLang module with dedicated `pkg` and `internal` packages.
-
-This repository continues that lineage as a **GoLang-first** implementation effort. It stands on the work of the original Sikuli authors, **RaiMan**, and the broader contributor community that kept visual automation practical and accessible over the years.
+The GoLang port in this repository began in **2026**. It stands on the work of the original Sikuli authors, **RaiMan**, and the broader contributor community that kept visual automation practical and accessible over the years.
 
 ## Sikuli References
 
