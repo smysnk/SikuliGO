@@ -14,6 +14,7 @@ type ImageAPI interface {
 	Height() int
 	Gray() *image.Gray
 	Clone() *Image
+	Crop(rect Rect) (*Image, error)
 }
 
 type PatternAPI interface {
@@ -31,6 +32,10 @@ type PatternAPI interface {
 type FinderAPI interface {
 	Find(pattern *Pattern) (Match, error)
 	FindAll(pattern *Pattern) ([]Match, error)
+	Exists(pattern *Pattern) (Match, bool, error)
+	Has(pattern *Pattern) (bool, error)
+	Wait(pattern *Pattern, timeout time.Duration) (Match, error)
+	WaitVanish(pattern *Pattern, timeout time.Duration) (bool, error)
 	LastMatches() []Match
 }
 
@@ -48,6 +53,7 @@ type RegionAPI interface {
 	Exists(source *Image, pattern *Pattern, timeout time.Duration) (Match, bool, error)
 	Has(source *Image, pattern *Pattern, timeout time.Duration) (bool, error)
 	Wait(source *Image, pattern *Pattern, timeout time.Duration) (Match, error)
+	WaitVanish(source *Image, pattern *Pattern, timeout time.Duration) (bool, error)
 }
 
 var (

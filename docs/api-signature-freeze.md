@@ -30,6 +30,7 @@ type ImageAPI interface {
   Height() int
   Gray() *image.Gray
   Clone() *Image
+  Crop(rect Rect) (*Image, error)
 }
 
 type PatternAPI interface {
@@ -47,6 +48,10 @@ type PatternAPI interface {
 type FinderAPI interface {
   Find(pattern *Pattern) (Match, error)
   FindAll(pattern *Pattern) ([]Match, error)
+  Exists(pattern *Pattern) (Match, bool, error)
+  Has(pattern *Pattern) (bool, error)
+  Wait(pattern *Pattern, timeout time.Duration) (Match, error)
+  WaitVanish(pattern *Pattern, timeout time.Duration) (bool, error)
   LastMatches() []Match
 }
 
@@ -64,6 +69,7 @@ type RegionAPI interface {
   Exists(source *Image, pattern *Pattern, timeout time.Duration) (Match, bool, error)
   Has(source *Image, pattern *Pattern, timeout time.Duration) (bool, error)
   Wait(source *Image, pattern *Pattern, timeout time.Duration) (Match, error)
+  WaitVanish(source *Image, pattern *Pattern, timeout time.Duration) (bool, error)
 }
 ```
 
@@ -77,6 +83,31 @@ type Point struct {
   Y int
 }
 func NewPoint(x, y int) Point
+```
+
+### Location
+
+```go
+type Location struct {
+  X int
+  Y int
+}
+func NewLocation(x, y int) Location
+func (l Location) ToPoint() Point
+func (l Location) Move(dx, dy int) Location
+func (l Location) String() string
+```
+
+### Offset
+
+```go
+type Offset struct {
+  X int
+  Y int
+}
+func NewOffset(x, y int) Offset
+func (o Offset) ToPoint() Point
+func (o Offset) String() string
 ```
 
 ### Rect
@@ -191,6 +222,8 @@ func (f *Finder) Find(pattern *Pattern) (Match, error)
 func (f *Finder) FindAll(pattern *Pattern) ([]Match, error)
 func (f *Finder) Exists(pattern *Pattern) (Match, bool, error)
 func (f *Finder) Has(pattern *Pattern) (bool, error)
+func (f *Finder) Wait(pattern *Pattern, timeout time.Duration) (Match, error)
+func (f *Finder) WaitVanish(pattern *Pattern, timeout time.Duration) (bool, error)
 func (f *Finder) LastMatches() []Match
 func SortMatchesByRowColumn(matches []Match)
 func SortMatchesByColumnRow(matches []Match)

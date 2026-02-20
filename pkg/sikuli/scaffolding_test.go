@@ -196,6 +196,25 @@ func TestFinderExistsAndHas(t *testing.T) {
 	if ok {
 		t.Fatalf("expected missing pattern not to exist")
 	}
+
+	_, err = f.Wait(missingPattern, 10*time.Millisecond)
+	if !errors.Is(err, ErrTimeout) {
+		t.Fatalf("wait timeout mismatch: got=%v", err)
+	}
+	vanished, err := f.WaitVanish(missingPattern, 10*time.Millisecond)
+	if err != nil {
+		t.Fatalf("wait vanish should not fail: %v", err)
+	}
+	if !vanished {
+		t.Fatalf("expected missing pattern to be vanished")
+	}
+	vanished, err = f.WaitVanish(p, 10*time.Millisecond)
+	if err != nil {
+		t.Fatalf("wait vanish present should not fail: %v", err)
+	}
+	if vanished {
+		t.Fatalf("expected present pattern not to vanish")
+	}
 }
 
 func TestRuntimeSettingsLifecycle(t *testing.T) {
@@ -304,5 +323,42 @@ func TestRegionFindExistsWaitParityScaffold(t *testing.T) {
 	_, err = missingRegion.Wait(hay, p, 20*time.Millisecond)
 	if !errors.Is(err, ErrTimeout) {
 		t.Fatalf("wait timeout mismatch: got=%v", err)
+	}
+
+	vanished, err := missingRegion.WaitVanish(hay, p, 20*time.Millisecond)
+	if err != nil {
+		t.Fatalf("wait vanish missing should not fail: %v", err)
+	}
+	if !vanished {
+		t.Fatalf("expected vanish=true for missing target")
+	}
+
+	vanished, err = region.WaitVanish(hay, p, 20*time.Millisecond)
+	if err != nil {
+		t.Fatalf("wait vanish present should not fail: %v", err)
+	}
+	if vanished {
+		t.Fatalf("expected vanish=false for present target")
+	}
+}
+
+func TestLocationAndOffsetBasics(t *testing.T) {
+	l := NewLocation(10, 20)
+	if l.X != 10 || l.Y != 20 {
+		t.Fatalf("location mismatch: %+v", l)
+	}
+	lp := l.ToPoint()
+	if lp.X != 10 || lp.Y != 20 {
+		t.Fatalf("location to point mismatch: %+v", lp)
+	}
+	moved := l.Move(-3, 4)
+	if moved.X != 7 || moved.Y != 24 {
+		t.Fatalf("location move mismatch: %+v", moved)
+	}
+
+	o := NewOffset(5, -2)
+	op := o.ToPoint()
+	if op.X != 5 || op.Y != -2 {
+		t.Fatalf("offset to point mismatch: %+v", op)
 	}
 }

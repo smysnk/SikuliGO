@@ -33,5 +33,11 @@ jobs:
       - name: Tidy module
         run: go mod tidy
 
+      - name: Verify tidy has no diffs
+        run: git diff --exit-code
+
+      - name: Run vet
+        run: go vet ./...
+
       - name: Run tests
-        run: go test ./...
+        run: go test -race ./...

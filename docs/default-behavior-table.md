@@ -25,6 +25,8 @@ This table captures current default and protocol behavior for all existing expor
 | `Region` | `SetAutoWaitTimeout(sec)` | negative values clamp to `0` | mutates receiver |
 | `Region` | `SetWaitScanRate(rate)` | non-positive values fallback to `DefaultWaitScanRate` | mutates receiver |
 | `Region` | `SetObserveScanRate(rate)` | non-positive values fallback to `DefaultObserveScanRate` | mutates receiver |
+| `Location` | `NewLocation(x,y)` | exact coordinates | value type |
+| `Offset` | `NewOffset(x,y)` | exact coordinates | value type |
 | `Pattern` | `similarity` | `0.70` | Set by `NewPattern` |
 | `Pattern` | `resizeFactor` | `1.0` | Set by `NewPattern` |
 | `Pattern` | `targetOffset` | `(0,0)` | Set by `NewPattern` |
@@ -35,10 +37,13 @@ This table captures current default and protocol behavior for all existing expor
 | `Finder` | `last` cache | `nil` | populated after find operations |
 | `Finder` | `Exists(pattern)` | `(Match{}, false, nil)` on missing targets | does not return `ErrFindFailed` for misses |
 | `Finder` | `Has(pattern)` | `false` on missing targets | forwards non-find errors |
+| `Finder` | `Wait(pattern, timeout)` | timeout `<= 0` performs one-shot then `ErrTimeout` if missing | timeout `> 0` polls using global wait scan rate |
+| `Finder` | `WaitVanish(pattern, timeout)` | timeout `<= 0` performs one-shot vanish check | timeout `> 0` polls until vanished or timeout |
 | `Region` | `Find(source, pattern)` | one-shot match within region crop | returns `ErrFindFailed` if not found |
 | `Region` | `Exists(source, pattern, timeout)` | one-shot when timeout `<= 0` | polls using `WaitScanRate` when timeout `> 0` |
 | `Region` | `Has(source, pattern, timeout)` | bool wrapper over `Exists` | forwards non-find errors |
 | `Region` | `Wait(source, pattern, timeout)` | uses `AutoWaitTimeout` when timeout `<= 0` | returns `ErrTimeout` on miss |
+| `Region` | `WaitVanish(source, pattern, timeout)` | one-shot when timeout `<= 0` | polls using `WaitScanRate` when timeout `> 0` |
 | `RuntimeSettings` | `ImageCache` | `64` | initial global value |
 | `RuntimeSettings` | `ShowActions` | `false` | initial global value |
 | `RuntimeSettings` | `WaitScanRate` | `3.0` | initial global value |

@@ -38,6 +38,8 @@ This keeps `pkg/sikuli` stable while allowing alternate implementations (e.g., `
 | Type | Kind | Role | Status |
 |---|---|---|---|
 | `Point` | object | coordinate pair | Implemented |
+| `Location` | object | parity-friendly coordinate object | Implemented |
+| `Offset` | object | parity-friendly offset object | Implemented |
 | `Rect` | object | geometry primitive | Implemented |
 | `Region` | object | geometry + search defaults container | Implemented |
 | `Screen` | object | screen identity/bounds abstraction | Implemented |
@@ -54,6 +56,7 @@ This keeps `pkg/sikuli` stable while allowing alternate implementations (e.g., `
 | `ImageAPI` | stable image surface | Implemented |
 | `PatternAPI` | stable pattern surface | Implemented |
 | `FinderAPI` | stable finder surface | Implemented |
+| `RegionAPI` | stable region surface | Implemented |
 
 ### `internal/core` protocol objects
 
@@ -68,6 +71,7 @@ This keeps `pkg/sikuli` stable while allowing alternate implementations (e.g., `
 | Type | Kind | Role | Status |
 |---|---|---|---|
 | `NCCMatcher` | protocol implementer | default matcher backend | Implemented |
+| `SADMatcher` | protocol implementer | alternate matcher backend | Implemented |
 
 ### `internal/testharness` protocol objects
 
@@ -88,7 +92,7 @@ This keeps `pkg/sikuli` stable while allowing alternate implementations (e.g., `
 
 Status: complete baseline implemented.
 
-Current extension state: Region geometry/runtime helper surface, Finder existence helpers, and Region-scoped search/wait parity scaffolding are implemented and covered by unit tests.
+Current extension state: Region geometry/runtime helper surface, Finder wait/vanish helpers, Region-scoped search/wait parity scaffolding, and Location/Offset parity objects are implemented and covered by unit tests.
 
 ### Workstream 2: Matching engine and parity harness
 
@@ -125,11 +129,13 @@ Status: planned.
 | Area | Scope | Priority | Status | Notes |
 |---|---|---|---|---|
 | Geometry primitives | `Point`, `Rect`, `Region` construction and transforms | P0 | Implemented extended | includes region union/intersection/containment and runtime setters |
+| Location/offset parity types | `Location`, `Offset` value objects | P0 | Implemented extended | supports parity-friendly coordinate APIs |
 | Screen abstraction | `Screen` id/bounds object | P1 | Implemented baseline | add monitor discovery later |
 | Image model | `Image` constructors, copy, dimensions | P0 | Implemented baseline | add advanced image utilities later |
 | Pattern semantics | similarity, exact, offset, resize, mask | P0 | Implemented baseline | currently fully covered by default table |
 | Match result model | score, target, index, geometry | P0 | Implemented baseline | extend with comparator helpers if needed |
 | Finder single target | `Find` + fail semantics | P0 | Implemented extended | includes `Exists` and `Has` helper semantics |
+| Finder wait/vanish semantics | `Wait` and `WaitVanish` timeout polling | P0 | Implemented extended | global wait scan rate polling |
 | Finder multi-target | `FindAll` ordering + indexing | P0 | Implemented baseline | deterministic order locked |
 | Region-scoped search | `Region.Find/Exists/Has/Wait` with timeout polling | P0 | Implemented extended | uses source crop + finder backend |
 | Image crop protocol | `Image.Crop(rect)` absolute-coordinate crop behavior | P0 | Implemented extended | enables region-scoped search protocol |
@@ -139,7 +145,9 @@ Status: planned.
 | Core matcher protocol | `SearchRequest`, `MatchCandidate`, `Matcher` | P0 | Implemented baseline | strict boundary maintained |
 | Core image protocol util | `ResizeGrayNearest` | P1 | Implemented baseline | may add interpolation variants later |
 | CV backend implementation | `NCCMatcher` | P0 | Implemented baseline | first backend |
+| Alternate matcher backend | `SADMatcher` | P1 | Implemented baseline | enables multi-backend protocol checks |
 | Golden parity protocol | corpus loader + comparator + tests | P0 | Implemented baseline | active in CI/local tests |
+| Backend conformance protocol | ordering/threshold/mask/resize assertions | P0 | Implemented baseline | active tests in `internal/cv` |
 | OCR/text search | read text/find text parity | P1 | Planned | Not yet implemented |
 | Input automation | mouse/keyboard parity | P1 | Planned | Not yet implemented |
 | Observe/events | appear/vanish/change parity | P1 | Planned | Not yet implemented |

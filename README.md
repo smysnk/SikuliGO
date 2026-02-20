@@ -2,7 +2,7 @@
 
 ![SikuliX Logo](docs/images/logo.png)
 
-This repository is being reshaped into a GoLang-first implementation of SikuliX-style visual automation.
+This repository houses a GoLang implementation of Sikuli visual automation.
 
 ## Project Intent
 
@@ -50,3 +50,4 @@ The GoLang port in this repository began in **2026**. It stands on the work of t
 ## Sikuli References
 
 - [SikuliX Official Site](https://sikulix.github.io/)
+- [Sikuli (Software) - Wikipedia](https://de.wikipedia.org/wiki/Sikuli_(Software))

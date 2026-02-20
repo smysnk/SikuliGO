@@ -9,6 +9,7 @@ This document defines the locked package boundaries, object responsibilities, an
   - Public API orchestration (`Finder` delegates matching work to `core.Matcher`).
   - Region/Finder helper semantics (`Region` geometry/runtime setters, `Finder.Exists/Has`).
   - Region-scoped search protocol (`Region.Find/Exists/Has/Wait`) over source image crops.
+  - Location/offset value objects for parity-friendly coordinate APIs.
 - `internal/core`:
   - Matching protocol contracts and transport objects.
   - Shared image operations used by backends.
@@ -22,7 +23,7 @@ This document defines the locked package boundaries, object responsibilities, an
 ### `pkg/sikuli`
 
 - Value objects:
-  - `Point`, `Rect`, `Region`, `Screen`, `Match`
+  - `Point`, `Location`, `Offset`, `Rect`, `Region`, `Screen`, `Match`
 - Stateful objects:
   - `Image`, `Pattern`, `Finder`
 - Global configuration:
@@ -42,6 +43,7 @@ This document defines the locked package boundaries, object responsibilities, an
 ### `internal/cv`
 
 - `NCCMatcher`: concrete implementation of `core.Matcher`.
+- `SADMatcher`: alternate implementation of `core.Matcher`.
 - Internal protocol helpers:
   - normalized cross-correlation scoring
   - mask inclusion policy
@@ -130,3 +132,5 @@ Current sort policy in `internal/cv` is locked for deterministic behavior:
 - geometry + score-window assertions through `CompareMatches`
 
 This is the required baseline for backend refactors or backend replacements.
+
+Backend protocol conformance is additionally validated by matcher conformance tests in `internal/cv/conformance_test.go`.

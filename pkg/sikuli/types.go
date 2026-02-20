@@ -225,6 +225,42 @@ func (r Region) Wait(source *Image, pattern *Pattern, timeout time.Duration) (Ma
 	return m, nil
 }
 
+func (r Region) WaitVanish(source *Image, pattern *Pattern, timeout time.Duration) (bool, error) {
+	checkOnce := func() (bool, error) {
+		_, ok, err := r.Exists(source, pattern, 0)
+		if err != nil {
+			return false, err
+		}
+		return !ok, nil
+	}
+
+	if timeout <= 0 {
+		return checkOnce()
+	}
+
+	deadline := time.Now().Add(timeout)
+	interval := r.waitInterval()
+	for {
+		vanished, err := checkOnce()
+		if err != nil {
+			return false, err
+		}
+		if vanished {
+			return true, nil
+		}
+		if time.Now().After(deadline) {
+			return false, nil
+		}
+		sleep := interval
+		if remaining := time.Until(deadline); remaining < sleep {
+			sleep = remaining
+		}
+		if sleep > 0 {
+			time.Sleep(sleep)
+		}
+	}
+}
+
 func (r Region) newFinder(source *Image) (*Finder, error) {
 	if source == nil || source.Gray() == nil {
 		return nil, fmt.Errorf("%w: source image is nil", ErrInvalidTarget)

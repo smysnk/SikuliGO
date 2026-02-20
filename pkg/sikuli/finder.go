@@ -3,6 +3,7 @@ package sikuli
 import (
 	"fmt"
 	"sort"
+	"time"
 
 	"github.com/sikulix/portgo/internal/core"
 	"github.com/sikulix/portgo/internal/cv"
@@ -88,6 +89,85 @@ func (f *Finder) Has(pattern *Pattern) (bool, error) {
 	return ok, err
 }
 
+func (f *Finder) Wait(pattern *Pattern, timeout time.Duration) (Match, error) {
+	checkOnce := func() (Match, bool, error) {
+		m, ok, err := f.Exists(pattern)
+		if err != nil {
+			return Match{}, false, err
+		}
+		return m, ok, nil
+	}
+
+	if timeout <= 0 {
+		m, ok, err := checkOnce()
+		if err != nil {
+			return Match{}, err
+		}
+		if !ok {
+			return Match{}, ErrTimeout
+		}
+		return m, nil
+	}
+
+	deadline := time.Now().Add(timeout)
+	interval := finderWaitInterval()
+	for {
+		m, ok, err := checkOnce()
+		if err != nil {
+			return Match{}, err
+		}
+		if ok {
+			return m, nil
+		}
+		if time.Now().After(deadline) {
+			return Match{}, ErrTimeout
+		}
+		sleep := interval
+		if remaining := time.Until(deadline); remaining < sleep {
+			sleep = remaining
+		}
+		if sleep > 0 {
+			time.Sleep(sleep)
+		}
+	}
+}
+
+func (f *Finder) WaitVanish(pattern *Pattern, timeout time.Duration) (bool, error) {
+	checkOnce := func() (bool, error) {
+		_, ok, err := f.Exists(pattern)
+		if err != nil {
+			return false, err
+		}
+		return !ok, nil
+	}
+
+	if timeout <= 0 {
+		return checkOnce()
+	}
+
+	deadline := time.Now().Add(timeout)
+	interval := finderWaitInterval()
+	for {
+		vanished, err := checkOnce()
+		if err != nil {
+			return false, err
+		}
+		if vanished {
+			return true, nil
+		}
+		if time.Now().After(deadline) {
+			return false, nil
+		}
+		sleep := interval
+		if remaining := time.Until(deadline); remaining < sleep {
+			sleep = remaining
+		}
+		if sleep > 0 {
+			time.Sleep(sleep)
+		}
+	}
+}
+
 func (f *Finder) LastMatches() []Match {
 	if len(f.last) == 0 {
 		return nil
@@ -113,6 +193,18 @@ func (f *Finder) buildRequest(pattern *Pattern, maxResults int) (core.SearchRequ
 		MaxResults:   maxResults,
 	}
 	return req, nil
+}
+
+func finderWaitInterval() time.Duration {
+	rate := DefaultWaitScanRate
+	if s := GetSettings(); s.WaitScanRate > 0 {
+		rate = s.WaitScanRate
+	}
+	interval := time.Duration(float64(time.Second) / rate)
+	if interval < time.Millisecond {
+		return time.Millisecond
+	}
+	return interval
 }
 
 func toMatch(candidate core.MatchCandidate, off Point) Match {
