@@ -19,11 +19,11 @@ This repository is being reshaped into a GoLang-first implementation of SikuliX-
 
 ## Port Strategy Docs
 
-- Docs home: [sikuligo.github.io](https://sikuligo.github.io)
-- Consolidated strategy: [sikuligo.github.io/port-strategy](https://sikuligo.github.io/port-strategy)
-- Locked architecture: [sikuligo.github.io/architecture-lock](https://sikuligo.github.io/architecture-lock)
-- API freeze: [sikuligo.github.io/api-signature-freeze](https://sikuligo.github.io/api-signature-freeze)
-- Defaults table: [sikuligo.github.io/default-behavior-table](https://sikuligo.github.io/default-behavior-table)
+- Docs home: [smysnk.github.io/SikuliGO](https://smysnk.github.io/SikuliGO/)
+- Consolidated strategy: [smysnk.github.io/SikuliGO/port-strategy](https://smysnk.github.io/SikuliGO/port-strategy)
+- Locked architecture: [smysnk.github.io/SikuliGO/architecture-lock](https://smysnk.github.io/SikuliGO/architecture-lock)
+- API freeze: [smysnk.github.io/SikuliGO/api-signature-freeze](https://smysnk.github.io/SikuliGO/api-signature-freeze)
+- Defaults table: [smysnk.github.io/SikuliGO/default-behavior-table](https://smysnk.github.io/SikuliGO/default-behavior-table)
 
 ## Repository Layout
 
@@ -48,3 +48,7 @@ In 2012, after the original creators moved on, the project's active development 
 The GoLang port in this repository began in **2026**, when the project was restructured around a root-level GoLang module with dedicated `pkg` and `internal` packages.
 
 This repository continues that lineage as a **GoLang-first** implementation effort. It stands on the work of the original Sikuli authors, **RaiMan**, and the broader contributor community that kept visual automation practical and accessible over the years.
+
+## Sikuli References
+
+- [SikuliX Official Site](https://sikulix.github.io/)
