@@ -17,13 +17,13 @@ This repository is being reshaped into a GoLang-first implementation of SikuliX-
 - Matching engine implementation in `internal/cv`
 - Golden/parity test harness in `internal/testharness`
 
-## Port Strategy Docs
+## Port Strategy
 
-- Docs home: [smysnk.github.io/SikuliGO](https://smysnk.github.io/SikuliGO/)
-- Consolidated strategy: [smysnk.github.io/SikuliGO/port-strategy](https://smysnk.github.io/SikuliGO/port-strategy)
-- Locked architecture: [smysnk.github.io/SikuliGO/architecture-lock](https://smysnk.github.io/SikuliGO/architecture-lock)
-- API freeze: [smysnk.github.io/SikuliGO/api-signature-freeze](https://smysnk.github.io/SikuliGO/api-signature-freeze)
-- Defaults table: [smysnk.github.io/SikuliGO/default-behavior-table](https://smysnk.github.io/SikuliGO/default-behavior-table)
+- [Docs Home](https://smysnk.github.io/SikuliGO/)
+- [Consolidated Strategy](https://smysnk.github.io/SikuliGO/port-strategy)
+- [Locked Architecture](https://smysnk.github.io/SikuliGO/architecture-lock)
+- [API Freeze](https://smysnk.github.io/SikuliGO/api-signature-freeze)
+- [Defaults Table](https://smysnk.github.io/SikuliGO/default-behavior-table)
 
 ## Repository Layout
 
