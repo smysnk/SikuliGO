@@ -13,9 +13,16 @@ This repository houses a GoLang implementation of Sikuli visual automation.
 
 ## Current Focus
 
-- Core API scaffolding in `pkg/sikuli`
-- Matching engine implementation in `internal/cv`
-- Golden/parity test harness in `internal/testharness`
+| Roadmap Item | Scope | Current Status |
+|---|---|---|
+| Core API scaffolding | Public SikuliGo API surface and parity-facing core objects | ✅ Completed (baseline + extensions) |
+| Matching engine and parity harness | Deterministic matcher behavior, golden corpus, backend conformance tests | ✅ Completed (baseline + extensions) |
+| API parity surface expansion | Additional parity helpers and compatibility APIs | 🟡 Planned / In progress |
+| OCR and text-search parity | OCR contracts, finder/region text flows, conformance fixtures | 🟡 Planned |
+| Input automation and hotkey parity | Mouse/keyboard automation parity and key semantics | 🟡 Planned |
+| Observe/event subsystem parity | Appear/vanish/change observers and event lifecycle | 🟡 Planned |
+| App/window/process control parity | Launch/focus/close/window process control abstractions | 🟡 Planned |
+| Cross-platform backend hardening | Platform integration hardening and backend portability | 🟡 Planned |
 
 ## Port Strategy
 
@@ -52,3 +59,4 @@ The GoLang port in this repository began in **2026**. It stands on the work of t
 
 - [SikuliX Official Site](https://sikulix.github.io/)
 - [Sikuli (Software) - Wikipedia](https://de.wikipedia.org/wiki/Sikuli_(Software))
+- [Original Sikuli Github](https://github.com/sikuli/sikuli)
