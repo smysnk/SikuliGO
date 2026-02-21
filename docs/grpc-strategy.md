@@ -21,6 +21,8 @@ This document defines and tracks the gRPC approach for exposing the SikuliGO API
 - Generated Go protobuf/gRPC stubs at `internal/grpcv1/pb/`.
 - gRPC service adapter at `internal/grpcv1/server.go`.
 - Runnable gRPC server entrypoint at `cmd/sikuligrpc/main.go`.
+- Unary/stream interceptors for auth, logging, and trace IDs in `internal/grpcv1/interceptors.go`.
+- Admin operational endpoints (`/healthz`, `/snapshot`, `/metrics`, `/dashboard`) in `internal/grpcv1/ops.go`.
 - Stub generation/check scripts:
   - `scripts/generate-grpc-stubs.sh`
   - `scripts/check-grpc-stubs.sh`
@@ -74,7 +76,7 @@ Status: ✅ Implemented
 
 ### Phase 3: Cross-cutting concerns
 
-Status: 🟡 Planned
+Status: ✅ Implemented (auth/logging/tracing interceptors)
 
 - Add unary/stream interceptors for auth, logging, and tracing.
 - Enforce deadlines and cancellation propagation.
@@ -90,11 +92,12 @@ Status: 🟡 Planned
 
 ### Phase 5: Verification and rollout
 
-Status: 🟡 Planned
+Status: 🟡 In progress
 
 - Add end-to-end tests for success, validation errors, and timeout behavior.
 - Run canary rollout in staging.
 - Track latency, error-rate, and per-RPC volume before broad release.
+- Provide operational dashboards and endpoint health visibility.
 
 ## Local Usage
 
@@ -107,7 +110,13 @@ Generate stubs:
 Run server:
 
 ```bash
-go run ./cmd/sikuligrpc -listen :50051
+go run ./cmd/sikuligrpc -listen :50051 -admin-listen :8080
+```
+
+Run server with auth:
+
+```bash
+go run ./cmd/sikuligrpc -listen :50051 -auth-token "$SIKULI_GRPC_AUTH_TOKEN"
 ```
 
 ## Testing Requirements

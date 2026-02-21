@@ -15,14 +15,14 @@ This repository houses a GoLang implementation of Sikuli visual automation.
 
 | Roadmap Item | Scope | Current Status |
 |---|---|---|
-| Core API scaffolding | Public SikuliGo API surface and parity-facing core objects | ✅ Completed (baseline + extensions) |
-| Matching engine and parity harness | Deterministic matcher behavior, golden corpus, backend conformance tests | ✅ Completed (baseline + extensions) |
+| Core API scaffolding | Public SikuliGo API surface and parity-facing core objects | ✅ Completed |
+| Matching engine and parity harness | Deterministic matcher behavior, golden corpus, backend conformance tests | ✅ Completed |
 | API parity surface expansion | Additional parity helpers and compatibility APIs | ✅ Completed |
 | Protocol completeness hardening | Alternate matcher backend + cross-backend conformance rules | ✅ Completed |
-| OCR and text-search parity | OCR contracts, finder/region text flows, optional backend integration | ✅ Completed (pinned gosseract module integration) |
+| OCR and text-search parity | OCR contracts, finder/region text flows, optional backend integration | ✅ Completed |
 | Input automation and hotkey parity | Input controller contracts, request validation, backend protocol scaffold | 🟡 In progress (concrete `darwin` backend; non-`darwin` fallback unsupported) |
-| Observe/event subsystem parity | Observer contracts, request validation, backend protocol scaffold | ✅ Completed (concrete deterministic polling backend) |
-| App/window/process control parity | App/window contracts, request validation, backend protocol scaffold | ✅ Completed (concrete `darwin`/`linux`/`windows` backends) |
+| Observe/event subsystem parity | Observer contracts, request validation, backend protocol scaffold | ✅ Completed |
+| App/window/process control parity | App/window contracts, request validation, backend protocol scaffold | ✅ Completed |
 | Cross-platform backend hardening | Platform integration hardening and backend portability | 🟡 Planned |
 
 # Docs
@@ -44,7 +44,7 @@ This repository houses a GoLang implementation of Sikuli visual automation.
 
 API reference pages are generated from source with `./scripts/generate-api-docs.sh` and validated with `./scripts/check-api-docs.sh`.
 
-gRPC `v1` stubs are generated with `./scripts/generate-grpc-stubs.sh`, validated with `./scripts/check-grpc-stubs.sh`, and served via `go run ./cmd/sikuligrpc -listen :50051`.
+gRPC `v1` stubs are generated with `./scripts/generate-grpc-stubs.sh`, validated with `./scripts/check-grpc-stubs.sh`, and served via `go run ./cmd/sikuligrpc -listen :50051 -admin-listen :8080` (optional auth via `-auth-token` / `SIKULI_GRPC_AUTH_TOKEN`).
 
 ## Repository Layout
 
