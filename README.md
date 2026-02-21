@@ -1,4 +1,4 @@
-# SikuliGO
+# SikuliGO [![GoLang Tests](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml/badge.svg)](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml)
 
 ![SikuliX Logo](docs/images/logo.png)
 
