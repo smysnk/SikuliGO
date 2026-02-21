@@ -1,4 +1,4 @@
-//go:build gosseract || gogosseract
+//go:build gosseract
 
 package ocr
 
