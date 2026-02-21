@@ -120,7 +120,9 @@ This keeps `pkg/sikuli` stable while allowing alternate implementations (e.g., `
 | Type | Kind | Role | Status | Notes |
 |---|---|---|---|---|
 | `darwinBackend` | protocol implementer | concrete input backend for macOS | ✅ | supports move/click/type/hotkey dispatch |
-| `unsupportedBackend` | protocol implementer | non-macOS fallback input behavior | ✅ | returns unsupported on `!darwin` builds |
+| `linuxBackend` | protocol implementer | concrete input backend for Linux | ✅ | command-driven move/click/type/hotkey via `xdotool` |
+| `windowsBackend` | protocol implementer | concrete input backend for Windows | ✅ | PowerShell-driven move/click/type/hotkey |
+| `unsupportedBackend` | protocol implementer | non-target fallback input behavior | ✅ | returns unsupported on `!darwin && !linux && !windows` builds |
 
 ### `internal/observe` protocol implementation
 
@@ -177,7 +179,7 @@ Status: ✅ Completed (baseline implemented)
 | Workstream | Baseline scaffold | Concrete backend | Notes |
 |---|---|---|---|
 | Workstream 5: OCR and text-search parity | ✅ | ✅ | gogosseract backend is pinned and enabled with `-tags gogosseract` |
-| Workstream 6: Input automation and hotkey parity | ✅ | 🟡 | concrete `darwin` backend complete; non-darwin pending |
+| Workstream 6: Input automation and hotkey parity | ✅ | ✅ | concrete `darwin`/`linux`/`windows` backends implemented |
 | Workstream 7: Observe/event subsystem parity | ✅ | ✅ | deterministic polling backend implemented in `internal/observe` |
 | Workstream 8: App/window/process control parity | ✅ | ✅ | concrete `darwin`/`linux`/`windows` backends implemented |
 
@@ -211,7 +213,7 @@ Status (Concrete backend): ✅ Completed (pinned `gogosseract` backend with tagg
 - Maintain deterministic request/validation tests while expanding concrete platform backends.
 
 Status (Baseline scaffold): ✅ Completed
-Status (Concrete backend): 🟡 In progress (concrete `darwin` backend + non-darwin fallback unsupported)
+Status (Concrete backend): ✅ Completed (`darwin` + `linux` + `windows` backends implemented)
 
 ### Workstream 7: Observe/event subsystem parity
 
@@ -259,11 +261,12 @@ Status (Concrete backend): ✅ Completed (`darwin` + `linux` + `windows` backend
 | Golden parity protocol | corpus loader + comparator + tests | P0 | ✅ | active in CI/local tests |
 | Backend conformance protocol | ordering/threshold/mask/resize assertions | P0 | ✅ | active tests in `internal/cv` |
 | CI test visibility | race tests + vet + tidy diff enforcement | P0 | ✅ | workflow publishes strict signal |
+| End-to-end parity flows | app + input + observe + OCR chained behavior | P1 | ✅ | dedicated parity e2e tests for default and `-tags gogosseract` builds |
 | OCR/text search | read text/find text parity | P1 | ✅ | finder/region OCR APIs with optional `gogosseract` backend |
 | OCR backend swappability | `core.OCR` protocol + backend selection | P1 | ✅ | unsupported default + pinned `gogosseract` build-tag backend |
 | OCR conformance tests | confidence filtering + ordering + backend behavior | P1 | ✅ | includes unsupported backend and tagged hOCR parser conformance tests |
 | Input automation | mouse/keyboard parity | P1 | ✅ | `InputController` scaffolding with protocol boundary and tests |
-| Input backend swappability | `core.Input` protocol + backend selection | P1 | ✅ | concrete `darwin` backend + unsupported non-darwin fallback |
+| Input backend swappability | `core.Input` protocol + backend selection | P1 | ✅ | concrete `darwin`/`linux`/`windows` backends + non-target fallback |
 | Observe/events | appear/vanish/change parity | P1 | ✅ | `ObserverController` + concrete deterministic polling backend |
 | Observe backend swappability | `core.Observer` protocol + backend selection | P1 | ✅ | concrete default polling backend via `internal/observe` |
 | App/window/process | focus/open/close/window parity | P2 | ✅ | `AppController` protocol with concrete `darwin`/`linux`/`windows` backends |

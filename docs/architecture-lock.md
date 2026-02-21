@@ -25,7 +25,7 @@ This document defines the locked package boundaries, object responsibilities, an
 - `internal/ocr`:
   - OCR backend implementation with optional `gogosseract` integration.
 - `internal/input`:
-  - Input backend implementation with `darwin` concrete backend and non-darwin unsupported fallback.
+  - Input backend implementation with `darwin`, `linux`, and `windows` concrete backends plus non-target unsupported fallback.
 - `internal/observe`:
   - Observe backend implementation with deterministic polling default.
 - `internal/app`:
@@ -111,7 +111,9 @@ This document defines the locked package boundaries, object responsibilities, an
 ### `internal/input`
 
 - `darwinBackend`: concrete macOS implementation for move/click/type/hotkey dispatch.
-- `unsupportedBackend`: non-darwin fallback implementation returning `core.ErrInputUnsupported`.
+- `linuxBackend`: concrete Linux implementation for move/click/type/hotkey dispatch.
+- `windowsBackend`: concrete Windows implementation for move/click/type/hotkey dispatch.
+- `unsupportedBackend`: non-target fallback implementation returning `core.ErrInputUnsupported`.
 
 ### `internal/observe`
 

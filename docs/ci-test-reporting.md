@@ -36,6 +36,9 @@ The workflow writes all outputs into `.test-results/` and uploads them as the `g
   - Fails the test job when total coverage drops below the configured threshold (`COVERAGE_MIN_PERCENT`, default `65`).
 - Optional OCR tagged job:
   - Runs `go test -tags gogosseract ./internal/ocr ./pkg/sikuli` in a non-blocking (`continue-on-error`) job.
+- Parity end-to-end job:
+  - Runs cross-protocol parity flows in `pkg/sikuli` for default and `-tags gogosseract` builds.
+  - Publishes dedicated JUnit checks (`GoLang Parity E2E`) and uploads `.test-results-e2e/` as `go-parity-e2e-results`.
 
 ## Local parity command
 
@@ -46,4 +49,6 @@ go mod tidy
 go vet ./...
 go test -race -covermode=atomic -coverprofile=coverage.out ./...
 go tool cover -func=coverage.out
+go test -run '^TestCrossProtocolIntegrationFlow$' ./pkg/sikuli
+go test -tags gogosseract -run '^TestCrossProtocolIntegrationFlowTaggedOCR$' ./pkg/sikuli
 ```

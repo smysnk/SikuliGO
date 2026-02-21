@@ -45,7 +45,7 @@ This table captures current default and protocol behavior for all existing expor
 | `Finder` | `FindAllByColumn(pattern)` | sorts by column/row then reindexes | updates `last` cache |
 | `Finder` | `ReadText(params)` | returns trimmed OCR text | wraps `core.ErrOCRUnsupported` as `ErrBackendUnsupported` |
 | `Finder` | `FindText(query, params)` | case-insensitive by default | returns `ErrFindFailed` when no matching text is detected |
-| `InputController` | input backend | concrete `darwin` backend, unsupported on non-`darwin` | set by `NewInputController` |
+| `InputController` | input backend | concrete `darwin`/`linux`/`windows` backends with non-target fallback unsupported | set by `NewInputController` |
 | `InputController` | `MoveMouse(x, y, opts)` | normalizes delay to non-negative duration | delegates to `core.Input` |
 | `InputController` | `Click(x, y, opts)` | default button is `left` | delegates to `core.Input` |
 | `InputController` | `TypeText(text, opts)` | trims text and rejects empty values | returns `ErrInvalidTarget` on empty text |

@@ -2,6 +2,7 @@ package sikuli
 
 import (
 	"image"
+	"image/color"
 	"testing"
 	"time"
 
@@ -94,7 +95,9 @@ func cloneWindows(in []core.WindowInfo) []core.WindowInfo {
 	return out
 }
 
-func TestCrossProtocolIntegrationFlow(t *testing.T) {
+func runCrossProtocolIntegrationFlow(t *testing.T, appName string) {
+	t.Helper()
+
 	source, err := NewImageFromMatrix("integration-src", [][]uint8{
 		{0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0},
@@ -144,10 +147,10 @@ func TestCrossProtocolIntegrationFlow(t *testing.T) {
 	appBackend := &integrationAppBackend{}
 	appController := NewAppController()
 	appController.SetBackend(appBackend)
-	if err := appController.Open("DemoApp", []string{"--smoke"}, AppOptions{Timeout: 100 * time.Millisecond}); err != nil {
+	if err := appController.Open(appName, []string{"--smoke"}, AppOptions{Timeout: 100 * time.Millisecond}); err != nil {
 		t.Fatalf("app open failed: %v", err)
 	}
-	running, err := appController.IsRunning("DemoApp", AppOptions{})
+	running, err := appController.IsRunning(appName, AppOptions{})
 	if err != nil {
 		t.Fatalf("app is-running failed: %v", err)
 	}
@@ -194,10 +197,19 @@ func TestCrossProtocolIntegrationFlow(t *testing.T) {
 		t.Fatalf("observe event mismatch: %+v", after[0])
 	}
 
-	if err := appController.Focus("DemoApp", AppOptions{}); err != nil {
+	clearPattern(source.Gray(), patternImage.Gray(), 2, 2)
+	vanish, err := observer.ObserveVanish(source, region, pattern, ObserveOptions{Interval: 1 * time.Millisecond, Timeout: 0})
+	if err != nil {
+		t.Fatalf("observe vanish after clear failed: %v", err)
+	}
+	if len(vanish) != 1 || vanish[0].Type != ObserveEventVanish {
+		t.Fatalf("expected one vanish event after clearing pattern, got=%+v", vanish)
+	}
+
+	if err := appController.Focus(appName, AppOptions{}); err != nil {
 		t.Fatalf("app focus failed: %v", err)
 	}
-	windows, err := appController.ListWindows("DemoApp", AppOptions{})
+	windows, err := appController.ListWindows(appName, AppOptions{})
 	if err != nil {
 		t.Fatalf("list windows failed: %v", err)
 	}
@@ -205,14 +217,30 @@ func TestCrossProtocolIntegrationFlow(t *testing.T) {
 		t.Fatalf("expected focused window after focus call, got=%+v", windows)
 	}
 
-	if err := appController.Close("DemoApp", AppOptions{}); err != nil {
+	if err := appController.Close(appName, AppOptions{}); err != nil {
 		t.Fatalf("app close failed: %v", err)
 	}
-	running, err = appController.IsRunning("DemoApp", AppOptions{})
+	running, err = appController.IsRunning(appName, AppOptions{})
 	if err != nil {
 		t.Fatalf("is-running after close failed: %v", err)
 	}
 	if running {
 		t.Fatalf("expected running=false after close")
+	}
+}
+
+func TestCrossProtocolIntegrationFlow(t *testing.T) {
+	runCrossProtocolIntegrationFlow(t, "DemoApp")
+}
+
+func clearPattern(dst, pattern *image.Gray, atX, atY int) {
+	if dst == nil || pattern == nil {
+		return
+	}
+	pb := pattern.Bounds()
+	for y := 0; y < pb.Dy(); y++ {
+		for x := 0; x < pb.Dx(); x++ {
+			dst.SetGray(atX+x, atY+y, color.Gray{Y: 0})
+		}
 	}
 }

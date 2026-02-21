@@ -23,6 +23,8 @@ Input actions flow through `core.InputRequest` with strict validation:
 ## Backend behavior
 
 - `darwin` builds use a concrete backend for move/click/type/hotkey dispatch.
-- non-`darwin` builds use an unsupported fallback backend and return `ErrBackendUnsupported` through the public API.
+- `linux` builds use a concrete backend for move/click/type/hotkey dispatch via `xdotool`.
+- `windows` builds use a concrete backend for move/click/type/hotkey dispatch via PowerShell.
+- non-target builds (`!darwin && !linux && !windows`) use an unsupported fallback backend and return `ErrBackendUnsupported` through the public API.
 
-This keeps the protocol stable while cross-platform input backend expansion continues.
+This keeps the protocol stable while allowing platform-specific backend implementations behind `core.Input`.
