@@ -8,6 +8,10 @@
 package core // import "github.com/sikulix/portgo/internal/core"
 
 
+VARIABLES
+
+var ErrOCRUnsupported = errors.New("ocr backend unsupported")
+
 FUNCTIONS
 
 func ResizeGrayNearest(src *image.Gray, factor float64) *image.Gray
@@ -24,6 +28,34 @@ type MatchCandidate struct {
 
 type Matcher interface {
 	Find(req SearchRequest) ([]MatchCandidate, error)
+}
+
+type OCR interface {
+	Read(req OCRRequest) (OCRResult, error)
+}
+
+type OCRRequest struct {
+	Image            *image.Gray
+	Language         string
+	TrainingDataPath string
+	MinConfidence    float64
+	Timeout          time.Duration
+}
+
+func (r OCRRequest) Validate() error
+
+type OCRResult struct {
+	Text  string
+	Words []OCRWord
+}
+
+type OCRWord struct {
+	Text       string
+	X          int
+	Y          int
+	W          int
+	H          int
+	Confidence float64
 }
 
 type SearchRequest struct {

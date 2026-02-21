@@ -11,6 +11,7 @@ This table captures current default and protocol behavior for all existing expor
 | `DefaultAutoWaitTimeout` | `3.0` | `Region`, `RuntimeSettings` |
 | `DefaultWaitScanRate` | `3.0` | `Region`, `RuntimeSettings` |
 | `DefaultObserveScanRate` | `3.0` | `Region`, `RuntimeSettings` |
+| `DefaultOCRLanguage` | `"eng"` | `OCRParams`, `Finder.ReadText/FindText` |
 
 ## Object defaults
 
@@ -34,6 +35,7 @@ This table captures current default and protocol behavior for all existing expor
 | `Image` | `Crop(rect)` | preserves absolute coordinate bounds in crop | errors if rect is empty or fully outside source |
 | `Match` | `Target` | center + offset | computed in `NewMatch` |
 | `Finder` | matcher backend | `NCCMatcher` | set by `NewFinder` |
+| `Finder` | OCR backend | unsupported backend unless built with `-tags gogosseract` | set by `NewFinder` |
 | `Finder` | `last` cache | `nil` | populated after find operations |
 | `Finder` | `Exists(pattern)` | `(Match{}, false, nil)` on missing targets | does not return `ErrFindFailed` for misses |
 | `Finder` | `Has(pattern)` | `false` on missing targets | forwards non-find errors |
@@ -41,12 +43,16 @@ This table captures current default and protocol behavior for all existing expor
 | `Finder` | `WaitVanish(pattern, timeout)` | timeout `<= 0` performs one-shot vanish check | timeout `> 0` polls until vanished or timeout |
 | `Finder` | `FindAllByRow(pattern)` | sorts by row/column then reindexes | updates `last` cache |
 | `Finder` | `FindAllByColumn(pattern)` | sorts by column/row then reindexes | updates `last` cache |
+| `Finder` | `ReadText(params)` | returns trimmed OCR text | wraps `core.ErrOCRUnsupported` as `ErrBackendUnsupported` |
+| `Finder` | `FindText(query, params)` | case-insensitive by default | returns `ErrFindFailed` when no matching text is detected |
 | `Region` | `Find(source, pattern)` | one-shot match within region crop | returns `ErrFindFailed` if not found |
 | `Region` | `Exists(source, pattern, timeout)` | one-shot when timeout `<= 0` | polls using `WaitScanRate` when timeout `> 0` |
 | `Region` | `Has(source, pattern, timeout)` | bool wrapper over `Exists` | forwards non-find errors |
 | `Region` | `Wait(source, pattern, timeout)` | uses `AutoWaitTimeout` when timeout `<= 0` | returns `ErrTimeout` on miss |
 | `Region` | `WaitVanish(source, pattern, timeout)` | one-shot when timeout `<= 0` | polls using `WaitScanRate` when timeout `> 0` |
 | `Region` | `FindAll/FindAllByRow/FindAllByColumn` | region-scoped via source crop | delegates to finder helper semantics |
+| `Region` | `ReadText(source, params)` | region-scoped OCR over source crop | delegates to finder OCR backend |
+| `Region` | `FindText(source, query, params)` | region-scoped text search over OCR words | delegates to finder OCR backend |
 | `Options` | typed getters | parse from string map with default fallback | invalid parse returns provided default |
 | `Options` | typed setters | store string representation in map | canonical serialization via `strconv` |
 | `RuntimeSettings` | `ImageCache` | `64` | initial global value |
@@ -70,6 +76,9 @@ This table captures current default and protocol behavior for all existing expor
 | `Region.SetAutoWaitTimeout(sec)` | negative values clamp to `0` |
 | `Region.SetWaitScanRate(rate)` | non-positive values fallback to `DefaultWaitScanRate` |
 | `Region.SetObserveScanRate(rate)` | non-positive values fallback to `DefaultObserveScanRate` |
+| `OCRParams` | empty `Language` becomes `DefaultOCRLanguage` |
+| `OCRParams` | `MinConfidence` clamps to `[0,1]` |
+| `OCRParams` | negative `Timeout` becomes `0` |
 
 ## Matcher request protocol defaults
 
@@ -81,6 +90,16 @@ This table captures current default and protocol behavior for all existing expor
 | `SearchRequest.ResizeFactor` | must be `> 0` |
 | `SearchRequest.MaxResults` | `0` means unlimited |
 | `SearchRequest.Mask` | optional; if set, must match effective needle dimensions |
+
+## OCR request protocol defaults
+
+| Request field | Behavior |
+|---|---|
+| `OCRRequest.Image` | required, must be non-nil |
+| `OCRRequest.Language` | required, defaults to `DefaultOCRLanguage` through `OCRParams` normalization |
+| `OCRRequest.TrainingDataPath` | optional |
+| `OCRRequest.MinConfidence` | must be in `[0,1]` |
+| `OCRRequest.Timeout` | must be `>= 0` |
 
 ## Matching and ordering protocol defaults
 
@@ -98,5 +117,7 @@ This table captures current default and protocol behavior for all existing expor
 |---|---|
 | nil/invalid source image | `ErrInvalidTarget` |
 | nil/invalid pattern image | `ErrInvalidTarget` |
+| empty OCR query | `ErrInvalidTarget` |
 | no results in `Finder.Find` | `ErrFindFailed` |
+| no results in `Finder.FindText` | `ErrFindFailed` |
 | unsupported backend path | `ErrBackendUnsupported` |

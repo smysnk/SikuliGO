@@ -26,6 +26,7 @@ const (
 	// DefaultObserveScanRate controls observe polling frequency.
 	DefaultObserveScanRate = 3.0
 )
+const DefaultOCRLanguage = "eng"
 
 VARIABLES
 
@@ -66,12 +67,18 @@ func (f *Finder) FindAllByColumn(pattern *Pattern) ([]Match, error)
 
 func (f *Finder) FindAllByRow(pattern *Pattern) ([]Match, error)
 
+func (f *Finder) FindText(query string, params OCRParams) ([]TextMatch, error)
+
 func (f *Finder) Has(pattern *Pattern) (bool, error)
     Has reports whether the target exists and bubbles non-find errors.
 
 func (f *Finder) LastMatches() []Match
 
+func (f *Finder) ReadText(params OCRParams) (string, error)
+
 func (f *Finder) SetMatcher(m core.Matcher)
+
+func (f *Finder) SetOCRBackend(ocr core.OCR)
 
 func (f *Finder) Wait(pattern *Pattern, timeout time.Duration) (Match, error)
 
@@ -86,6 +93,8 @@ type FinderAPI interface {
 	Has(pattern *Pattern) (bool, error)
 	Wait(pattern *Pattern, timeout time.Duration) (Match, error)
 	WaitVanish(pattern *Pattern, timeout time.Duration) (bool, error)
+	ReadText(params OCRParams) (string, error)
+	FindText(query string, params OCRParams) ([]TextMatch, error)
 	LastMatches() []Match
 }
 
@@ -143,6 +152,14 @@ type Match struct {
 func NewMatch(x, y, w, h int, score float64, off Point) Match
 
 func (m Match) String() string
+
+type OCRParams struct {
+	Language         string
+	TrainingDataPath string
+	MinConfidence    float64
+	Timeout          time.Duration
+	CaseSensitive    bool
+}
 
 type Offset struct {
 	X int
@@ -277,6 +294,8 @@ func (r Region) FindAllByColumn(source *Image, pattern *Pattern) ([]Match, error
 
 func (r Region) FindAllByRow(source *Image, pattern *Pattern) ([]Match, error)
 
+func (r Region) FindText(source *Image, query string, params OCRParams) ([]TextMatch, error)
+
 func (r Region) Grow(dx, dy int) Region
 
 func (r Region) Has(source *Image, pattern *Pattern, timeout time.Duration) (bool, error)
@@ -286,6 +305,8 @@ func (r Region) Intersection(other Region) Region
 func (r Region) MoveTo(x, y int) Region
 
 func (r Region) Offset(dx, dy int) Region
+
+func (r Region) ReadText(source *Image, params OCRParams) (string, error)
 
 func (r *Region) ResetThrowException()
 
@@ -323,6 +344,8 @@ type RegionAPI interface {
 	FindAll(source *Image, pattern *Pattern) ([]Match, error)
 	FindAllByRow(source *Image, pattern *Pattern) ([]Match, error)
 	FindAllByColumn(source *Image, pattern *Pattern) ([]Match, error)
+	ReadText(source *Image, params OCRParams) (string, error)
+	FindText(source *Image, query string, params OCRParams) ([]TextMatch, error)
 }
 
 type RuntimeSettings struct {
@@ -347,5 +370,12 @@ type Screen struct {
 }
 
 func NewScreen(id int, bounds Rect) Screen
+
+type TextMatch struct {
+	Rect
+	Text       string
+	Confidence float64
+	Index      int
+}
 
 ```

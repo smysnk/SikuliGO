@@ -18,7 +18,7 @@ This repository houses a GoLang implementation of Sikuli visual automation.
 | Core API scaffolding | Public SikuliGo API surface and parity-facing core objects | ✅ Completed (baseline + extensions) |
 | Matching engine and parity harness | Deterministic matcher behavior, golden corpus, backend conformance tests | ✅ Completed (baseline + extensions) |
 | API parity surface expansion | Additional parity helpers and compatibility APIs | 🟡 Planned / In progress |
-| OCR and text-search parity | OCR contracts, finder/region text flows, conformance fixtures | 🟡 Planned |
+| OCR and text-search parity | OCR contracts, finder/region text flows, optional backend integration | ✅ Completed (baseline) |
 | Input automation and hotkey parity | Mouse/keyboard automation parity and key semantics | 🟡 Planned |
 | Observe/event subsystem parity | Appear/vanish/change observers and event lifecycle | 🟡 Planned |
 | App/window/process control parity | Launch/focus/close/window process control abstractions | 🟡 Planned |
@@ -31,6 +31,7 @@ This repository houses a GoLang implementation of Sikuli visual automation.
 - [Locked Architecture](https://smysnk.github.io/SikuliGO/architecture-lock)
 - [API Freeze](https://smysnk.github.io/SikuliGO/api-signature-freeze)
 - [GoLang API Reference](https://smysnk.github.io/SikuliGO/api/)
+- [OCR Integration](https://smysnk.github.io/SikuliGO/ocr-integration)
 - [Defaults Table](https://smysnk.github.io/SikuliGO/default-behavior-table)
 - [CI Test Reporting](https://smysnk.github.io/SikuliGO/ci-test-reporting)
 
@@ -48,6 +49,13 @@ GoLang API reference pages are generated from source with `./scripts/generate-ap
 ```bash
 go mod tidy
 go test ./...
+```
+
+Optional OCR backend (gogosseract):
+
+```bash
+go get github.com/smysnk/gogosseract@wazero-1-11-lean-fork-compat
+go test -tags gogosseract ./...
 ```
 
 ## Project History and Credits

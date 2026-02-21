@@ -10,6 +10,7 @@ const ExactSimilarity = 0.99
 const DefaultAutoWaitTimeout = 3.0
 const DefaultWaitScanRate = 3.0
 const DefaultObserveScanRate = 3.0
+const DefaultOCRLanguage = "eng"
 ```
 
 ## Exported sentinel errors
@@ -54,6 +55,8 @@ type FinderAPI interface {
   Has(pattern *Pattern) (bool, error)
   Wait(pattern *Pattern, timeout time.Duration) (Match, error)
   WaitVanish(pattern *Pattern, timeout time.Duration) (bool, error)
+  ReadText(params OCRParams) (string, error)
+  FindText(query string, params OCRParams) ([]TextMatch, error)
   LastMatches() []Match
 }
 
@@ -75,6 +78,8 @@ type RegionAPI interface {
   FindAll(source *Image, pattern *Pattern) ([]Match, error)
   FindAllByRow(source *Image, pattern *Pattern) ([]Match, error)
   FindAllByColumn(source *Image, pattern *Pattern) ([]Match, error)
+  ReadText(source *Image, params OCRParams) (string, error)
+  FindText(source *Image, query string, params OCRParams) ([]TextMatch, error)
 }
 ```
 
@@ -159,6 +164,12 @@ func (r Region) Find(source *Image, pattern *Pattern) (Match, error)
 func (r Region) Exists(source *Image, pattern *Pattern, timeout time.Duration) (Match, bool, error)
 func (r Region) Has(source *Image, pattern *Pattern, timeout time.Duration) (bool, error)
 func (r Region) Wait(source *Image, pattern *Pattern, timeout time.Duration) (Match, error)
+func (r Region) WaitVanish(source *Image, pattern *Pattern, timeout time.Duration) (bool, error)
+func (r Region) FindAll(source *Image, pattern *Pattern) ([]Match, error)
+func (r Region) FindAllByRow(source *Image, pattern *Pattern) ([]Match, error)
+func (r Region) FindAllByColumn(source *Image, pattern *Pattern) ([]Match, error)
+func (r Region) ReadText(source *Image, params OCRParams) (string, error)
+func (r Region) FindText(source *Image, query string, params OCRParams) ([]TextMatch, error)
 ```
 
 ### Screen
@@ -217,12 +228,36 @@ func NewMatch(x, y, w, h int, score float64, off Point) Match
 func (m Match) String() string
 ```
 
+### TextMatch
+
+```go
+type TextMatch struct {
+  Rect
+  Text       string
+  Confidence float64
+  Index      int
+}
+```
+
+### OCRParams
+
+```go
+type OCRParams struct {
+  Language         string
+  TrainingDataPath string
+  MinConfidence    float64
+  Timeout          time.Duration
+  CaseSensitive    bool
+}
+```
+
 ### Finder
 
 ```go
 type Finder struct
 func NewFinder(source *Image) (*Finder, error)
 func (f *Finder) SetMatcher(m core.Matcher)
+func (f *Finder) SetOCRBackend(ocr core.OCR)
 func (f *Finder) Find(pattern *Pattern) (Match, error)
 func (f *Finder) FindAll(pattern *Pattern) ([]Match, error)
 func (f *Finder) FindAllByRow(pattern *Pattern) ([]Match, error)
@@ -231,6 +266,8 @@ func (f *Finder) Exists(pattern *Pattern) (Match, bool, error)
 func (f *Finder) Has(pattern *Pattern) (bool, error)
 func (f *Finder) Wait(pattern *Pattern, timeout time.Duration) (Match, error)
 func (f *Finder) WaitVanish(pattern *Pattern, timeout time.Duration) (bool, error)
+func (f *Finder) ReadText(params OCRParams) (string, error)
+func (f *Finder) FindText(query string, params OCRParams) ([]TextMatch, error)
 func (f *Finder) LastMatches() []Match
 func SortMatchesByRowColumn(matches []Match)
 func SortMatchesByColumnRow(matches []Match)

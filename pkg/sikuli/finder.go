@@ -1,18 +1,26 @@
 package sikuli
 
 import (
+	"errors"
 	"fmt"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/sikulix/portgo/internal/core"
 	"github.com/sikulix/portgo/internal/cv"
+	ocrbackend "github.com/sikulix/portgo/internal/ocr"
 )
 
 type Finder struct {
 	source  *Image
 	matcher core.Matcher
+	ocr     core.OCR
 	last    []Match
+}
+
+var newOCRBackend = func() core.OCR {
+	return ocrbackend.New()
 }
 
 func NewFinder(source *Image) (*Finder, error) {
@@ -22,6 +30,7 @@ func NewFinder(source *Image) (*Finder, error) {
 	return &Finder{
 		source:  source,
 		matcher: cv.NewNCCMatcher(),
+		ocr:     newOCRBackend(),
 		last:    nil,
 	}, nil
 }
@@ -31,6 +40,13 @@ func (f *Finder) SetMatcher(m core.Matcher) {
 		return
 	}
 	f.matcher = m
+}
+
+func (f *Finder) SetOCRBackend(ocr core.OCR) {
+	if ocr == nil {
+		return
+	}
+	f.ocr = ocr
 }
 
 func (f *Finder) Find(pattern *Pattern) (Match, error) {
@@ -199,6 +215,60 @@ func (f *Finder) LastMatches() []Match {
 	return out
 }
 
+func (f *Finder) ReadText(params OCRParams) (string, error) {
+	result, err := f.readOCR(params)
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(result.Text), nil
+}
+
+func (f *Finder) FindText(query string, params OCRParams) ([]TextMatch, error) {
+	query = strings.TrimSpace(query)
+	if query == "" {
+		return nil, fmt.Errorf("%w: text query is empty", ErrInvalidTarget)
+	}
+
+	opts := normalizeOCRParams(params)
+	result, err := f.readOCR(opts)
+	if err != nil {
+		return nil, err
+	}
+
+	matches := make([]TextMatch, 0)
+	for _, word := range result.Words {
+		if !containsText(word.Text, query, opts.CaseSensitive) {
+			continue
+		}
+		matches = append(matches, TextMatch{
+			Rect:       NewRect(word.X, word.Y, word.W, word.H),
+			Text:       word.Text,
+			Confidence: word.Confidence,
+		})
+	}
+	if len(matches) == 0 && containsText(result.Text, query, opts.CaseSensitive) && f.source != nil && f.source.Gray() != nil {
+		b := f.source.Gray().Bounds()
+		matches = append(matches, TextMatch{
+			Rect:       NewRect(b.Min.X, b.Min.Y, b.Dx(), b.Dy()),
+			Text:       strings.TrimSpace(result.Text),
+			Confidence: 0,
+		})
+	}
+	if len(matches) == 0 {
+		return nil, ErrFindFailed
+	}
+	sort.Slice(matches, func(i, j int) bool {
+		if matches[i].Y == matches[j].Y {
+			return matches[i].X < matches[j].X
+		}
+		return matches[i].Y < matches[j].Y
+	})
+	for i := range matches {
+		matches[i].Index = i
+	}
+	return matches, nil
+}
+
 func (f *Finder) buildRequest(pattern *Pattern, maxResults int) (core.SearchRequest, error) {
 	if f == nil || f.source == nil || f.source.Gray() == nil {
 		return core.SearchRequest{}, fmt.Errorf("%w: source image is nil", ErrInvalidTarget)
@@ -215,6 +285,30 @@ func (f *Finder) buildRequest(pattern *Pattern, maxResults int) (core.SearchRequ
 		MaxResults:   maxResults,
 	}
 	return req, nil
+}
+
+func (f *Finder) readOCR(params OCRParams) (core.OCRResult, error) {
+	if f == nil || f.source == nil || f.source.Gray() == nil {
+		return core.OCRResult{}, fmt.Errorf("%w: source image is nil", ErrInvalidTarget)
+	}
+	if f.ocr == nil {
+		return core.OCRResult{}, ErrBackendUnsupported
+	}
+	opts := normalizeOCRParams(params)
+	result, err := f.ocr.Read(core.OCRRequest{
+		Image:            f.source.Gray(),
+		Language:         opts.Language,
+		TrainingDataPath: opts.TrainingDataPath,
+		MinConfidence:    opts.MinConfidence,
+		Timeout:          opts.Timeout,
+	})
+	if err != nil {
+		if errors.Is(err, core.ErrOCRUnsupported) {
+			return core.OCRResult{}, fmt.Errorf("%w: %v", ErrBackendUnsupported, err)
+		}
+		return core.OCRResult{}, err
+	}
+	return result, nil
 }
 
 func finderWaitInterval() time.Duration {

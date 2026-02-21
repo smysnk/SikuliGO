@@ -6,16 +6,20 @@ This document defines the locked package boundaries, object responsibilities, an
 
 - `pkg/sikuli`:
   - Public types, defaults, and errors.
-  - Public API orchestration (`Finder` delegates matching work to `core.Matcher`).
+  - Public API orchestration (`Finder` delegates matching work to `core.Matcher` and `core.OCR`).
   - Region/Finder helper semantics (`Region` geometry/runtime setters, `Finder.Exists/Has`).
   - Region-scoped search protocol (`Region.Find/Exists/Has/Wait`) over source image crops.
+  - OCR and text-search protocol (`Finder.ReadText/FindText`, `Region.ReadText/FindText`).
   - Location/offset value objects for parity-friendly coordinate APIs.
   - Options map protocol (`Options`) for typed config compatibility helpers.
 - `internal/core`:
   - Matching protocol contracts and transport objects.
+  - OCR protocol contracts and transport objects.
   - Shared image operations used by backends.
 - `internal/cv`:
   - Primary matcher backend implementation (`NCCMatcher`).
+- `internal/ocr`:
+  - OCR backend implementation with optional `gogosseract` integration.
 - `internal/testharness`:
   - Corpus loading, comparator policy, and parity tests.
 
@@ -24,7 +28,9 @@ This document defines the locked package boundaries, object responsibilities, an
 ### `pkg/sikuli`
 
 - Value objects:
-  - `Point`, `Location`, `Offset`, `Rect`, `Region`, `Screen`, `Match`
+  - `Point`, `Location`, `Offset`, `Rect`, `Region`, `Screen`, `Match`, `TextMatch`
+- OCR request helper objects:
+  - `OCRParams`
 - Stateful objects:
   - `Image`, `Pattern`, `Finder`
 - Global configuration:
@@ -41,6 +47,11 @@ This document defines the locked package boundaries, object responsibilities, an
 - `MatchCandidate`: backend-neutral match payload.
 - `SearchRequest`: backend-neutral request payload.
 - `Matcher`: backend protocol interface.
+- `OCRRequest`: backend-neutral OCR request payload.
+- `OCRWord`: backend-neutral OCR word payload.
+- `OCRResult`: backend-neutral OCR response payload.
+- `OCR`: backend OCR protocol interface.
+- `ErrOCRUnsupported`: backend capability sentinel.
 - `ResizeGrayNearest`: canonical nearest-neighbor resize helper.
 
 ### `internal/cv`
@@ -51,6 +62,14 @@ This document defines the locked package boundaries, object responsibilities, an
   - normalized cross-correlation scoring
   - mask inclusion policy
   - grayscale pixel accessor policy
+
+### `internal/ocr`
+
+- `unsupportedBackend`: default implementation returning `core.ErrOCRUnsupported`.
+- `gogosseractBackend`: optional implementation (build tag `gogosseract`) using `github.com/smysnk/gogosseract`.
+- Internal protocol helpers:
+  - reflective method adaptation for fork compatibility
+  - hOCR word parsing and confidence filtering
 
 ### `internal/testharness`
 
@@ -76,6 +95,20 @@ type Matcher interface {
 
 `pkg/sikuli.Finder` must consume only this protocol and must not depend on backend-specific types.
 
+## Protocol lock: OCR boundary
+
+The OCR backend boundary remains strictly behind this interface:
+
+```go
+type OCR interface {
+  Read(req OCRRequest) (OCRResult, error)
+}
+```
+
+`pkg/sikuli.Finder` text APIs (`ReadText` and `FindText`) must consume only this protocol and must not depend on backend-specific types.
+
+Default builds use the unsupported backend and return `ErrBackendUnsupported` through the public API unless built with `-tags gogosseract`.
+
 ## Protocol lock: region-scoped search
 
 `Region` search methods are layered on top of the same matcher protocol and are locked to this behavior:
@@ -91,6 +124,8 @@ Timeout semantics for `Region.Exists/Wait` are polling-based and driven by:
 - `Region.WaitScanRate` for polling interval
 
 `Finder.Wait/WaitVanish` are polling-based and driven by global wait scan rate from `RuntimeSettings`.
+
+`Region.ReadText/FindText` remain layered on the same region crop protocol (`Image.Crop` then `Finder` execution), preserving region scoping for OCR requests.
 
 ## Protocol lock: request and validation
 

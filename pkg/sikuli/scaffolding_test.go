@@ -4,6 +4,8 @@ import (
 	"errors"
 	"testing"
 	"time"
+
+	"github.com/sikulix/portgo/internal/core"
 )
 
 func TestRegionDefaultsAndSetters(t *testing.T) {
@@ -472,5 +474,157 @@ func TestLocationAndOffsetBasics(t *testing.T) {
 	op := o.ToPoint()
 	if op.X != 5 || op.Y != -2 {
 		t.Fatalf("offset to point mismatch: %+v", op)
+	}
+}
+
+type stubOCRBackend struct {
+	result  core.OCRResult
+	err     error
+	lastReq core.OCRRequest
+}
+
+func (s *stubOCRBackend) Read(req core.OCRRequest) (core.OCRResult, error) {
+	s.lastReq = req
+	if s.err != nil {
+		return core.OCRResult{}, s.err
+	}
+	return s.result, nil
+}
+
+func TestFinderOCRUnsupportedByDefault(t *testing.T) {
+	img, err := NewImageFromMatrix("ocr-src", [][]uint8{
+		{255, 255},
+		{255, 255},
+	})
+	if err != nil {
+		t.Fatalf("new image: %v", err)
+	}
+	f, err := NewFinder(img)
+	if err != nil {
+		t.Fatalf("new finder: %v", err)
+	}
+	_, err = f.ReadText(OCRParams{})
+	if !errors.Is(err, ErrBackendUnsupported) {
+		t.Fatalf("expected ErrBackendUnsupported, got=%v", err)
+	}
+}
+
+func TestFinderOCRWithStubBackend(t *testing.T) {
+	img, err := NewImageFromMatrix("ocr-src", [][]uint8{
+		{1, 1, 1, 1},
+		{1, 1, 1, 1},
+		{1, 1, 1, 1},
+		{1, 1, 1, 1},
+	})
+	if err != nil {
+		t.Fatalf("new image: %v", err)
+	}
+	f, err := NewFinder(img)
+	if err != nil {
+		t.Fatalf("new finder: %v", err)
+	}
+
+	stub := &stubOCRBackend{
+		result: core.OCRResult{
+			Text: "Sikuli Go OCR",
+			Words: []core.OCRWord{
+				{Text: "OCR", X: 2, Y: 0, W: 1, H: 1, Confidence: 0.80},
+				{Text: "Sikuli", X: 0, Y: 0, W: 2, H: 1, Confidence: 0.95},
+				{Text: "Go", X: 0, Y: 1, W: 2, H: 1, Confidence: 0.90},
+			},
+		},
+	}
+	f.SetOCRBackend(stub)
+
+	text, err := f.ReadText(OCRParams{
+		MinConfidence: -2,
+		Timeout:       -1,
+	})
+	if err != nil {
+		t.Fatalf("read text failed: %v", err)
+	}
+	if text != "Sikuli Go OCR" {
+		t.Fatalf("read text mismatch: %q", text)
+	}
+	if stub.lastReq.Language != DefaultOCRLanguage {
+		t.Fatalf("default language mismatch: %q", stub.lastReq.Language)
+	}
+	if stub.lastReq.MinConfidence != 0 {
+		t.Fatalf("min confidence clamp mismatch: %v", stub.lastReq.MinConfidence)
+	}
+	if stub.lastReq.Timeout != 0 {
+		t.Fatalf("timeout clamp mismatch: %v", stub.lastReq.Timeout)
+	}
+
+	matches, err := f.FindText("go", OCRParams{})
+	if err != nil {
+		t.Fatalf("find text failed: %v", err)
+	}
+	if len(matches) != 1 {
+		t.Fatalf("expected one match, got=%d", len(matches))
+	}
+	if matches[0].Text != "Go" || matches[0].X != 0 || matches[0].Y != 1 {
+		t.Fatalf("match mismatch: %+v", matches[0])
+	}
+
+	matches, err = f.FindText("Sikuli", OCRParams{})
+	if err != nil {
+		t.Fatalf("find text case-insensitive failed: %v", err)
+	}
+	if len(matches) != 1 || matches[0].Index != 0 {
+		t.Fatalf("expected one indexed match, got=%+v", matches)
+	}
+
+	_, err = f.FindText("sikuli", OCRParams{CaseSensitive: true})
+	if !errors.Is(err, ErrFindFailed) {
+		t.Fatalf("expected ErrFindFailed for case-sensitive miss, got=%v", err)
+	}
+	_, err = f.FindText("", OCRParams{})
+	if !errors.Is(err, ErrInvalidTarget) {
+		t.Fatalf("expected ErrInvalidTarget for empty query, got=%v", err)
+	}
+}
+
+func TestRegionOCRMethods(t *testing.T) {
+	src, err := NewImageFromMatrix("region-ocr", [][]uint8{
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+	})
+	if err != nil {
+		t.Fatalf("new source: %v", err)
+	}
+	region := NewRegion(1, 1, 2, 2)
+
+	stub := &stubOCRBackend{
+		result: core.OCRResult{
+			Text: "Zone",
+			Words: []core.OCRWord{
+				{Text: "Zone", X: 1, Y: 1, W: 2, H: 1, Confidence: 0.9},
+			},
+		},
+	}
+
+	prevFactory := newOCRBackend
+	newOCRBackend = func() core.OCR { return stub }
+	defer func() {
+		newOCRBackend = prevFactory
+	}()
+
+	text, err := region.ReadText(src, OCRParams{})
+	if err != nil {
+		t.Fatalf("region read text failed: %v", err)
+	}
+	if text != "Zone" {
+		t.Fatalf("region read text mismatch: %q", text)
+	}
+
+	matches, err := region.FindText(src, "zone", OCRParams{})
+	if err != nil {
+		t.Fatalf("region find text failed: %v", err)
+	}
+	if len(matches) != 1 || matches[0].Text != "Zone" {
+		t.Fatalf("region find text mismatch: %+v", matches)
 	}
 }

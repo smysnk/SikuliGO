@@ -285,6 +285,22 @@ func (r Region) FindAllByColumn(source *Image, pattern *Pattern) ([]Match, error
 	return f.FindAllByColumn(pattern)
 }
 
+func (r Region) ReadText(source *Image, params OCRParams) (string, error) {
+	f, err := r.newFinder(source)
+	if err != nil {
+		return "", err
+	}
+	return f.ReadText(params)
+}
+
+func (r Region) FindText(source *Image, query string, params OCRParams) ([]TextMatch, error) {
+	f, err := r.newFinder(source)
+	if err != nil {
+		return nil, err
+	}
+	return f.FindText(query, params)
+}
+
 func (r Region) newFinder(source *Image) (*Finder, error) {
 	if source == nil || source.Gray() == nil {
 		return nil, fmt.Errorf("%w: source image is nil", ErrInvalidTarget)

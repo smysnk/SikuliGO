@@ -38,6 +38,8 @@ type FinderAPI interface {
 	Has(pattern *Pattern) (bool, error)
 	Wait(pattern *Pattern, timeout time.Duration) (Match, error)
 	WaitVanish(pattern *Pattern, timeout time.Duration) (bool, error)
+	ReadText(params OCRParams) (string, error)
+	FindText(query string, params OCRParams) ([]TextMatch, error)
 	LastMatches() []Match
 }
 
@@ -59,6 +61,8 @@ type RegionAPI interface {
 	FindAll(source *Image, pattern *Pattern) ([]Match, error)
 	FindAllByRow(source *Image, pattern *Pattern) ([]Match, error)
 	FindAllByColumn(source *Image, pattern *Pattern) ([]Match, error)
+	ReadText(source *Image, params OCRParams) (string, error)
+	FindText(source *Image, query string, params OCRParams) ([]TextMatch, error)
 }
 
 var (

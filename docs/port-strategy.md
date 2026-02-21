@@ -17,6 +17,7 @@ This document consolidates the project goals, locked architecture, implementatio
 - `pkg/sikuli`: public API surface and compatibility-facing types
 - `internal/core`: shared contracts and primitives (`SearchRequest`, `Matcher`, resize helpers)
 - `internal/cv`: concrete matching engine implementation
+- `internal/ocr`: OCR backend adapters and hOCR parsing helpers
 - `internal/testharness`: golden corpus loading and parity comparators
 
 ### Backend boundaries
@@ -46,6 +47,8 @@ This keeps `pkg/sikuli` stable while allowing alternate implementations (e.g., `
 | `Image` | object | grayscale image holder | ✅ | Implemented in current baseline |
 | `Pattern` | object | matching intent/configuration | ✅ | Implemented in current baseline |
 | `Match` | object | match result payload | ✅ | Implemented in current baseline |
+| `TextMatch` | object | OCR text match payload | ✅ | Implemented in current baseline |
+| `OCRParams` | object | OCR request option payload | ✅ | Implemented in current baseline |
 | `Finder` | object | user-facing matching orchestrator | ✅ | Implemented in current baseline |
 | `RuntimeSettings` | object | global runtime behavior values | ✅ | Implemented in current baseline |
 | `Options` | object | typed string-map options wrapper | ✅ | Implemented in current baseline |
@@ -66,6 +69,10 @@ This keeps `pkg/sikuli` stable while allowing alternate implementations (e.g., `
 | `SearchRequest` | protocol object | backend-neutral match request | ✅ | Locked request contract |
 | `MatchCandidate` | protocol object | backend-neutral match response item | ✅ | Locked response contract |
 | `Matcher` | protocol interface | backend matcher boundary | ✅ | Used by finder protocol |
+| `OCRRequest` | protocol object | backend-neutral OCR request | ✅ | Locked OCR request contract |
+| `OCRWord` | protocol object | backend-neutral OCR word payload | ✅ | Locked OCR word contract |
+| `OCRResult` | protocol object | backend-neutral OCR response payload | ✅ | Locked OCR response contract |
+| `OCR` | protocol interface | backend OCR boundary | ✅ | Used by finder OCR protocol |
 
 ### `internal/cv` protocol implementation
 
@@ -73,6 +80,13 @@ This keeps `pkg/sikuli` stable while allowing alternate implementations (e.g., `
 |---|---|---|---|---|
 | `NCCMatcher` | protocol implementer | default matcher backend | ✅ | Primary backend in use |
 | `SADMatcher` | protocol implementer | alternate matcher backend | ✅ | Conformance-tested alternate |
+
+### `internal/ocr` protocol implementation
+
+| Type | Kind | Role | Status | Notes |
+|---|---|---|---|---|
+| `unsupportedBackend` | protocol implementer | default OCR backend behavior | ✅ | returns unsupported unless gogosseract tag is enabled |
+| `gogosseractBackend` | protocol implementer | OCR backend adapter | ✅ | enabled with `-tags gogosseract` |
 
 ### `internal/testharness` protocol objects
 
@@ -94,7 +108,7 @@ This keeps `pkg/sikuli` stable while allowing alternate implementations (e.g., `
 Status: ✅ Completed (baseline implemented)
 
 Current extension state: Region geometry/runtime helper surface, Finder wait/vanish helpers, Region-scoped search/wait parity scaffolding, and Location/Offset parity objects are implemented and covered by unit tests.
-Current extension state additionally includes `Options` typed configuration helpers and sorted `FindAll` parity helpers.
+Current extension state additionally includes `Options` typed configuration helpers, sorted `FindAll` parity helpers, and OCR text-search APIs (`ReadText`/`FindText`) with optional `gogosseract` backend integration.
 
 ### Workstream 2: Matching engine and parity harness
 
@@ -106,11 +120,10 @@ Status: ✅ Completed (baseline implemented)
 
 ### Next planned workstreams
 
-1. OCR and text-search parity
-2. Input automation and hotkey parity
-3. Observe/event subsystem parity
-4. App/window/process control parity
-5. Cross-platform backend hardening
+1. Input automation and hotkey parity
+2. Observe/event subsystem parity
+3. App/window/process control parity
+4. Cross-platform backend hardening
 
 ### Workstream 3: API parity surface expansion
 
@@ -125,6 +138,14 @@ Status: 🟡 Planned
 - Add conformance tests ensuring every backend obeys ordering/threshold/mask rules.
 
 Status: 🟡 Planned
+
+### Workstream 5: OCR and text-search parity
+
+- Add OCR protocol contract in `internal/core`.
+- Expose `Finder.ReadText/FindText` and region-scoped text operations.
+- Integrate optional backend support through `gogosseract`.
+
+Status: ✅ Completed (baseline implemented)
 
 ## Feature Matrix (Current and Planned)
 
@@ -154,7 +175,8 @@ Status: 🟡 Planned
 | Golden parity protocol | corpus loader + comparator + tests | P0 | ✅ | active in CI/local tests |
 | Backend conformance protocol | ordering/threshold/mask/resize assertions | P0 | ✅ | active tests in `internal/cv` |
 | CI test visibility | race tests + vet + tidy diff enforcement | P0 | ✅ | workflow publishes strict signal |
-| OCR/text search | read text/find text parity | P1 | 🟡 | Not yet implemented |
+| OCR/text search | read text/find text parity | P1 | ✅ | finder/region OCR APIs with optional `gogosseract` backend |
+| OCR backend swappability | `core.OCR` protocol + backend selection | P1 | ✅ | unsupported default + `gogosseract` build-tag backend |
 | Input automation | mouse/keyboard parity | P1 | 🟡 | Not yet implemented |
 | Observe/events | appear/vanish/change parity | P1 | 🟡 | Not yet implemented |
 | App/window/process | focus/open/close/window parity | P2 | 🟡 | Not yet implemented |
