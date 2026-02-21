@@ -3,11 +3,12 @@ name: GoLang Tests
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - "internal/**"
       - "pkg/**"
       - "docs/**"
+      - "scripts/**"
       - "go.mod"
       - "go.sum"
       - ".github/workflows/go-test.yml"
@@ -16,6 +17,7 @@ on:
       - "internal/**"
       - "pkg/**"
       - "docs/**"
+      - "scripts/**"
       - "go.mod"
       - "go.sum"
       - ".github/workflows/go-test.yml"
@@ -31,6 +33,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
 
       - name: Set up GoLang
         uses: actions/setup-go@v6
@@ -54,22 +61,26 @@ jobs:
       - name: Run tests
         run: |
           set -euo pipefail
-          mkdir -p test-results
+          mkdir -p .test-results
           "$(go env GOPATH)/bin/gotestsum" \
             --format standard-verbose \
-            --junitfile test-results/junit.xml \
-            --jsonfile test-results/go-test.json \
+            --junitfile .test-results/junit.xml \
+            --jsonfile .test-results/go-test.json \
             -- \
-            -race -covermode=atomic -coverprofile=test-results/coverage.out ./...
-          go tool cover -func=test-results/coverage.out > test-results/coverage.txt
-          awk '/^total:/{print "TOTAL_COVERAGE="$3}' test-results/coverage.txt >> "$GITHUB_ENV"
+            -race -covermode=atomic -coverprofile=.test-results/coverage.out ./...
+          go tool cover -func=.test-results/coverage.out > .test-results/coverage.txt
+          awk '/^total:/{print "TOTAL_COVERAGE="$3}' .test-results/coverage.txt >> "$GITHUB_ENV"
+
+      - name: Build JSON test summary
+        if: always()
+        run: node scripts/build-test-summary.mjs
 
       - name: Publish test report
-        if: always() && hashFiles('test-results/junit.xml') != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
+        if: always() && hashFiles('.test-results/junit.xml') != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
         uses: dorny/test-reporter@v2
         with:
           name: GoLang Unit Tests
-          path: test-results/junit.xml
+          path: .test-results/junit.xml
           reporter: java-junit
           fail-on-error: true
 
@@ -78,20 +89,27 @@ jobs:
         run: |
           echo "### GoLang Test Coverage" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          if [ -f test-results/coverage.txt ]; then
+          if [ -f .test-results/coverage.txt ]; then
             echo "- Total: ${TOTAL_COVERAGE:-unknown}" >> "$GITHUB_STEP_SUMMARY"
             echo "" >> "$GITHUB_STEP_SUMMARY"
             echo '```text' >> "$GITHUB_STEP_SUMMARY"
-            cat test-results/coverage.txt >> "$GITHUB_STEP_SUMMARY"
+            cat .test-results/coverage.txt >> "$GITHUB_STEP_SUMMARY"
             echo '```' >> "$GITHUB_STEP_SUMMARY"
           else
             echo "- Coverage report not produced." >> "$GITHUB_STEP_SUMMARY"
           fi
+
+      - name: Publish Discord test results
+        if: always()
+        env:
+          DISCORD_TEST_WEBHOOK_URL: ${{ secrets.DISCORD_TEST_WEBHOOK_URL }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: node scripts/publish-test-results.mjs
 
       - name: Upload test artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: go-test-results
-          path: test-results
+          path: .test-results
           retention-days: 14
