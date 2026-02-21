@@ -238,6 +238,52 @@ func TestRuntimeSettingsLifecycle(t *testing.T) {
 	}
 }
 
+func TestOptionsLifecycle(t *testing.T) {
+	o := NewOptions()
+	if o.Has("alpha") {
+		t.Fatalf("expected empty options")
+	}
+	if got := o.GetString("missing", "default"); got != "default" {
+		t.Fatalf("default string mismatch: %q", got)
+	}
+	o.SetString("alpha", "one")
+	o.SetInt("n", 7)
+	o.SetFloat64("ratio", 1.25)
+	o.SetBool("enabled", true)
+
+	if !o.Has("alpha") || o.GetString("alpha", "") != "one" {
+		t.Fatalf("string set/get mismatch")
+	}
+	if o.GetInt("n", 0) != 7 {
+		t.Fatalf("int set/get mismatch")
+	}
+	if o.GetFloat64("ratio", 0) != 1.25 {
+		t.Fatalf("float set/get mismatch")
+	}
+	if !o.GetBool("enabled", false) {
+		t.Fatalf("bool set/get mismatch")
+	}
+	if o.GetInt("bad", 9) != 9 {
+		t.Fatalf("int default fallback mismatch")
+	}
+
+	clone := o.Clone()
+	clone.SetString("alpha", "two")
+	if o.GetString("alpha", "") != "one" {
+		t.Fatalf("clone should not mutate original")
+	}
+
+	merged := NewOptionsFromMap(map[string]string{"x": "1"})
+	merged.Merge(o)
+	if merged.GetString("alpha", "") != "one" || merged.GetString("x", "") != "1" {
+		t.Fatalf("merge mismatch")
+	}
+	merged.Delete("x")
+	if merged.Has("x") {
+		t.Fatalf("delete mismatch")
+	}
+}
+
 func TestImageCrop(t *testing.T) {
 	img, err := NewImageFromMatrix("src", [][]uint8{
 		{1, 2, 3, 4},
@@ -339,6 +385,72 @@ func TestRegionFindExistsWaitParityScaffold(t *testing.T) {
 	}
 	if vanished {
 		t.Fatalf("expected vanish=false for present target")
+	}
+
+	all, err := region.FindAll(hay, p)
+	if err != nil {
+		t.Fatalf("region findall failed: %v", err)
+	}
+	if len(all) != 1 || all[0].X != 2 || all[0].Y != 1 {
+		t.Fatalf("region findall mismatch: %+v", all)
+	}
+	byRow, err := region.FindAllByRow(hay, p)
+	if err != nil {
+		t.Fatalf("region findall by row failed: %v", err)
+	}
+	byCol, err := region.FindAllByColumn(hay, p)
+	if err != nil {
+		t.Fatalf("region findall by column failed: %v", err)
+	}
+	if len(byRow) != 1 || len(byCol) != 1 {
+		t.Fatalf("region sorted findall mismatch: row=%d col=%d", len(byRow), len(byCol))
+	}
+}
+
+func TestFinderFindAllSortedHelpers(t *testing.T) {
+	hay, err := NewImageFromMatrix("hay", [][]uint8{
+		{10, 10, 10, 10, 10, 10, 10, 10},
+		{10, 0, 255, 10, 10, 10, 10, 10},
+		{10, 255, 0, 10, 0, 255, 10, 10},
+		{10, 10, 10, 10, 255, 0, 10, 10},
+		{10, 10, 10, 10, 10, 10, 10, 10},
+	})
+	if err != nil {
+		t.Fatalf("new hay image: %v", err)
+	}
+	needle, err := NewImageFromMatrix("needle", [][]uint8{
+		{0, 255},
+		{255, 0},
+	})
+	if err != nil {
+		t.Fatalf("new needle image: %v", err)
+	}
+	p, err := NewPattern(needle)
+	if err != nil {
+		t.Fatalf("new pattern: %v", err)
+	}
+	p.Exact()
+
+	f, err := NewFinder(hay)
+	if err != nil {
+		t.Fatalf("new finder: %v", err)
+	}
+	row, err := f.FindAllByRow(p)
+	if err != nil {
+		t.Fatalf("findall by row failed: %v", err)
+	}
+	col, err := f.FindAllByColumn(p)
+	if err != nil {
+		t.Fatalf("findall by column failed: %v", err)
+	}
+	if len(row) != 2 || len(col) != 2 {
+		t.Fatalf("expected 2 matches each, row=%d col=%d", len(row), len(col))
+	}
+	if row[0].Index != 0 || row[1].Index != 1 {
+		t.Fatalf("row reindex mismatch: %+v", row)
+	}
+	if col[0].Index != 0 || col[1].Index != 1 {
+		t.Fatalf("col reindex mismatch: %+v", col)
 	}
 }
 

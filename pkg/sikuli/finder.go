@@ -71,6 +71,28 @@ func (f *Finder) FindAll(pattern *Pattern) ([]Match, error) {
 	return matches, nil
 }
 
+func (f *Finder) FindAllByRow(pattern *Pattern) ([]Match, error) {
+	matches, err := f.FindAll(pattern)
+	if err != nil {
+		return nil, err
+	}
+	SortMatchesByRowColumn(matches)
+	reindex(matches)
+	f.last = matches
+	return matches, nil
+}
+
+func (f *Finder) FindAllByColumn(pattern *Pattern) ([]Match, error) {
+	matches, err := f.FindAll(pattern)
+	if err != nil {
+		return nil, err
+	}
+	SortMatchesByColumnRow(matches)
+	reindex(matches)
+	f.last = matches
+	return matches, nil
+}
+
 // Exists returns the first match when present. Missing targets return (Match{}, false, nil).
 func (f *Finder) Exists(pattern *Pattern) (Match, bool, error) {
 	match, err := f.Find(pattern)
@@ -229,4 +251,10 @@ func SortMatchesByColumnRow(matches []Match) {
 		}
 		return matches[i].X < matches[j].X
 	})
+}
+
+func reindex(matches []Match) {
+	for i := range matches {
+		matches[i].Index = i
+	}
 }

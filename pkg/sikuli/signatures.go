@@ -32,6 +32,8 @@ type PatternAPI interface {
 type FinderAPI interface {
 	Find(pattern *Pattern) (Match, error)
 	FindAll(pattern *Pattern) ([]Match, error)
+	FindAllByRow(pattern *Pattern) ([]Match, error)
+	FindAllByColumn(pattern *Pattern) ([]Match, error)
 	Exists(pattern *Pattern) (Match, bool, error)
 	Has(pattern *Pattern) (bool, error)
 	Wait(pattern *Pattern, timeout time.Duration) (Match, error)
@@ -54,6 +56,9 @@ type RegionAPI interface {
 	Has(source *Image, pattern *Pattern, timeout time.Duration) (bool, error)
 	Wait(source *Image, pattern *Pattern, timeout time.Duration) (Match, error)
 	WaitVanish(source *Image, pattern *Pattern, timeout time.Duration) (bool, error)
+	FindAll(source *Image, pattern *Pattern) ([]Match, error)
+	FindAllByRow(source *Image, pattern *Pattern) ([]Match, error)
+	FindAllByColumn(source *Image, pattern *Pattern) ([]Match, error)
 }
 
 var (

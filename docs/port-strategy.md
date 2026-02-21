@@ -48,6 +48,7 @@ This keeps `pkg/sikuli` stable while allowing alternate implementations (e.g., `
 | `Match` | object | match result payload | Implemented |
 | `Finder` | object | user-facing matching orchestrator | Implemented |
 | `RuntimeSettings` | object | global runtime behavior values | Implemented |
+| `Options` | object | typed string-map options wrapper | Implemented |
 
 ### `pkg/sikuli` interfaces
 
@@ -93,6 +94,7 @@ This keeps `pkg/sikuli` stable while allowing alternate implementations (e.g., `
 Status: complete baseline implemented.
 
 Current extension state: Region geometry/runtime helper surface, Finder wait/vanish helpers, Region-scoped search/wait parity scaffolding, and Location/Offset parity objects are implemented and covered by unit tests.
+Current extension state additionally includes `Options` typed configuration helpers and sorted `FindAll` parity helpers.
 
 ### Workstream 2: Matching engine and parity harness
 
@@ -137,10 +139,13 @@ Status: planned.
 | Finder single target | `Find` + fail semantics | P0 | Implemented extended | includes `Exists` and `Has` helper semantics |
 | Finder wait/vanish semantics | `Wait` and `WaitVanish` timeout polling | P0 | Implemented extended | global wait scan rate polling |
 | Finder multi-target | `FindAll` ordering + indexing | P0 | Implemented baseline | deterministic order locked |
+| Finder sorted multi-target helpers | `FindAllByRow` / `FindAllByColumn` | P0 | Implemented extended | helper sorting + reindexing behavior |
 | Region-scoped search | `Region.Find/Exists/Has/Wait` with timeout polling | P0 | Implemented extended | uses source crop + finder backend |
+| Region sorted multi-target helpers | `FindAll` / `FindAllByRow` / `FindAllByColumn` | P0 | Implemented extended | region-scoped delegation |
 | Image crop protocol | `Image.Crop(rect)` absolute-coordinate crop behavior | P0 | Implemented extended | enables region-scoped search protocol |
 | Finder protocol swappability | `SetMatcher(core.Matcher)` | P0 | Implemented baseline | enables backend evolution |
 | Global settings | `RuntimeSettings` get/update/reset | P1 | Implemented baseline | expand settings map as parity grows |
+| Options/config object | typed get/set/delete/clone/merge | P1 | Implemented baseline | string-map compatibility helper |
 | Signature compatibility layer | `ImageAPI`, `PatternAPI`, `FinderAPI` | P0 | Implemented baseline | freeze enforced in docs |
 | Core matcher protocol | `SearchRequest`, `MatchCandidate`, `Matcher` | P0 | Implemented baseline | strict boundary maintained |
 | Core image protocol util | `ResizeGrayNearest` | P1 | Implemented baseline | may add interpolation variants later |
@@ -148,6 +153,7 @@ Status: planned.
 | Alternate matcher backend | `SADMatcher` | P1 | Implemented baseline | enables multi-backend protocol checks |
 | Golden parity protocol | corpus loader + comparator + tests | P0 | Implemented baseline | active in CI/local tests |
 | Backend conformance protocol | ordering/threshold/mask/resize assertions | P0 | Implemented baseline | active tests in `internal/cv` |
+| CI test visibility | race tests + vet + tidy diff enforcement | P0 | Implemented extended | workflow publishes strict signal |
 | OCR/text search | read text/find text parity | P1 | Planned | Not yet implemented |
 | Input automation | mouse/keyboard parity | P1 | Planned | Not yet implemented |
 | Observe/events | appear/vanish/change parity | P1 | Planned | Not yet implemented |

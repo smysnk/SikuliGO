@@ -24,6 +24,7 @@ This repository houses a GoLang implementation of Sikuli visual automation.
 - [Locked Architecture](https://smysnk.github.io/SikuliGO/architecture-lock)
 - [API Freeze](https://smysnk.github.io/SikuliGO/api-signature-freeze)
 - [Defaults Table](https://smysnk.github.io/SikuliGO/default-behavior-table)
+- [CI Test Reporting](https://smysnk.github.io/SikuliGO/ci-test-reporting)
 
 ## Repository Layout
 

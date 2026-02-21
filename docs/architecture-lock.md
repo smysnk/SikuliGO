@@ -10,6 +10,7 @@ This document defines the locked package boundaries, object responsibilities, an
   - Region/Finder helper semantics (`Region` geometry/runtime setters, `Finder.Exists/Has`).
   - Region-scoped search protocol (`Region.Find/Exists/Has/Wait`) over source image crops.
   - Location/offset value objects for parity-friendly coordinate APIs.
+  - Options map protocol (`Options`) for typed config compatibility helpers.
 - `internal/core`:
   - Matching protocol contracts and transport objects.
   - Shared image operations used by backends.
@@ -28,6 +29,8 @@ This document defines the locked package boundaries, object responsibilities, an
   - `Image`, `Pattern`, `Finder`
 - Global configuration:
   - `RuntimeSettings`, settings mutator/accessor functions
+- Options/configuration helpers:
+  - `Options` typed map wrapper
 - Compatibility interfaces:
   - `ImageAPI`, `PatternAPI`, `FinderAPI`
 - Error protocol:
@@ -86,6 +89,8 @@ Timeout semantics for `Region.Exists/Wait` are polling-based and driven by:
 - explicit timeout argument when `> 0`
 - `Region.AutoWaitTimeout` when `Wait` receives `<= 0`
 - `Region.WaitScanRate` for polling interval
+
+`Finder.Wait/WaitVanish` are polling-based and driven by global wait scan rate from `RuntimeSettings`.
 
 ## Protocol lock: request and validation
 

@@ -48,6 +48,8 @@ type PatternAPI interface {
 type FinderAPI interface {
   Find(pattern *Pattern) (Match, error)
   FindAll(pattern *Pattern) ([]Match, error)
+  FindAllByRow(pattern *Pattern) ([]Match, error)
+  FindAllByColumn(pattern *Pattern) ([]Match, error)
   Exists(pattern *Pattern) (Match, bool, error)
   Has(pattern *Pattern) (bool, error)
   Wait(pattern *Pattern, timeout time.Duration) (Match, error)
@@ -70,6 +72,9 @@ type RegionAPI interface {
   Has(source *Image, pattern *Pattern, timeout time.Duration) (bool, error)
   Wait(source *Image, pattern *Pattern, timeout time.Duration) (Match, error)
   WaitVanish(source *Image, pattern *Pattern, timeout time.Duration) (bool, error)
+  FindAll(source *Image, pattern *Pattern) ([]Match, error)
+  FindAllByRow(source *Image, pattern *Pattern) ([]Match, error)
+  FindAllByColumn(source *Image, pattern *Pattern) ([]Match, error)
 }
 ```
 
@@ -220,6 +225,8 @@ func NewFinder(source *Image) (*Finder, error)
 func (f *Finder) SetMatcher(m core.Matcher)
 func (f *Finder) Find(pattern *Pattern) (Match, error)
 func (f *Finder) FindAll(pattern *Pattern) ([]Match, error)
+func (f *Finder) FindAllByRow(pattern *Pattern) ([]Match, error)
+func (f *Finder) FindAllByColumn(pattern *Pattern) ([]Match, error)
 func (f *Finder) Exists(pattern *Pattern) (Match, bool, error)
 func (f *Finder) Has(pattern *Pattern) (bool, error)
 func (f *Finder) Wait(pattern *Pattern, timeout time.Duration) (Match, error)
@@ -227,6 +234,27 @@ func (f *Finder) WaitVanish(pattern *Pattern, timeout time.Duration) (bool, erro
 func (f *Finder) LastMatches() []Match
 func SortMatchesByRowColumn(matches []Match)
 func SortMatchesByColumnRow(matches []Match)
+```
+
+### Options
+
+```go
+type Options struct
+func NewOptions() *Options
+func NewOptionsFromMap(entries map[string]string) *Options
+func (o *Options) Has(key string) bool
+func (o *Options) GetString(key, def string) string
+func (o *Options) SetString(key, value string)
+func (o *Options) GetInt(key string, def int) int
+func (o *Options) SetInt(key string, value int)
+func (o *Options) GetFloat64(key string, def float64) float64
+func (o *Options) SetFloat64(key string, value float64)
+func (o *Options) GetBool(key string, def bool) bool
+func (o *Options) SetBool(key string, value bool)
+func (o *Options) Delete(key string)
+func (o *Options) Entries() map[string]string
+func (o *Options) Merge(other *Options)
+func (o *Options) Clone() *Options
 ```
 
 ### Runtime settings

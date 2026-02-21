@@ -261,6 +261,30 @@ func (r Region) WaitVanish(source *Image, pattern *Pattern, timeout time.Duratio
 	}
 }
 
+func (r Region) FindAll(source *Image, pattern *Pattern) ([]Match, error) {
+	f, err := r.newFinder(source)
+	if err != nil {
+		return nil, err
+	}
+	return f.FindAll(pattern)
+}
+
+func (r Region) FindAllByRow(source *Image, pattern *Pattern) ([]Match, error) {
+	f, err := r.newFinder(source)
+	if err != nil {
+		return nil, err
+	}
+	return f.FindAllByRow(pattern)
+}
+
+func (r Region) FindAllByColumn(source *Image, pattern *Pattern) ([]Match, error) {
+	f, err := r.newFinder(source)
+	if err != nil {
+		return nil, err
+	}
+	return f.FindAllByColumn(pattern)
+}
+
 func (r Region) newFinder(source *Image) (*Finder, error) {
 	if source == nil || source.Gray() == nil {
 		return nil, fmt.Errorf("%w: source image is nil", ErrInvalidTarget)

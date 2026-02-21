@@ -39,11 +39,16 @@ This table captures current default and protocol behavior for all existing expor
 | `Finder` | `Has(pattern)` | `false` on missing targets | forwards non-find errors |
 | `Finder` | `Wait(pattern, timeout)` | timeout `<= 0` performs one-shot then `ErrTimeout` if missing | timeout `> 0` polls using global wait scan rate |
 | `Finder` | `WaitVanish(pattern, timeout)` | timeout `<= 0` performs one-shot vanish check | timeout `> 0` polls until vanished or timeout |
+| `Finder` | `FindAllByRow(pattern)` | sorts by row/column then reindexes | updates `last` cache |
+| `Finder` | `FindAllByColumn(pattern)` | sorts by column/row then reindexes | updates `last` cache |
 | `Region` | `Find(source, pattern)` | one-shot match within region crop | returns `ErrFindFailed` if not found |
 | `Region` | `Exists(source, pattern, timeout)` | one-shot when timeout `<= 0` | polls using `WaitScanRate` when timeout `> 0` |
 | `Region` | `Has(source, pattern, timeout)` | bool wrapper over `Exists` | forwards non-find errors |
 | `Region` | `Wait(source, pattern, timeout)` | uses `AutoWaitTimeout` when timeout `<= 0` | returns `ErrTimeout` on miss |
 | `Region` | `WaitVanish(source, pattern, timeout)` | one-shot when timeout `<= 0` | polls using `WaitScanRate` when timeout `> 0` |
+| `Region` | `FindAll/FindAllByRow/FindAllByColumn` | region-scoped via source crop | delegates to finder helper semantics |
+| `Options` | typed getters | parse from string map with default fallback | invalid parse returns provided default |
+| `Options` | typed setters | store string representation in map | canonical serialization via `strconv` |
 | `RuntimeSettings` | `ImageCache` | `64` | initial global value |
 | `RuntimeSettings` | `ShowActions` | `false` | initial global value |
 | `RuntimeSettings` | `WaitScanRate` | `3.0` | initial global value |
