@@ -12,6 +12,7 @@ GoLang API reference pages are generated from source using `go doc`.
 - [Architecture Lock](https://smysnk.github.io/SikuliGO/architecture-lock)
 - [API Signature Freeze](https://smysnk.github.io/SikuliGO/api-signature-freeze)
 - [GoLang API Reference](https://smysnk.github.io/SikuliGO/api/)
+- [API Visual Map](https://smysnk.github.io/SikuliGO/api-visual-map)
 - [OCR Integration](https://smysnk.github.io/SikuliGO/ocr-integration)
 - [Input Automation](https://smysnk.github.io/SikuliGO/input-automation)
 - [Observe Events](https://smysnk.github.io/SikuliGO/observe-events)

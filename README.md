@@ -31,6 +31,7 @@ This repository houses a GoLang implementation of Sikuli visual automation.
 - [Locked Architecture](https://smysnk.github.io/SikuliGO/architecture-lock)
 - [API Freeze](https://smysnk.github.io/SikuliGO/api-signature-freeze)
 - [GoLang API Reference](https://smysnk.github.io/SikuliGO/api/)
+- [API Visual Map](https://smysnk.github.io/SikuliGO/api-visual-map)
 - [OCR Integration](https://smysnk.github.io/SikuliGO/ocr-integration)
 - [Input Automation](https://smysnk.github.io/SikuliGO/input-automation)
 - [Observe Events](https://smysnk.github.io/SikuliGO/observe-events)
