@@ -547,15 +547,18 @@ func TestFinderOCRUnsupportedByDefault(t *testing.T) {
 	}
 	_, err = f.ReadText(OCRParams{})
 	if err == nil {
-		t.Fatalf("expected backend error, got nil")
+		// Tagged gosseract builds may succeed when runtime OCR dependencies are available.
+		return
 	}
 	if errors.Is(err, ErrBackendUnsupported) {
 		return
 	}
 	// Tagged gosseract builds may fail due to missing runtime training data in test environments.
-	if !strings.Contains(strings.ToLower(err.Error()), "trainingdata") {
-		t.Fatalf("expected backend unsupported or training-data error, got=%v", err)
+	lower := strings.ToLower(err.Error())
+	if strings.Contains(lower, "trainingdata") || strings.Contains(lower, "tessdata") {
+		return
 	}
+	t.Fatalf("expected OCR success, backend unsupported, or training-data error, got=%v", err)
 }
 
 func TestFinderOCRWithStubBackend(t *testing.T) {

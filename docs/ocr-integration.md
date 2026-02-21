@@ -28,6 +28,40 @@ go test -tags gosseract ./...
 go build -tags gosseract ./...
 ```
 
+## macOS setup (Homebrew)
+
+Install native dependencies:
+
+```bash
+brew install leptonica tesseract pkg-config
+```
+
+Export build/link flags (Apple Silicon/Homebrew):
+
+```bash
+export HOMEBREW_PREFIX="$(brew --prefix)"
+export PKG_CONFIG_PATH="$HOMEBREW_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+export CGO_CFLAGS="-I$HOMEBREW_PREFIX/include"
+export CGO_CPPFLAGS="-I$HOMEBREW_PREFIX/include"
+export CGO_LDFLAGS="-L$HOMEBREW_PREFIX/lib -llept -ltesseract"
+```
+
+Validate package config and run tests:
+
+```bash
+pkg-config --cflags lept tesseract
+pkg-config --libs lept tesseract
+go clean -cache -testcache
+go test -tags gosseract ./internal/ocr ./pkg/sikuli
+```
+
+If you see `ld: library 'lept' not found`, create compatibility symlinks:
+
+```bash
+sudo ln -sf "$(brew --prefix leptonica)/lib/libleptonica.dylib" /opt/homebrew/lib/liblept.dylib
+sudo ln -sf "$(brew --prefix leptonica)/lib/libleptonica.dylib" /usr/local/lib/liblept.dylib
+```
+
 ## OCR parameters
 
 `OCRParams` supports:

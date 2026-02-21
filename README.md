@@ -65,6 +65,7 @@ go test -tags gosseract ./...
 ```
 
 Tagged OCR builds require native Tesseract + Leptonica runtime libraries and installed language data.
+See [OCR Integration](https://smysnk.github.io/SikuliGO/ocr-integration) for full macOS/Homebrew setup and troubleshooting steps.
 
 ## Project History and Credits
 
