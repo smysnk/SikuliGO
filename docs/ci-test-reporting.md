@@ -6,7 +6,7 @@ This document defines how SikuliGO publishes test execution and coverage in GitH
 
 - Workflow file: `.github/workflows/go-test.yml`
 - Triggered on:
-  - `push` to `master` for Go and docs changes
+  - `push` to `main` for Go and docs changes
   - `pull_request` for Go and docs changes
   - manual `workflow_dispatch`
 
@@ -27,10 +27,15 @@ The workflow writes all outputs into `.test-results/` and uploads them as the `g
   - Automatically skipped for forked pull requests where check-write permissions are unavailable.
 - Job summary:
   - Posts total coverage and full function coverage output to `$GITHUB_STEP_SUMMARY`.
+  - Posts an OCR-focused test summary block from `go-test.json`.
 - Artifact upload:
   - Uploads all `.test-results/` files for download and downstream tooling.
 - Webhook publish:
-  - Runs `scripts/publish-test-results.mjs` using `DISCORD_TEST_WEBHOOK_URL` (or `DISCORD_WEBHOOK_URL`) when configured.
+  - Runs `scripts/publish-test-results.mjs` on pushes to `main` using `DISCORD_TEST_WEBHOOK_URL` (or `DISCORD_WEBHOOK_URL`) when configured.
+- Coverage gate:
+  - Fails the test job when total coverage drops below the configured threshold (`COVERAGE_MIN_PERCENT`, default `65`).
+- Optional OCR tagged job:
+  - Runs `go test -tags gogosseract ./internal/ocr ./pkg/sikuli` in a non-blocking (`continue-on-error`) job.
 
 ## Local parity command
 

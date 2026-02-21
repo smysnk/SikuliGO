@@ -45,6 +45,11 @@ This table captures current default and protocol behavior for all existing expor
 | `Finder` | `FindAllByColumn(pattern)` | sorts by column/row then reindexes | updates `last` cache |
 | `Finder` | `ReadText(params)` | returns trimmed OCR text | wraps `core.ErrOCRUnsupported` as `ErrBackendUnsupported` |
 | `Finder` | `FindText(query, params)` | case-insensitive by default | returns `ErrFindFailed` when no matching text is detected |
+| `InputController` | input backend | unsupported backend | set by `NewInputController` |
+| `InputController` | `MoveMouse(x, y, opts)` | normalizes delay to non-negative duration | delegates to `core.Input` |
+| `InputController` | `Click(x, y, opts)` | default button is `left` | delegates to `core.Input` |
+| `InputController` | `TypeText(text, opts)` | trims text and rejects empty values | returns `ErrInvalidTarget` on empty text |
+| `InputController` | `Hotkey(keys...)` | requires at least one non-empty key | returns `ErrInvalidTarget` on invalid keys |
 | `Region` | `Find(source, pattern)` | one-shot match within region crop | returns `ErrFindFailed` if not found |
 | `Region` | `Exists(source, pattern, timeout)` | one-shot when timeout `<= 0` | polls using `WaitScanRate` when timeout `> 0` |
 | `Region` | `Has(source, pattern, timeout)` | bool wrapper over `Exists` | forwards non-find errors |
@@ -79,6 +84,8 @@ This table captures current default and protocol behavior for all existing expor
 | `OCRParams` | empty `Language` becomes `DefaultOCRLanguage` |
 | `OCRParams` | `MinConfidence` clamps to `[0,1]` |
 | `OCRParams` | negative `Timeout` becomes `0` |
+| `InputOptions` | invalid/empty `Button` becomes `MouseButtonLeft` |
+| `InputOptions` | negative `Delay` becomes `0` |
 
 ## Matcher request protocol defaults
 
@@ -101,6 +108,16 @@ This table captures current default and protocol behavior for all existing expor
 | `OCRRequest.MinConfidence` | must be in `[0,1]` |
 | `OCRRequest.Timeout` | must be `>= 0` |
 
+## Input request protocol defaults
+
+| Request field | Behavior |
+|---|---|
+| `InputRequest.Action` | required, must be one of move/click/type/hotkey |
+| `InputRequest.Delay` | must be `>= 0` |
+| `InputRequest.Button` | required for click actions |
+| `InputRequest.Text` | required for type actions |
+| `InputRequest.Keys` | at least one key required for hotkey actions |
+
 ## Matching and ordering protocol defaults
 
 | Behavior | Rule |
@@ -118,6 +135,7 @@ This table captures current default and protocol behavior for all existing expor
 | nil/invalid source image | `ErrInvalidTarget` |
 | nil/invalid pattern image | `ErrInvalidTarget` |
 | empty OCR query | `ErrInvalidTarget` |
+| empty input text/hotkey args | `ErrInvalidTarget` |
 | no results in `Finder.Find` | `ErrFindFailed` |
 | no results in `Finder.FindText` | `ErrFindFailed` |
 | unsupported backend path | `ErrBackendUnsupported` |

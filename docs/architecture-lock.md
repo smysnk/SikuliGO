@@ -7,6 +7,7 @@ This document defines the locked package boundaries, object responsibilities, an
 - `pkg/sikuli`:
   - Public types, defaults, and errors.
   - Public API orchestration (`Finder` delegates matching work to `core.Matcher` and `core.OCR`).
+  - Input automation controller (`InputController`) delegates to `core.Input`.
   - Region/Finder helper semantics (`Region` geometry/runtime setters, `Finder.Exists/Has`).
   - Region-scoped search protocol (`Region.Find/Exists/Has/Wait`) over source image crops.
   - OCR and text-search protocol (`Finder.ReadText/FindText`, `Region.ReadText/FindText`).
@@ -15,11 +16,14 @@ This document defines the locked package boundaries, object responsibilities, an
 - `internal/core`:
   - Matching protocol contracts and transport objects.
   - OCR protocol contracts and transport objects.
+  - Input automation protocol contracts and transport objects.
   - Shared image operations used by backends.
 - `internal/cv`:
   - Primary matcher backend implementation (`NCCMatcher`).
 - `internal/ocr`:
   - OCR backend implementation with optional `gogosseract` integration.
+- `internal/input`:
+  - Input backend implementation with unsupported default.
 - `internal/testharness`:
   - Corpus loading, comparator policy, and parity tests.
 
@@ -31,14 +35,18 @@ This document defines the locked package boundaries, object responsibilities, an
   - `Point`, `Location`, `Offset`, `Rect`, `Region`, `Screen`, `Match`, `TextMatch`
 - OCR request helper objects:
   - `OCRParams`
+- Input helper objects:
+  - `InputOptions`, `MouseButton`
 - Stateful objects:
   - `Image`, `Pattern`, `Finder`
+- Input automation objects:
+  - `InputController`
 - Global configuration:
   - `RuntimeSettings`, settings mutator/accessor functions
 - Options/configuration helpers:
   - `Options` typed map wrapper
 - Compatibility interfaces:
-  - `ImageAPI`, `PatternAPI`, `FinderAPI`
+  - `ImageAPI`, `PatternAPI`, `FinderAPI`, `RegionAPI`, `InputAPI`
 - Error protocol:
   - `ErrFindFailed`, `ErrTimeout`, `ErrInvalidTarget`, `ErrBackendUnsupported`
 
@@ -52,6 +60,10 @@ This document defines the locked package boundaries, object responsibilities, an
 - `OCRResult`: backend-neutral OCR response payload.
 - `OCR`: backend OCR protocol interface.
 - `ErrOCRUnsupported`: backend capability sentinel.
+- `InputAction`: backend-neutral input action enum.
+- `InputRequest`: backend-neutral input request payload.
+- `Input`: backend input protocol interface.
+- `ErrInputUnsupported`: backend capability sentinel.
 - `ResizeGrayNearest`: canonical nearest-neighbor resize helper.
 
 ### `internal/cv`
@@ -70,6 +82,10 @@ This document defines the locked package boundaries, object responsibilities, an
 - Internal protocol helpers:
   - reflective method adaptation for fork compatibility
   - hOCR word parsing and confidence filtering
+
+### `internal/input`
+
+- `unsupportedBackend`: default implementation returning `core.ErrInputUnsupported`.
 
 ### `internal/testharness`
 
@@ -108,6 +124,18 @@ type OCR interface {
 `pkg/sikuli.Finder` text APIs (`ReadText` and `FindText`) must consume only this protocol and must not depend on backend-specific types.
 
 Default builds use the unsupported backend and return `ErrBackendUnsupported` through the public API unless built with `-tags gogosseract`.
+
+## Protocol lock: input boundary
+
+The input backend boundary remains strictly behind this interface:
+
+```go
+type Input interface {
+  Execute(req InputRequest) error
+}
+```
+
+`pkg/sikuli.InputController` must consume only this protocol and must not depend on backend-specific types.
 
 ## Protocol lock: region-scoped search
 

@@ -31,6 +31,8 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      COVERAGE_MIN_PERCENT: "65"
     steps:
       - uses: actions/checkout@v6
 
@@ -75,6 +77,15 @@ jobs:
         if: always()
         run: node scripts/build-test-summary.mjs
 
+      - name: Enforce coverage threshold
+        if: always() && hashFiles('.test-results/coverage.txt') != ''
+        run: |
+          set -euo pipefail
+          total="${TOTAL_COVERAGE%\%}"
+          min="${COVERAGE_MIN_PERCENT}"
+          awk -v total="$total" -v min="$min" 'BEGIN { if (total+0 < min+0) { exit 1 } }'
+          echo "Coverage threshold met: ${total}% >= ${min}%"
+
       - name: Publish test report
         if: always() && hashFiles('.test-results/junit.xml') != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
         uses: dorny/test-reporter@v2
@@ -99,6 +110,10 @@ jobs:
             echo "- Coverage report not produced." >> "$GITHUB_STEP_SUMMARY"
           fi
 
+      - name: Publish OCR summary
+        if: always()
+        run: node scripts/publish-ocr-summary.mjs
+
       - name: Publish Discord test results
         if: always() && github.event_name == 'push' && github.ref_name == 'main'
         env:
@@ -113,3 +128,24 @@ jobs:
           name: go-test-results
           path: .test-results
           retention-days: 14
+
+  ocr-gogosseract:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up GoLang
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Install gogosseract fork
+        run: |
+          go get github.com/smysnk/gogosseract@wazero-1-11-lean-fork-compat
+          go mod tidy
+
+      - name: Run OCR tagged tests
+        run: go test -tags gogosseract ./internal/ocr ./pkg/sikuli

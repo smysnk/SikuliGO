@@ -65,9 +65,17 @@ type RegionAPI interface {
 	FindText(source *Image, query string, params OCRParams) ([]TextMatch, error)
 }
 
+type InputAPI interface {
+	MoveMouse(x, y int, opts InputOptions) error
+	Click(x, y int, opts InputOptions) error
+	TypeText(text string, opts InputOptions) error
+	Hotkey(keys ...string) error
+}
+
 var (
 	_ ImageAPI   = (*Image)(nil)
 	_ PatternAPI = (*Pattern)(nil)
 	_ FinderAPI  = (*Finder)(nil)
 	_ RegionAPI  = (*Region)(nil)
+	_ InputAPI   = (*InputController)(nil)
 )

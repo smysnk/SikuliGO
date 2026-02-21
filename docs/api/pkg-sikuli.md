@@ -129,6 +129,34 @@ type ImageAPI interface {
 	Crop(rect Rect) (*Image, error)
 }
 
+type InputAPI interface {
+	MoveMouse(x, y int, opts InputOptions) error
+	Click(x, y int, opts InputOptions) error
+	TypeText(text string, opts InputOptions) error
+	Hotkey(keys ...string) error
+}
+
+type InputController struct {
+	// Has unexported fields.
+}
+
+func NewInputController() *InputController
+
+func (c *InputController) Click(x, y int, opts InputOptions) error
+
+func (c *InputController) Hotkey(keys ...string) error
+
+func (c *InputController) MoveMouse(x, y int, opts InputOptions) error
+
+func (c *InputController) SetBackend(backend core.Input)
+
+func (c *InputController) TypeText(text string, opts InputOptions) error
+
+type InputOptions struct {
+	Delay  time.Duration
+	Button MouseButton
+}
+
 type Location struct {
 	X int
 	Y int
@@ -153,6 +181,13 @@ func NewMatch(x, y, w, h int, score float64, off Point) Match
 
 func (m Match) String() string
 
+type MouseButton string
+
+const (
+	MouseButtonLeft   MouseButton = "left"
+	MouseButtonRight  MouseButton = "right"
+	MouseButtonMiddle MouseButton = "middle"
+)
 type OCRParams struct {
 	Language         string
 	TrainingDataPath string

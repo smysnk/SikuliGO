@@ -18,6 +18,7 @@ This document consolidates the project goals, locked architecture, implementatio
 - `internal/core`: shared contracts and primitives (`SearchRequest`, `Matcher`, resize helpers)
 - `internal/cv`: concrete matching engine implementation
 - `internal/ocr`: OCR backend adapters and hOCR parsing helpers
+- `internal/input`: input automation backend adapters
 - `internal/testharness`: golden corpus loading and parity comparators
 
 ### Backend boundaries
@@ -49,6 +50,8 @@ This keeps `pkg/sikuli` stable while allowing alternate implementations (e.g., `
 | `Match` | object | match result payload | ✅ | Implemented in current baseline |
 | `TextMatch` | object | OCR text match payload | ✅ | Implemented in current baseline |
 | `OCRParams` | object | OCR request option payload | ✅ | Implemented in current baseline |
+| `InputOptions` | object | input action option payload | ✅ | Implemented in current baseline |
+| `InputController` | object | input automation orchestrator | ✅ | Implemented in current baseline |
 | `Finder` | object | user-facing matching orchestrator | ✅ | Implemented in current baseline |
 | `RuntimeSettings` | object | global runtime behavior values | ✅ | Implemented in current baseline |
 | `Options` | object | typed string-map options wrapper | ✅ | Implemented in current baseline |
@@ -61,6 +64,7 @@ This keeps `pkg/sikuli` stable while allowing alternate implementations (e.g., `
 | `PatternAPI` | stable pattern surface | ✅ | Signature and tests are in place |
 | `FinderAPI` | stable finder surface | ✅ | Signature and tests are in place |
 | `RegionAPI` | stable region surface | ✅ | Signature and tests are in place |
+| `InputAPI` | stable input automation surface | ✅ | Signature and tests are in place |
 
 ### `internal/core` protocol objects
 
@@ -73,6 +77,9 @@ This keeps `pkg/sikuli` stable while allowing alternate implementations (e.g., `
 | `OCRWord` | protocol object | backend-neutral OCR word payload | ✅ | Locked OCR word contract |
 | `OCRResult` | protocol object | backend-neutral OCR response payload | ✅ | Locked OCR response contract |
 | `OCR` | protocol interface | backend OCR boundary | ✅ | Used by finder OCR protocol |
+| `InputAction` | protocol object | backend-neutral input action enum | ✅ | Locked input action contract |
+| `InputRequest` | protocol object | backend-neutral input request | ✅ | Locked input request contract |
+| `Input` | protocol interface | backend input boundary | ✅ | Used by input controller |
 
 ### `internal/cv` protocol implementation
 
@@ -87,6 +94,12 @@ This keeps `pkg/sikuli` stable while allowing alternate implementations (e.g., `
 |---|---|---|---|---|
 | `unsupportedBackend` | protocol implementer | default OCR backend behavior | ✅ | returns unsupported unless gogosseract tag is enabled |
 | `gogosseractBackend` | protocol implementer | OCR backend adapter | ✅ | enabled with `-tags gogosseract` |
+
+### `internal/input` protocol implementation
+
+| Type | Kind | Role | Status | Notes |
+|---|---|---|---|---|
+| `unsupportedBackend` | protocol implementer | default input backend behavior | ✅ | returns unsupported until platform backend is added |
 
 ### `internal/testharness` protocol objects
 
@@ -120,10 +133,9 @@ Status: ✅ Completed (baseline implemented)
 
 ### Next planned workstreams
 
-1. Input automation and hotkey parity
-2. Observe/event subsystem parity
-3. App/window/process control parity
-4. Cross-platform backend hardening
+1. Observe/event subsystem parity
+2. App/window/process control parity
+3. Cross-platform backend hardening
 
 ### Workstream 3: API parity surface expansion
 
@@ -147,6 +159,14 @@ Status: 🟡 Planned
 
 Status: ✅ Completed (baseline implemented)
 
+### Workstream 6: Input automation and hotkey parity
+
+- Add input protocol contract in `internal/core`.
+- Expose `InputController` with move/click/type/hotkey APIs.
+- Start with unsupported backend and deterministic request/validation tests.
+
+Status: ✅ Completed (baseline implemented)
+
 ## Feature Matrix (Current and Planned)
 
 | Area | Scope | Priority | Status | Notes |
@@ -167,7 +187,7 @@ Status: ✅ Completed (baseline implemented)
 | Finder protocol swappability | `SetMatcher(core.Matcher)` | P0 | ✅ | enables backend evolution |
 | Global settings | `RuntimeSettings` get/update/reset | P1 | ✅ | expand settings map as parity grows |
 | Options/config object | typed get/set/delete/clone/merge | P1 | ✅ | string-map compatibility helper |
-| Signature compatibility layer | `ImageAPI`, `PatternAPI`, `FinderAPI` | P0 | ✅ | freeze enforced in docs |
+| Signature compatibility layer | `ImageAPI`, `PatternAPI`, `FinderAPI`, `RegionAPI`, `InputAPI` | P0 | ✅ | freeze enforced in docs |
 | Core matcher protocol | `SearchRequest`, `MatchCandidate`, `Matcher` | P0 | ✅ | strict boundary maintained |
 | Core image protocol util | `ResizeGrayNearest` | P1 | ✅ | may add interpolation variants later |
 | CV backend implementation | `NCCMatcher` | P0 | ✅ | first backend |
@@ -177,7 +197,9 @@ Status: ✅ Completed (baseline implemented)
 | CI test visibility | race tests + vet + tidy diff enforcement | P0 | ✅ | workflow publishes strict signal |
 | OCR/text search | read text/find text parity | P1 | ✅ | finder/region OCR APIs with optional `gogosseract` backend |
 | OCR backend swappability | `core.OCR` protocol + backend selection | P1 | ✅ | unsupported default + `gogosseract` build-tag backend |
-| Input automation | mouse/keyboard parity | P1 | 🟡 | Not yet implemented |
+| OCR conformance tests | confidence filtering + ordering + backend behavior | P1 | ✅ | includes unsupported backend and tagged hOCR parser conformance tests |
+| Input automation | mouse/keyboard parity | P1 | ✅ | `InputController` scaffolding with protocol boundary and tests |
+| Input backend swappability | `core.Input` protocol + backend selection | P1 | ✅ | unsupported default backend implemented |
 | Observe/events | appear/vanish/change parity | P1 | 🟡 | Not yet implemented |
 | App/window/process | focus/open/close/window parity | P2 | 🟡 | Not yet implemented |
 

@@ -491,6 +491,19 @@ func (s *stubOCRBackend) Read(req core.OCRRequest) (core.OCRResult, error) {
 	return s.result, nil
 }
 
+type stubInputBackend struct {
+	err      error
+	requests []core.InputRequest
+}
+
+func (s *stubInputBackend) Execute(req core.InputRequest) error {
+	s.requests = append(s.requests, req)
+	if s.err != nil {
+		return s.err
+	}
+	return nil
+}
+
 func TestFinderOCRUnsupportedByDefault(t *testing.T) {
 	img, err := NewImageFromMatrix("ocr-src", [][]uint8{
 		{255, 255},
@@ -626,5 +639,66 @@ func TestRegionOCRMethods(t *testing.T) {
 	}
 	if len(matches) != 1 || matches[0].Text != "Zone" {
 		t.Fatalf("region find text mismatch: %+v", matches)
+	}
+}
+
+func TestInputControllerUnsupportedByDefault(t *testing.T) {
+	c := NewInputController()
+	err := c.Click(10, 20, InputOptions{})
+	if !errors.Is(err, ErrBackendUnsupported) {
+		t.Fatalf("expected ErrBackendUnsupported, got=%v", err)
+	}
+}
+
+func TestInputControllerDispatchWithStub(t *testing.T) {
+	c := NewInputController()
+	stub := &stubInputBackend{}
+	c.SetBackend(stub)
+
+	if err := c.MoveMouse(10, 20, InputOptions{Delay: -10 * time.Millisecond}); err != nil {
+		t.Fatalf("move mouse failed: %v", err)
+	}
+	if err := c.Click(30, 40, InputOptions{Button: MouseButtonRight}); err != nil {
+		t.Fatalf("click failed: %v", err)
+	}
+	if err := c.TypeText("  hello  ", InputOptions{}); err != nil {
+		t.Fatalf("type text failed: %v", err)
+	}
+	if err := c.Hotkey("CMD", "SHIFT", "P"); err != nil {
+		t.Fatalf("hotkey failed: %v", err)
+	}
+
+	if len(stub.requests) != 4 {
+		t.Fatalf("expected 4 requests, got=%d", len(stub.requests))
+	}
+	if stub.requests[0].Action != core.InputActionMouseMove || stub.requests[0].Delay != 0 {
+		t.Fatalf("move request mismatch: %+v", stub.requests[0])
+	}
+	if stub.requests[1].Action != core.InputActionClick || stub.requests[1].Button != string(MouseButtonRight) {
+		t.Fatalf("click request mismatch: %+v", stub.requests[1])
+	}
+	if stub.requests[2].Action != core.InputActionTypeText || stub.requests[2].Text != "hello" {
+		t.Fatalf("type request mismatch: %+v", stub.requests[2])
+	}
+	if stub.requests[3].Action != core.InputActionHotkey || len(stub.requests[3].Keys) != 3 {
+		t.Fatalf("hotkey request mismatch: %+v", stub.requests[3])
+	}
+}
+
+func TestInputControllerValidation(t *testing.T) {
+	c := NewInputController()
+	stub := &stubInputBackend{}
+	c.SetBackend(stub)
+
+	if err := c.TypeText("   ", InputOptions{}); !errors.Is(err, ErrInvalidTarget) {
+		t.Fatalf("expected ErrInvalidTarget for empty type text, got=%v", err)
+	}
+	if err := c.Hotkey(); !errors.Is(err, ErrInvalidTarget) {
+		t.Fatalf("expected ErrInvalidTarget for empty hotkey, got=%v", err)
+	}
+
+	stub.err = errors.New("custom backend error")
+	if err := c.Click(1, 2, InputOptions{}); err == nil || errors.Is(err, ErrInvalidTarget) {
+		t.Fatalf("expected raw backend error, got=%v", err)
 	}
 }

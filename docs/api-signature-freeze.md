@@ -11,6 +11,9 @@ const DefaultAutoWaitTimeout = 3.0
 const DefaultWaitScanRate = 3.0
 const DefaultObserveScanRate = 3.0
 const DefaultOCRLanguage = "eng"
+const MouseButtonLeft MouseButton = "left"
+const MouseButtonRight MouseButton = "right"
+const MouseButtonMiddle MouseButton = "middle"
 ```
 
 ## Exported sentinel errors
@@ -80,6 +83,13 @@ type RegionAPI interface {
   FindAllByColumn(source *Image, pattern *Pattern) ([]Match, error)
   ReadText(source *Image, params OCRParams) (string, error)
   FindText(source *Image, query string, params OCRParams) ([]TextMatch, error)
+}
+
+type InputAPI interface {
+  MoveMouse(x, y int, opts InputOptions) error
+  Click(x, y int, opts InputOptions) error
+  TypeText(text string, opts InputOptions) error
+  Hotkey(keys ...string) error
 }
 ```
 
@@ -271,6 +281,36 @@ func (f *Finder) FindText(query string, params OCRParams) ([]TextMatch, error)
 func (f *Finder) LastMatches() []Match
 func SortMatchesByRowColumn(matches []Match)
 func SortMatchesByColumnRow(matches []Match)
+```
+
+### InputOptions
+
+```go
+type InputOptions struct {
+  Delay  time.Duration
+  Button MouseButton
+}
+```
+
+### MouseButton
+
+```go
+type MouseButton string
+const MouseButtonLeft MouseButton = "left"
+const MouseButtonRight MouseButton = "right"
+const MouseButtonMiddle MouseButton = "middle"
+```
+
+### InputController
+
+```go
+type InputController struct
+func NewInputController() *InputController
+func (c *InputController) SetBackend(backend core.Input)
+func (c *InputController) MoveMouse(x, y int, opts InputOptions) error
+func (c *InputController) Click(x, y int, opts InputOptions) error
+func (c *InputController) TypeText(text string, opts InputOptions) error
+func (c *InputController) Hotkey(keys ...string) error
 ```
 
 ### Options
