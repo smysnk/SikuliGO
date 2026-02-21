@@ -40,8 +40,7 @@ jobs:
 
       - name: Install test tooling
         run: |
-          go install gotest.tools/gotestsum@latest
-          go install github.com/boumenot/gocover-cobertura@latest
+          go install gotest.tools/gotestsum@v1.12.0
 
       - name: Tidy module
         run: go mod tidy
@@ -63,11 +62,10 @@ jobs:
             -- \
             -race -covermode=atomic -coverprofile=test-results/coverage.out ./...
           go tool cover -func=test-results/coverage.out > test-results/coverage.txt
-          "$(go env GOPATH)/bin/gocover-cobertura" < test-results/coverage.out > test-results/coverage.cobertura.xml
           awk '/^total:/{print "TOTAL_COVERAGE="$3}' test-results/coverage.txt >> "$GITHUB_ENV"
 
       - name: Publish test report
-        if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
+        if: always() && hashFiles('test-results/junit.xml') != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
         uses: dorny/test-reporter@v2
         with:
           name: GoLang Unit Tests
@@ -88,9 +86,6 @@ jobs:
             echo '```' >> "$GITHUB_STEP_SUMMARY"
           else
             echo "- Coverage report not produced." >> "$GITHUB_STEP_SUMMARY"
-          fi
-          if [ -f test-results/coverage.cobertura.xml ]; then
-            echo "- Cobertura XML: test-results/coverage.cobertura.xml" >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Upload test artifacts

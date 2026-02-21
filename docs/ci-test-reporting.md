@@ -18,7 +18,6 @@ The workflow writes all outputs into `test-results/` and uploads them as the `go
 - `go-test.json`: machine-readable Go test event stream from `gotestsum`.
 - `coverage.out`: raw Go coverage profile.
 - `coverage.txt`: human-readable function coverage from `go tool cover -func`.
-- `coverage.cobertura.xml`: Cobertura XML generated from `coverage.out`.
 
 ## GitHub-friendly visibility
 
