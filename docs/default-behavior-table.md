@@ -35,7 +35,7 @@ This table captures current default and protocol behavior for all existing expor
 | `Image` | `Crop(rect)` | preserves absolute coordinate bounds in crop | errors if rect is empty or fully outside source |
 | `Match` | `Target` | center + offset | computed in `NewMatch` |
 | `Finder` | matcher backend | `NCCMatcher` | set by `NewFinder` |
-| `Finder` | OCR backend | unsupported backend unless built with `-tags gogosseract` | set by `NewFinder` |
+| `Finder` | OCR backend | unsupported backend unless built with `-tags gogosseract` | gogosseract backend is pinned in `go.mod` for tagged builds |
 | `Finder` | `last` cache | `nil` | populated after find operations |
 | `Finder` | `Exists(pattern)` | `(Match{}, false, nil)` on missing targets | does not return `ErrFindFailed` for misses |
 | `Finder` | `Has(pattern)` | `false` on missing targets | forwards non-find errors |
@@ -50,10 +50,10 @@ This table captures current default and protocol behavior for all existing expor
 | `InputController` | `Click(x, y, opts)` | default button is `left` | delegates to `core.Input` |
 | `InputController` | `TypeText(text, opts)` | trims text and rejects empty values | returns `ErrInvalidTarget` on empty text |
 | `InputController` | `Hotkey(keys...)` | requires at least one non-empty key | returns `ErrInvalidTarget` on invalid keys |
-| `ObserverController` | observe backend | unsupported backend | set by `NewObserverController` |
+| `ObserverController` | observe backend | deterministic polling backend | set by `NewObserverController` |
 | `ObserverController` | `ObserveAppear/ObserveVanish` | requires non-empty region and non-nil pattern | delegates to `core.Observer` |
 | `ObserverController` | `ObserveChange` | pattern not required | delegates to `core.Observer` |
-| `AppController` | app backend | unsupported backend | set by `NewAppController` |
+| `AppController` | app backend | concrete `darwin` backend, unsupported on `!darwin` | set by `NewAppController` |
 | `AppController` | `Open/Focus/Close` | requires non-empty app name | delegates to `core.App` |
 | `AppController` | `IsRunning` | returns backend running state | delegates to `core.App` |
 | `AppController` | `ListWindows` | maps backend window payloads to `Window` values | delegates to `core.App` |

@@ -15,7 +15,7 @@ import (
 	"strings"
 
 	"github.com/sikulix/portgo/internal/core"
-	"github.com/smysnk/gogosseract"
+	"github.com/danlock/gogosseract"
 )
 
 var (

@@ -1,6 +1,6 @@
 # App Control
 
-SikuliGO includes a baseline app/window/process scaffold through `AppController`.
+SikuliGO provides app/window/process APIs through `AppController`.
 
 ## Public API
 
@@ -22,6 +22,7 @@ App actions flow through `core.AppRequest` with strict validation:
 
 ## Backend behavior
 
-The default backend is an unsupported stub and returns `ErrBackendUnsupported` through the public API.
+- `darwin` builds use a concrete backend for open/focus/close/is-running/list-windows.
+- non-`darwin` builds use an unsupported fallback backend and return `ErrBackendUnsupported` through the public API.
 
-This locks app/window contracts now, while cross-platform app-control backends can be added later without breaking the public surface.
+This keeps app/window contracts stable while enabling incremental cross-platform backend expansion.

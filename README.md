@@ -18,10 +18,10 @@ This repository houses a GoLang implementation of Sikuli visual automation.
 | Core API scaffolding | Public SikuliGo API surface and parity-facing core objects | ✅ Completed (baseline + extensions) |
 | Matching engine and parity harness | Deterministic matcher behavior, golden corpus, backend conformance tests | ✅ Completed (baseline + extensions) |
 | API parity surface expansion | Additional parity helpers and compatibility APIs | 🟡 Planned / In progress |
-| OCR and text-search parity | OCR contracts, finder/region text flows, optional backend integration | ✅ Completed (baseline) |
+| OCR and text-search parity | OCR contracts, finder/region text flows, optional backend integration | ✅ Completed (pinned gogosseract integration) |
 | Input automation and hotkey parity | Input controller contracts, request validation, backend protocol scaffold | ✅ Completed (baseline scaffold) |
-| Observe/event subsystem parity | Observer contracts, request validation, backend protocol scaffold | ✅ Completed (baseline scaffold) |
-| App/window/process control parity | App/window contracts, request validation, backend protocol scaffold | ✅ Completed (baseline scaffold) |
+| Observe/event subsystem parity | Observer contracts, request validation, backend protocol scaffold | ✅ Completed (concrete deterministic polling backend) |
+| App/window/process control parity | App/window contracts, request validation, backend protocol scaffold | 🟡 In progress (concrete `darwin` backend; `!darwin` fallback unsupported) |
 | Cross-platform backend hardening | Platform integration hardening and backend portability | 🟡 Planned |
 
 ## Port Strategy
@@ -50,6 +50,8 @@ GoLang API reference pages are generated from source with `./scripts/generate-ap
 
 ## Getting Started
 
+Requires GoLang `1.24+`.
+
 ```bash
 go mod tidy
 go test ./...
@@ -58,7 +60,7 @@ go test ./...
 Optional OCR backend (gogosseract):
 
 ```bash
-go get github.com/smysnk/gogosseract@wazero-1-11-lean-fork-compat
+# dependency is pinned in go.mod (danlock module path -> smysnk fork)
 go test -tags gogosseract ./...
 ```
 

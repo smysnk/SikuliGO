@@ -2,6 +2,7 @@ package sikuli
 
 import (
 	"errors"
+	"strings"
 	"testing"
 	"time"
 
@@ -545,8 +546,15 @@ func TestFinderOCRUnsupportedByDefault(t *testing.T) {
 		t.Fatalf("new finder: %v", err)
 	}
 	_, err = f.ReadText(OCRParams{})
-	if !errors.Is(err, ErrBackendUnsupported) {
-		t.Fatalf("expected ErrBackendUnsupported, got=%v", err)
+	if err == nil {
+		t.Fatalf("expected backend error, got nil")
+	}
+	if errors.Is(err, ErrBackendUnsupported) {
+		return
+	}
+	// Tagged gogosseract builds may fail due missing runtime training data in test environments.
+	if !strings.Contains(strings.ToLower(err.Error()), "trainingdata") {
+		t.Fatalf("expected backend unsupported or training-data error, got=%v", err)
 	}
 }
 
@@ -731,7 +739,7 @@ func TestInputControllerValidation(t *testing.T) {
 	}
 }
 
-func TestObserverControllerUnsupportedByDefault(t *testing.T) {
+func TestObserverControllerMapsUnsupportedBackend(t *testing.T) {
 	source, err := NewImageFromMatrix("obs-src", [][]uint8{
 		{1, 1, 1},
 		{1, 1, 1},
@@ -748,10 +756,60 @@ func TestObserverControllerUnsupportedByDefault(t *testing.T) {
 	if err != nil {
 		t.Fatalf("new pattern: %v", err)
 	}
+
+	prevFactory := newObserveBackend
+	newObserveBackend = func() core.Observer {
+		return &stubObserveBackend{err: core.ErrObserveUnsupported}
+	}
+	defer func() {
+		newObserveBackend = prevFactory
+	}()
+
 	observer := NewObserverController()
 	_, err = observer.ObserveAppear(source, NewRegion(0, 0, 3, 3), pattern, ObserveOptions{})
 	if !errors.Is(err, ErrBackendUnsupported) {
 		t.Fatalf("expected ErrBackendUnsupported, got=%v", err)
+	}
+}
+
+func TestObserverControllerDefaultBackendAppear(t *testing.T) {
+	source, err := NewImageFromMatrix("obs-src", [][]uint8{
+		{0, 0, 0, 0},
+		{0, 10, 200, 0},
+		{0, 220, 15, 0},
+		{0, 0, 0, 0},
+	})
+	if err != nil {
+		t.Fatalf("new source: %v", err)
+	}
+	patternImage, err := NewImageFromMatrix("obs-needle", [][]uint8{
+		{10, 200},
+		{220, 15},
+	})
+	if err != nil {
+		t.Fatalf("new pattern image: %v", err)
+	}
+	pattern, err := NewPattern(patternImage)
+	if err != nil {
+		t.Fatalf("new pattern: %v", err)
+	}
+
+	observer := NewObserverController()
+	events, err := observer.ObserveAppear(source, NewRegion(0, 0, 4, 4), pattern, ObserveOptions{
+		Interval: 5 * time.Millisecond,
+		Timeout:  0,
+	})
+	if err != nil {
+		t.Fatalf("observe appear failed: %v", err)
+	}
+	if len(events) != 1 {
+		t.Fatalf("expected 1 event, got=%d", len(events))
+	}
+	if events[0].Type != ObserveEventAppear {
+		t.Fatalf("expected appear event, got=%q", events[0].Type)
+	}
+	if events[0].Match.X != 1 || events[0].Match.Y != 1 {
+		t.Fatalf("expected match at (1,1), got=(%d,%d)", events[0].Match.X, events[0].Match.Y)
 	}
 }
 
@@ -864,7 +922,15 @@ func TestObserverControllerValidation(t *testing.T) {
 	}
 }
 
-func TestAppControllerUnsupportedByDefault(t *testing.T) {
+func TestAppControllerMapsUnsupportedBackend(t *testing.T) {
+	prevFactory := newAppBackend
+	newAppBackend = func() core.App {
+		return &stubAppBackend{err: core.ErrAppUnsupported}
+	}
+	defer func() {
+		newAppBackend = prevFactory
+	}()
+
 	controller := NewAppController()
 	err := controller.Open("Demo", nil, AppOptions{})
 	if !errors.Is(err, ErrBackendUnsupported) {

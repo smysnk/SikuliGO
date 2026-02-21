@@ -142,10 +142,5 @@ jobs:
           go-version-file: go.mod
           cache: true
 
-      - name: Install gogosseract fork
-        run: |
-          go get github.com/smysnk/gogosseract@wazero-1-11-lean-fork-compat
-          go mod tidy
-
       - name: Run OCR tagged tests
         run: go test -tags gogosseract ./internal/ocr ./pkg/sikuli

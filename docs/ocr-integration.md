@@ -13,15 +13,9 @@ By default, OCR is disabled at build time and these APIs return `ErrBackendUnsup
 
 SikuliGO includes an optional OCR backend adapter for:
 
-- `github.com/smysnk/gogosseract`
-- branch/tag: `wazero-1-11-lean-fork-compat`
-
-Install and pin the backend dependency:
-
-```bash
-go get github.com/smysnk/gogosseract@wazero-1-11-lean-fork-compat
-go mod tidy
-```
+- module path: `github.com/danlock/gogosseract`
+- pinned fork source: `github.com/smysnk/gogosseract`
+- pinned revision is locked in `go.mod` via `replace`
 
 Build or test with OCR enabled:
 

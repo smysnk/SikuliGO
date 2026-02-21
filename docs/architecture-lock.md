@@ -27,9 +27,9 @@ This document defines the locked package boundaries, object responsibilities, an
 - `internal/input`:
   - Input backend implementation with unsupported default.
 - `internal/observe`:
-  - Observe backend implementation with unsupported default.
+  - Observe backend implementation with deterministic polling default.
 - `internal/app`:
-  - App/window backend implementation with unsupported default.
+  - App/window backend implementation with `darwin` concrete backend and `!darwin` unsupported fallback.
 - `internal/testharness`:
   - Corpus loading, comparator policy, and parity tests.
 
@@ -114,11 +114,12 @@ This document defines the locked package boundaries, object responsibilities, an
 
 ### `internal/observe`
 
-- `unsupportedBackend`: default implementation returning `core.ErrObserveUnsupported`.
+- `pollingBackend`: default implementation using matcher-driven interval polling for appear/vanish/change.
 
 ### `internal/app`
 
-- `unsupportedBackend`: default implementation returning `core.ErrAppUnsupported`.
+- `darwinBackend`: concrete macOS implementation for open/focus/close/is-running/list-windows.
+- `unsupportedBackend`: `!darwin` fallback implementation returning `core.ErrAppUnsupported`.
 
 ### `internal/testharness`
 
@@ -156,7 +157,7 @@ type OCR interface {
 
 `pkg/sikuli.Finder` text APIs (`ReadText` and `FindText`) must consume only this protocol and must not depend on backend-specific types.
 
-Default builds use the unsupported backend and return `ErrBackendUnsupported` through the public API unless built with `-tags gogosseract`.
+Default builds use the unsupported OCR backend and return `ErrBackendUnsupported` through the public API unless built with `-tags gogosseract`.
 
 ## Protocol lock: input boundary
 

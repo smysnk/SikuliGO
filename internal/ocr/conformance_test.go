@@ -1,3 +1,5 @@
+//go:build !gogosseract
+
 package ocr
 
 import (

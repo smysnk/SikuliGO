@@ -125,13 +125,14 @@ This keeps `pkg/sikuli` stable while allowing alternate implementations (e.g., `
 
 | Type | Kind | Role | Status | Notes |
 |---|---|---|---|---|
-| `unsupportedBackend` | protocol implementer | default observe backend behavior | ✅ | returns unsupported until platform backend is added |
+| `pollingBackend` | protocol implementer | deterministic observe backend behavior | ✅ | matcher-driven interval polling for appear/vanish/change |
 
 ### `internal/app` protocol implementation
 
 | Type | Kind | Role | Status | Notes |
 |---|---|---|---|---|
-| `unsupportedBackend` | protocol implementer | default app/window backend behavior | ✅ | returns unsupported until platform backend is added |
+| `darwinBackend` | protocol implementer | concrete app/window backend for macOS | ✅ | supports open/focus/close/is-running/list-windows |
+| `unsupportedBackend` | protocol implementer | non-macOS fallback backend behavior | ✅ | returns unsupported on `!darwin` builds |
 
 ### `internal/testharness` protocol objects
 
@@ -168,6 +169,15 @@ Status: ✅ Completed (baseline implemented)
 1. Cross-platform backend hardening
 2. Protocol completeness hardening
 
+### Scaffold vs concrete backend status
+
+| Workstream | Baseline scaffold | Concrete backend | Notes |
+|---|---|---|---|
+| Workstream 5: OCR and text-search parity | ✅ | ✅ | gogosseract backend is pinned and enabled with `-tags gogosseract` |
+| Workstream 6: Input automation and hotkey parity | ✅ | 🟡 | protocol is complete; concrete platform backend still pending |
+| Workstream 7: Observe/event subsystem parity | ✅ | ✅ | deterministic polling backend implemented in `internal/observe` |
+| Workstream 8: App/window/process control parity | ✅ | 🟡 | concrete `darwin` backend complete; `!darwin` remains unsupported |
+
 ### Workstream 3: API parity surface expansion
 
 - Expand `pkg/sikuli` to include additional parity objects and behaviors (location/offset aliases, broader region/finder helpers, options surfaces).
@@ -186,9 +196,10 @@ Status: 🟡 Planned
 
 - Add OCR protocol contract in `internal/core`.
 - Expose `Finder.ReadText/FindText` and region-scoped text operations.
-- Integrate optional backend support through `gogosseract`.
+- Integrate optional backend support through the pinned `gogosseract` fork.
 
-Status: ✅ Completed (baseline implemented)
+Status (Baseline scaffold): ✅ Completed
+Status (Concrete backend): ✅ Completed (pinned `gogosseract` backend with tagged tests)
 
 ### Workstream 6: Input automation and hotkey parity
 
@@ -196,23 +207,26 @@ Status: ✅ Completed (baseline implemented)
 - Expose `InputController` with move/click/type/hotkey APIs.
 - Start with unsupported backend and deterministic request/validation tests.
 
-Status: ✅ Completed (baseline implemented)
+Status (Baseline scaffold): ✅ Completed
+Status (Concrete backend): 🟡 Planned (default backend still unsupported)
 
 ### Workstream 7: Observe/event subsystem parity
 
 - Add observe protocol contract in `internal/core`.
 - Expose `ObserverController` with appear/vanish/change APIs.
-- Start with unsupported backend and deterministic request/validation tests.
+- Implement deterministic matcher-driven polling backend and conformance timing tests.
 
-Status: ✅ Completed (baseline implemented)
+Status (Baseline scaffold): ✅ Completed
+Status (Concrete backend): ✅ Completed (deterministic polling backend implemented)
 
 ### Workstream 8: App/window/process control parity
 
 - Add app/window protocol contract in `internal/core`.
 - Expose `AppController` with open/focus/close/is-running/list-window APIs.
-- Start with unsupported backend and deterministic request/validation tests.
+- Implement concrete `darwin` backend behind protocol boundary and keep `!darwin` unsupported fallback.
 
-Status: ✅ Completed (baseline implemented)
+Status (Baseline scaffold): ✅ Completed
+Status (Concrete backend): 🟡 In progress (concrete `darwin` backend + `!darwin` unsupported fallback)
 
 ## Feature Matrix (Current and Planned)
 
@@ -243,14 +257,14 @@ Status: ✅ Completed (baseline implemented)
 | Backend conformance protocol | ordering/threshold/mask/resize assertions | P0 | ✅ | active tests in `internal/cv` |
 | CI test visibility | race tests + vet + tidy diff enforcement | P0 | ✅ | workflow publishes strict signal |
 | OCR/text search | read text/find text parity | P1 | ✅ | finder/region OCR APIs with optional `gogosseract` backend |
-| OCR backend swappability | `core.OCR` protocol + backend selection | P1 | ✅ | unsupported default + `gogosseract` build-tag backend |
+| OCR backend swappability | `core.OCR` protocol + backend selection | P1 | ✅ | unsupported default + pinned `gogosseract` build-tag backend |
 | OCR conformance tests | confidence filtering + ordering + backend behavior | P1 | ✅ | includes unsupported backend and tagged hOCR parser conformance tests |
 | Input automation | mouse/keyboard parity | P1 | ✅ | `InputController` scaffolding with protocol boundary and tests |
-| Input backend swappability | `core.Input` protocol + backend selection | P1 | ✅ | unsupported default backend implemented |
-| Observe/events | appear/vanish/change parity | P1 | ✅ | `ObserverController` scaffolding with protocol boundary and tests |
-| Observe backend swappability | `core.Observer` protocol + backend selection | P1 | ✅ | unsupported default backend implemented |
-| App/window/process | focus/open/close/window parity | P2 | ✅ | `AppController` scaffolding with protocol boundary and tests |
-| App backend swappability | `core.App` protocol + backend selection | P2 | ✅ | unsupported default backend implemented |
+| Input backend swappability | `core.Input` protocol + backend selection | P1 | ✅ | unsupported default backend implemented (concrete backend pending) |
+| Observe/events | appear/vanish/change parity | P1 | ✅ | `ObserverController` + concrete deterministic polling backend |
+| Observe backend swappability | `core.Observer` protocol + backend selection | P1 | ✅ | concrete default polling backend via `internal/observe` |
+| App/window/process | focus/open/close/window parity | P2 | ✅ | `AppController` protocol with concrete `darwin` backend |
+| App backend swappability | `core.App` protocol + backend selection | P2 | ✅ | `darwin` concrete backend + `!darwin` unsupported fallback |
 
 ## Protocol Completion Criteria
 

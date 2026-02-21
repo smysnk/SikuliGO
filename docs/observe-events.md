@@ -1,6 +1,6 @@
 # Observe Events
 
-SikuliGO includes a baseline observe/event scaffold through `ObserverController`.
+SikuliGO provides observe/event APIs through `ObserverController` with a concrete deterministic polling backend.
 
 ## Public API
 
@@ -21,6 +21,6 @@ Observe actions flow through `core.ObserveRequest` with strict validation:
 
 ## Backend behavior
 
-The default backend is an unsupported stub and returns `ErrBackendUnsupported` through the public API.
+The default backend uses interval polling against the existing matcher to evaluate appear/vanish requests and pixel-delta checks for change requests.
 
-This locks the observe protocol and deterministic tests now, while platform-specific observe backends can be added later without breaking the public surface.
+Conformance tests validate deterministic timing for appear, vanish, and change event emission.
