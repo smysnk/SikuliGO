@@ -26,6 +26,10 @@ This document defines and tracks the gRPC approach for exposing the SikuliGO API
 - Stub generation/check scripts:
   - `scripts/generate-grpc-stubs.sh`
   - `scripts/check-grpc-stubs.sh`
+- Client wrappers and examples:
+  - Python: `clients/python/` + `scripts/clients/generate-python-stubs.sh`
+  - Node.js: `clients/node/` + `scripts/clients/generate-node-stubs.sh`
+  - Lua: `clients/lua/` + `scripts/clients/generate-lua-descriptor.sh`
 
 ## Proposed API Surface
 
@@ -84,10 +88,10 @@ Status: ✅ Implemented (auth/logging/tracing interceptors)
 
 ### Phase 4: Client integration enablement
 
-Status: 🟡 Planned
+Status: ✅ Implemented (baseline client wrappers/examples)
 
 - Generate and publish client stubs for Python and Node.js.
-- Provide Lua integration path (direct gRPC where runtime supports it, or JSON gateway path).
+- Provide Lua integration path (implemented using `grpcurl` direct method calls + descriptor generation).
 - Add language-specific quickstart examples.
 
 ### Phase 5: Verification and rollout
@@ -123,12 +127,12 @@ go run ./cmd/sikuligrpc -listen :50051 -auth-token "$SIKULI_GRPC_AUTH_TOKEN"
 
 - Contract tests: server output matches proto schema and semantic defaults.
 - Conformance tests: behavior parity against existing in-process APIs.
-- Integration tests: Python and Node smoke calls in CI.
+- Integration tests: Python and Node smoke calls in CI (planned next step).
 - Compatibility tests: reject breaking proto changes in `v1`.
 
 ## Definition of Done
 
 - `v1` proto is versioned and documented.
 - Go gRPC server runs with endpoint coverage for matching, OCR, input, observe, and app control.
-- Generated client stubs are validated for Python/Node and integration path is documented for Lua.
+- Baseline client wrappers/examples exist for Python/Node/Lua and align to the same `v1` RPC contract.
 - Operational concerns (auth, tracing, metrics) are implemented via interceptors.

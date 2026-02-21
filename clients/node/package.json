@@ -1,0 +1,24 @@
+{
+  "name": "sikuligo-node-client",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SikuliGO gRPC client wrapper and examples for Node.js",
+  "scripts": {
+    "generate": "bash ../../scripts/clients/generate-node-stubs.sh",
+    "build": "tsc -p tsconfig.json",
+    "example:find": "tsx examples/find.ts",
+    "example:ocr": "tsx examples/ocr.ts",
+    "example:input": "tsx examples/input.ts",
+    "example:app": "tsx examples/app.ts"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^1.14.0",
+    "@grpc/proto-loader": "^0.8.0"
+  },
+  "devDependencies": {
+    "grpc-tools": "^1.13.0",
+    "grpc_tools_node_protoc_ts": "^5.3.3",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.3"
+  }
+}
