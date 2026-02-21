@@ -9,13 +9,13 @@ API reference pages are generated from source using `go doc` and validated with 
 ## Documents
 
 - [Port Strategy](https://smysnk.github.io/SikuliGO/port-strategy)
-- [API Reference](https://smysnk.github.io/SikuliGO/api/)
-- [Default Behavior Table](https://smysnk.github.io/SikuliGO/default-behavior-table)
 
 ## Integration & Implementation
 
+- [API Reference](https://smysnk.github.io/SikuliGO/api/)
 - [OCR](https://smysnk.github.io/SikuliGO/ocr-integration)
 - [Input Automation](https://smysnk.github.io/SikuliGO/input-automation)
 - [Observe Events](https://smysnk.github.io/SikuliGO/observe-events)
 - [App Control](https://smysnk.github.io/SikuliGO/app-control)
+- [Default Behavior Table](https://smysnk.github.io/SikuliGO/default-behavior-table)
 - [Backend Capability Matrix](https://smysnk.github.io/SikuliGO/backend-capability-matrix)

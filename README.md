@@ -27,15 +27,15 @@ This repository houses a GoLang implementation of Sikuli visual automation.
 ## Port Strategy
 
 - [Docs Home](https://smysnk.github.io/SikuliGO/)
-- [Consolidated Strategy](https://smysnk.github.io/SikuliGO/port-strategy)
-- [API Reference](https://smysnk.github.io/SikuliGO/api/)
-- [Defaults Table](https://smysnk.github.io/SikuliGO/default-behavior-table)
+- [Port Strategy](https://smysnk.github.io/SikuliGO/port-strategy)
 
 Integration & Implementation:
+- [API Reference](https://smysnk.github.io/SikuliGO/api/)
 - [OCR](https://smysnk.github.io/SikuliGO/ocr-integration)
 - [Input Automation](https://smysnk.github.io/SikuliGO/input-automation)
 - [Observe Events](https://smysnk.github.io/SikuliGO/observe-events)
 - [App Control](https://smysnk.github.io/SikuliGO/app-control)
+- [Defaults Table](https://smysnk.github.io/SikuliGO/default-behavior-table)
 - [Backend Capability Matrix](https://smysnk.github.io/SikuliGO/backend-capability-matrix)
 
 API reference pages are generated from source with `./scripts/generate-api-docs.sh` and validated with `./scripts/check-api-docs.sh`.
