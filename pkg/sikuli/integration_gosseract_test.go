@@ -1,4 +1,4 @@
-//go:build gogosseract
+//go:build gosseract || gogosseract
 
 package sikuli
 

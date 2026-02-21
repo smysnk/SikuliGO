@@ -35,7 +35,7 @@ This table captures current default and protocol behavior for all existing expor
 | `Image` | `Crop(rect)` | preserves absolute coordinate bounds in crop | errors if rect is empty or fully outside source |
 | `Match` | `Target` | center + offset | computed in `NewMatch` |
 | `Finder` | matcher backend | `NCCMatcher` | set by `NewFinder` |
-| `Finder` | OCR backend | unsupported backend unless built with `-tags gogosseract` | gogosseract backend is pinned in `go.mod` for tagged builds |
+| `Finder` | OCR backend | unsupported backend unless built with `-tags gosseract` | gosseract module version is pinned in `go.mod` for tagged builds |
 | `Finder` | `last` cache | `nil` | populated after find operations |
 | `Finder` | `Exists(pattern)` | `(Match{}, false, nil)` on missing targets | does not return `ErrFindFailed` for misses |
 | `Finder` | `Has(pattern)` | `false` on missing targets | forwards non-find errors |

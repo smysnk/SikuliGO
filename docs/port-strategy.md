@@ -112,8 +112,8 @@ This keeps `pkg/sikuli` stable while allowing alternate implementations (e.g., `
 
 | Type | Kind | Role | Status | Notes |
 |---|---|---|---|---|
-| `unsupportedBackend` | protocol implementer | default OCR backend behavior | ✅ | returns unsupported unless gogosseract tag is enabled |
-| `gogosseractBackend` | protocol implementer | OCR backend adapter | ✅ | enabled with `-tags gogosseract` |
+| `unsupportedBackend` | protocol implementer | default OCR backend behavior | ✅ | returns unsupported unless gosseract tag is enabled |
+| `gosseractBackend` | protocol implementer | OCR backend adapter | ✅ | enabled with `-tags gosseract` |
 
 ### `internal/input` protocol implementation
 
@@ -159,7 +159,7 @@ This keeps `pkg/sikuli` stable while allowing alternate implementations (e.g., `
 Status: ✅ Completed (baseline implemented)
 
 Current extension state: Region geometry/runtime helper surface, Finder wait/vanish helpers, Region-scoped search/wait parity scaffolding, and Location/Offset parity objects are implemented and covered by unit tests.
-Current extension state additionally includes `Options` typed configuration helpers, sorted `FindAll` parity helpers, OCR text-search APIs (`ReadText`/`FindText`) with optional `gogosseract` backend integration, input automation scaffolding, observe/event scaffolding, and app/window scaffolding.
+Current extension state additionally includes `Options` typed configuration helpers, sorted `FindAll` parity helpers, OCR text-search APIs (`ReadText`/`FindText`) with optional `gosseract` backend integration, input automation scaffolding, observe/event scaffolding, and app/window scaffolding.
 
 ### Workstream 2: Matching engine and parity harness
 
@@ -178,7 +178,7 @@ Status: ✅ Completed (baseline implemented)
 
 | Workstream | Baseline scaffold | Concrete backend | Notes |
 |---|---|---|---|
-| Workstream 5: OCR and text-search parity | ✅ | ✅ | gogosseract backend is pinned and enabled with `-tags gogosseract` |
+| Workstream 5: OCR and text-search parity | ✅ | ✅ | gosseract module version is pinned and enabled with `-tags gosseract` |
 | Workstream 6: Input automation and hotkey parity | ✅ | ✅ | concrete `darwin`/`linux`/`windows` backends implemented |
 | Workstream 7: Observe/event subsystem parity | ✅ | ✅ | deterministic polling backend implemented in `internal/observe` |
 | Workstream 8: App/window/process control parity | ✅ | ✅ | concrete `darwin`/`linux`/`windows` backends implemented |
@@ -201,10 +201,10 @@ Status: 🟡 Planned
 
 - Add OCR protocol contract in `internal/core`.
 - Expose `Finder.ReadText/FindText` and region-scoped text operations.
-- Integrate optional backend support through the pinned `gogosseract` fork.
+- Integrate optional backend support through the pinned `gosseract` module version.
 
 Status (Baseline scaffold): ✅ Completed
-Status (Concrete backend): ✅ Completed (pinned `gogosseract` backend with tagged tests)
+Status (Concrete backend): ✅ Completed (pinned `gosseract` backend with tagged tests)
 
 ### Workstream 6: Input automation and hotkey parity
 
@@ -261,9 +261,9 @@ Status (Concrete backend): ✅ Completed (`darwin` + `linux` + `windows` backend
 | Golden parity protocol | corpus loader + comparator + tests | P0 | ✅ | active in CI/local tests |
 | Backend conformance protocol | ordering/threshold/mask/resize assertions | P0 | ✅ | active tests in `internal/cv` |
 | CI test visibility | race tests + vet + tidy diff enforcement | P0 | ✅ | workflow publishes strict signal |
-| End-to-end parity flows | app + input + observe + OCR chained behavior | P1 | ✅ | dedicated parity e2e tests for default and `-tags gogosseract` builds |
-| OCR/text search | read text/find text parity | P1 | ✅ | finder/region OCR APIs with optional `gogosseract` backend |
-| OCR backend swappability | `core.OCR` protocol + backend selection | P1 | ✅ | unsupported default + pinned `gogosseract` build-tag backend |
+| End-to-end parity flows | app + input + observe + OCR chained behavior | P1 | ✅ | dedicated parity e2e tests for default and `-tags gosseract` builds |
+| OCR/text search | read text/find text parity | P1 | ✅ | finder/region OCR APIs with optional `gosseract` backend |
+| OCR backend swappability | `core.OCR` protocol + backend selection | P1 | ✅ | unsupported default + pinned `gosseract` build-tag backend |
 | OCR conformance tests | confidence filtering + ordering + backend behavior | P1 | ✅ | includes unsupported backend and tagged hOCR parser conformance tests |
 | Input automation | mouse/keyboard parity | P1 | ✅ | `InputController` scaffolding with protocol boundary and tests |
 | Input backend swappability | `core.Input` protocol + backend selection | P1 | ✅ | concrete `darwin`/`linux`/`windows` backends + non-target fallback |

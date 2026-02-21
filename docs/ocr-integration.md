@@ -9,19 +9,23 @@ SikuliGO provides OCR APIs in `Finder` and `Region`:
 
 By default, OCR is disabled at build time and these APIs return `ErrBackendUnsupported`.
 
-## Enable gogosseract backend
+## Enable gosseract backend
 
 SikuliGO includes an optional OCR backend adapter for:
 
-- module path: `github.com/danlock/gogosseract`
-- pinned fork source: `github.com/smysnk/gogosseract`
-- pinned revision is locked in `go.mod` via `replace`
+- module path: `github.com/otiai10/gosseract/v2`
+- pinned module version in `go.mod`
+
+Native runtime requirements:
+
+- Tesseract OCR and Leptonica shared libraries available on the host
+- language training data installed for the selected OCR language (for example, `eng`)
 
 Build or test with OCR enabled:
 
 ```bash
-go test -tags gogosseract ./...
-go build -tags gogosseract ./...
+go test -tags gosseract ./...
+go build -tags gosseract ./...
 ```
 
 ## OCR parameters

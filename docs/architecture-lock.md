@@ -23,7 +23,7 @@ This document defines the locked package boundaries, object responsibilities, an
 - `internal/cv`:
   - Primary matcher backend implementation (`NCCMatcher`).
 - `internal/ocr`:
-  - OCR backend implementation with optional `gogosseract` integration.
+  - OCR backend implementation with optional `gosseract` integration.
 - `internal/input`:
   - Input backend implementation with `darwin`, `linux`, and `windows` concrete backends plus non-target unsupported fallback.
 - `internal/observe`:
@@ -103,10 +103,10 @@ This document defines the locked package boundaries, object responsibilities, an
 ### `internal/ocr`
 
 - `unsupportedBackend`: default implementation returning `core.ErrOCRUnsupported`.
-- `gogosseractBackend`: optional implementation (build tag `gogosseract`) using `github.com/smysnk/gogosseract`.
+- `gosseractBackend`: optional implementation (build tag `gosseract`) using `github.com/otiai10/gosseract/v2`.
 - Internal protocol helpers:
-  - reflective method adaptation for fork compatibility
   - hOCR word parsing and confidence filtering
+  - timeout-wrapped OCR execution for request-bounded reads
 
 ### `internal/input`
 
@@ -162,7 +162,7 @@ type OCR interface {
 
 `pkg/sikuli.Finder` text APIs (`ReadText` and `FindText`) must consume only this protocol and must not depend on backend-specific types.
 
-Default builds use the unsupported OCR backend and return `ErrBackendUnsupported` through the public API unless built with `-tags gogosseract`.
+Default builds use the unsupported OCR backend and return `ErrBackendUnsupported` through the public API unless built with `-tags gosseract`.
 
 ## Protocol lock: input boundary
 

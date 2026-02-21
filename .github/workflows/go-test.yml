@@ -151,7 +151,7 @@ jobs:
           path: .test-results
           retention-days: 14
 
-  ocr-gogosseract:
+  ocr-gosseract:
     runs-on: ubuntu-latest
     continue-on-error: true
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -164,8 +164,13 @@ jobs:
           go-version-file: go.mod
           cache: true
 
+      - name: Install OCR native dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tesseract-ocr libtesseract-dev libleptonica-dev tesseract-ocr-eng
+
       - name: Run OCR tagged tests
-        run: go test -tags gogosseract ./internal/ocr ./pkg/sikuli
+        run: go test -tags gosseract ./internal/ocr ./pkg/sikuli
 
   parity-e2e:
     runs-on: ubuntu-latest
@@ -178,6 +183,11 @@ jobs:
         with:
           go-version-file: go.mod
           cache: true
+
+      - name: Install OCR native dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tesseract-ocr libtesseract-dev libleptonica-dev tesseract-ocr-eng
 
       - name: Install test tooling
         run: |
@@ -194,15 +204,15 @@ jobs:
             -- \
             -run '^TestCrossProtocolIntegrationFlow$' ./pkg/sikuli
 
-      - name: Run parity e2e tests (gogosseract build tag)
+      - name: Run parity e2e tests (gosseract build tag)
         run: |
           set -euo pipefail
           "$(go env GOPATH)/bin/gotestsum" \
             --format standard-verbose \
-            --junitfile .test-results-e2e/junit-gogosseract.xml \
-            --jsonfile .test-results-e2e/go-test-gogosseract.json \
+            --junitfile .test-results-e2e/junit-gosseract.xml \
+            --jsonfile .test-results-e2e/go-test-gosseract.json \
             -- \
-            -tags gogosseract -run '^TestCrossProtocolIntegrationFlowTaggedOCR$' ./pkg/sikuli
+            -tags gosseract -run '^TestCrossProtocolIntegrationFlowTaggedOCR$' ./pkg/sikuli
 
       - name: Publish parity e2e report (default)
         if: always() && hashFiles('.test-results-e2e/junit-default.xml') != ''
@@ -213,12 +223,12 @@ jobs:
           reporter: java-junit
           fail-on-error: true
 
-      - name: Publish parity e2e report (gogosseract)
-        if: always() && hashFiles('.test-results-e2e/junit-gogosseract.xml') != ''
+      - name: Publish parity e2e report (gosseract)
+        if: always() && hashFiles('.test-results-e2e/junit-gosseract.xml') != ''
         uses: dorny/test-reporter@v2
         with:
-          name: GoLang Parity E2E (gogosseract)
-          path: .test-results-e2e/junit-gogosseract.xml
+          name: GoLang Parity E2E (gosseract)
+          path: .test-results-e2e/junit-gosseract.xml
           reporter: java-junit
           fail-on-error: true
 

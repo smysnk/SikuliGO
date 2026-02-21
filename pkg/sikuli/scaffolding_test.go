@@ -552,7 +552,7 @@ func TestFinderOCRUnsupportedByDefault(t *testing.T) {
 	if errors.Is(err, ErrBackendUnsupported) {
 		return
 	}
-	// Tagged gogosseract builds may fail due missing runtime training data in test environments.
+	// Tagged gosseract builds may fail due to missing runtime training data in test environments.
 	if !strings.Contains(strings.ToLower(err.Error()), "trainingdata") {
 		t.Fatalf("expected backend unsupported or training-data error, got=%v", err)
 	}
