@@ -25,11 +25,11 @@ This document defines the locked package boundaries, object responsibilities, an
 - `internal/ocr`:
   - OCR backend implementation with optional `gogosseract` integration.
 - `internal/input`:
-  - Input backend implementation with unsupported default.
+  - Input backend implementation with `darwin` concrete backend and non-darwin unsupported fallback.
 - `internal/observe`:
   - Observe backend implementation with deterministic polling default.
 - `internal/app`:
-  - App/window backend implementation with `darwin` concrete backend and `!darwin` unsupported fallback.
+  - App/window backend implementation with `darwin`, `linux`, and `windows` concrete backends plus non-target unsupported fallback.
 - `internal/testharness`:
   - Corpus loading, comparator policy, and parity tests.
 
@@ -110,7 +110,8 @@ This document defines the locked package boundaries, object responsibilities, an
 
 ### `internal/input`
 
-- `unsupportedBackend`: default implementation returning `core.ErrInputUnsupported`.
+- `darwinBackend`: concrete macOS implementation for move/click/type/hotkey dispatch.
+- `unsupportedBackend`: non-darwin fallback implementation returning `core.ErrInputUnsupported`.
 
 ### `internal/observe`
 
@@ -119,7 +120,9 @@ This document defines the locked package boundaries, object responsibilities, an
 ### `internal/app`
 
 - `darwinBackend`: concrete macOS implementation for open/focus/close/is-running/list-windows.
-- `unsupportedBackend`: `!darwin` fallback implementation returning `core.ErrAppUnsupported`.
+- `linuxBackend`: concrete Linux implementation for open/focus/close/is-running/list-windows.
+- `windowsBackend`: concrete Windows implementation for open/focus/close/is-running/list-windows.
+- `unsupportedBackend`: non-target fallback implementation returning `core.ErrAppUnsupported`.
 
 ### `internal/testharness`
 

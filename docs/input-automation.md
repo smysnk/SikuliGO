@@ -1,6 +1,6 @@
 # Input Automation
 
-SikuliGO includes a baseline input automation scaffold through `InputController`.
+SikuliGO provides input automation APIs through `InputController`.
 
 ## Public API
 
@@ -22,6 +22,7 @@ Input actions flow through `core.InputRequest` with strict validation:
 
 ## Backend behavior
 
-The default backend is an unsupported stub and returns `ErrBackendUnsupported` through the public API.
+- `darwin` builds use a concrete backend for move/click/type/hotkey dispatch.
+- non-`darwin` builds use an unsupported fallback backend and return `ErrBackendUnsupported` through the public API.
 
-This locks the protocol and tests now, while platform-specific backends can be added later without breaking the public surface.
+This keeps the protocol stable while cross-platform input backend expansion continues.

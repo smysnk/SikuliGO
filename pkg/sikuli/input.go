@@ -117,6 +117,9 @@ func (c *InputController) execute(req core.InputRequest) error {
 		if errors.Is(err, core.ErrInputUnsupported) {
 			return fmt.Errorf("%w: %v", ErrBackendUnsupported, err)
 		}
+		if strings.Contains(strings.ToLower(err.Error()), "executable file not found") {
+			return fmt.Errorf("%w: %v", ErrBackendUnsupported, err)
+		}
 		if strings.Contains(strings.ToLower(err.Error()), "cannot be") ||
 			strings.Contains(strings.ToLower(err.Error()), "requires") ||
 			strings.Contains(strings.ToLower(err.Error()), "unsupported input action") {

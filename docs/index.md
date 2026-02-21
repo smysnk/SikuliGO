@@ -18,4 +18,5 @@ GoLang API reference pages are generated from source using `go doc`.
 - [Observe Events](https://smysnk.github.io/SikuliGO/observe-events)
 - [App Control](https://smysnk.github.io/SikuliGO/app-control)
 - [Default Behavior Table](https://smysnk.github.io/SikuliGO/default-behavior-table)
+- [Backend Capability Matrix](https://smysnk.github.io/SikuliGO/backend-capability-matrix)
 - [CI Test Reporting](https://smysnk.github.io/SikuliGO/ci-test-reporting)

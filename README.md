@@ -19,9 +19,9 @@ This repository houses a GoLang implementation of Sikuli visual automation.
 | Matching engine and parity harness | Deterministic matcher behavior, golden corpus, backend conformance tests | ✅ Completed (baseline + extensions) |
 | API parity surface expansion | Additional parity helpers and compatibility APIs | 🟡 Planned / In progress |
 | OCR and text-search parity | OCR contracts, finder/region text flows, optional backend integration | ✅ Completed (pinned gogosseract integration) |
-| Input automation and hotkey parity | Input controller contracts, request validation, backend protocol scaffold | ✅ Completed (baseline scaffold) |
+| Input automation and hotkey parity | Input controller contracts, request validation, backend protocol scaffold | 🟡 In progress (concrete `darwin` backend; non-`darwin` fallback unsupported) |
 | Observe/event subsystem parity | Observer contracts, request validation, backend protocol scaffold | ✅ Completed (concrete deterministic polling backend) |
-| App/window/process control parity | App/window contracts, request validation, backend protocol scaffold | 🟡 In progress (concrete `darwin` backend; `!darwin` fallback unsupported) |
+| App/window/process control parity | App/window contracts, request validation, backend protocol scaffold | ✅ Completed (concrete `darwin`/`linux`/`windows` backends) |
 | Cross-platform backend hardening | Platform integration hardening and backend portability | 🟡 Planned |
 
 ## Port Strategy
@@ -37,6 +37,7 @@ This repository houses a GoLang implementation of Sikuli visual automation.
 - [Observe Events](https://smysnk.github.io/SikuliGO/observe-events)
 - [App Control](https://smysnk.github.io/SikuliGO/app-control)
 - [Defaults Table](https://smysnk.github.io/SikuliGO/default-behavior-table)
+- [Backend Capability Matrix](https://smysnk.github.io/SikuliGO/backend-capability-matrix)
 - [CI Test Reporting](https://smysnk.github.io/SikuliGO/ci-test-reporting)
 
 GoLang API reference pages are generated from source with `./scripts/generate-api-docs.sh` and published by GitHub Pages.

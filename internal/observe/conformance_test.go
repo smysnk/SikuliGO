@@ -209,6 +209,112 @@ func TestPollingBackendConformanceTimeout(t *testing.T) {
 	}
 }
 
+func TestPollingBackendConformanceIntervalDriftBounded(t *testing.T) {
+	source := grayFromRows([][]uint8{
+		{0, 0, 0},
+		{0, 0, 0},
+		{0, 0, 0},
+	})
+	pattern := grayFromRows([][]uint8{
+		{10, 200},
+		{220, 15},
+	})
+
+	start := time.Date(2026, 1, 1, 14, 0, 0, 0, time.UTC)
+	clock := &fakeClock{current: start}
+	pollTimes := make([]time.Time, 0, 8)
+
+	backend := newPollingBackend(nil)
+	backend.now = clock.now
+	backend.sleep = clock.sleep
+	backend.onPoll = func(iteration int) {
+		pollTimes = append(pollTimes, clock.now())
+		if iteration == 4 {
+			writePattern(source, pattern, 1, 1)
+		}
+	}
+
+	events, err := backend.Observe(core.ObserveRequest{
+		Source:   source,
+		Region:   source.Bounds(),
+		Pattern:  pattern,
+		Event:    core.ObserveEventAppear,
+		Interval: 20 * time.Millisecond,
+		Timeout:  500 * time.Millisecond,
+		Options: map[string]string{
+			"threshold": "0.99",
+		},
+	})
+	if err != nil {
+		t.Fatalf("observe drift case failed: %v", err)
+	}
+	if len(events) != 1 {
+		t.Fatalf("expected event after deterministic polls, got=%+v", events)
+	}
+	if len(pollTimes) < 5 {
+		t.Fatalf("expected at least 5 polls, got=%d", len(pollTimes))
+	}
+	for i := 1; i < len(pollTimes); i++ {
+		diff := pollTimes[i].Sub(pollTimes[i-1])
+		if diff != 20*time.Millisecond {
+			t.Fatalf("unexpected poll drift at %d: got=%v", i, diff)
+		}
+	}
+}
+
+func TestPollingBackendConformanceJitterTolerance(t *testing.T) {
+	source := grayFromRows([][]uint8{
+		{0, 0},
+		{0, 0},
+	})
+	pattern := grayFromRows([][]uint8{
+		{255},
+	})
+
+	start := time.Date(2026, 1, 1, 15, 0, 0, 0, time.UTC)
+	clock := &fakeClock{current: start}
+	jitters := []time.Duration{
+		5 * time.Millisecond,
+		15 * time.Millisecond,
+		9 * time.Millisecond,
+	}
+	jitterIdx := 0
+
+	backend := newPollingBackend(nil)
+	backend.now = clock.now
+	backend.sleep = func(d time.Duration) {
+		jitter := jitters[jitterIdx%len(jitters)]
+		jitterIdx++
+		clock.sleep(d + jitter)
+	}
+	backend.onPoll = func(iteration int) {
+		if iteration == 2 {
+			source.SetGray(0, 0, color.Gray{Y: 255})
+		}
+	}
+
+	events, err := backend.Observe(core.ObserveRequest{
+		Source:   source,
+		Region:   source.Bounds(),
+		Pattern:  pattern,
+		Event:    core.ObserveEventAppear,
+		Interval: 10 * time.Millisecond,
+		Timeout:  120 * time.Millisecond,
+		Options: map[string]string{
+			"threshold": "0.99",
+		},
+	})
+	if err != nil {
+		t.Fatalf("observe jitter case failed: %v", err)
+	}
+	if len(events) != 1 {
+		t.Fatalf("expected appear event under jitter, got=%+v", events)
+	}
+	if !events[0].Timestamp.After(start) {
+		t.Fatalf("expected timestamp progression under jitter, got=%v", events[0].Timestamp)
+	}
+}
+
 func grayFromRows(rows [][]uint8) *image.Gray {
 	h := len(rows)
 	w := len(rows[0])

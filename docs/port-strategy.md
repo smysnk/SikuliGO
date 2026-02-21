@@ -119,7 +119,8 @@ This keeps `pkg/sikuli` stable while allowing alternate implementations (e.g., `
 
 | Type | Kind | Role | Status | Notes |
 |---|---|---|---|---|
-| `unsupportedBackend` | protocol implementer | default input backend behavior | ✅ | returns unsupported until platform backend is added |
+| `darwinBackend` | protocol implementer | concrete input backend for macOS | ✅ | supports move/click/type/hotkey dispatch |
+| `unsupportedBackend` | protocol implementer | non-macOS fallback input behavior | ✅ | returns unsupported on `!darwin` builds |
 
 ### `internal/observe` protocol implementation
 
@@ -132,7 +133,9 @@ This keeps `pkg/sikuli` stable while allowing alternate implementations (e.g., `
 | Type | Kind | Role | Status | Notes |
 |---|---|---|---|---|
 | `darwinBackend` | protocol implementer | concrete app/window backend for macOS | ✅ | supports open/focus/close/is-running/list-windows |
-| `unsupportedBackend` | protocol implementer | non-macOS fallback backend behavior | ✅ | returns unsupported on `!darwin` builds |
+| `linuxBackend` | protocol implementer | concrete app/window backend for Linux | ✅ | command-driven open/focus/close/is-running/list-windows |
+| `windowsBackend` | protocol implementer | concrete app/window backend for Windows | ✅ | PowerShell-driven open/focus/close/is-running/list-windows |
+| `unsupportedBackend` | protocol implementer | non-target fallback backend behavior | ✅ | returns unsupported for non-darwin/linux/windows builds |
 
 ### `internal/testharness` protocol objects
 
@@ -174,9 +177,9 @@ Status: ✅ Completed (baseline implemented)
 | Workstream | Baseline scaffold | Concrete backend | Notes |
 |---|---|---|---|
 | Workstream 5: OCR and text-search parity | ✅ | ✅ | gogosseract backend is pinned and enabled with `-tags gogosseract` |
-| Workstream 6: Input automation and hotkey parity | ✅ | 🟡 | protocol is complete; concrete platform backend still pending |
+| Workstream 6: Input automation and hotkey parity | ✅ | 🟡 | concrete `darwin` backend complete; non-darwin pending |
 | Workstream 7: Observe/event subsystem parity | ✅ | ✅ | deterministic polling backend implemented in `internal/observe` |
-| Workstream 8: App/window/process control parity | ✅ | 🟡 | concrete `darwin` backend complete; `!darwin` remains unsupported |
+| Workstream 8: App/window/process control parity | ✅ | ✅ | concrete `darwin`/`linux`/`windows` backends implemented |
 
 ### Workstream 3: API parity surface expansion
 
@@ -205,10 +208,10 @@ Status (Concrete backend): ✅ Completed (pinned `gogosseract` backend with tagg
 
 - Add input protocol contract in `internal/core`.
 - Expose `InputController` with move/click/type/hotkey APIs.
-- Start with unsupported backend and deterministic request/validation tests.
+- Maintain deterministic request/validation tests while expanding concrete platform backends.
 
 Status (Baseline scaffold): ✅ Completed
-Status (Concrete backend): 🟡 Planned (default backend still unsupported)
+Status (Concrete backend): 🟡 In progress (concrete `darwin` backend + non-darwin fallback unsupported)
 
 ### Workstream 7: Observe/event subsystem parity
 
@@ -223,10 +226,10 @@ Status (Concrete backend): ✅ Completed (deterministic polling backend implemen
 
 - Add app/window protocol contract in `internal/core`.
 - Expose `AppController` with open/focus/close/is-running/list-window APIs.
-- Implement concrete `darwin` backend behind protocol boundary and keep `!darwin` unsupported fallback.
+- Implement concrete platform backends behind the protocol boundary (`darwin`, `linux`, `windows`).
 
 Status (Baseline scaffold): ✅ Completed
-Status (Concrete backend): 🟡 In progress (concrete `darwin` backend + `!darwin` unsupported fallback)
+Status (Concrete backend): ✅ Completed (`darwin` + `linux` + `windows` backends implemented)
 
 ## Feature Matrix (Current and Planned)
 
@@ -260,11 +263,11 @@ Status (Concrete backend): 🟡 In progress (concrete `darwin` backend + `!darwi
 | OCR backend swappability | `core.OCR` protocol + backend selection | P1 | ✅ | unsupported default + pinned `gogosseract` build-tag backend |
 | OCR conformance tests | confidence filtering + ordering + backend behavior | P1 | ✅ | includes unsupported backend and tagged hOCR parser conformance tests |
 | Input automation | mouse/keyboard parity | P1 | ✅ | `InputController` scaffolding with protocol boundary and tests |
-| Input backend swappability | `core.Input` protocol + backend selection | P1 | ✅ | unsupported default backend implemented (concrete backend pending) |
+| Input backend swappability | `core.Input` protocol + backend selection | P1 | ✅ | concrete `darwin` backend + unsupported non-darwin fallback |
 | Observe/events | appear/vanish/change parity | P1 | ✅ | `ObserverController` + concrete deterministic polling backend |
 | Observe backend swappability | `core.Observer` protocol + backend selection | P1 | ✅ | concrete default polling backend via `internal/observe` |
-| App/window/process | focus/open/close/window parity | P2 | ✅ | `AppController` protocol with concrete `darwin` backend |
-| App backend swappability | `core.App` protocol + backend selection | P2 | ✅ | `darwin` concrete backend + `!darwin` unsupported fallback |
+| App/window/process | focus/open/close/window parity | P2 | ✅ | `AppController` protocol with concrete `darwin`/`linux`/`windows` backends |
+| App backend swappability | `core.App` protocol + backend selection | P2 | ✅ | concrete backends for major desktop OS targets |
 
 ## Protocol Completion Criteria
 
@@ -280,3 +283,4 @@ Each existing object/interface/protocol is considered feature-complete when:
 - `docs/architecture-lock.md`
 - `docs/api-signature-freeze.md`
 - `docs/default-behavior-table.md`
+- `docs/backend-capability-matrix.md`

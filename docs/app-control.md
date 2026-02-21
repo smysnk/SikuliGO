@@ -23,6 +23,8 @@ App actions flow through `core.AppRequest` with strict validation:
 ## Backend behavior
 
 - `darwin` builds use a concrete backend for open/focus/close/is-running/list-windows.
-- non-`darwin` builds use an unsupported fallback backend and return `ErrBackendUnsupported` through the public API.
+- `linux` builds use a concrete command-driven backend for open/focus/close/is-running/list-windows.
+- `windows` builds use a concrete PowerShell-driven backend for open/focus/close/is-running/list-windows.
+- non-target builds use an unsupported fallback backend and return `ErrBackendUnsupported` through the public API.
 
 This keeps app/window contracts stable while enabling incremental cross-platform backend expansion.
