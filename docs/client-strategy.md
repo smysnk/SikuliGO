@@ -1,6 +1,6 @@
-# gRPC Client Options
+# Client Strategy
 
-This document outlines practical client options for SikuliGO gRPC APIs, with emphasis on Python, Lua, and Node.js.
+This document defines the client delivery strategy for SikuliGO gRPC APIs across Python, Node.js, and Lua.
 
 ## Shared Client Rules
 
@@ -59,11 +59,46 @@ Lua has more runtime variance; choose one of two paths:
 
 For initial delivery, gateway wrapper is usually lower risk unless direct gRPC is already proven in your runtime.
 
-## Suggested Rollout Order
+## Implementation Phases
 
-1. Python client (reference client + CI integration tests)
-2. Node.js client (service integration and tooling)
-3. Lua client path (direct or gateway based on runtime constraints)
+### Phase 1: Shared contract and tooling
+
+- Keep one source contract: `proto/sikuli/v1/sikuli.proto`.
+- Add language generation scripts under `scripts/clients/`.
+- Pin generator/runtime versions and verify generated drift in CI.
+
+### Phase 2: Python client
+
+- Generate Python stubs into `clients/python/generated/`.
+- Add wrapper in `clients/python/sikuligo_client/` for deadlines, metadata/auth, and error mapping.
+- Add runnable examples in `clients/python/examples/` (`find.py`, `read_text.py`, `click_and_type.py`, `app_control.py`).
+- Add CI smoke tests against local `cmd/sikuligrpc`.
+
+### Phase 3: Node.js client
+
+- Generate JS/TS stubs into `clients/node/generated/`.
+- Add Promise-based wrapper in `clients/node/src/`.
+- Add runnable examples in `clients/node/examples/` (`find.ts`, `ocr.ts`, `input.ts`, `app.ts`).
+- Add CI smoke tests against local `cmd/sikuligrpc`.
+
+### Phase 4: Lua client path
+
+- Choose direct gRPC runtime vs HTTP/JSON gateway fallback per target runtime constraints.
+- Implement a thin SDK in `clients/lua/` with the same high-level methods.
+- Add runnable examples in `clients/lua/examples/`.
+- Add runtime-appropriate CI smoke tests.
+
+### Phase 5: Documentation and distribution
+
+- Publish language quickstarts and API usage docs.
+- Document required env vars (`SIKULI_GRPC_ADDR`, auth values when enabled).
+- Package and version each client with release notes.
+
+### Phase 6: Hardening and operations
+
+- Standardize retries, timeout policies, and error mapping across clients.
+- Add auth, tracing, and metrics guidance for production usage.
+- Gate releases on cross-language integration checks.
 
 ## Client Deliverables
 

@@ -14,7 +14,7 @@ API reference pages are generated from source using `go doc` and validated with 
 
 - [API Reference](https://smysnk.github.io/SikuliGO/api/)
 - [gRPC Strategy](https://smysnk.github.io/SikuliGO/grpc-strategy)
-- [gRPC Client Options](https://smysnk.github.io/SikuliGO/grpc-clients)
+- [Client Strategy](https://smysnk.github.io/SikuliGO/client-strategy)
 - [OCR](https://smysnk.github.io/SikuliGO/ocr-integration)
 - [Input Automation](https://smysnk.github.io/SikuliGO/input-automation)
 - [Observe Events](https://smysnk.github.io/SikuliGO/observe-events)

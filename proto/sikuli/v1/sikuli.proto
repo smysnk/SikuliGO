@@ -1,0 +1,190 @@
+syntax = "proto3";
+
+package sikuli.v1;
+
+option go_package = "github.com/sikulix/portgo/internal/grpcv1/pb;sikuliv1";
+
+message GrayImage {
+  string name = 1;
+  int32 width = 2;
+  int32 height = 3;
+  bytes pix = 4;
+}
+
+message Point {
+  int32 x = 1;
+  int32 y = 2;
+}
+
+message Rect {
+  int32 x = 1;
+  int32 y = 2;
+  int32 w = 3;
+  int32 h = 4;
+}
+
+message Pattern {
+  GrayImage image = 1;
+  optional double similarity = 2;
+  optional bool exact = 3;
+  Point target_offset = 4;
+  optional double resize_factor = 5;
+  GrayImage mask = 6;
+}
+
+message Match {
+  Rect rect = 1;
+  double score = 2;
+  Point target = 3;
+  int32 index = 4;
+}
+
+message TextMatch {
+  Rect rect = 1;
+  string text = 2;
+  double confidence = 3;
+  int32 index = 4;
+}
+
+message OCRParams {
+  string language = 1;
+  string training_data_path = 2;
+  optional double min_confidence = 3;
+  optional int64 timeout_millis = 4;
+  optional bool case_sensitive = 5;
+}
+
+message InputOptions {
+  optional int64 delay_millis = 1;
+  string button = 2;
+}
+
+message ObserveOptions {
+  optional int64 interval_millis = 1;
+  optional int64 timeout_millis = 2;
+}
+
+message AppOptions {
+  optional int64 timeout_millis = 1;
+}
+
+message Window {
+  string title = 1;
+  Rect bounds = 2;
+  bool focused = 3;
+}
+
+message ObserveEvent {
+  string type = 1;
+  Match match = 2;
+  int64 timestamp_unix_millis = 3;
+}
+
+message FindRequest {
+  GrayImage source = 1;
+  Pattern pattern = 2;
+}
+
+message FindResponse {
+  Match match = 1;
+}
+
+message FindAllResponse {
+  repeated Match matches = 1;
+}
+
+message ReadTextRequest {
+  GrayImage source = 1;
+  OCRParams params = 2;
+}
+
+message ReadTextResponse {
+  string text = 1;
+}
+
+message FindTextRequest {
+  GrayImage source = 1;
+  string query = 2;
+  OCRParams params = 3;
+}
+
+message FindTextResponse {
+  repeated TextMatch matches = 1;
+}
+
+message MoveMouseRequest {
+  int32 x = 1;
+  int32 y = 2;
+  InputOptions opts = 3;
+}
+
+message ClickRequest {
+  int32 x = 1;
+  int32 y = 2;
+  InputOptions opts = 3;
+}
+
+message TypeTextRequest {
+  string text = 1;
+  InputOptions opts = 2;
+}
+
+message HotkeyRequest {
+  repeated string keys = 1;
+}
+
+message ActionResponse {}
+
+message ObserveRequest {
+  GrayImage source = 1;
+  Rect region = 2;
+  Pattern pattern = 3;
+  ObserveOptions opts = 4;
+}
+
+message ObserveChangeRequest {
+  GrayImage source = 1;
+  Rect region = 2;
+  ObserveOptions opts = 3;
+}
+
+message ObserveResponse {
+  repeated ObserveEvent events = 1;
+}
+
+message AppActionRequest {
+  string name = 1;
+  repeated string args = 2;
+  AppOptions opts = 3;
+}
+
+message IsAppRunningResponse {
+  bool running = 1;
+}
+
+message ListWindowsResponse {
+  repeated Window windows = 1;
+}
+
+service SikuliService {
+  rpc Find(FindRequest) returns (FindResponse);
+  rpc FindAll(FindRequest) returns (FindAllResponse);
+
+  rpc ReadText(ReadTextRequest) returns (ReadTextResponse);
+  rpc FindText(FindTextRequest) returns (FindTextResponse);
+
+  rpc MoveMouse(MoveMouseRequest) returns (ActionResponse);
+  rpc Click(ClickRequest) returns (ActionResponse);
+  rpc TypeText(TypeTextRequest) returns (ActionResponse);
+  rpc Hotkey(HotkeyRequest) returns (ActionResponse);
+
+  rpc ObserveAppear(ObserveRequest) returns (ObserveResponse);
+  rpc ObserveVanish(ObserveRequest) returns (ObserveResponse);
+  rpc ObserveChange(ObserveChangeRequest) returns (ObserveResponse);
+
+  rpc OpenApp(AppActionRequest) returns (ActionResponse);
+  rpc FocusApp(AppActionRequest) returns (ActionResponse);
+  rpc CloseApp(AppActionRequest) returns (ActionResponse);
+  rpc IsAppRunning(AppActionRequest) returns (IsAppRunningResponse);
+  rpc ListWindows(AppActionRequest) returns (ListWindowsResponse);
+}

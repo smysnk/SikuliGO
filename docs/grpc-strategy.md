@@ -1,6 +1,6 @@
 # gRPC Strategy
 
-This document defines a practical plan to expose the SikuliGO API surface through gRPC and support generated clients across multiple languages.
+This document defines and tracks the gRPC approach for exposing the SikuliGO API surface across multiple languages.
 
 ## Goals
 
@@ -15,21 +15,31 @@ This document defines a practical plan to expose the SikuliGO API surface throug
 - Delivering every future feature in `v1` on day one.
 - Introducing breaking changes to `v1` once published.
 
+## Current Implementation
+
+- Versioned contract at `proto/sikuli/v1/sikuli.proto`.
+- Generated Go protobuf/gRPC stubs at `internal/grpcv1/pb/`.
+- gRPC service adapter at `internal/grpcv1/server.go`.
+- Runnable gRPC server entrypoint at `cmd/sikuligrpc/main.go`.
+- Stub generation/check scripts:
+  - `scripts/generate-grpc-stubs.sh`
+  - `scripts/check-grpc-stubs.sh`
+
 ## Proposed API Surface
 
 Start with a single `sikuli.v1.SikuliService` and expand by adding RPCs, not by changing existing fields.
 
-Recommended first RPC set:
+Implemented `v1` RPC set:
 
 - Matching: `Find`, `FindAll`
 - OCR: `ReadText`, `FindText`
 - Input: `MoveMouse`, `Click`, `TypeText`, `Hotkey`
-- Observe: `ObserveAppear`, `ObserveVanish`, `ObserveChange` (server-streaming where applicable)
+- Observe: `ObserveAppear`, `ObserveVanish`, `ObserveChange`
 - App control: `OpenApp`, `FocusApp`, `CloseApp`, `IsAppRunning`, `ListWindows`
 
 ## Contract Layout
 
-Recommended repo layout:
+Repository layout:
 
 ```text
 proto/
@@ -38,33 +48,41 @@ proto/
       sikuli.proto
 ```
 
-Proto package conventions:
+Proto conventions:
 
 - `package sikuli.v1;`
 - language package options for Go/Python/Node.
-- shared request metadata fields for timeout, request id, and optional tags.
+- request payloads include timeout/options fields where needed for controller behavior.
 
 ## Implementation Phases
 
 ### Phase 1: Contract and generation
 
-- Define `proto/sikuli/v1/sikuli.proto`.
-- Add codegen workflow (`buf` or `protoc`) with reproducible outputs.
-- Add CI checks for proto formatting and generated-code drift.
+Status: ✅ Implemented
+
+- `proto/sikuli/v1/sikuli.proto` is defined.
+- `protoc`-based generation script is added.
+- Generated Go stubs are committed under `internal/grpcv1/pb`.
 
 ### Phase 2: Go server transport
 
-- Add gRPC server bootstrap and service registration.
-- Map RPC handlers to existing `pkg/sikuli` controllers (`Finder`, `InputController`, `ObserverController`, `AppController`).
-- Implement request validation and status-code mapping.
+Status: ✅ Implemented
+
+- gRPC server bootstrap and registration are implemented.
+- RPC handlers map to existing `pkg/sikuli` controllers (`Finder`, `InputController`, `ObserverController`, `AppController`).
+- Request validation and gRPC status-code mapping are implemented.
 
 ### Phase 3: Cross-cutting concerns
 
+Status: 🟡 Planned
+
 - Add unary/stream interceptors for auth, logging, and tracing.
 - Enforce deadlines and cancellation propagation.
-- Normalize error payloads (`code`, message, details).
+- Normalize structured error detail payloads.
 
 ### Phase 4: Client integration enablement
+
+Status: 🟡 Planned
 
 - Generate and publish client stubs for Python and Node.js.
 - Provide Lua integration path (direct gRPC where runtime supports it, or JSON gateway path).
@@ -72,9 +90,25 @@ Proto package conventions:
 
 ### Phase 5: Verification and rollout
 
+Status: 🟡 Planned
+
 - Add end-to-end tests for success, validation errors, and timeout behavior.
 - Run canary rollout in staging.
 - Track latency, error-rate, and per-RPC volume before broad release.
+
+## Local Usage
+
+Generate stubs:
+
+```bash
+./scripts/generate-grpc-stubs.sh
+```
+
+Run server:
+
+```bash
+go run ./cmd/sikuligrpc -listen :50051
+```
 
 ## Testing Requirements
 
@@ -86,7 +120,6 @@ Proto package conventions:
 ## Definition of Done
 
 - `v1` proto is versioned and documented.
-- Go gRPC server is running with authenticated endpoints.
-- Python and Node generated clients are validated in CI.
-- Lua integration path is documented and tested in at least one target runtime.
-- Operational metrics and tracing are available for every published RPC.
+- Go gRPC server runs with endpoint coverage for matching, OCR, input, observe, and app control.
+- Generated client stubs are validated for Python/Node and integration path is documented for Lua.
+- Operational concerns (auth, tracing, metrics) are implemented via interceptors.

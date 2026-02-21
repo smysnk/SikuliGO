@@ -25,15 +25,16 @@ This repository houses a GoLang implementation of Sikuli visual automation.
 | App/window/process control parity | App/window contracts, request validation, backend protocol scaffold | ✅ Completed (concrete `darwin`/`linux`/`windows` backends) |
 | Cross-platform backend hardening | Platform integration hardening and backend portability | 🟡 Planned |
 
-## Port Strategy
-
+# Docs
 - [Docs Home](https://smysnk.github.io/SikuliGO/)
+
+## Port Strategy
 - [Port Strategy](https://smysnk.github.io/SikuliGO/port-strategy)
 - [gRPC Strategy](https://smysnk.github.io/SikuliGO/grpc-strategy)
+- [Client Strategy](https://smysnk.github.io/SikuliGO/client-strategy)
 
-Integration & Implementation:
+## Integration & Implementation:
 - [API Reference](https://smysnk.github.io/SikuliGO/api/)
-- [gRPC Client Options](https://smysnk.github.io/SikuliGO/grpc-clients)
 - [OCR](https://smysnk.github.io/SikuliGO/ocr-integration)
 - [Input Automation](https://smysnk.github.io/SikuliGO/input-automation)
 - [Observe Events](https://smysnk.github.io/SikuliGO/observe-events)
@@ -42,6 +43,8 @@ Integration & Implementation:
 - [Backend Capability Matrix](https://smysnk.github.io/SikuliGO/backend-capability-matrix)
 
 API reference pages are generated from source with `./scripts/generate-api-docs.sh` and validated with `./scripts/check-api-docs.sh`.
+
+gRPC `v1` stubs are generated with `./scripts/generate-grpc-stubs.sh`, validated with `./scripts/check-grpc-stubs.sh`, and served via `go run ./cmd/sikuligrpc -listen :50051`.
 
 ## Repository Layout
 

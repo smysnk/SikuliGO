@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - "internal/**"
+      - "cmd/**"
+      - "proto/**"
       - "pkg/**"
       - "docs/**"
       - "scripts/**"
@@ -15,6 +17,8 @@ on:
   pull_request:
     paths:
       - "internal/**"
+      - "cmd/**"
+      - "proto/**"
       - "pkg/**"
       - "docs/**"
       - "scripts/**"
@@ -44,6 +48,17 @@ jobs:
         with:
           go-version-file: go.mod
           cache: true
+
+      - name: Install protobuf toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y protobuf-compiler
+
+      - name: Install gRPC codegen tooling
+        run: |
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
       - name: Run protocol package tests
         run: go test ./internal/app ./internal/input ./internal/observe
@@ -78,6 +93,9 @@ jobs:
 
       - name: Verify API docs
         run: ./scripts/check-api-docs.sh
+
+      - name: Verify gRPC stubs
+        run: ./scripts/check-grpc-stubs.sh
 
       - name: Run vet
         run: go vet ./...
