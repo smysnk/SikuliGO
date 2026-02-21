@@ -4,7 +4,7 @@
 
 Welcome to the SikuliGO documentation site.
 
-GoLang API reference pages are generated from source using `go doc`.
+GoLang API reference pages are generated from source using `go doc` and validated with `./scripts/check-api-docs.sh`.
 
 ## Documents
 

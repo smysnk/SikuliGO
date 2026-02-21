@@ -76,6 +76,9 @@ jobs:
       - name: Verify tidy has no diffs
         run: git diff --exit-code
 
+      - name: Verify API docs
+        run: ./scripts/check-api-docs.sh
+
       - name: Run vet
         run: go vet ./...
 

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-OUT_ROOT="$ROOT_DIR/docs/api"
+OUT_ROOT="${API_DOCS_OUT_DIR:-$ROOT_DIR/docs/api}"
 INDEX_FILE="$OUT_ROOT/index.md"
 RENDERER="$ROOT_DIR/scripts/render-api-doc.awk"
 
