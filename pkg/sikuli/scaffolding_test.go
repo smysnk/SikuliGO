@@ -504,6 +504,34 @@ func (s *stubInputBackend) Execute(req core.InputRequest) error {
 	return nil
 }
 
+type stubObserveBackend struct {
+	err      error
+	events   []core.ObserveEvent
+	requests []core.ObserveRequest
+}
+
+func (s *stubObserveBackend) Observe(req core.ObserveRequest) ([]core.ObserveEvent, error) {
+	s.requests = append(s.requests, req)
+	if s.err != nil {
+		return nil, s.err
+	}
+	return s.events, nil
+}
+
+type stubAppBackend struct {
+	err      error
+	result   core.AppResult
+	requests []core.AppRequest
+}
+
+func (s *stubAppBackend) Execute(req core.AppRequest) (core.AppResult, error) {
+	s.requests = append(s.requests, req)
+	if s.err != nil {
+		return core.AppResult{}, s.err
+	}
+	return s.result, nil
+}
+
 func TestFinderOCRUnsupportedByDefault(t *testing.T) {
 	img, err := NewImageFromMatrix("ocr-src", [][]uint8{
 		{255, 255},
@@ -699,6 +727,223 @@ func TestInputControllerValidation(t *testing.T) {
 
 	stub.err = errors.New("custom backend error")
 	if err := c.Click(1, 2, InputOptions{}); err == nil || errors.Is(err, ErrInvalidTarget) {
+		t.Fatalf("expected raw backend error, got=%v", err)
+	}
+}
+
+func TestObserverControllerUnsupportedByDefault(t *testing.T) {
+	source, err := NewImageFromMatrix("obs-src", [][]uint8{
+		{1, 1, 1},
+		{1, 1, 1},
+		{1, 1, 1},
+	})
+	if err != nil {
+		t.Fatalf("new source: %v", err)
+	}
+	patternImage, err := NewImageFromMatrix("obs-needle", [][]uint8{{1}})
+	if err != nil {
+		t.Fatalf("new pattern image: %v", err)
+	}
+	pattern, err := NewPattern(patternImage)
+	if err != nil {
+		t.Fatalf("new pattern: %v", err)
+	}
+	observer := NewObserverController()
+	_, err = observer.ObserveAppear(source, NewRegion(0, 0, 3, 3), pattern, ObserveOptions{})
+	if !errors.Is(err, ErrBackendUnsupported) {
+		t.Fatalf("expected ErrBackendUnsupported, got=%v", err)
+	}
+}
+
+func TestObserverControllerDispatchWithStub(t *testing.T) {
+	source, err := NewImageFromMatrix("obs-src", [][]uint8{
+		{1, 2, 3, 4},
+		{5, 6, 7, 8},
+		{9, 10, 11, 12},
+		{13, 14, 15, 16},
+	})
+	if err != nil {
+		t.Fatalf("new source: %v", err)
+	}
+	patternImage, err := NewImageFromMatrix("obs-needle", [][]uint8{{6}})
+	if err != nil {
+		t.Fatalf("new pattern image: %v", err)
+	}
+	pattern, err := NewPattern(patternImage)
+	if err != nil {
+		t.Fatalf("new pattern: %v", err)
+	}
+
+	stub := &stubObserveBackend{
+		events: []core.ObserveEvent{
+			{
+				Event:     core.ObserveEventAppear,
+				X:         1,
+				Y:         1,
+				W:         1,
+				H:         1,
+				Score:     0.9,
+				Timestamp: time.Now(),
+			},
+		},
+	}
+	observer := NewObserverController()
+	observer.SetBackend(stub)
+
+	events, err := observer.ObserveAppear(source, NewRegion(0, 0, 4, 4), pattern, ObserveOptions{
+		Interval: -1,
+		Timeout:  -1,
+	})
+	if err != nil {
+		t.Fatalf("observe appear failed: %v", err)
+	}
+	if len(events) != 1 || events[0].Type != ObserveEventAppear {
+		t.Fatalf("observe events mismatch: %+v", events)
+	}
+	if len(stub.requests) != 1 {
+		t.Fatalf("expected one backend request, got=%d", len(stub.requests))
+	}
+	req := stub.requests[0]
+	if req.Event != core.ObserveEventAppear {
+		t.Fatalf("expected appear event, got=%q", req.Event)
+	}
+	if req.Interval <= 0 {
+		t.Fatalf("expected normalized interval > 0, got=%v", req.Interval)
+	}
+	if req.Timeout != 0 {
+		t.Fatalf("expected normalized timeout 0, got=%v", req.Timeout)
+	}
+	if req.Region.Dx() != 4 || req.Region.Dy() != 4 {
+		t.Fatalf("region bounds mismatch: %+v", req.Region)
+	}
+
+	_, err = observer.ObserveChange(source, NewRegion(0, 0, 4, 4), ObserveOptions{})
+	if err != nil {
+		t.Fatalf("observe change failed: %v", err)
+	}
+}
+
+func TestObserverControllerValidation(t *testing.T) {
+	source, err := NewImageFromMatrix("obs-src", [][]uint8{
+		{1, 1},
+		{1, 1},
+	})
+	if err != nil {
+		t.Fatalf("new source: %v", err)
+	}
+	patternImage, err := NewImageFromMatrix("obs-needle", [][]uint8{{1}})
+	if err != nil {
+		t.Fatalf("new pattern image: %v", err)
+	}
+	pattern, err := NewPattern(patternImage)
+	if err != nil {
+		t.Fatalf("new pattern: %v", err)
+	}
+
+	observer := NewObserverController()
+	stub := &stubObserveBackend{}
+	observer.SetBackend(stub)
+
+	_, err = observer.ObserveAppear(nil, NewRegion(0, 0, 2, 2), pattern, ObserveOptions{})
+	if !errors.Is(err, ErrInvalidTarget) {
+		t.Fatalf("expected ErrInvalidTarget for nil source, got=%v", err)
+	}
+	_, err = observer.ObserveAppear(source, NewRegion(0, 0, 2, 2), nil, ObserveOptions{})
+	if !errors.Is(err, ErrInvalidTarget) {
+		t.Fatalf("expected ErrInvalidTarget for nil pattern, got=%v", err)
+	}
+	_, err = observer.ObserveChange(source, NewRegion(0, 0, 0, 0), ObserveOptions{})
+	if !errors.Is(err, ErrInvalidTarget) {
+		t.Fatalf("expected ErrInvalidTarget for empty region, got=%v", err)
+	}
+
+	stub.err = core.ErrObserveUnsupported
+	_, err = observer.ObserveChange(source, NewRegion(0, 0, 2, 2), ObserveOptions{})
+	if !errors.Is(err, ErrBackendUnsupported) {
+		t.Fatalf("expected ErrBackendUnsupported for unsupported observe backend, got=%v", err)
+	}
+}
+
+func TestAppControllerUnsupportedByDefault(t *testing.T) {
+	controller := NewAppController()
+	err := controller.Open("Demo", nil, AppOptions{})
+	if !errors.Is(err, ErrBackendUnsupported) {
+		t.Fatalf("expected ErrBackendUnsupported, got=%v", err)
+	}
+}
+
+func TestAppControllerDispatchWithStub(t *testing.T) {
+	stub := &stubAppBackend{
+		result: core.AppResult{
+			Running: true,
+			PID:     42,
+			Windows: []core.WindowInfo{
+				{Title: "Demo", X: 1, Y: 2, W: 300, H: 200, Focused: true},
+			},
+		},
+	}
+	controller := NewAppController()
+	controller.SetBackend(stub)
+
+	if err := controller.Open("Demo", []string{"--flag"}, AppOptions{Timeout: -time.Second}); err != nil {
+		t.Fatalf("open failed: %v", err)
+	}
+	if err := controller.Focus("Demo", AppOptions{}); err != nil {
+		t.Fatalf("focus failed: %v", err)
+	}
+	if err := controller.Close("Demo", AppOptions{}); err != nil {
+		t.Fatalf("close failed: %v", err)
+	}
+	running, err := controller.IsRunning("Demo", AppOptions{})
+	if err != nil {
+		t.Fatalf("is running failed: %v", err)
+	}
+	if !running {
+		t.Fatalf("expected running=true")
+	}
+	windows, err := controller.ListWindows("Demo", AppOptions{})
+	if err != nil {
+		t.Fatalf("list windows failed: %v", err)
+	}
+	if len(windows) != 1 || windows[0].Title != "Demo" || !windows[0].Focused {
+		t.Fatalf("windows mismatch: %+v", windows)
+	}
+	if len(stub.requests) != 5 {
+		t.Fatalf("expected 5 backend requests, got=%d", len(stub.requests))
+	}
+	if stub.requests[0].Action != core.AppActionOpen || stub.requests[0].Timeout != 0 || len(stub.requests[0].Args) != 1 {
+		t.Fatalf("open request mismatch: %+v", stub.requests[0])
+	}
+	if stub.requests[1].Action != core.AppActionFocus {
+		t.Fatalf("focus request mismatch: %+v", stub.requests[1])
+	}
+	if stub.requests[2].Action != core.AppActionClose {
+		t.Fatalf("close request mismatch: %+v", stub.requests[2])
+	}
+	if stub.requests[3].Action != core.AppActionIsRunning {
+		t.Fatalf("is running request mismatch: %+v", stub.requests[3])
+	}
+	if stub.requests[4].Action != core.AppActionListWindow {
+		t.Fatalf("list windows request mismatch: %+v", stub.requests[4])
+	}
+}
+
+func TestAppControllerValidation(t *testing.T) {
+	controller := NewAppController()
+	stub := &stubAppBackend{}
+	controller.SetBackend(stub)
+
+	if err := controller.Open("   ", nil, AppOptions{}); !errors.Is(err, ErrInvalidTarget) {
+		t.Fatalf("expected ErrInvalidTarget for empty app name, got=%v", err)
+	}
+
+	stub.err = errors.New("unsupported app action \"bad\"")
+	if err := controller.Focus("Demo", AppOptions{}); !errors.Is(err, ErrInvalidTarget) {
+		t.Fatalf("expected ErrInvalidTarget for validation-like backend error, got=%v", err)
+	}
+
+	stub.err = errors.New("custom backend error")
+	if err := controller.Close("Demo", AppOptions{}); err == nil || errors.Is(err, ErrInvalidTarget) {
 		t.Fatalf("expected raw backend error, got=%v", err)
 	}
 }

@@ -8,6 +8,8 @@ This document defines the locked package boundaries, object responsibilities, an
   - Public types, defaults, and errors.
   - Public API orchestration (`Finder` delegates matching work to `core.Matcher` and `core.OCR`).
   - Input automation controller (`InputController`) delegates to `core.Input`.
+  - Observe/event controller (`ObserverController`) delegates to `core.Observer`.
+  - App/window controller (`AppController`) delegates to `core.App`.
   - Region/Finder helper semantics (`Region` geometry/runtime setters, `Finder.Exists/Has`).
   - Region-scoped search protocol (`Region.Find/Exists/Has/Wait`) over source image crops.
   - OCR and text-search protocol (`Finder.ReadText/FindText`, `Region.ReadText/FindText`).
@@ -24,6 +26,10 @@ This document defines the locked package boundaries, object responsibilities, an
   - OCR backend implementation with optional `gogosseract` integration.
 - `internal/input`:
   - Input backend implementation with unsupported default.
+- `internal/observe`:
+  - Observe backend implementation with unsupported default.
+- `internal/app`:
+  - App/window backend implementation with unsupported default.
 - `internal/testharness`:
   - Corpus loading, comparator policy, and parity tests.
 
@@ -37,16 +43,24 @@ This document defines the locked package boundaries, object responsibilities, an
   - `OCRParams`
 - Input helper objects:
   - `InputOptions`, `MouseButton`
+- Observe helper objects:
+  - `ObserveOptions`, `ObserveEventType`, `ObserveEvent`
+- App helper objects:
+  - `AppOptions`, `Window`
 - Stateful objects:
   - `Image`, `Pattern`, `Finder`
 - Input automation objects:
   - `InputController`
+- Observe automation objects:
+  - `ObserverController`
+- App/window automation objects:
+  - `AppController`
 - Global configuration:
   - `RuntimeSettings`, settings mutator/accessor functions
 - Options/configuration helpers:
   - `Options` typed map wrapper
 - Compatibility interfaces:
-  - `ImageAPI`, `PatternAPI`, `FinderAPI`, `RegionAPI`, `InputAPI`
+  - `ImageAPI`, `PatternAPI`, `FinderAPI`, `RegionAPI`, `InputAPI`, `ObserveAPI`, `AppAPI`
 - Error protocol:
   - `ErrFindFailed`, `ErrTimeout`, `ErrInvalidTarget`, `ErrBackendUnsupported`
 
@@ -64,6 +78,17 @@ This document defines the locked package boundaries, object responsibilities, an
 - `InputRequest`: backend-neutral input request payload.
 - `Input`: backend input protocol interface.
 - `ErrInputUnsupported`: backend capability sentinel.
+- `ObserveEventType`: backend-neutral observe event enum.
+- `ObserveRequest`: backend-neutral observe request payload.
+- `ObserveEvent`: backend-neutral observe event payload.
+- `Observer`: backend observe protocol interface.
+- `ErrObserveUnsupported`: backend capability sentinel.
+- `AppAction`: backend-neutral app action enum.
+- `AppRequest`: backend-neutral app request payload.
+- `AppResult`: backend-neutral app response payload.
+- `WindowInfo`: backend-neutral window payload.
+- `App`: backend app protocol interface.
+- `ErrAppUnsupported`: backend capability sentinel.
 - `ResizeGrayNearest`: canonical nearest-neighbor resize helper.
 
 ### `internal/cv`
@@ -86,6 +111,14 @@ This document defines the locked package boundaries, object responsibilities, an
 ### `internal/input`
 
 - `unsupportedBackend`: default implementation returning `core.ErrInputUnsupported`.
+
+### `internal/observe`
+
+- `unsupportedBackend`: default implementation returning `core.ErrObserveUnsupported`.
+
+### `internal/app`
+
+- `unsupportedBackend`: default implementation returning `core.ErrAppUnsupported`.
 
 ### `internal/testharness`
 
@@ -136,6 +169,30 @@ type Input interface {
 ```
 
 `pkg/sikuli.InputController` must consume only this protocol and must not depend on backend-specific types.
+
+## Protocol lock: observe boundary
+
+The observe backend boundary remains strictly behind this interface:
+
+```go
+type Observer interface {
+  Observe(req ObserveRequest) ([]ObserveEvent, error)
+}
+```
+
+`pkg/sikuli.ObserverController` must consume only this protocol and must not depend on backend-specific types.
+
+## Protocol lock: app boundary
+
+The app backend boundary remains strictly behind this interface:
+
+```go
+type App interface {
+  Execute(req AppRequest) (AppResult, error)
+}
+```
+
+`pkg/sikuli.AppController` must consume only this protocol and must not depend on backend-specific types.
 
 ## Protocol lock: region-scoped search
 

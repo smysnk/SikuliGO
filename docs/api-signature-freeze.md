@@ -91,6 +91,20 @@ type InputAPI interface {
   TypeText(text string, opts InputOptions) error
   Hotkey(keys ...string) error
 }
+
+type ObserveAPI interface {
+  ObserveAppear(source *Image, region Region, pattern *Pattern, opts ObserveOptions) ([]ObserveEvent, error)
+  ObserveVanish(source *Image, region Region, pattern *Pattern, opts ObserveOptions) ([]ObserveEvent, error)
+  ObserveChange(source *Image, region Region, opts ObserveOptions) ([]ObserveEvent, error)
+}
+
+type AppAPI interface {
+  Open(name string, args []string, opts AppOptions) error
+  Focus(name string, opts AppOptions) error
+  Close(name string, opts AppOptions) error
+  IsRunning(name string, opts AppOptions) (bool, error)
+  ListWindows(name string, opts AppOptions) ([]Window, error)
+}
 ```
 
 ## Exported data types and methods
@@ -311,6 +325,76 @@ func (c *InputController) MoveMouse(x, y int, opts InputOptions) error
 func (c *InputController) Click(x, y int, opts InputOptions) error
 func (c *InputController) TypeText(text string, opts InputOptions) error
 func (c *InputController) Hotkey(keys ...string) error
+```
+
+### ObserveOptions
+
+```go
+type ObserveOptions struct {
+  Interval time.Duration
+  Timeout  time.Duration
+}
+```
+
+### ObserveEventType
+
+```go
+type ObserveEventType string
+const ObserveEventAppear ObserveEventType = "appear"
+const ObserveEventVanish ObserveEventType = "vanish"
+const ObserveEventChange ObserveEventType = "change"
+```
+
+### ObserveEvent
+
+```go
+type ObserveEvent struct {
+  Type      ObserveEventType
+  Match     Match
+  Timestamp time.Time
+}
+```
+
+### ObserverController
+
+```go
+type ObserverController struct
+func NewObserverController() *ObserverController
+func (c *ObserverController) SetBackend(backend core.Observer)
+func (c *ObserverController) ObserveAppear(source *Image, region Region, pattern *Pattern, opts ObserveOptions) ([]ObserveEvent, error)
+func (c *ObserverController) ObserveVanish(source *Image, region Region, pattern *Pattern, opts ObserveOptions) ([]ObserveEvent, error)
+func (c *ObserverController) ObserveChange(source *Image, region Region, opts ObserveOptions) ([]ObserveEvent, error)
+```
+
+### AppOptions
+
+```go
+type AppOptions struct {
+  Timeout time.Duration
+}
+```
+
+### Window
+
+```go
+type Window struct {
+  Title   string
+  Bounds  Rect
+  Focused bool
+}
+```
+
+### AppController
+
+```go
+type AppController struct
+func NewAppController() *AppController
+func (c *AppController) SetBackend(backend core.App)
+func (c *AppController) Open(name string, args []string, opts AppOptions) error
+func (c *AppController) Focus(name string, opts AppOptions) error
+func (c *AppController) Close(name string, opts AppOptions) error
+func (c *AppController) IsRunning(name string, opts AppOptions) (bool, error)
+func (c *AppController) ListWindows(name string, opts AppOptions) ([]Window, error)
 ```
 
 ### Options

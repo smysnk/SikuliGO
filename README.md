@@ -20,8 +20,8 @@ This repository houses a GoLang implementation of Sikuli visual automation.
 | API parity surface expansion | Additional parity helpers and compatibility APIs | 🟡 Planned / In progress |
 | OCR and text-search parity | OCR contracts, finder/region text flows, optional backend integration | ✅ Completed (baseline) |
 | Input automation and hotkey parity | Input controller contracts, request validation, backend protocol scaffold | ✅ Completed (baseline scaffold) |
-| Observe/event subsystem parity | Appear/vanish/change observers and event lifecycle | 🟡 Planned |
-| App/window/process control parity | Launch/focus/close/window process control abstractions | 🟡 Planned |
+| Observe/event subsystem parity | Observer contracts, request validation, backend protocol scaffold | ✅ Completed (baseline scaffold) |
+| App/window/process control parity | App/window contracts, request validation, backend protocol scaffold | ✅ Completed (baseline scaffold) |
 | Cross-platform backend hardening | Platform integration hardening and backend portability | 🟡 Planned |
 
 ## Port Strategy
@@ -33,6 +33,8 @@ This repository houses a GoLang implementation of Sikuli visual automation.
 - [GoLang API Reference](https://smysnk.github.io/SikuliGO/api/)
 - [OCR Integration](https://smysnk.github.io/SikuliGO/ocr-integration)
 - [Input Automation](https://smysnk.github.io/SikuliGO/input-automation)
+- [Observe Events](https://smysnk.github.io/SikuliGO/observe-events)
+- [App Control](https://smysnk.github.io/SikuliGO/app-control)
 - [Defaults Table](https://smysnk.github.io/SikuliGO/default-behavior-table)
 - [CI Test Reporting](https://smysnk.github.io/SikuliGO/ci-test-reporting)
 

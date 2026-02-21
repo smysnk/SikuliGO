@@ -49,6 +49,36 @@ func SortMatchesByRowColumn(matches []Match)
 
 TYPES
 
+type AppAPI interface {
+	Open(name string, args []string, opts AppOptions) error
+	Focus(name string, opts AppOptions) error
+	Close(name string, opts AppOptions) error
+	IsRunning(name string, opts AppOptions) (bool, error)
+	ListWindows(name string, opts AppOptions) ([]Window, error)
+}
+
+type AppController struct {
+	// Has unexported fields.
+}
+
+func NewAppController() *AppController
+
+func (c *AppController) Close(name string, opts AppOptions) error
+
+func (c *AppController) Focus(name string, opts AppOptions) error
+
+func (c *AppController) IsRunning(name string, opts AppOptions) (bool, error)
+
+func (c *AppController) ListWindows(name string, opts AppOptions) ([]Window, error)
+
+func (c *AppController) Open(name string, args []string, opts AppOptions) error
+
+func (c *AppController) SetBackend(backend core.App)
+
+type AppOptions struct {
+	Timeout time.Duration
+}
+
 type Finder struct {
 	// Has unexported fields.
 }
@@ -195,6 +225,44 @@ type OCRParams struct {
 	Timeout          time.Duration
 	CaseSensitive    bool
 }
+
+type ObserveAPI interface {
+	ObserveAppear(source *Image, region Region, pattern *Pattern, opts ObserveOptions) ([]ObserveEvent, error)
+	ObserveVanish(source *Image, region Region, pattern *Pattern, opts ObserveOptions) ([]ObserveEvent, error)
+	ObserveChange(source *Image, region Region, opts ObserveOptions) ([]ObserveEvent, error)
+}
+
+type ObserveEvent struct {
+	Type      ObserveEventType
+	Match     Match
+	Timestamp time.Time
+}
+
+type ObserveEventType string
+
+const (
+	ObserveEventAppear ObserveEventType = "appear"
+	ObserveEventVanish ObserveEventType = "vanish"
+	ObserveEventChange ObserveEventType = "change"
+)
+type ObserveOptions struct {
+	Interval time.Duration
+	Timeout  time.Duration
+}
+
+type ObserverController struct {
+	// Has unexported fields.
+}
+
+func NewObserverController() *ObserverController
+
+func (c *ObserverController) ObserveAppear(source *Image, region Region, pattern *Pattern, opts ObserveOptions) ([]ObserveEvent, error)
+
+func (c *ObserverController) ObserveChange(source *Image, region Region, opts ObserveOptions) ([]ObserveEvent, error)
+
+func (c *ObserverController) ObserveVanish(source *Image, region Region, pattern *Pattern, opts ObserveOptions) ([]ObserveEvent, error)
+
+func (c *ObserverController) SetBackend(backend core.Observer)
 
 type Offset struct {
 	X int
@@ -411,6 +479,12 @@ type TextMatch struct {
 	Text       string
 	Confidence float64
 	Index      int
+}
+
+type Window struct {
+	Title   string
+	Bounds  Rect
+	Focused bool
 }
 
 ```

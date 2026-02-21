@@ -10,14 +10,45 @@ package core // import "github.com/sikulix/portgo/internal/core"
 
 VARIABLES
 
+var ErrAppUnsupported = errors.New("app backend unsupported")
 var ErrInputUnsupported = errors.New("input backend unsupported")
 var ErrOCRUnsupported = errors.New("ocr backend unsupported")
+var ErrObserveUnsupported = errors.New("observe backend unsupported")
 
 FUNCTIONS
 
 func ResizeGrayNearest(src *image.Gray, factor float64) *image.Gray
 
 TYPES
+
+type App interface {
+	Execute(req AppRequest) (AppResult, error)
+}
+
+type AppAction string
+
+const (
+	AppActionOpen       AppAction = "open"
+	AppActionFocus      AppAction = "focus"
+	AppActionClose      AppAction = "close"
+	AppActionIsRunning  AppAction = "is_running"
+	AppActionListWindow AppAction = "list_windows"
+)
+type AppRequest struct {
+	Action  AppAction
+	Name    string
+	Args    []string
+	Timeout time.Duration
+	Options map[string]string
+}
+
+func (r AppRequest) Validate() error
+
+type AppResult struct {
+	Running bool
+	PID     int
+	Windows []WindowInfo
+}
 
 type Input interface {
 	Execute(req InputRequest) error
@@ -84,6 +115,39 @@ type OCRWord struct {
 	Confidence float64
 }
 
+type ObserveEvent struct {
+	Event     ObserveEventType
+	X         int
+	Y         int
+	W         int
+	H         int
+	Score     float64
+	Timestamp time.Time
+}
+
+type ObserveEventType string
+
+const (
+	ObserveEventAppear ObserveEventType = "appear"
+	ObserveEventVanish ObserveEventType = "vanish"
+	ObserveEventChange ObserveEventType = "change"
+)
+type ObserveRequest struct {
+	Source   *image.Gray
+	Region   image.Rectangle
+	Pattern  *image.Gray
+	Event    ObserveEventType
+	Interval time.Duration
+	Timeout  time.Duration
+	Options  map[string]string
+}
+
+func (r ObserveRequest) Validate() error
+
+type Observer interface {
+	Observe(req ObserveRequest) ([]ObserveEvent, error)
+}
+
 type SearchRequest struct {
 	Haystack     *image.Gray
 	Needle       *image.Gray
@@ -94,5 +158,14 @@ type SearchRequest struct {
 }
 
 func (r SearchRequest) Validate() error
+
+type WindowInfo struct {
+	Title   string
+	X       int
+	Y       int
+	W       int
+	H       int
+	Focused bool
+}
 
 ```

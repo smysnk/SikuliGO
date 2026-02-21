@@ -72,10 +72,26 @@ type InputAPI interface {
 	Hotkey(keys ...string) error
 }
 
+type ObserveAPI interface {
+	ObserveAppear(source *Image, region Region, pattern *Pattern, opts ObserveOptions) ([]ObserveEvent, error)
+	ObserveVanish(source *Image, region Region, pattern *Pattern, opts ObserveOptions) ([]ObserveEvent, error)
+	ObserveChange(source *Image, region Region, opts ObserveOptions) ([]ObserveEvent, error)
+}
+
+type AppAPI interface {
+	Open(name string, args []string, opts AppOptions) error
+	Focus(name string, opts AppOptions) error
+	Close(name string, opts AppOptions) error
+	IsRunning(name string, opts AppOptions) (bool, error)
+	ListWindows(name string, opts AppOptions) ([]Window, error)
+}
+
 var (
 	_ ImageAPI   = (*Image)(nil)
 	_ PatternAPI = (*Pattern)(nil)
 	_ FinderAPI  = (*Finder)(nil)
 	_ RegionAPI  = (*Region)(nil)
 	_ InputAPI   = (*InputController)(nil)
+	_ ObserveAPI = (*ObserverController)(nil)
+	_ AppAPI     = (*AppController)(nil)
 )
