@@ -28,19 +28,17 @@ This repository houses a GoLang implementation of Sikuli visual automation.
 
 - [Docs Home](https://smysnk.github.io/SikuliGO/)
 - [Consolidated Strategy](https://smysnk.github.io/SikuliGO/port-strategy)
-- [Locked Architecture](https://smysnk.github.io/SikuliGO/architecture-lock)
-- [API Freeze](https://smysnk.github.io/SikuliGO/api-signature-freeze)
-- [GoLang API Reference](https://smysnk.github.io/SikuliGO/api/)
-- [API Visual Map](https://smysnk.github.io/SikuliGO/api-visual-map)
-- [OCR Integration](https://smysnk.github.io/SikuliGO/ocr-integration)
+- [API Reference](https://smysnk.github.io/SikuliGO/api/)
+- [Defaults Table](https://smysnk.github.io/SikuliGO/default-behavior-table)
+
+Integration & Implementation:
+- [OCR](https://smysnk.github.io/SikuliGO/ocr-integration)
 - [Input Automation](https://smysnk.github.io/SikuliGO/input-automation)
 - [Observe Events](https://smysnk.github.io/SikuliGO/observe-events)
 - [App Control](https://smysnk.github.io/SikuliGO/app-control)
-- [Defaults Table](https://smysnk.github.io/SikuliGO/default-behavior-table)
 - [Backend Capability Matrix](https://smysnk.github.io/SikuliGO/backend-capability-matrix)
-- [CI Test Reporting](https://smysnk.github.io/SikuliGO/ci-test-reporting)
 
-GoLang API reference pages are generated from source with `./scripts/generate-api-docs.sh`, validated with `./scripts/check-api-docs.sh`, and published by GitHub Pages.
+API reference pages are generated from source with `./scripts/generate-api-docs.sh` and validated with `./scripts/check-api-docs.sh`.
 
 ## Repository Layout
 
@@ -65,7 +63,7 @@ go test -tags gosseract ./...
 ```
 
 Tagged OCR builds require native Tesseract + Leptonica runtime libraries and installed language data.
-See [OCR Integration](https://smysnk.github.io/SikuliGO/ocr-integration) for full macOS/Homebrew setup and troubleshooting steps.
+See [OCR](https://smysnk.github.io/SikuliGO/ocr-integration) for full macOS/Homebrew setup and troubleshooting steps.
 
 ## Project History and Credits
 

@@ -1,6 +1,6 @@
 # GoLang Port Strategy
 
-This document consolidates the project goals, locked architecture, implementation plan, and feature matrix for the SikuliGO port.
+This document consolidates the project goals, architecture overview, implementation plan, and feature matrix for the SikuliGO port.
 
 ## Goals
 
@@ -9,7 +9,7 @@ This document consolidates the project goals, locked architecture, implementatio
 - Keep a stable public API while allowing backend upgrades.
 - Make behavior measurable with deterministic tests and parity fixtures.
 
-## Locked Architecture
+## Architecture Overview
 
 ### Module and package layout
 
@@ -81,24 +81,24 @@ This keeps `pkg/sikuli` stable while allowing alternate implementations (e.g., `
 
 | Type | Kind | Role | Status | Notes |
 |---|---|---|---|---|
-| `SearchRequest` | protocol object | backend-neutral match request | ✅ | Locked request contract |
-| `MatchCandidate` | protocol object | backend-neutral match response item | ✅ | Locked response contract |
+| `SearchRequest` | protocol object | backend-neutral match request | ✅ | Stable request contract |
+| `MatchCandidate` | protocol object | backend-neutral match response item | ✅ | Stable response contract |
 | `Matcher` | protocol interface | backend matcher boundary | ✅ | Used by finder protocol |
-| `OCRRequest` | protocol object | backend-neutral OCR request | ✅ | Locked OCR request contract |
-| `OCRWord` | protocol object | backend-neutral OCR word payload | ✅ | Locked OCR word contract |
-| `OCRResult` | protocol object | backend-neutral OCR response payload | ✅ | Locked OCR response contract |
+| `OCRRequest` | protocol object | backend-neutral OCR request | ✅ | Stable OCR request contract |
+| `OCRWord` | protocol object | backend-neutral OCR word payload | ✅ | Stable OCR word contract |
+| `OCRResult` | protocol object | backend-neutral OCR response payload | ✅ | Stable OCR response contract |
 | `OCR` | protocol interface | backend OCR boundary | ✅ | Used by finder OCR protocol |
-| `InputAction` | protocol object | backend-neutral input action enum | ✅ | Locked input action contract |
-| `InputRequest` | protocol object | backend-neutral input request | ✅ | Locked input request contract |
+| `InputAction` | protocol object | backend-neutral input action enum | ✅ | Stable input action contract |
+| `InputRequest` | protocol object | backend-neutral input request | ✅ | Stable input request contract |
 | `Input` | protocol interface | backend input boundary | ✅ | Used by input controller |
-| `ObserveEventType` | protocol object | backend-neutral observe event enum | ✅ | Locked observe event contract |
-| `ObserveRequest` | protocol object | backend-neutral observe request | ✅ | Locked observe request contract |
-| `ObserveEvent` | protocol object | backend-neutral observe event payload | ✅ | Locked observe payload contract |
+| `ObserveEventType` | protocol object | backend-neutral observe event enum | ✅ | Stable observe event contract |
+| `ObserveRequest` | protocol object | backend-neutral observe request | ✅ | Stable observe request contract |
+| `ObserveEvent` | protocol object | backend-neutral observe event payload | ✅ | Stable observe payload contract |
 | `Observer` | protocol interface | backend observe boundary | ✅ | Used by observer controller |
-| `AppAction` | protocol object | backend-neutral app action enum | ✅ | Locked app action contract |
-| `AppRequest` | protocol object | backend-neutral app request | ✅ | Locked app request contract |
-| `WindowInfo` | protocol object | backend-neutral window payload | ✅ | Locked window payload contract |
-| `AppResult` | protocol object | backend-neutral app response payload | ✅ | Locked app response contract |
+| `AppAction` | protocol object | backend-neutral app action enum | ✅ | Stable app action contract |
+| `AppRequest` | protocol object | backend-neutral app request | ✅ | Stable app request contract |
+| `WindowInfo` | protocol object | backend-neutral window payload | ✅ | Stable window payload contract |
+| `AppResult` | protocol object | backend-neutral app response payload | ✅ | Stable app response contract |
 | `App` | protocol interface | backend app boundary | ✅ | Used by app controller |
 
 ### `internal/cv` protocol implementation
@@ -151,10 +151,10 @@ This keeps `pkg/sikuli` stable while allowing alternate implementations (e.g., `
 
 ### Workstream 1: Core API scaffolding
 
-- Freeze signatures/defaults for:
+- Define signatures/defaults for:
   - `Image`, `Pattern`, `Match`, `Finder`, `Region`, `Screen`
 - Define typed errors and runtime defaults.
-- Enforce compatibility via signature freeze docs and interfaces.
+- Enforce compatibility via documented API interfaces.
 
 Status: ✅ Completed (baseline implemented)
 
@@ -186,7 +186,7 @@ Status: ✅ Completed (baseline implemented)
 ### Workstream 3: API parity surface expansion
 
 - Expand `pkg/sikuli` to include additional parity objects and behaviors (location/offset aliases, broader region/finder helpers, options surfaces).
-- Maintain non-breaking evolution under the API freeze protocol.
+- Maintain non-breaking evolution under the API compatibility protocol.
 
 Status: 🟡 Planned
 
@@ -245,7 +245,7 @@ Status (Concrete backend): ✅ Completed (`darwin` + `linux` + `windows` backend
 | Match result model | score, target, index, geometry | P0 | ✅ | extend with comparator helpers if needed |
 | Finder single target | `Find` + fail semantics | P0 | ✅ | includes `Exists` and `Has` helper semantics |
 | Finder wait/vanish semantics | `Wait` and `WaitVanish` timeout polling | P0 | ✅ | global wait scan rate polling |
-| Finder multi-target | `FindAll` ordering + indexing | P0 | ✅ | deterministic order locked |
+| Finder multi-target | `FindAll` ordering + indexing | P0 | ✅ | deterministic order defined |
 | Finder sorted multi-target helpers | `FindAllByRow` / `FindAllByColumn` | P0 | ✅ | helper sorting + reindexing behavior |
 | Region-scoped search | `Region.Find/Exists/Has/Wait` with timeout polling | P0 | ✅ | uses source crop + finder backend |
 | Region sorted multi-target helpers | `FindAll` / `FindAllByRow` / `FindAllByColumn` | P0 | ✅ | region-scoped delegation |
@@ -253,7 +253,7 @@ Status (Concrete backend): ✅ Completed (`darwin` + `linux` + `windows` backend
 | Finder protocol swappability | `SetMatcher(core.Matcher)` | P0 | ✅ | enables backend evolution |
 | Global settings | `RuntimeSettings` get/update/reset | P1 | ✅ | expand settings map as parity grows |
 | Options/config object | typed get/set/delete/clone/merge | P1 | ✅ | string-map compatibility helper |
-| Signature compatibility layer | `ImageAPI`, `PatternAPI`, `FinderAPI`, `RegionAPI`, `InputAPI`, `ObserveAPI`, `AppAPI` | P0 | ✅ | freeze enforced in docs |
+| Signature compatibility layer | `ImageAPI`, `PatternAPI`, `FinderAPI`, `RegionAPI`, `InputAPI`, `ObserveAPI`, `AppAPI` | P0 | ✅ | compatibility documented in API docs |
 | Core matcher protocol | `SearchRequest`, `MatchCandidate`, `Matcher` | P0 | ✅ | strict boundary maintained |
 | Core image protocol util | `ResizeGrayNearest` | P1 | ✅ | may add interpolation variants later |
 | CV backend implementation | `NCCMatcher` | P0 | ✅ | first backend |
@@ -276,14 +276,12 @@ Status (Concrete backend): ✅ Completed (`darwin` + `linux` + `windows` backend
 
 Each existing object/interface/protocol is considered feature-complete when:
 
-1. It has frozen signature coverage in `docs/api-signature-freeze.md`.
+1. It has signature coverage in the generated API docs and compatibility interfaces.
 2. It has default/behavior semantics in `docs/default-behavior-table.md`.
-3. Its package boundary and role are defined in `docs/architecture-lock.md`.
+3. Its package boundary and role are defined in this strategy document.
 4. It is covered by unit or parity tests where behavior is non-trivial.
 
 ## Related Documents
 
-- `docs/architecture-lock.md`
-- `docs/api-signature-freeze.md`
 - `docs/default-behavior-table.md`
 - `docs/backend-capability-matrix.md`

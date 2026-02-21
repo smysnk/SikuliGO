@@ -17,7 +17,7 @@ rm -f "$OUT_ROOT"/*.md
 MODULE_PATH="$(cd "$ROOT_DIR" && go list -m)"
 
 {
-  echo "# GoLang API Reference"
+  echo "# API Reference"
   echo
   echo "This API reference is generated from package comments and exported symbols using \`go doc -all\`."
   echo

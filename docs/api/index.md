@@ -1,4 +1,4 @@
-# GoLang API Reference
+# API Reference
 
 This API reference is generated from package comments and exported symbols using `go doc -all`.
 

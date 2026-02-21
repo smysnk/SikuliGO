@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-// This file intentionally defines the frozen workstream-1 public signatures.
-// If these interfaces are changed, update docs/api-signature-freeze.md.
+// This file intentionally defines stable workstream-1 public signatures.
+// If these interfaces are changed, update the generated API reference docs.
 
 type ImageAPI interface {
 	Name() string

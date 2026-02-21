@@ -1,4 +1,4 @@
-# OCR Integration
+# OCR
 
 SikuliGO provides OCR APIs in `Finder` and `Region`:
 
