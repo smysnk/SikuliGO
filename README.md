@@ -17,7 +17,8 @@ This repository houses a GoLang implementation of Sikuli visual automation.
 |---|---|---|
 | Core API scaffolding | Public SikuliGo API surface and parity-facing core objects | ✅ Completed (baseline + extensions) |
 | Matching engine and parity harness | Deterministic matcher behavior, golden corpus, backend conformance tests | ✅ Completed (baseline + extensions) |
-| API parity surface expansion | Additional parity helpers and compatibility APIs | 🟡 Planned / In progress |
+| API parity surface expansion | Additional parity helpers and compatibility APIs | ✅ Completed |
+| Protocol completeness hardening | Alternate matcher backend + cross-backend conformance rules | ✅ Completed |
 | OCR and text-search parity | OCR contracts, finder/region text flows, optional backend integration | ✅ Completed (pinned gosseract module integration) |
 | Input automation and hotkey parity | Input controller contracts, request validation, backend protocol scaffold | 🟡 In progress (concrete `darwin` backend; non-`darwin` fallback unsupported) |
 | Observe/event subsystem parity | Observer contracts, request validation, backend protocol scaffold | ✅ Completed (concrete deterministic polling backend) |

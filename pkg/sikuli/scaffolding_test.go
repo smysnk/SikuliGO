@@ -63,10 +63,18 @@ func TestRegionGeometryHelpers(t *testing.T) {
 	if offset.X != 7 || offset.Y != 24 || offset.W != 30 || offset.H != 40 {
 		t.Fatalf("offset mismatch: got=%+v", offset)
 	}
+	offsetAlias := r.OffsetBy(NewOffset(-3, 4))
+	if offsetAlias != offset {
+		t.Fatalf("offset alias mismatch: got=%+v want=%+v", offsetAlias, offset)
+	}
 
 	moved := r.MoveTo(1, 2)
 	if moved.X != 1 || moved.Y != 2 || moved.W != 30 || moved.H != 40 {
 		t.Fatalf("move mismatch: got=%+v", moved)
+	}
+	movedAlias := r.MoveToLocation(NewLocation(1, 2))
+	if movedAlias != moved {
+		t.Fatalf("move alias mismatch: got=%+v want=%+v", movedAlias, moved)
 	}
 
 	size := r.SetSize(-1, 7)
@@ -77,8 +85,14 @@ func TestRegionGeometryHelpers(t *testing.T) {
 	if !r.Contains(NewPoint(10, 20)) {
 		t.Fatalf("expected top-left point to be contained")
 	}
+	if !r.ContainsLocation(NewLocation(10, 20)) {
+		t.Fatalf("expected top-left location to be contained")
+	}
 	if r.Contains(NewPoint(40, 60)) {
 		t.Fatalf("expected right/bottom edge point to be excluded")
+	}
+	if r.ContainsLocation(NewLocation(40, 60)) {
+		t.Fatalf("expected right/bottom edge location to be excluded")
 	}
 
 	inside := NewRegion(12, 22, 5, 6)
@@ -397,6 +411,13 @@ func TestRegionFindExistsWaitParityScaffold(t *testing.T) {
 	if len(all) != 1 || all[0].X != 2 || all[0].Y != 1 {
 		t.Fatalf("region findall mismatch: %+v", all)
 	}
+	count, err := region.Count(hay, p)
+	if err != nil {
+		t.Fatalf("region count failed: %v", err)
+	}
+	if count != 1 {
+		t.Fatalf("region count mismatch: got=%d", count)
+	}
 	byRow, err := region.FindAllByRow(hay, p)
 	if err != nil {
 		t.Fatalf("region findall by row failed: %v", err)
@@ -449,6 +470,13 @@ func TestFinderFindAllSortedHelpers(t *testing.T) {
 	if len(row) != 2 || len(col) != 2 {
 		t.Fatalf("expected 2 matches each, row=%d col=%d", len(row), len(col))
 	}
+	count, err := f.Count(p)
+	if err != nil {
+		t.Fatalf("finder count failed: %v", err)
+	}
+	if count != 2 {
+		t.Fatalf("finder count mismatch: got=%d", count)
+	}
 	if row[0].Index != 0 || row[1].Index != 1 {
 		t.Fatalf("row reindex mismatch: %+v", row)
 	}
@@ -466,6 +494,9 @@ func TestLocationAndOffsetBasics(t *testing.T) {
 	if lp.X != 10 || lp.Y != 20 {
 		t.Fatalf("location to point mismatch: %+v", lp)
 	}
+	if got := lp.ToLocation(); got != l {
+		t.Fatalf("point to location mismatch: got=%+v want=%+v", got, l)
+	}
 	moved := l.Move(-3, 4)
 	if moved.X != 7 || moved.Y != 24 {
 		t.Fatalf("location move mismatch: %+v", moved)
@@ -475,6 +506,9 @@ func TestLocationAndOffsetBasics(t *testing.T) {
 	op := o.ToPoint()
 	if op.X != 5 || op.Y != -2 {
 		t.Fatalf("offset to point mismatch: %+v", op)
+	}
+	if got := op.ToOffset(); got != o {
+		t.Fatalf("point to offset mismatch: got=%+v want=%+v", got, o)
 	}
 }
 

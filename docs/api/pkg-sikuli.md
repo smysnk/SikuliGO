@@ -82,6 +82,7 @@ Package: `package sikuli // import "github.com/sikulix/portgo/pkg/sikuli"`
 - <span class="api-method">[`AppController.ListWindows`](#method-appcontroller-listwindows)</span>
 - <span class="api-method">[`AppController.Open`](#method-appcontroller-open)</span>
 - <span class="api-method">[`AppController.SetBackend`](#method-appcontroller-setbackend)</span>
+- <span class="api-method">[`Finder.Count`](#method-finder-count)</span>
 - <span class="api-method">[`Finder.Exists`](#method-finder-exists)</span>
 - <span class="api-method">[`Finder.Find`](#method-finder-find)</span>
 - <span class="api-method">[`Finder.FindAll`](#method-finder-findall)</span>
@@ -140,12 +141,16 @@ Package: `package sikuli // import "github.com/sikulix/portgo/pkg/sikuli"`
 - <span class="api-method">[`Pattern.TargetOffset`](#method-pattern-targetoffset)</span>
 - <span class="api-method">[`Pattern.WithMask`](#method-pattern-withmask)</span>
 - <span class="api-method">[`Pattern.WithMaskMatrix`](#method-pattern-withmaskmatrix)</span>
+- <span class="api-method">[`Point.ToLocation`](#method-point-tolocation)</span>
+- <span class="api-method">[`Point.ToOffset`](#method-point-tooffset)</span>
 - <span class="api-method">[`Rect.Contains`](#method-rect-contains)</span>
 - <span class="api-method">[`Rect.Empty`](#method-rect-empty)</span>
 - <span class="api-method">[`Rect.String`](#method-rect-string)</span>
 - <span class="api-method">[`Region.Center`](#method-region-center)</span>
 - <span class="api-method">[`Region.Contains`](#method-region-contains)</span>
+- <span class="api-method">[`Region.ContainsLocation`](#method-region-containslocation)</span>
 - <span class="api-method">[`Region.ContainsRegion`](#method-region-containsregion)</span>
+- <span class="api-method">[`Region.Count`](#method-region-count)</span>
 - <span class="api-method">[`Region.Exists`](#method-region-exists)</span>
 - <span class="api-method">[`Region.Find`](#method-region-find)</span>
 - <span class="api-method">[`Region.FindAll`](#method-region-findall)</span>
@@ -156,7 +161,9 @@ Package: `package sikuli // import "github.com/sikulix/portgo/pkg/sikuli"`
 - <span class="api-method">[`Region.Has`](#method-region-has)</span>
 - <span class="api-method">[`Region.Intersection`](#method-region-intersection)</span>
 - <span class="api-method">[`Region.MoveTo`](#method-region-moveto)</span>
+- <span class="api-method">[`Region.MoveToLocation`](#method-region-movetolocation)</span>
 - <span class="api-method">[`Region.Offset`](#method-region-offset)</span>
+- <span class="api-method">[`Region.OffsetBy`](#method-region-offsetby)</span>
 - <span class="api-method">[`Region.ReadText`](#method-region-readtext)</span>
 - <span class="api-method">[`Region.ResetThrowException`](#method-region-resetthrowexception)</span>
 - <span class="api-method">[`Region.SetAutoWaitTimeout`](#method-region-setautowaittimeout)</span>
@@ -441,6 +448,12 @@ Package: `package sikuli // import "github.com/sikulix/portgo/pkg/sikuli"`
 
 - Signature: <span class="api-signature">`func (c *AppController) SetBackend(backend core.App)`</span>
 
+#### <a id="method-finder-count"></a><span class="api-method">Method</span> `Finder.Count`
+
+- Signature: <span class="api-signature">`func (f *Finder) Count(pattern *Pattern) (int, error)`</span>
+- Uses: [`Pattern`](#type-pattern)
+- Notes: Count returns the number of matches for the given pattern.
+
 #### <a id="method-finder-exists"></a><span class="api-method">Method</span> `Finder.Exists`
 
 - Signature: <span class="api-signature">`func (f *Finder) Exists(pattern *Pattern) (Match, bool, error)`</span>
@@ -697,6 +710,18 @@ Package: `package sikuli // import "github.com/sikulix/portgo/pkg/sikuli"`
 
 - Signature: <span class="api-signature">`func (p *Pattern) WithMaskMatrix(rows [][]uint8) (*Pattern, error)`</span>
 
+#### <a id="method-point-tolocation"></a><span class="api-method">Method</span> `Point.ToLocation`
+
+- Signature: <span class="api-signature">`func (p Point) ToLocation() Location`</span>
+- Uses: [`Location`](#type-location)
+- Notes: ToLocation converts a point to a parity-friendly Location value.
+
+#### <a id="method-point-tooffset"></a><span class="api-method">Method</span> `Point.ToOffset`
+
+- Signature: <span class="api-signature">`func (p Point) ToOffset() Offset`</span>
+- Uses: [`Offset`](#type-offset)
+- Notes: ToOffset converts a point to a parity-friendly Offset value.
+
 #### <a id="method-rect-contains"></a><span class="api-method">Method</span> `Rect.Contains`
 
 - Signature: <span class="api-signature">`func (r Rect) Contains(p Point) bool`</span>
@@ -720,9 +745,21 @@ Package: `package sikuli // import "github.com/sikulix/portgo/pkg/sikuli"`
 - Signature: <span class="api-signature">`func (r Region) Contains(p Point) bool`</span>
 - Uses: [`Point`](#type-point)
 
+#### <a id="method-region-containslocation"></a><span class="api-method">Method</span> `Region.ContainsLocation`
+
+- Signature: <span class="api-signature">`func (r Region) ContainsLocation(loc Location) bool`</span>
+- Uses: [`Location`](#type-location)
+- Notes: ContainsLocation reports whether this region contains the given location.
+
 #### <a id="method-region-containsregion"></a><span class="api-method">Method</span> `Region.ContainsRegion`
 
 - Signature: <span class="api-signature">`func (r Region) ContainsRegion(other Region) bool`</span>
+
+#### <a id="method-region-count"></a><span class="api-method">Method</span> `Region.Count`
+
+- Signature: <span class="api-signature">`func (r Region) Count(source *Image, pattern *Pattern) (int, error)`</span>
+- Uses: [`Image`](#type-image), [`Pattern`](#type-pattern)
+- Notes: Count returns the number of matches found in this region.
 
 #### <a id="method-region-exists"></a><span class="api-method">Method</span> `Region.Exists`
 
@@ -771,10 +808,22 @@ Package: `package sikuli // import "github.com/sikulix/portgo/pkg/sikuli"`
 
 - Signature: <span class="api-signature">`func (r Region) MoveTo(x, y int) Region`</span>
 
+#### <a id="method-region-movetolocation"></a><span class="api-method">Method</span> `Region.MoveToLocation`
+
+- Signature: <span class="api-signature">`func (r Region) MoveToLocation(loc Location) Region`</span>
+- Uses: [`Location`](#type-location)
+- Notes: MoveToLocation moves this region using a Location alias.
+
 #### <a id="method-region-offset"></a><span class="api-method">Method</span> `Region.Offset`
 
 - Signature: <span class="api-signature">`func (r Region) Offset(dx, dy int) Region`</span>
 - Uses: [`Offset`](#type-offset)
+
+#### <a id="method-region-offsetby"></a><span class="api-method">Method</span> `Region.OffsetBy`
+
+- Signature: <span class="api-signature">`func (r Region) OffsetBy(off Offset) Region`</span>
+- Uses: [`Offset`](#type-offset)
+- Notes: OffsetBy applies an Offset alias to this region position.
 
 #### <a id="method-region-readtext"></a><span class="api-method">Method</span> `Region.ReadText`
 
@@ -901,6 +950,9 @@ type Finder struct {
 }
 
 func NewFinder(source *Image) (*Finder, error)
+
+func (f *Finder) Count(pattern *Pattern) (int, error)
+    Count returns the number of matches for the given pattern.
 
 func (f *Finder) Exists(pattern *Pattern) (Match, bool, error)
     Exists returns the first match when present. Missing targets return
@@ -1173,6 +1225,12 @@ type Point struct {
 
 func NewPoint(x, y int) Point
 
+func (p Point) ToLocation() Location
+    ToLocation converts a point to a parity-friendly Location value.
+
+func (p Point) ToOffset() Offset
+    ToOffset converts a point to a parity-friendly Offset value.
+
 type Rect struct {
 	X int
 	Y int
@@ -1202,7 +1260,13 @@ func (r Region) Center() Point
 
 func (r Region) Contains(p Point) bool
 
+func (r Region) ContainsLocation(loc Location) bool
+    ContainsLocation reports whether this region contains the given location.
+
 func (r Region) ContainsRegion(other Region) bool
+
+func (r Region) Count(source *Image, pattern *Pattern) (int, error)
+    Count returns the number of matches found in this region.
 
 func (r Region) Exists(source *Image, pattern *Pattern, timeout time.Duration) (Match, bool, error)
 
@@ -1224,7 +1288,13 @@ func (r Region) Intersection(other Region) Region
 
 func (r Region) MoveTo(x, y int) Region
 
+func (r Region) MoveToLocation(loc Location) Region
+    MoveToLocation moves this region using a Location alias.
+
 func (r Region) Offset(dx, dy int) Region
+
+func (r Region) OffsetBy(off Offset) Region
+    OffsetBy applies an Offset alias to this region position.
 
 func (r Region) ReadText(source *Image, params OCRParams) (string, error)
 

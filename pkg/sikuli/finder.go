@@ -87,6 +87,15 @@ func (f *Finder) FindAll(pattern *Pattern) ([]Match, error) {
 	return matches, nil
 }
 
+// Count returns the number of matches for the given pattern.
+func (f *Finder) Count(pattern *Pattern) (int, error) {
+	matches, err := f.FindAll(pattern)
+	if err != nil {
+		return 0, err
+	}
+	return len(matches), nil
+}
+
 func (f *Finder) FindAllByRow(pattern *Pattern) ([]Match, error) {
 	matches, err := f.FindAll(pattern)
 	if err != nil {

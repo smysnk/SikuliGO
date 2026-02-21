@@ -39,109 +39,109 @@ This keeps `pkg/sikuli` stable while allowing alternate implementations (e.g., `
 
 ### `pkg/sikuli` objects
 
-| Type | Kind | Role | Status | Notes |
+| Type | Kind | Role |  |  |
 |---|---|---|---|---|
-| `Point` | object | coordinate pair | ✅ | Implemented in current baseline |
-| `Location` | object | parity-friendly coordinate object | ✅ | Implemented in current baseline |
-| `Offset` | object | parity-friendly offset object | ✅ | Implemented in current baseline |
-| `Rect` | object | geometry primitive | ✅ | Implemented in current baseline |
-| `Region` | object | geometry + search defaults container | ✅ | Implemented in current baseline |
-| `Screen` | object | screen identity/bounds abstraction | ✅ | Implemented in current baseline |
-| `Image` | object | grayscale image holder | ✅ | Implemented in current baseline |
-| `Pattern` | object | matching intent/configuration | ✅ | Implemented in current baseline |
-| `Match` | object | match result payload | ✅ | Implemented in current baseline |
-| `TextMatch` | object | OCR text match payload | ✅ | Implemented in current baseline |
-| `OCRParams` | object | OCR request option payload | ✅ | Implemented in current baseline |
-| `InputOptions` | object | input action option payload | ✅ | Implemented in current baseline |
-| `InputController` | object | input automation orchestrator | ✅ | Implemented in current baseline |
-| `ObserveOptions` | object | observe operation option payload | ✅ | Implemented in current baseline |
-| `ObserveEventType` | object | observe event enum | ✅ | Implemented in current baseline |
-| `ObserveEvent` | object | observe event payload | ✅ | Implemented in current baseline |
-| `ObserverController` | object | observe orchestration controller | ✅ | Implemented in current baseline |
-| `AppOptions` | object | app operation option payload | ✅ | Implemented in current baseline |
-| `Window` | object | app/window payload | ✅ | Implemented in current baseline |
-| `AppController` | object | app/window orchestration controller | ✅ | Implemented in current baseline |
-| `Finder` | object | user-facing matching orchestrator | ✅ | Implemented in current baseline |
-| `RuntimeSettings` | object | global runtime behavior values | ✅ | Implemented in current baseline |
-| `Options` | object | typed string-map options wrapper | ✅ | Implemented in current baseline |
+| `Point` | object | coordinate pair | ✅ |  |
+| `Location` | object | parity-friendly coordinate object | ✅ |  |
+| `Offset` | object | parity-friendly offset object | ✅ |  |
+| `Rect` | object | geometry primitive | ✅ |  |
+| `Region` | object | geometry + search defaults container | ✅ |  |
+| `Screen` | object | screen identity/bounds abstraction | ✅ |  |
+| `Image` | object | grayscale image holder | ✅ |  |
+| `Pattern` | object | matching intent/configuration | ✅ |  |
+| `Match` | object | match result payload | ✅ |  |
+| `TextMatch` | object | OCR text match payload | ✅ |  |
+| `OCRParams` | object | OCR request option payload | ✅ |  |
+| `InputOptions` | object | input action option payload | ✅ |  |
+| `InputController` | object | input automation orchestrator | ✅ |  |
+| `ObserveOptions` | object | observe operation option payload | ✅ |  |
+| `ObserveEventType` | object | observe event enum | ✅ |  |
+| `ObserveEvent` | object | observe event payload | ✅ |  |
+| `ObserverController` | object | observe orchestration controller | ✅ |  |
+| `AppOptions` | object | app operation option payload | ✅ |  |
+| `Window` | object | app/window payload | ✅ |  |
+| `AppController` | object | app/window orchestration controller | ✅ |  |
+| `Finder` | object | user-facing matching orchestrator | ✅ |  |
+| `RuntimeSettings` | object | global runtime behavior values | ✅ |  |
+| `Options` | object | typed string-map options wrapper | ✅ |  |
 
 ### `pkg/sikuli` interfaces
 
-| Interface | Contract | Status | Notes |
+| Interface | Contract |  |  |
 |---|---|---|---|
-| `ImageAPI` | stable image surface | ✅ | Signature and tests are in place |
-| `PatternAPI` | stable pattern surface | ✅ | Signature and tests are in place |
-| `FinderAPI` | stable finder surface | ✅ | Signature and tests are in place |
-| `RegionAPI` | stable region surface | ✅ | Signature and tests are in place |
-| `InputAPI` | stable input automation surface | ✅ | Signature and tests are in place |
-| `ObserveAPI` | stable observe/event surface | ✅ | Signature and tests are in place |
-| `AppAPI` | stable app/window surface | ✅ | Signature and tests are in place |
+| `ImageAPI` | image surface | ✅ | Signature and tests are in place |
+| `PatternAPI` | pattern surface | ✅ | Signature and tests are in place |
+| `FinderAPI` | finder surface | ✅ | Signature and tests are in place |
+| `RegionAPI` | region surface | ✅ | Signature and tests are in place |
+| `InputAPI` | input automation surface | ✅ | Signature and tests are in place |
+| `ObserveAPI` | observe/event surface | ✅ | Signature and tests are in place |
+| `AppAPI` | app/window surface | ✅ | Signature and tests are in place |
 
 ### `internal/core` protocol objects
 
-| Type | Kind | Role | Status | Notes |
+| Type | Kind | Role |  |  |
 |---|---|---|---|---|
-| `SearchRequest` | protocol object | backend-neutral match request | ✅ | Stable request contract |
-| `MatchCandidate` | protocol object | backend-neutral match response item | ✅ | Stable response contract |
-| `Matcher` | protocol interface | backend matcher boundary | ✅ | Used by finder protocol |
-| `OCRRequest` | protocol object | backend-neutral OCR request | ✅ | Stable OCR request contract |
-| `OCRWord` | protocol object | backend-neutral OCR word payload | ✅ | Stable OCR word contract |
-| `OCRResult` | protocol object | backend-neutral OCR response payload | ✅ | Stable OCR response contract |
-| `OCR` | protocol interface | backend OCR boundary | ✅ | Used by finder OCR protocol |
-| `InputAction` | protocol object | backend-neutral input action enum | ✅ | Stable input action contract |
-| `InputRequest` | protocol object | backend-neutral input request | ✅ | Stable input request contract |
-| `Input` | protocol interface | backend input boundary | ✅ | Used by input controller |
-| `ObserveEventType` | protocol object | backend-neutral observe event enum | ✅ | Stable observe event contract |
-| `ObserveRequest` | protocol object | backend-neutral observe request | ✅ | Stable observe request contract |
-| `ObserveEvent` | protocol object | backend-neutral observe event payload | ✅ | Stable observe payload contract |
-| `Observer` | protocol interface | backend observe boundary | ✅ | Used by observer controller |
-| `AppAction` | protocol object | backend-neutral app action enum | ✅ | Stable app action contract |
-| `AppRequest` | protocol object | backend-neutral app request | ✅ | Stable app request contract |
-| `WindowInfo` | protocol object | backend-neutral window payload | ✅ | Stable window payload contract |
-| `AppResult` | protocol object | backend-neutral app response payload | ✅ | Stable app response contract |
-| `App` | protocol interface | backend app boundary | ✅ | Used by app controller |
+| `SearchRequest` | protocol object | match request | ✅ | Stable request contract |
+| `MatchCandidate` | protocol object | match response item | ✅ | Stable response contract |
+| `Matcher` | protocol interface | matcher boundary | ✅ | Used by finder protocol |
+| `OCRRequest` | protocol object | OCR request | ✅ | Stable OCR request contract |
+| `OCRWord` | protocol object | OCR word payload | ✅ | Stable OCR word contract |
+| `OCRResult` | protocol object | OCR response payload | ✅ | Stable OCR response contract |
+| `OCR` | protocol interface | OCR boundary | ✅ | Used by finder OCR protocol |
+| `InputAction` | protocol object | input action enum | ✅ | Stable input action contract |
+| `InputRequest` | protocol object | input request | ✅ | Stable input request contract |
+| `Input` | protocol interface | input boundary | ✅ | Used by input controller |
+| `ObserveEventType` | protocol object | observe event enum | ✅ | Stable observe event contract |
+| `ObserveRequest` | protocol object | observe request | ✅ | Stable observe request contract |
+| `ObserveEvent` | protocol object | observe event payload | ✅ | Stable observe payload contract |
+| `Observer` | protocol interface | observe boundary | ✅ | Used by observer controller |
+| `AppAction` | protocol object | app action enum | ✅ | Stable app action contract |
+| `AppRequest` | protocol object | app request | ✅ | Stable app request contract |
+| `WindowInfo` | protocol object | window payload | ✅ | Stable window payload contract |
+| `AppResult` | protocol object | app response payload | ✅ | Stable app response contract |
+| `App` | protocol interface | app boundary | ✅ | Used by app controller |
 
 ### `internal/cv` protocol implementation
 
-| Type | Kind | Role | Status | Notes |
+| Type | Kind | Role |  |  |
 |---|---|---|---|---|
-| `NCCMatcher` | protocol implementer | default matcher backend | ✅ | Primary backend in use |
-| `SADMatcher` | protocol implementer | alternate matcher backend | ✅ | Conformance-tested alternate |
+| `NCCMatcher` | protocol implementer | default matcher | ✅ | Primary backend in use |
+| `SADMatcher` | protocol implementer | alternate matcher | ✅ | Conformance-tested alternate |
 
 ### `internal/ocr` protocol implementation
 
-| Type | Kind | Role | Status | Notes |
+| Type | Kind | Role |  |  |
 |---|---|---|---|---|
-| `unsupportedBackend` | protocol implementer | default OCR backend behavior | ✅ | returns unsupported unless gosseract tag is enabled |
-| `gosseractBackend` | protocol implementer | OCR backend adapter | ✅ | enabled with `-tags gosseract` |
+| `unsupportedBackend` | protocol implementer | default OCR behavior | ✅ | returns unsupported unless gosseract tag is enabled |
+| `gosseractBackend` | protocol implementer | OCR adapter | ✅ | enabled with `-tags gosseract` |
 
 ### `internal/input` protocol implementation
 
-| Type | Kind | Role | Status | Notes |
+| Type | Kind | Role |  |  |
 |---|---|---|---|---|
-| `darwinBackend` | protocol implementer | concrete input backend for macOS | ✅ | supports move/click/type/hotkey dispatch |
-| `linuxBackend` | protocol implementer | concrete input backend for Linux | ✅ | command-driven move/click/type/hotkey via `xdotool` |
-| `windowsBackend` | protocol implementer | concrete input backend for Windows | ✅ | PowerShell-driven move/click/type/hotkey |
+| `darwinBackend` | protocol implementer | concrete input for macOS | ✅ | supports move/click/type/hotkey dispatch |
+| `linuxBackend` | protocol implementer | concrete input for Linux | ✅ | command-driven move/click/type/hotkey via `xdotool` |
+| `windowsBackend` | protocol implementer | concrete input for Windows | ✅ | PowerShell-driven move/click/type/hotkey |
 | `unsupportedBackend` | protocol implementer | non-target fallback input behavior | ✅ | returns unsupported on `!darwin && !linux && !windows` builds |
 
 ### `internal/observe` protocol implementation
 
-| Type | Kind | Role | Status | Notes |
+| Type | Kind | Role |  |  |
 |---|---|---|---|---|
-| `pollingBackend` | protocol implementer | deterministic observe backend behavior | ✅ | matcher-driven interval polling for appear/vanish/change |
+| `pollingBackend` | protocol implementer | deterministic observe behavior | ✅ | matcher-driven interval polling for appear/vanish/change |
 
 ### `internal/app` protocol implementation
 
-| Type | Kind | Role | Status | Notes |
+| Type | Kind | Role |  |  |
 |---|---|---|---|---|
-| `darwinBackend` | protocol implementer | concrete app/window backend for macOS | ✅ | supports open/focus/close/is-running/list-windows |
-| `linuxBackend` | protocol implementer | concrete app/window backend for Linux | ✅ | command-driven open/focus/close/is-running/list-windows |
-| `windowsBackend` | protocol implementer | concrete app/window backend for Windows | ✅ | PowerShell-driven open/focus/close/is-running/list-windows |
-| `unsupportedBackend` | protocol implementer | non-target fallback backend behavior | ✅ | returns unsupported for non-darwin/linux/windows builds |
+| `darwinBackend` | protocol implementer | concrete app/window for macOS | ✅ | supports open/focus/close/is-running/list-windows |
+| `linuxBackend` | protocol implementer | concrete app/window for Linux | ✅ | command-driven open/focus/close/is-running/list-windows |
+| `windowsBackend` | protocol implementer | concrete app/window for Windows | ✅ | PowerShell-driven open/focus/close/is-running/list-windows |
+| `unsupportedBackend` | protocol implementer | non-target fallback behavior | ✅ | returns unsupported for non-darwin/linux/windows builds |
 
 ### `internal/testharness` protocol objects
 
-| Type | Kind | Role | Status | Notes |
+| Type | Kind | Role |  |  |
 |---|---|---|---|---|
 | `GoldenCase` | protocol object | serialized test case schema | ✅ | Active fixture schema |
 | `ExpectedMatch` | protocol object | expected match schema | ✅ | Active fixture schema |
@@ -172,11 +172,10 @@ Status: ✅ Completed (baseline implemented)
 ### Next planned workstreams
 
 1. Cross-platform backend hardening
-2. Protocol completeness hardening
 
 ### Scaffold vs concrete backend status
 
-| Workstream | Baseline scaffold | Concrete backend | Notes |
+| Workstream | Baseline scaffold | Concrete backend |  |
 |---|---|---|---|
 | Workstream 5: OCR and text-search parity | ✅ | ✅ | gosseract module version is pinned and enabled with `-tags gosseract` |
 | Workstream 6: Input automation and hotkey parity | ✅ | ✅ | concrete `darwin`/`linux`/`windows` backends implemented |
@@ -188,14 +187,23 @@ Status: ✅ Completed (baseline implemented)
 - Expand `pkg/sikuli` to include additional parity objects and behaviors (location/offset aliases, broader region/finder helpers, options surfaces).
 - Maintain non-breaking evolution under the API compatibility protocol.
 
-Status: 🟡 Planned
+Status: ✅ Completed
+
+Completed scope:
+- Added location/offset alias conversions and parity-friendly wrappers on region helpers.
+- Expanded finder/region helper surface with match-count convenience APIs.
+- Preserved backward compatibility with additive-only API changes and coverage tests.
 
 ### Workstream 4: protocol completeness hardening
 
 - Add alternate matcher backend(s) under the same `core.Matcher` protocol.
 - Add conformance tests ensuring every backend obeys ordering/threshold/mask rules.
 
-Status: 🟡 Planned
+Status: ✅ Completed
+
+Completed scope:
+- Added and maintained alternate backend coverage via `NCCMatcher` and `SADMatcher`.
+- Enforced shared behavior with protocol conformance tests for ordering, threshold, mask, and resize rules.
 
 ### Workstream 5: OCR and text-search parity
 
@@ -235,7 +243,7 @@ Status (Concrete backend): ✅ Completed (`darwin` + `linux` + `windows` backend
 
 ## Feature Matrix (Current and Planned)
 
-| Area | Scope | Priority | Status | Notes |
+| Area | Scope | Priority |  |  |
 |---|---|---|---|---|
 | Geometry primitives | `Point`, `Rect`, `Region` construction and transforms | P0 | ✅ | includes region union/intersection/containment and runtime setters |
 | Location/offset parity types | `Location`, `Offset` value objects | P0 | ✅ | supports parity-friendly coordinate APIs |

@@ -96,6 +96,51 @@ func TestMatcherConformance(t *testing.T) {
 				}
 			})
 
+			t.Run("threshold_behavior", func(t *testing.T) {
+				hay := mat([][]uint8{
+					{1, 2, 3, 4},
+					{5, 9, 8, 6},
+					{7, 4, 3, 2},
+					{1, 0, 1, 0},
+				})
+				needle := mat([][]uint8{
+					{9, 8},
+					{4, 3},
+				})
+
+				loose, err := tc.m.Find(core.SearchRequest{
+					Haystack:     hay,
+					Needle:       needle,
+					Threshold:    0.0,
+					ResizeFactor: 1.0,
+				})
+				if err != nil {
+					t.Fatalf("loose threshold find failed: %v", err)
+				}
+				if len(loose) == 0 {
+					t.Fatalf("expected at least one loose-threshold match")
+				}
+
+				strict, err := tc.m.Find(core.SearchRequest{
+					Haystack:     hay,
+					Needle:       needle,
+					Threshold:    0.999,
+					ResizeFactor: 1.0,
+				})
+				if err != nil {
+					t.Fatalf("strict threshold find failed: %v", err)
+				}
+				if len(strict) != 1 {
+					t.Fatalf("expected exactly one strict-threshold match, got %d", len(strict))
+				}
+				if strict[0].X != 1 || strict[0].Y != 1 {
+					t.Fatalf("strict-threshold match mismatch: %+v", strict[0])
+				}
+				if len(strict) >= len(loose) {
+					t.Fatalf("expected strict threshold to reduce match count: loose=%d strict=%d", len(loose), len(strict))
+				}
+			})
+
 			t.Run("resize_behavior", func(t *testing.T) {
 				hay := mat([][]uint8{
 					{0, 0, 0, 0, 0, 0, 0},

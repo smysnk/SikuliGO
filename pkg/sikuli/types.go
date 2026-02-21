@@ -15,6 +15,16 @@ func NewPoint(x, y int) Point {
 	return Point{X: x, Y: y}
 }
 
+// ToLocation converts a point to a parity-friendly Location value.
+func (p Point) ToLocation() Location {
+	return NewLocation(p.X, p.Y)
+}
+
+// ToOffset converts a point to a parity-friendly Offset value.
+func (p Point) ToOffset() Offset {
+	return NewOffset(p.X, p.Y)
+}
+
 type Rect struct {
 	X int
 	Y int
@@ -71,8 +81,18 @@ func (r Region) Offset(dx, dy int) Region {
 	return NewRegion(r.X+dx, r.Y+dy, r.W, r.H)
 }
 
+// OffsetBy applies an Offset alias to this region position.
+func (r Region) OffsetBy(off Offset) Region {
+	return r.Offset(off.X, off.Y)
+}
+
 func (r Region) MoveTo(x, y int) Region {
 	return NewRegion(x, y, r.W, r.H)
+}
+
+// MoveToLocation moves this region using a Location alias.
+func (r Region) MoveToLocation(loc Location) Region {
+	return r.MoveTo(loc.X, loc.Y)
 }
 
 func (r Region) SetSize(w, h int) Region {
@@ -87,6 +107,11 @@ func (r Region) SetSize(w, h int) Region {
 
 func (r Region) Contains(p Point) bool {
 	return r.Rect.Contains(p)
+}
+
+// ContainsLocation reports whether this region contains the given location.
+func (r Region) ContainsLocation(loc Location) bool {
+	return r.Contains(loc.ToPoint())
 }
 
 func (r Region) ContainsRegion(other Region) bool {
@@ -267,6 +292,15 @@ func (r Region) FindAll(source *Image, pattern *Pattern) ([]Match, error) {
 		return nil, err
 	}
 	return f.FindAll(pattern)
+}
+
+// Count returns the number of matches found in this region.
+func (r Region) Count(source *Image, pattern *Pattern) (int, error) {
+	matches, err := r.FindAll(source, pattern)
+	if err != nil {
+		return 0, err
+	}
+	return len(matches), nil
 }
 
 func (r Region) FindAllByRow(source *Image, pattern *Pattern) ([]Match, error) {

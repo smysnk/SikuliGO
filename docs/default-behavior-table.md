@@ -28,6 +28,7 @@ This table captures current default and protocol behavior for all existing expor
 | `Region` | `SetObserveScanRate(rate)` | non-positive values fallback to `DefaultObserveScanRate` | mutates receiver |
 | `Location` | `NewLocation(x,y)` | exact coordinates | value type |
 | `Offset` | `NewOffset(x,y)` | exact coordinates | value type |
+| `Point` | `ToLocation()/ToOffset()` | exact coordinate alias conversion | non-mutating value conversion |
 | `Pattern` | `similarity` | `0.70` | Set by `NewPattern` |
 | `Pattern` | `resizeFactor` | `1.0` | Set by `NewPattern` |
 | `Pattern` | `targetOffset` | `(0,0)` | Set by `NewPattern` |
@@ -43,6 +44,7 @@ This table captures current default and protocol behavior for all existing expor
 | `Finder` | `WaitVanish(pattern, timeout)` | timeout `<= 0` performs one-shot vanish check | timeout `> 0` polls until vanished or timeout |
 | `Finder` | `FindAllByRow(pattern)` | sorts by row/column then reindexes | updates `last` cache |
 | `Finder` | `FindAllByColumn(pattern)` | sorts by column/row then reindexes | updates `last` cache |
+| `Finder` | `Count(pattern)` | returns `len(FindAll(pattern))` | updates `last` cache via `FindAll` |
 | `Finder` | `ReadText(params)` | returns trimmed OCR text | wraps `core.ErrOCRUnsupported` as `ErrBackendUnsupported` |
 | `Finder` | `FindText(query, params)` | case-insensitive by default | returns `ErrFindFailed` when no matching text is detected |
 | `InputController` | input backend | concrete `darwin`/`linux`/`windows` backends with non-target fallback unsupported | set by `NewInputController` |
@@ -63,6 +65,10 @@ This table captures current default and protocol behavior for all existing expor
 | `Region` | `Wait(source, pattern, timeout)` | uses `AutoWaitTimeout` when timeout `<= 0` | returns `ErrTimeout` on miss |
 | `Region` | `WaitVanish(source, pattern, timeout)` | one-shot when timeout `<= 0` | polls using `WaitScanRate` when timeout `> 0` |
 | `Region` | `FindAll/FindAllByRow/FindAllByColumn` | region-scoped via source crop | delegates to finder helper semantics |
+| `Region` | `Count(source, pattern)` | returns `len(FindAll(source, pattern))` | region-scoped via source crop |
+| `Region` | `OffsetBy(offset)` | delegates to `Offset(offset.X, offset.Y)` | value-style alias helper |
+| `Region` | `MoveToLocation(location)` | delegates to `MoveTo(location.X, location.Y)` | value-style alias helper |
+| `Region` | `ContainsLocation(location)` | delegates to `Contains(location.ToPoint())` | alias helper for parity ergonomics |
 | `Region` | `ReadText(source, params)` | region-scoped OCR over source crop | delegates to finder OCR backend |
 | `Region` | `FindText(source, query, params)` | region-scoped text search over OCR words | delegates to finder OCR backend |
 | `Options` | typed getters | parse from string map with default fallback | invalid parse returns provided default |
