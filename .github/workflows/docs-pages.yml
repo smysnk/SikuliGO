@@ -6,6 +6,11 @@ on:
       - master
     paths:
       - "docs/**"
+      - "pkg/**"
+      - "internal/**"
+      - "scripts/generate-api-docs.sh"
+      - "go.mod"
+      - "go.sum"
       - "README.md"
       - ".github/workflows/docs-pages.yml"
   workflow_dispatch:
@@ -25,6 +30,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+
+      - name: Set up GoLang
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Generate API docs
+        run: ./scripts/generate-api-docs.sh
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
