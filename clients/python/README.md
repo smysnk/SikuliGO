@@ -18,6 +18,12 @@ python3 -m pip install -r requirements.txt
 ../../scripts/clients/generate-python-stubs.sh
 ```
 
+Install from PyPI:
+
+```bash
+pip install sikuligo
+```
+
 ## Environment
 
 - `SIKULI_GRPC_ADDR` (default: `127.0.0.1:50051`)
