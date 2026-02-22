@@ -51,31 +51,3 @@ npm run example:app
 npm run example:user-flow
 npm run doctor
 ```
-
-## Build/Release Scaffold
-
-Validate package contents and build:
-
-```bash
-./scripts/clients/release-node-client.sh
-```
-
-If dependencies are already installed in `node_modules`, skip `npm ci`:
-
-```bash
-SKIP_INSTALL=1 ./scripts/clients/release-node-client.sh
-```
-
-Publish to npm (requires `NPM_TOKEN`):
-
-```bash
-NPM_PUBLISH=1 NPM_TOKEN=... ./scripts/clients/release-node-client.sh
-```
-
-Build/publish platform binary packages:
-
-```bash
-./scripts/clients/release-node-binaries.sh
-# publish
-NPM_PUBLISH=1 NPM_TOKEN=... ./scripts/clients/release-node-binaries.sh
-```

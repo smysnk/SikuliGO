@@ -3,7 +3,6 @@
 ![SikuliX Logo](docs/images/logo.png)
 
 This repository houses a GoLang implementation of Sikuli visual automation.
-
 ## Project Intent
 
 - Build a feature-complete GoLang port of the core Sikuli API concepts.
@@ -67,6 +66,10 @@ go test -tags gosseract ./...
 
 Tagged OCR builds require native Tesseract + Leptonica runtime libraries and installed language data.
 See [OCR](https://smysnk.github.io/SikuliGO/ocr-integration) for full macOS/Homebrew setup and troubleshooting steps.
+
+## Example: Dashboard
+
+![SikuliGO Dashboard Demo](docs/images/dashboard.png)
 
 ## Project History and Credits
 

@@ -103,5 +103,5 @@ jobs:
       - name: Build and optionally publish Node client
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_PUBLISH: ${{ ((github.event_name == 'push' && github.ref_name == 'release') || inputs.publish_node) && '1' || '0' }}
+          NPM_PUBLISH: ${{ ((github.event_name == 'push' && github.ref_name == 'release') || inputs.publish_node || inputs.publish_node_binaries) && '1' || '0' }}
         run: ./scripts/clients/release-node-client.sh
