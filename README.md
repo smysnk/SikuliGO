@@ -1,11 +1,13 @@
-# SikuliGO [![GoLang Tests](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml/badge.svg?branch=main&event=push)](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml?query=branch%3Amaster+event%3Apush)
+# SikuliGO
+
+[![GoLang Tests](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml/badge.svg)](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml)
 
 ![SikuliX Logo](docs/images/logo.png)
 
 This repository houses a GoLang implementation of Sikuli visual automation.
 ## Project Intent
 
-- Build a feature-complete GoLang port of the core Sikuli API concepts.
+- Build a feature-complete GoLang port of the core Sikuli concepts.
 - Preserve behavioral parity where it matters (image matching, regions, patterns, finder semantics).
 - Provide a modern, testable architecture with explicit contracts and deterministic matching behavior.
 - Establish a maintainable foundation for cross-platform automation features.
@@ -50,12 +52,12 @@ await bot.close();
 # Docs
 - [Docs Home](https://smysnk.github.io/SikuliGO/)
 
-## Port Strategy
-- [Port Strategy](https://smysnk.github.io/SikuliGO/port-strategy)
-- [gRPC Strategy](https://smysnk.github.io/SikuliGO/grpc-strategy)
-- [Client Strategy](https://smysnk.github.io/SikuliGO/client-strategy)
+## Strategy
+- [Port](https://smysnk.github.io/SikuliGO/port-strategy)
+- [gRPC](https://smysnk.github.io/SikuliGO/grpc-strategy)
+- [Client](https://smysnk.github.io/SikuliGO/client-strategy)
 
-## Integration & Implementation:
+## Integration & Implementation
 - [API Reference](https://smysnk.github.io/SikuliGO/api/)
 - [OCR](https://smysnk.github.io/SikuliGO/ocr-integration)
 - [Input Automation](https://smysnk.github.io/SikuliGO/input-automation)
@@ -69,6 +71,7 @@ await bot.close();
 
 - [`pkg`](pkg) : public GoLang API packages
 - [`internal`](internal) : internal GoLang implementation packages
+- [`clients`](clients) : language client SDKs and packaging artifacts
 - [`docs`](docs) : documentation and assets
 - [`legacy`](legacy) : previous Java-era project directories retained for reference
 
