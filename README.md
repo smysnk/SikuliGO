@@ -12,11 +12,11 @@ This repository houses a GoLang implementation of Sikuli visual automation.
 
 | Client Surface | Implementation Status | Notes |
 |---|---|---|
-| Python Client | ✅ Implemented | gRPC wrapper and examples available under `clients/python/` |
-| Node Client | ✅ Implemented | npm package flow and examples available under `clients/node/` |
-| Lua Client | ✅ Implemented | grpcurl-based client path and examples under `clients/lua/` |
-| Robot Framework | 🟡 Planned | Client integration path planned; implementation pending |
-| Web IDE | 🟡 Planned | Included in roadmap; implementation pending |
+| Python Client | ✅ | Implemented |
+| Node Client | ✅ | Implemented |
+| Lua Client | ✅ | Implemented |
+| Robot Framework | 🟡 | Planned |
+| Web IDE | 🟡 | Planned |
 
 ## Current Focus
 
