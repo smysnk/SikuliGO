@@ -109,7 +109,9 @@ Status: 🟡 In progress
 - Publish language quickstarts and API usage docs.
 - Document required env vars (`SIKULI_GRPC_ADDR`, auth values when enabled).
 - Package and version each client with release notes.
-- Release scaffolding added:
+  - Release scaffolding added:
+  - Single-command version bump: `./scripts/clients/set-version.sh <X.Y.Z>`
+  - Build-number versioning: `./scripts/clients/set-version-from-build.sh`
   - Python package metadata: `clients/python/pyproject.toml`
   - Node package metadata: `clients/node/package.json`
   - Node binary package metadata: `clients/node/packages/bin-*/package.json`
@@ -134,3 +136,18 @@ For each client, ship:
 - auth + timeout defaults
 - one smoke test against staging/CI runtime
 - short usage example
+
+## Release Versioning Controls
+
+`client-release.yml` computes client versions from CI build metadata before publishing.
+
+- `BUILD_NUMBER`: defaults to GitHub `run_number`.
+- `VERSION_MAJOR`: optional override for major (defaults to current major).
+- `VERSION_MINOR`: optional override for minor (defaults to current minor).
+- `PATCH_MODE`: `build` or `fixed-minus-build`.
+- `PATCH_FIXED`: required only when `PATCH_MODE=fixed-minus-build`.
+
+Examples:
+
+- `PATCH_MODE=build` with build `412` and `VERSION_MAJOR=0`, `VERSION_MINOR=2` -> `0.2.412`
+- `PATCH_MODE=fixed-minus-build`, `PATCH_FIXED=10000`, build `412`, `VERSION_MAJOR=1`, `VERSION_MINOR=0` -> `1.0.9588`
