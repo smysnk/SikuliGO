@@ -10,7 +10,7 @@ This repository houses a GoLang implementation of Sikuli visual automation.
 - Provide a modern, testable architecture with explicit contracts and deterministic matching behavior.
 - Establish a maintainable foundation for cross-platform automation features.
 
-| Client  |  | Notes  |
+|Client |  |Notes |
 |---|---|---|
 | [Python](https://pypi.org/project/sikuligo/)  | ✅ | Implemented |
 | [Node](https://www.npmjs.com/package/@sikuligo/sikuligo)  | ✅ | Implemented |
