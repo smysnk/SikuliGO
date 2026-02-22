@@ -3,7 +3,7 @@ name: GoLang Tests
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - "internal/**"
       - "cmd/**"
@@ -155,7 +155,7 @@ jobs:
         run: node scripts/publish-ocr-summary.mjs
 
       - name: Publish Discord test results
-        if: always() && github.event_name == 'push' && github.ref_name == 'main'
+        if: always() && github.event_name == 'push' && github.ref_name == 'master'
         env:
           DISCORD_TEST_WEBHOOK_URL: ${{ secrets.DISCORD_TEST_WEBHOOK_URL }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}

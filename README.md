@@ -4,11 +4,11 @@
 
 ![SikuliX Logo](docs/images/logo.png)
 
-This repository houses a GoLang implementation of Sikuli visual automation.
+This repository houses a GoLang implementation of [Sikuli](https://sikulix.github.io/) visual automation.
 ## Project Intent
 
-- Build a feature-complete GoLang port of the core Sikuli concepts.
-- Preserve behavioral parity where it matters (image matching, regions, patterns, finder semantics).
+- Build a feature-complete GoLang port of the core [Sikuli](https://sikulix.github.io/) concepts.
+- Preserve behavioral parity (image matching, regions, patterns, finder semantics).
 - Provide a modern, testable architecture with explicit contracts and deterministic matching behavior.
 - Establish a maintainable foundation for cross-platform automation features.
 
@@ -20,6 +20,21 @@ This repository houses a GoLang implementation of Sikuli visual automation.
 | Robot Framework | 🟡 | Planned |
 | Web IDE | 🟡 | Planned |
 
+## Python
+```python
+from generated.sikuli.v1 import sikuli_pb2 as pb
+from sikuligo_client.client import SikuliGrpcClient
+
+client = SikuliGrpcClient(address="127.0.0.1:50051")
+try:
+    client.click(pb.ClickRequest(x=300, y=220))
+    client.type_text(pb.TypeTextRequest(text="hello from sikuligo"))
+    client.hotkey(pb.HotkeyRequest(keys=["cmd", "enter"]))
+finally:
+    client.close()
+```
+
+## Node
 ```ts
 import { Sikuli } from "@sikuligo/sikuligo";
 
