@@ -1,6 +1,13 @@
 name: Client Release
 
 on:
+  push:
+    branches:
+      - "**"
+    paths:
+      - "clients/**"
+      - "scripts/clients/**"
+      - ".github/workflows/client-release.yml"
   workflow_dispatch:
     inputs:
       publish_python:
@@ -39,7 +46,7 @@ jobs:
       - name: Build and optionally publish Python client
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
-          PYPI_PUBLISH: ${{ inputs.publish_python && '1' || '0' }}
+          PYPI_PUBLISH: ${{ ((github.event_name == 'push' && github.ref_protected) || inputs.publish_python) && '1' || '0' }}
         run: ./scripts/clients/release-python-client.sh
 
       - name: Upload Python dist artifacts
@@ -68,7 +75,7 @@ jobs:
       - name: Build and optionally publish Node binary packages
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_PUBLISH: ${{ (inputs.publish_node || inputs.publish_node_binaries) && '1' || '0' }}
+          NPM_PUBLISH: ${{ ((github.event_name == 'push' && github.ref_protected) || inputs.publish_node || inputs.publish_node_binaries) && '1' || '0' }}
         run: ./scripts/clients/release-node-binaries.sh
 
       - name: Upload Node binary checksums
@@ -100,5 +107,5 @@ jobs:
       - name: Build and optionally publish Node client
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_PUBLISH: ${{ inputs.publish_node && '1' || '0' }}
+          NPM_PUBLISH: ${{ ((github.event_name == 'push' && github.ref_protected) || inputs.publish_node) && '1' || '0' }}
         run: ./scripts/clients/release-node-client.sh

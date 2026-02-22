@@ -32,7 +32,6 @@ This repository houses a GoLang implementation of Sikuli visual automation.
 - [Port Strategy](https://smysnk.github.io/SikuliGO/port-strategy)
 - [gRPC Strategy](https://smysnk.github.io/SikuliGO/grpc-strategy)
 - [Client Strategy](https://smysnk.github.io/SikuliGO/client-strategy)
-- [Node Package User Flow](https://smysnk.github.io/SikuliGO/node-package-user-flow)
 
 ## Integration & Implementation:
 - [API Reference](https://smysnk.github.io/SikuliGO/api/)
@@ -42,13 +41,7 @@ This repository houses a GoLang implementation of Sikuli visual automation.
 - [App Control](https://smysnk.github.io/SikuliGO/app-control)
 - [Defaults Table](https://smysnk.github.io/SikuliGO/default-behavior-table)
 - [Backend Capability Matrix](https://smysnk.github.io/SikuliGO/backend-capability-matrix)
-
-API reference pages are generated from source with `./scripts/generate-api-docs.sh` and validated with `./scripts/check-api-docs.sh`.
-
-gRPC `v1` stubs are generated with `./scripts/generate-grpc-stubs.sh`, validated with `./scripts/check-grpc-stubs.sh`, and served via `go run ./cmd/sikuligrpc -listen :50051 -admin-listen :8080` (optional auth via `-auth-token` / `SIKULI_GRPC_AUTH_TOKEN`).
-Language client scaffolds are under `clients/python`, `clients/node`, and `clients/lua`, with generators in `scripts/clients/`.
-Client package release scaffold is available via `.github/workflows/client-release.yml`.
-Node binary package scaffolding for `@sikuligo/bin-*` is under `clients/node/packages` with build/release scripts in `scripts/clients/`.
+- [Node Package User Flow](https://smysnk.github.io/SikuliGO/node-package-user-flow)
 
 ## Repository Layout
 

@@ -115,6 +115,7 @@ Status: 🟡 In progress
   - Node binary package metadata: `clients/node/packages/bin-*/package.json`
   - Manual release workflow: `.github/workflows/client-release.yml`
   - Release helpers: `scripts/clients/release-python-client.sh`, `scripts/clients/release-node-client.sh`, `scripts/clients/release-node-binaries.sh`
+  - Protected-branch pushes auto-trigger publish flows through `.github/workflows/client-release.yml`
 
 ### Phase 6: Hardening and operations
 
