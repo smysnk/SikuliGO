@@ -4,10 +4,6 @@ on:
   push:
     branches:
       - "release"
-    paths:
-      - "clients/**"
-      - "scripts/clients/**"
-      - ".github/workflows/client-release.yml"
   workflow_dispatch:
     inputs:
       publish_python:
