@@ -26,6 +26,14 @@ await bot.hotkey(["cmd", "enter"]);
 await bot.close();
 ```
 
+Implementation status (baseline in repo):
+
+- SDK entrypoint exported from `clients/node/src/index.ts`.
+- `Sikuli.launch()` and `Sikuli.connect()` implemented in `clients/node/src/sikuli.ts`.
+- local process launcher implemented in `clients/node/src/launcher.ts`.
+- binary resolution implemented in `clients/node/src/binary.ts`.
+- diagnostics command available via `sikuligo-doctor` (`clients/node/src/doctor.ts`).
+
 ## Required Components
 
 1. `sikuligo` npm package (SDK/meta package):
@@ -54,6 +62,11 @@ Recommended packaging model:
 - `@sikuligo/bin-darwin-x64`
 - `@sikuligo/bin-linux-x64`
 - `@sikuligo/bin-win32-x64`
+
+Repository scaffolding:
+- package manifests under `clients/node/packages/bin-*/package.json`
+- build script: `scripts/clients/build-node-binaries.sh`
+- release script: `scripts/clients/release-node-binaries.sh`
 
 3. Each binary package:
 - includes one `sikuligrpc` executable.

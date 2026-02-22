@@ -1,3 +1,6 @@
 node_modules/
 dist/
 *.tgz
+packages/bin-*/bin/sikuligrpc
+packages/bin-*/bin/sikuligrpc.exe
+packages/checksums.txt

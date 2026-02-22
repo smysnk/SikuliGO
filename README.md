@@ -48,6 +48,7 @@ API reference pages are generated from source with `./scripts/generate-api-docs.
 gRPC `v1` stubs are generated with `./scripts/generate-grpc-stubs.sh`, validated with `./scripts/check-grpc-stubs.sh`, and served via `go run ./cmd/sikuligrpc -listen :50051 -admin-listen :8080` (optional auth via `-auth-token` / `SIKULI_GRPC_AUTH_TOKEN`).
 Language client scaffolds are under `clients/python`, `clients/node`, and `clients/lua`, with generators in `scripts/clients/`.
 Client package release scaffold is available via `.github/workflows/client-release.yml`.
+Node binary package scaffolding for `@sikuligo/bin-*` is under `clients/node/packages` with build/release scripts in `scripts/clients/`.
 
 ## Repository Layout
 

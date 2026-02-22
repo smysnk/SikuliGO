@@ -91,6 +91,19 @@ export class SikuliGrpcClient {
     this.client.close();
   }
 
+  waitForReady(timeoutMs = DEFAULT_TIMEOUT_MS): Promise<void> {
+    const deadline = new Date(Date.now() + timeoutMs);
+    return new Promise((resolve, reject) => {
+      this.client.waitForReady(deadline, (err?: Error | null) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        resolve();
+      });
+    });
+  }
+
   private buildMetadata(extra: Record<string, string> = {}): grpc.Metadata {
     const md = new grpc.Metadata();
     if (this.authToken) {

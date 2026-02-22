@@ -8,6 +8,11 @@ on:
         required: false
         default: false
         type: boolean
+      publish_node_binaries:
+        description: "Publish Node binary packages to npm"
+        required: false
+        default: false
+        type: boolean
       publish_node:
         description: "Publish Node package to npm"
         required: false
@@ -43,7 +48,37 @@ jobs:
           name: python-client-dist
           path: clients/python/dist/*
 
+  node-binaries:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Build and optionally publish Node binary packages
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_PUBLISH: ${{ (inputs.publish_node || inputs.publish_node_binaries) && '1' || '0' }}
+        run: ./scripts/clients/release-node-binaries.sh
+
+      - name: Upload Node binary checksums
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-binary-checksums
+          path: clients/node/packages/checksums.txt
+
   node-client:
+    needs: node-binaries
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -67,4 +102,3 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_PUBLISH: ${{ inputs.publish_node && '1' || '0' }}
         run: ./scripts/clients/release-node-client.sh
-

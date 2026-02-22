@@ -1,10 +1,13 @@
 {
-  "name": "sikuligo-node-client",
+  "name": "sikuligo",
   "version": "0.1.0",
-  "description": "SikuliGO gRPC client wrapper and examples for Node.js",
+  "description": "SikuliGO Node.js SDK with local sikuligrpc launcher",
   "license": "MIT",
-  "main": "dist/src/client.js",
-  "types": "dist/src/client.d.ts",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "bin": {
+    "sikuligo-doctor": "dist/src/doctor.js"
+  },
   "files": [
     "dist",
     "generated",
@@ -12,8 +15,8 @@
   ],
   "exports": {
     ".": {
-      "types": "./dist/src/client.d.ts",
-      "default": "./dist/src/client.js"
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
     }
   },
   "publishConfig": {
@@ -22,16 +25,25 @@
   "scripts": {
     "clean": "rm -rf dist",
     "generate": "bash ../../scripts/clients/generate-node-stubs.sh",
+    "build:binaries": "bash ../../scripts/clients/build-node-binaries.sh",
     "build": "tsc -p tsconfig.json",
     "prepack": "npm run clean && npm run generate && npm run build",
+    "doctor": "node dist/src/doctor.js",
     "example:find": "tsx examples/find.ts",
     "example:ocr": "tsx examples/ocr.ts",
     "example:input": "tsx examples/input.ts",
-    "example:app": "tsx examples/app.ts"
+    "example:app": "tsx examples/app.ts",
+    "example:user-flow": "tsx examples/user-flow.ts"
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.14.0",
     "@grpc/proto-loader": "^0.8.0"
+  },
+  "optionalDependencies": {
+    "@sikuligo/bin-darwin-arm64": "0.1.0",
+    "@sikuligo/bin-darwin-x64": "0.1.0",
+    "@sikuligo/bin-linux-x64": "0.1.0",
+    "@sikuligo/bin-win32-x64": "0.1.0"
   },
   "devDependencies": {
     "grpc-tools": "^1.13.0",
