@@ -22,7 +22,7 @@ if [[ "${NPM_PUBLISH:-0}" == "1" ]]; then
     echo "Missing NPM_TOKEN for publish" >&2
     exit 1
   fi
-  echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > "$HOME/.npmrc"
+  npm config set //registry.npmjs.org/:_authToken="${NPM_TOKEN}"
 fi
 
 for pkg in "${PACKAGES[@]}"; do
