@@ -31,7 +31,7 @@ npm run build
 ## Quickstart User Flow
 
 ```ts
-import { Sikuli } from "sikuligo";
+import { Sikuli } from "@sikuligo/sikuligo";
 
 const bot = await Sikuli.launch();
 await bot.click({ x: 300, y: 220 });

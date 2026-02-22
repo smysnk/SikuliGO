@@ -11,13 +11,13 @@ As a Node.js user, I want to install SikuliGO from npm and run desktop automatio
 Install:
 
 ```bash
-npm install sikuligo
+npm install @sikuligo/sikuligo
 ```
 
 Use:
 
 ```ts
-import { Sikuli } from "sikuligo";
+import { Sikuli } from "@sikuligo/sikuligo";
 
 const bot = await Sikuli.launch();
 await bot.click({ x: 300, y: 220 });

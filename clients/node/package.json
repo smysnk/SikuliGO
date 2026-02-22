@@ -1,5 +1,5 @@
 {
-  "name": "sikuligo",
+  "name": "@sikuligo/sikuligo",
   "version": "0.1.0",
   "description": "SikuliGO Node.js SDK with local sikuligrpc launcher",
   "license": "MIT",
