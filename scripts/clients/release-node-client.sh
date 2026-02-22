@@ -10,11 +10,11 @@ export NPM_CONFIG_CACHE="$NPM_CACHE_DIR"
 
 cd "$CLIENT_DIR"
 if [[ "${SKIP_INSTALL:-0}" != "1" ]]; then
-  npm ci --omit=optional
+  npm install --omit=optional
 fi
 
 if [[ ! -x "node_modules/.bin/tsc" ]]; then
-  echo "Missing node_modules tooling. Run: (cd $CLIENT_DIR && npm ci) or set SKIP_INSTALL=0" >&2
+  echo "Missing node_modules tooling. Run: (cd $CLIENT_DIR && npm install --omit=optional) or set SKIP_INSTALL=0" >&2
   exit 1
 fi
 
