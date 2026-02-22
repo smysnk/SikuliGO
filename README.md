@@ -1,10 +1,7 @@
-# SikuliGO
-
-[![GoLang Tests](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml/badge.svg)](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml)
+# SikuliGO [![GoLang Tests](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml/badge.svg)](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml)
 
 ![SikuliX Logo](docs/images/logo.png)
 
-This repository houses a GoLang implementation of [Sikuli](https://sikulix.github.io/) visual automation.
 ## Project Intent
 
 - Build a feature-complete GoLang port of the core [Sikuli](https://sikulix.github.io/) concepts.
