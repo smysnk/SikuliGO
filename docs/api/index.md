@@ -16,6 +16,8 @@ Legend: <span class="api-type">Type</span>, <span class="api-func">Function</spa
 - [`internal/app`](./internal-app)
 - [`internal/core`](./internal-core)
 - [`internal/cv`](./internal-cv)
+- [`internal/grpcv1`](./internal-grpcv1)
+- [`internal/grpcv1/pb`](./internal-grpcv1-pb)
 - [`internal/input`](./internal-input)
 - [`internal/observe`](./internal-observe)
 - [`internal/ocr`](./internal-ocr)
