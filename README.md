@@ -1,4 +1,4 @@
-# SikuliGO [![GoLang Tests](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml/badge.svg?branch=main&event=push)](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml?query=branch%3Amain+event%3Apush)
+# SikuliGO [![GoLang Tests](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml/badge.svg?branch=main&event=push)](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml?query=branch%3Amaster+event%3Apush)
 
 ![SikuliX Logo](docs/images/logo.png)
 
@@ -9,6 +9,14 @@ This repository houses a GoLang implementation of Sikuli visual automation.
 - Preserve behavioral parity where it matters (image matching, regions, patterns, finder semantics).
 - Provide a modern, testable architecture with explicit contracts and deterministic matching behavior.
 - Establish a maintainable foundation for cross-platform automation features.
+
+| Client Surface | Implementation Status | Notes |
+|---|---|---|
+| Python Client | ✅ Implemented | gRPC wrapper and examples available under `clients/python/` |
+| Node Client | ✅ Implemented | npm package flow and examples available under `clients/node/` |
+| Lua Client | ✅ Implemented | grpcurl-based client path and examples under `clients/lua/` |
+| Robot Framework | 🟡 Planned | Client integration path planned; implementation pending |
+| Web IDE | 🟡 Planned | Included in roadmap; implementation pending |
 
 ## Current Focus
 
