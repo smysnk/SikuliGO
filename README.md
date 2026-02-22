@@ -120,5 +120,6 @@ The GoLang port in this repository began in **2026**. It stands on the work of t
 ## Sikuli References
 
 - [SikuliX Official Site](https://sikulix.github.io/)
-- [Sikuli (Software) - Wikipedia](https://de.wikipedia.org/wiki/Sikuli_(Software))
+- [Wikipedia](https://de.wikipedia.org/wiki/Sikuli_(Software))
 - [Original Sikuli Github](https://github.com/sikuli/sikuli)
+- [Sikuli Framework](https://github.com/smysnk/sikuli-framework) = Sikuli + Robot Framework

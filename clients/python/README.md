@@ -29,6 +29,21 @@ pip install sikuligo
 - `SIKULI_GRPC_ADDR` (default: `127.0.0.1:50051`)
 - `SIKULI_GRPC_AUTH_TOKEN` (optional; sent as `x-api-key`)
 
+## Quick Example
+
+```python
+from generated.sikuli.v1 import sikuli_pb2 as pb
+from sikuligo_client.client import SikuliGrpcClient
+
+client = SikuliGrpcClient(address="127.0.0.1:50051")
+try:
+    client.click(pb.ClickRequest(x=300, y=220))
+    client.type_text(pb.TypeTextRequest(text="hello from sikuligo"))
+    client.hotkey(pb.HotkeyRequest(keys=["cmd", "enter"]))
+finally:
+    client.close()
+```
+
 ## Run Examples
 
 ```bash
