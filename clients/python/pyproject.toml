@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sikuligo-grpc-client"
+version = "0.1.0"
+description = "SikuliGO gRPC client wrapper and generated stubs for Python"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "SikuliGO Maintainers" }]
+dependencies = [
+  "grpcio>=1.70.0,<2",
+  "protobuf>=5.29.0,<7",
+]
+keywords = ["grpc", "sikuli", "automation", "ocr"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+
+[project.optional-dependencies]
+dev = [
+  "grpcio-tools>=1.70.0,<2",
+  "build>=1.2.2",
+  "twine>=5.1.1",
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["sikuligo_client*", "generated*"]

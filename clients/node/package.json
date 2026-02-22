@@ -1,11 +1,29 @@
 {
   "name": "sikuligo-node-client",
   "version": "0.1.0",
-  "private": true,
   "description": "SikuliGO gRPC client wrapper and examples for Node.js",
+  "license": "MIT",
+  "main": "dist/src/client.js",
+  "types": "dist/src/client.d.ts",
+  "files": [
+    "dist",
+    "generated",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/src/client.d.ts",
+      "default": "./dist/src/client.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
+    "clean": "rm -rf dist",
     "generate": "bash ../../scripts/clients/generate-node-stubs.sh",
     "build": "tsc -p tsconfig.json",
+    "prepack": "npm run clean && npm run generate && npm run build",
     "example:find": "tsx examples/find.ts",
     "example:ocr": "tsx examples/ocr.ts",
     "example:input": "tsx examples/input.ts",

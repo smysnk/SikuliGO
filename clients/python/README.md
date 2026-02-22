@@ -32,3 +32,23 @@ PYTHONPATH=. python3 examples/read_text.py
 PYTHONPATH=. python3 examples/click_and_type.py
 PYTHONPATH=. python3 examples/app_control.py
 ```
+
+## Build/Release Scaffold
+
+Build distributions and validate metadata:
+
+```bash
+./scripts/clients/release-python-client.sh
+```
+
+If build tools are already installed, skip installer steps:
+
+```bash
+SKIP_INSTALL=1 ./scripts/clients/release-python-client.sh
+```
+
+Publish to PyPI (requires `PYPI_TOKEN`):
+
+```bash
+PYPI_PUBLISH=1 PYPI_TOKEN=... ./scripts/clients/release-python-client.sh
+```

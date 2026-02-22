@@ -109,6 +109,11 @@ Status: 🟡 In progress
 - Publish language quickstarts and API usage docs.
 - Document required env vars (`SIKULI_GRPC_ADDR`, auth values when enabled).
 - Package and version each client with release notes.
+- Release scaffolding added:
+  - Python package metadata: `clients/python/pyproject.toml`
+  - Node package metadata: `clients/node/package.json`
+  - Manual release workflow: `.github/workflows/client-release.yml`
+  - Release helpers: `scripts/clients/release-python-client.sh`, `scripts/clients/release-node-client.sh`
 
 ### Phase 6: Hardening and operations
 
