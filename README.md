@@ -13,8 +13,8 @@ Sikuli is an open-source tool for automating anything visible on a computer scre
 
 ## Available Clients
 
-|Client |  |Notes |
-|---|---|---|
+| Client |  | Notes |
+| :---  | --- | :---  |
 | [Python](https://pypi.org/project/sikuligo/)  | ✅ | Implemented |
 | [Node](https://www.npmjs.com/package/@sikuligo/sikuligo)  | ✅ | Implemented |
 | Lua  | ✅ | Implemented |
@@ -54,7 +54,7 @@ await bot.close();
 ## Current Focus
 
 | Roadmap Item | Scope |  |
-|---|---|---|
+| :---  | :---  |---|
 | Core API scaffolding | Public SikuliGo API surface and parity-facing core objects | ✅ |
 | Matching engine and parity harness | Deterministic matcher behavior, golden corpus, backend conformance tests | ✅ |
 | API parity surface expansion | Additional parity helpers and compatibility APIs | ✅ |
