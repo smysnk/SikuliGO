@@ -10,13 +10,23 @@ This repository houses a GoLang implementation of Sikuli visual automation.
 - Provide a modern, testable architecture with explicit contracts and deterministic matching behavior.
 - Establish a maintainable foundation for cross-platform automation features.
 
-| Client Surface |  | Notes |
+| Client  |  | Notes  |
 |---|---|---|
-| Python Client | ✅ | Implemented |
-| Node Client | ✅ | Implemented |
-| Lua Client | ✅ | Implemented |
+| [Python](https://pypi.org/project/sikuligo/)  | ✅ | Implemented |
+| [Node](https://www.npmjs.com/package/@sikuligo/sikuligo)  | ✅ | Implemented |
+| Lua  | ✅ | Implemented |
 | Robot Framework | 🟡 | Planned |
 | Web IDE | 🟡 | Planned |
+
+```ts
+import { Sikuli } from "@sikuligo/sikuligo";
+
+const bot = await Sikuli.launch();
+await bot.click({ x: 300, y: 220 });
+await bot.typeText("hello");
+await bot.hotkey(["cmd", "enter"]);
+await bot.close();
+```
 
 ## Current Focus
 
