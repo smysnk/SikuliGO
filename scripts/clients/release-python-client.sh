@@ -20,6 +20,7 @@ if missing:
     raise SystemExit("Missing Python modules: " + ", ".join(missing) + ". Install with: python3 -m pip install build twine")
 PY
 
+rm -rf dist build ./*.egg-info
 python3 -m build
 python3 -m twine check dist/*
 

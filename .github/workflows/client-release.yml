@@ -29,6 +29,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
@@ -38,6 +43,15 @@ jobs:
         uses: arduino/setup-protoc@v3
         with:
           version: "27.x"
+
+      - name: Set client version from build number
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
+          VERSION_MAJOR: ${{ vars.CLIENT_VERSION_MAJOR }}
+          VERSION_MINOR: ${{ vars.CLIENT_VERSION_MINOR }}
+          PATCH_MODE: ${{ vars.CLIENT_VERSION_PATCH_MODE }}
+          PATCH_FIXED: ${{ vars.CLIENT_VERSION_PATCH_FIXED }}
+        run: ./scripts/clients/set-version-from-build.sh
 
       - name: Build and optionally publish Python client
         env:
@@ -67,6 +81,15 @@ jobs:
         with:
           node-version: "20"
           registry-url: "https://registry.npmjs.org"
+
+      - name: Set client version from build number
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
+          VERSION_MAJOR: ${{ vars.CLIENT_VERSION_MAJOR }}
+          VERSION_MINOR: ${{ vars.CLIENT_VERSION_MINOR }}
+          PATCH_MODE: ${{ vars.CLIENT_VERSION_PATCH_MODE }}
+          PATCH_FIXED: ${{ vars.CLIENT_VERSION_PATCH_FIXED }}
+        run: ./scripts/clients/set-version-from-build.sh
 
       - name: Build and optionally publish Node binary packages
         env:
@@ -99,6 +122,15 @@ jobs:
         uses: arduino/setup-protoc@v3
         with:
           version: "27.x"
+
+      - name: Set client version from build number
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
+          VERSION_MAJOR: ${{ vars.CLIENT_VERSION_MAJOR }}
+          VERSION_MINOR: ${{ vars.CLIENT_VERSION_MINOR }}
+          PATCH_MODE: ${{ vars.CLIENT_VERSION_PATCH_MODE }}
+          PATCH_FIXED: ${{ vars.CLIENT_VERSION_PATCH_FIXED }}
+        run: ./scripts/clients/set-version-from-build.sh
 
       - name: Build and optionally publish Node client
         env:
