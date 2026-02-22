@@ -20,17 +20,17 @@ This repository houses a GoLang implementation of Sikuli visual automation.
 
 ## Current Focus
 
-| Roadmap Item | Scope | Current Status |
+| Roadmap Item | Scope |  |
 |---|---|---|
-| Core API scaffolding | Public SikuliGo API surface and parity-facing core objects | ✅ Completed |
-| Matching engine and parity harness | Deterministic matcher behavior, golden corpus, backend conformance tests | ✅ Completed |
-| API parity surface expansion | Additional parity helpers and compatibility APIs | ✅ Completed |
-| Protocol completeness hardening | Alternate matcher backend + cross-backend conformance rules | ✅ Completed |
-| OCR and text-search parity | OCR contracts, finder/region text flows, optional backend integration | ✅ Completed |
-| Input automation and hotkey parity | Input controller contracts, request validation, backend protocol scaffold | 🟡 In progress (concrete `darwin` backend; non-`darwin` fallback unsupported) |
-| Observe/event subsystem parity | Observer contracts, request validation, backend protocol scaffold | ✅ Completed |
-| App/window/process control parity | App/window contracts, request validation, backend protocol scaffold | ✅ Completed |
-| Cross-platform backend hardening | Platform integration hardening and backend portability | 🟡 Planned |
+| Core API scaffolding | Public SikuliGo API surface and parity-facing core objects | ✅ |
+| Matching engine and parity harness | Deterministic matcher behavior, golden corpus, backend conformance tests | ✅ |
+| API parity surface expansion | Additional parity helpers and compatibility APIs | ✅ |
+| Protocol completeness hardening | Alternate matcher backend + cross-backend conformance rules | ✅ |
+| OCR and text-search parity | OCR contracts, finder/region text flows, optional backend integration | ✅ |
+| Input automation and hotkey parity | Input controller contracts, request validation, backend protocol scaffold | 🟡 |
+| Observe/event subsystem parity | Observer contracts, request validation, backend protocol scaffold | ✅ |
+| App/window/process control parity | App/window contracts, request validation, backend protocol scaffold | ✅ |
+| Cross-platform backend hardening | Platform integration hardening and backend portability | 🟡 |
 
 # Docs
 - [Docs Home](https://smysnk.github.io/SikuliGO/)
