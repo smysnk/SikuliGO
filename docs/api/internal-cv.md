@@ -18,16 +18,20 @@ Package: `package cv // import "github.com/sikulix/portgo/internal/cv"`
 ### Types
 
 - <span class="api-type">[`NCCMatcher`](#type-nccmatcher)</span>
+- <span class="api-type">[`OpenCVMatcher`](#type-opencvmatcher)</span>
 - <span class="api-type">[`SADMatcher`](#type-sadmatcher)</span>
 
 ### Functions
 
+- <span class="api-func">[`NewDefaultMatcher`](#func-newdefaultmatcher)</span>
 - <span class="api-func">[`NewNCCMatcher`](#func-newnccmatcher)</span>
+- <span class="api-func">[`NewOpenCVMatcher`](#func-newopencvmatcher)</span>
 - <span class="api-func">[`NewSADMatcher`](#func-newsadmatcher)</span>
 
 ### Methods
 
 - <span class="api-method">[`NCCMatcher.Find`](#method-nccmatcher-find)</span>
+- <span class="api-method">[`OpenCVMatcher.Find`](#method-opencvmatcher-find)</span>
 - <span class="api-method">[`SADMatcher.Find`](#method-sadmatcher-find)</span>
 
 ## Declarations
@@ -38,16 +42,30 @@ Package: `package cv // import "github.com/sikulix/portgo/internal/cv"`
 
 - Signature: <span class="api-signature">`type NCCMatcher struct{}`</span>
 
+#### <a id="type-opencvmatcher"></a><span class="api-type">Type</span> `OpenCVMatcher`
+
+- Signature: <span class="api-signature">`type OpenCVMatcher struct{}`</span>
+
 #### <a id="type-sadmatcher"></a><span class="api-type">Type</span> `SADMatcher`
 
 - Signature: <span class="api-signature">`type SADMatcher struct{}`</span>
 
 ### Functions
 
+#### <a id="func-newdefaultmatcher"></a><span class="api-func">Function</span> `NewDefaultMatcher`
+
+- Signature: <span class="api-signature">`func NewDefaultMatcher() core.Matcher`</span>
+- Notes: NewDefaultMatcher returns the matcher backend used by default in Sikuli flows.
+
 #### <a id="func-newnccmatcher"></a><span class="api-func">Function</span> `NewNCCMatcher`
 
 - Signature: <span class="api-signature">`func NewNCCMatcher() *NCCMatcher`</span>
 - Uses: [`NCCMatcher`](#type-nccmatcher)
+
+#### <a id="func-newopencvmatcher"></a><span class="api-func">Function</span> `NewOpenCVMatcher`
+
+- Signature: <span class="api-signature">`func NewOpenCVMatcher() *OpenCVMatcher`</span>
+- Uses: [`OpenCVMatcher`](#type-opencvmatcher)
 
 #### <a id="func-newsadmatcher"></a><span class="api-func">Function</span> `NewSADMatcher`
 
@@ -60,6 +78,10 @@ Package: `package cv // import "github.com/sikulix/portgo/internal/cv"`
 
 - Signature: <span class="api-signature">`func (m *NCCMatcher) Find(req core.SearchRequest) ([]core.MatchCandidate, error)`</span>
 
+#### <a id="method-opencvmatcher-find"></a><span class="api-method">Method</span> `OpenCVMatcher.Find`
+
+- Signature: <span class="api-signature">`func (m *OpenCVMatcher) Find(req core.SearchRequest) ([]core.MatchCandidate, error)`</span>
+
 #### <a id="method-sadmatcher-find"></a><span class="api-method">Method</span> `SADMatcher.Find`
 
 - Signature: <span class="api-signature">`func (m *SADMatcher) Find(req core.SearchRequest) ([]core.MatchCandidate, error)`</span>
@@ -70,6 +92,13 @@ Package: `package cv // import "github.com/sikulix/portgo/internal/cv"`
 package cv // import "github.com/sikulix/portgo/internal/cv"
 
 
+FUNCTIONS
+
+func NewDefaultMatcher() core.Matcher
+    NewDefaultMatcher returns the matcher backend used by default in Sikuli
+    flows.
+
+
 TYPES
 
 type NCCMatcher struct{}
@@ -77,6 +106,12 @@ type NCCMatcher struct{}
 func NewNCCMatcher() *NCCMatcher
 
 func (m *NCCMatcher) Find(req core.SearchRequest) ([]core.MatchCandidate, error)
+
+type OpenCVMatcher struct{}
+
+func NewOpenCVMatcher() *OpenCVMatcher
+
+func (m *OpenCVMatcher) Find(req core.SearchRequest) ([]core.MatchCandidate, error)
 
 type SADMatcher struct{}
 

@@ -167,6 +167,7 @@ VARIABLES
 
 var ErrAppUnsupported = errors.New("app backend unsupported")
 var ErrInputUnsupported = errors.New("input backend unsupported")
+var ErrMatcherUnsupported = errors.New("matcher backend unsupported")
 var ErrOCRUnsupported = errors.New("ocr backend unsupported")
 var ErrObserveUnsupported = errors.New("observe backend unsupported")
 
