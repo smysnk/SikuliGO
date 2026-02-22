@@ -57,7 +57,7 @@ Recommended packaging model:
 1. Publish one JS meta package:
 - `sikuligo`
 
-2. Publish per-platform binary packages as optional dependencies:
+2. Publish per-platform binary packages as required dependencies:
 - `@sikuligo/bin-darwin-arm64`
 - `@sikuligo/bin-darwin-x64`
 - `@sikuligo/bin-linux-x64`
@@ -70,13 +70,10 @@ Repository scaffolding:
 
 3. Each binary package:
 - includes one `sikuligrpc` executable.
-- uses `os` and `cpu` constraints in `package.json`.
 - installs to predictable path resolved by `sikuligo` at runtime.
 
 4. Runtime resolution in `sikuligo`:
-- detect active platform/arch.
-- resolve installed binary package.
-- return explicit install error if package missing/incompatible.
+- see Binary Resolution details in `docs/client-strategy.md` (Node.js section).
 
 ## Release and Build Requirements
 

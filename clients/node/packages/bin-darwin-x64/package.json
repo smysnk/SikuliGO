@@ -3,12 +3,6 @@
   "version": "0.1.4",
   "description": "sikuligrpc binary for darwin x64",
   "license": "MIT",
-  "os": [
-    "darwin"
-  ],
-  "cpu": [
-    "x64"
-  ],
   "files": [
     "bin/sikuligrpc",
     "README.md"

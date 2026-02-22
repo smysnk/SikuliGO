@@ -39,7 +39,7 @@ function candidateBinaryPaths(rootDir: string): string[] {
   ];
 }
 
-function resolveOptionalPackageBinary(): string | undefined {
+function resolvePackagedBinary(): string | undefined {
   const key = `${process.platform}-${process.arch}`;
   const packages = PLATFORM_BINARY_PACKAGES[key] ?? [];
   for (const pkgName of packages) {
@@ -52,7 +52,7 @@ function resolveOptionalPackageBinary(): string | undefined {
         }
       }
     } catch {
-      // Optional package not installed for this platform.
+      // Package not installed/resolvable for this platform.
     }
   }
   return undefined;
@@ -87,8 +87,8 @@ function resolveLocalRepoFallback(): string | undefined {
 function errorWithResolutionHelp(detail: string): Error {
   return new Error(
     `${detail}\n` +
-      "Set SIKULIGO_BINARY_PATH or install a platform binary package (for example @sikuligo/bin-darwin-arm64), " +
-      "or place sikuligrpc in PATH."
+      "Install @sikuligo/sikuligo to auto-resolve the packaged platform binary, " +
+      "or set SIKULIGO_BINARY_PATH, or place sikuligrpc in PATH."
   );
 }
 
@@ -101,9 +101,9 @@ export function resolveSikuliGrpcBinary(explicitPath?: string): string {
     return manual;
   }
 
-  const optionalPackageBinary = resolveOptionalPackageBinary();
-  if (optionalPackageBinary) {
-    return optionalPackageBinary;
+  const packagedBinary = resolvePackagedBinary();
+  if (packagedBinary) {
+    return packagedBinary;
   }
 
   const pathBinary = resolveFromPath();

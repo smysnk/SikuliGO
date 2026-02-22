@@ -3,12 +3,6 @@
   "version": "0.1.4",
   "description": "sikuligrpc binary for linux x64",
   "license": "MIT",
-  "os": [
-    "linux"
-  ],
-  "cpu": [
-    "x64"
-  ],
   "files": [
     "bin/sikuligrpc",
     "README.md"

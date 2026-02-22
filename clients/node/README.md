@@ -1,16 +1,20 @@
 # sikuligo (Node.js)
 
-This package provides a Node.js SDK that can launch a local `sikuligrpc` process and execute automation with a small API surface.
+SikuliGO is a GoLang implementation of Sikuli visual automation. This package provides the Node.js SDK for launching `sikuligrpc` locally and executing automation with a small API surface.
 
 ## Prerequisites
 
 - Node.js 20+
-- npm
-- `sikuligrpc` binary available from one of:
-  - this package's `optionalDependencies` (`@sikuligo/bin-*`) after binary packages are published
-  - `SIKULIGO_BINARY_PATH`
-  - a manually installed platform package (for example `@sikuligo/bin-darwin-arm64`)
-  - `sikuligrpc` in `PATH`
+
+## Binary Resolution
+
+`@sikuligo/sikuligo` declares all supported platform binaries (`@sikuligo/bin-*`) and resolves the correct binary automatically for the current OS/CPU at runtime.
+
+Resolution order:
+
+1. `SIKULIGO_BINARY_PATH` (explicit override)
+2. auto-resolved packaged platform binary
+3. `sikuligrpc` found in `PATH`
 
 ## Setup
 

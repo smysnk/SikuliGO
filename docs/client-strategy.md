@@ -57,6 +57,21 @@ Typical wrapper concerns:
 - per-RPC deadlines and retry policy
 - consistent error-to-domain mapping
 
+### Binary Resolution
+
+Node package runtime binary selection is owned by the SDK launcher/runtime layer.
+
+- detect active `process.platform` + `process.arch`.
+- map platform/arch to an installed `@sikuligo/bin-*` package.
+- resolve executable path from the package payload at runtime.
+- return an explicit install/runtime error when binary resolution fails.
+
+Repository references:
+
+- runtime resolver: `clients/node/src/binary.ts`
+- process launcher: `clients/node/src/launcher.ts`
+- binary package manifests: `clients/node/packages/bin-*/package.json`
+
 ## Lua
 
 Lua has more runtime variance; this implementation uses direct gRPC method invocation via `grpcurl`.

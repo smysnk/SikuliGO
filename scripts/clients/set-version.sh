@@ -45,11 +45,11 @@ function writeJson(filePath, obj) {
 
 const nodePkg = JSON.parse(fs.readFileSync(nodePkgPath, "utf8"));
 nodePkg.version = newVersion;
-if (!nodePkg.optionalDependencies) {
-  nodePkg.optionalDependencies = {};
-}
 for (const name of binNames) {
-  if (name in nodePkg.optionalDependencies) {
+  if (nodePkg.dependencies && name in nodePkg.dependencies) {
+    nodePkg.dependencies[name] = newVersion;
+  }
+  if (nodePkg.optionalDependencies && name in nodePkg.optionalDependencies) {
     nodePkg.optionalDependencies[name] = newVersion;
   }
 }
@@ -59,11 +59,11 @@ const lock = JSON.parse(fs.readFileSync(nodeLockPath, "utf8"));
 lock.version = newVersion;
 if (lock.packages && lock.packages[""]) {
   lock.packages[""].version = newVersion;
-  if (!lock.packages[""].optionalDependencies) {
-    lock.packages[""].optionalDependencies = {};
-  }
   for (const name of binNames) {
-    if (name in lock.packages[""].optionalDependencies) {
+    if (lock.packages[""].dependencies && name in lock.packages[""].dependencies) {
+      lock.packages[""].dependencies[name] = newVersion;
+    }
+    if (lock.packages[""].optionalDependencies && name in lock.packages[""].optionalDependencies) {
       lock.packages[""].optionalDependencies[name] = newVersion;
     }
   }
