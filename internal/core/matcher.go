@@ -1,9 +1,12 @@
 package core
 
 import (
+	"errors"
 	"fmt"
 	"image"
 )
+
+var ErrMatcherUnsupported = errors.New("matcher backend unsupported")
 
 type MatchCandidate struct {
 	X     int
@@ -41,4 +44,3 @@ func (r SearchRequest) Validate() error {
 type Matcher interface {
 	Find(req SearchRequest) ([]MatchCandidate, error)
 }
-

@@ -29,7 +29,7 @@ func NewFinder(source *Image) (*Finder, error) {
 	}
 	return &Finder{
 		source:  source,
-		matcher: cv.NewNCCMatcher(),
+		matcher: cv.NewDefaultMatcher(),
 		ocr:     newOCRBackend(),
 		last:    nil,
 	}, nil
@@ -56,6 +56,9 @@ func (f *Finder) Find(pattern *Pattern) (Match, error) {
 	}
 	rawMatches, err := f.matcher.Find(req)
 	if err != nil {
+		if errors.Is(err, core.ErrMatcherUnsupported) {
+			return Match{}, ErrBackendUnsupported
+		}
 		return Match{}, err
 	}
 	if len(rawMatches) == 0 {
@@ -75,6 +78,9 @@ func (f *Finder) FindAll(pattern *Pattern) ([]Match, error) {
 	}
 	rawMatches, err := f.matcher.Find(req)
 	if err != nil {
+		if errors.Is(err, core.ErrMatcherUnsupported) {
+			return nil, ErrBackendUnsupported
+		}
 		return nil, err
 	}
 	matches := make([]Match, 0, len(rawMatches))

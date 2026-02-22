@@ -1,6 +1,7 @@
 package observe
 
 import (
+	"errors"
 	"fmt"
 	"image"
 	"strconv"
@@ -29,7 +30,7 @@ func New() core.Observer {
 
 func newPollingBackend(m core.Matcher) *pollingBackend {
 	if m == nil {
-		m = cv.NewNCCMatcher()
+		m = cv.NewDefaultMatcher()
 	}
 	return &pollingBackend{
 		matcher: m,
@@ -175,6 +176,9 @@ func (b *pollingBackend) findFirst(frame, pattern *image.Gray, threshold float64
 		MaxResults:   1,
 	})
 	if err != nil {
+		if errors.Is(err, core.ErrMatcherUnsupported) {
+			return core.MatchCandidate{}, false, fmt.Errorf("%w: %v", core.ErrObserveUnsupported, err)
+		}
 		return core.MatchCandidate{}, false, err
 	}
 	if len(matches) == 0 {
