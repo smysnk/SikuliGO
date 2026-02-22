@@ -28,6 +28,11 @@ await bot.hotkey(["cmd", "enter"]);
 await bot.close();
 ```
 
+## Example: Dashboard
+
+![SikuliGO Dashboard Demo](docs/images/dashboard.png)
+
+
 ## Current Focus
 
 | Roadmap Item | Scope |  |
@@ -84,10 +89,6 @@ go test -tags gosseract ./...
 
 Tagged OCR builds require native Tesseract + Leptonica runtime libraries and installed language data.
 See [OCR](https://smysnk.github.io/SikuliGO/ocr-integration) for full macOS/Homebrew setup and troubleshooting steps.
-
-## Example: Dashboard
-
-![SikuliGO Dashboard Demo](docs/images/dashboard.png)
 
 ## Project History and Credits
 
