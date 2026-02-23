@@ -34,7 +34,7 @@ pip install sikuligo
 ```python
 from sikuligo_client.client import Sikuli
 
-client = Sikuli(address="127.0.0.1:50051")
+client = Sikuli()
 try:
     match = client.click_on_screen("assets/pattern.png", exact=True, timeout_millis=5000)
     print(match.match.target.x, match.match.target.y)
