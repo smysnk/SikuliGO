@@ -1,8 +1,8 @@
 export { Sikuli } from "./sikuli";
 export { Screen, Region, Pattern, Match } from "./sikulix";
-export { resolveSikuliGrpcBinary } from "./binary";
-export { launchClient, stopSpawnedProcess } from "./launcher";
-export { SikuliGrpcClient, SikuliGrpcError } from "./client";
+export { resolveSikuliBinary } from "./binary";
+export { launchSikuli, stopSpawnedProcess } from "./launcher";
+export { SikuliError } from "./client";
 export { Image, loadGrayImage } from "./image";
 export type {
   LaunchOptions,
@@ -17,7 +17,7 @@ export type {
 } from "./sikuli";
 export type {
   RpcMessage,
-  SikuliClientOptions,
+  SikuliOptions,
   UnaryCallOptions
 } from "./client";
 export type {

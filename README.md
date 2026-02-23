@@ -23,9 +23,9 @@ Sikuli is an open-source tool for automating anything visible on a computer scre
 
 ## Python
 ```python
-from sikuligo_client.client import SikuliGrpcClient
+from sikuligo_client.client import Sikuli
 
-client = SikuliGrpcClient(address="127.0.0.1:50051")
+client = Sikuli(address="127.0.0.1:50051")
 try:
     match = client.click_on_screen("assets/pattern.png", exact=True, timeout_millis=5000)
     print(match.match.target.x, match.match.target.y)

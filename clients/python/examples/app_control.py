@@ -1,9 +1,9 @@
 from generated.sikuli.v1 import sikuli_pb2 as pb
-from sikuligo_client.client import SikuliGrpcClient
+from sikuligo_client.client import Sikuli
 
 
 def main() -> int:
-    client = SikuliGrpcClient()
+    client = Sikuli()
     app_name = "Calculator"
     try:
         client.open_app(pb.AppActionRequest(name=app_name))

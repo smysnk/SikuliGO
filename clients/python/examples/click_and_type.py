@@ -1,9 +1,9 @@
 from generated.sikuli.v1 import sikuli_pb2 as pb
-from sikuligo_client.client import SikuliGrpcClient
+from sikuligo_client.client import Sikuli
 
 
 def main() -> int:
-    client = SikuliGrpcClient()
+    client = Sikuli()
     try:
         client.move_mouse(pb.MoveMouseRequest(x=200, y=180, opts=pb.InputOptions(delay_millis=30)))
         client.click(pb.ClickRequest(x=200, y=180, opts=pb.InputOptions(button="left", delay_millis=20)))

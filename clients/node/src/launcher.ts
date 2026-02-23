@@ -1,10 +1,10 @@
 import { ChildProcess, spawn } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import net from "node:net";
-import { SikuliGrpcClient, SikuliClientOptions } from "./client";
-import { resolveSikuliGrpcBinary } from "./binary";
+import { Sikuli as SikuliTransport, SikuliOptions } from "./client";
+import { resolveSikuliBinary } from "./binary";
 
-export interface LaunchOptions extends SikuliClientOptions {
+export interface LaunchOptions extends SikuliOptions {
   spawnServer?: boolean;
   startupTimeoutMs?: number;
   binaryPath?: string;
@@ -16,7 +16,7 @@ export interface LaunchOptions extends SikuliClientOptions {
 export interface LaunchResult {
   address: string;
   authToken: string;
-  client: SikuliGrpcClient;
+  client: SikuliTransport;
   child?: ChildProcess;
   spawnedServer: boolean;
 }
@@ -62,7 +62,7 @@ function wireShutdown(child: ChildProcess): Array<() => void> {
   ];
 }
 
-async function waitForStartup(client: SikuliGrpcClient, child: ChildProcess, timeoutMs: number): Promise<void> {
+async function waitForStartup(client: SikuliTransport, child: ChildProcess, timeoutMs: number): Promise<void> {
   let rejected = false;
   await Promise.race([
     client.waitForReady(timeoutMs),
@@ -100,7 +100,7 @@ export async function stopSpawnedProcess(child?: ChildProcess, timeoutMs = 3_000
   }
 }
 
-export async function launchClient(opts: LaunchOptions = {}): Promise<LaunchResult> {
+export async function launchSikuli(opts: LaunchOptions = {}): Promise<LaunchResult> {
   const spawnServer = opts.spawnServer !== false;
   const startupTimeoutMs = opts.startupTimeoutMs ?? DEFAULT_STARTUP_TIMEOUT_MS;
   const address =
@@ -110,7 +110,7 @@ export async function launchClient(opts: LaunchOptions = {}): Promise<LaunchResu
   const authToken = opts.authToken || process.env.SIKULI_GRPC_AUTH_TOKEN || "";
 
   if (!spawnServer) {
-    const client = new SikuliGrpcClient({
+    const client = new SikuliTransport({
       address,
       authToken,
       traceId: opts.traceId,
@@ -127,7 +127,7 @@ export async function launchClient(opts: LaunchOptions = {}): Promise<LaunchResu
     };
   }
 
-  const binaryPath = resolveSikuliGrpcBinary(opts.binaryPath);
+  const binaryPath = resolveSikuliBinary(opts.binaryPath);
   const token = authToken || randomBytes(24).toString("hex");
   const serverArgs = [
     "-listen",
@@ -149,7 +149,7 @@ export async function launchClient(opts: LaunchOptions = {}): Promise<LaunchResu
   });
   const unwire = wireShutdown(child);
 
-  const client = new SikuliGrpcClient({
+  const client = new SikuliTransport({
     address,
     authToken: token,
     traceId: opts.traceId,

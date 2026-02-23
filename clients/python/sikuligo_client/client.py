@@ -27,7 +27,7 @@ RegionInput = tuple[int, int, int, int]
 PointInput = tuple[int, int]
 
 
-class SikuliGrpcError(RuntimeError):
+class SikuliError(RuntimeError):
     def __init__(self, code: grpc.StatusCode, details: str, trace_id: str = "") -> None:
         suffix = f" trace_id={trace_id}" if trace_id else ""
         super().__init__(f"{code.name}: {details}{suffix}")
@@ -36,7 +36,7 @@ class SikuliGrpcError(RuntimeError):
         self.trace_id = trace_id
 
 
-class SikuliGrpcClient:
+class Sikuli:
     def __init__(
         self,
         *,
@@ -100,7 +100,7 @@ class SikuliGrpcClient:
                 metadata=self._metadata(metadata),
             )
         except grpc.RpcError as err:
-            raise SikuliGrpcError(err.code(), err.details() or "", self._trace_id_from_error(err)) from err
+            raise SikuliError(err.code(), err.details() or "", self._trace_id_from_error(err)) from err
 
     def find_on_screen(
         self,

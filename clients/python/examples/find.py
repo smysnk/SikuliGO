@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from sikuligo_client.client import SikuliGrpcClient
+from sikuligo_client.client import Sikuli
 
 
 def main() -> int:
-    client = SikuliGrpcClient()
+    client = Sikuli()
     try:
         res = client.find_on_screen("assets/pattern.png", exact=True, timeout_millis=3000)
         match = res.match

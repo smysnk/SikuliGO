@@ -9,7 +9,7 @@ const TRACE_HEADER = "x-trace-id";
 
 export type RpcMessage = Record<string, unknown>;
 
-export interface SikuliClientOptions {
+export interface SikuliOptions {
   address?: string;
   authToken?: string;
   traceId?: string;
@@ -23,7 +23,7 @@ export interface UnaryCallOptions {
   metadata?: Record<string, string>;
 }
 
-export class SikuliGrpcError extends Error {
+export class SikuliError extends Error {
   readonly code: number;
   readonly details: string;
   readonly traceId?: string;
@@ -68,13 +68,13 @@ function serviceConstructorFromProto(protoPath: string): grpc.ServiceClientConst
   return serviceCtor as grpc.ServiceClientConstructor;
 }
 
-export class SikuliGrpcClient {
+export class Sikuli {
   private readonly client: grpc.Client & Record<string, unknown>;
   private readonly authToken: string;
   private readonly traceId: string;
   private readonly defaultTimeoutMs: number;
 
-  constructor(opts: SikuliClientOptions = {}) {
+  constructor(opts: SikuliOptions = {}) {
     const address = opts.address ?? process.env.SIKULI_GRPC_ADDR ?? DEFAULT_ADDR;
     this.authToken = opts.authToken ?? process.env.SIKULI_GRPC_AUTH_TOKEN ?? "";
     this.traceId = opts.traceId ?? "";
@@ -120,10 +120,10 @@ export class SikuliGrpcClient {
     return md;
   }
 
-  private grpcError(err: grpc.ServiceError): SikuliGrpcError {
+  private clientError(err: grpc.ServiceError): SikuliError {
     const traceValues = err.metadata?.get(TRACE_HEADER) ?? [];
     const traceId = traceValues.length > 0 ? String(traceValues[0]) : undefined;
-    return new SikuliGrpcError(err.code ?? grpc.status.UNKNOWN, err.details || err.message, traceId);
+    return new SikuliError(err.code ?? grpc.status.UNKNOWN, err.details || err.message, traceId);
   }
 
   private unary(methodName: string, request: RpcMessage, opts: UnaryCallOptions = {}): Promise<RpcMessage> {
@@ -144,7 +144,7 @@ export class SikuliGrpcClient {
         { deadline },
         (err: grpc.ServiceError | null, response: RpcMessage) => {
           if (err) {
-            reject(this.grpcError(err));
+            reject(this.clientError(err));
             return;
           }
           resolve(response);

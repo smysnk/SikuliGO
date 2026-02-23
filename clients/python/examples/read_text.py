@@ -1,9 +1,9 @@
 from generated.sikuli.v1 import sikuli_pb2 as pb
-from sikuligo_client.client import SikuliGrpcClient, gray_image_from_rows
+from sikuligo_client.client import Sikuli, gray_image_from_rows
 
 
 def main() -> int:
-    client = SikuliGrpcClient()
+    client = Sikuli()
     try:
         source = gray_image_from_rows(
             "ocr-source",

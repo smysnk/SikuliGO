@@ -92,7 +92,7 @@ function errorWithResolutionHelp(detail: string): Error {
   );
 }
 
-export function resolveSikuliGrpcBinary(explicitPath?: string): string {
+export function resolveSikuliBinary(explicitPath?: string): string {
   const manual = explicitPath || process.env.SIKULIGO_BINARY_PATH || "";
   if (manual) {
     if (!isExecutable(manual)) {

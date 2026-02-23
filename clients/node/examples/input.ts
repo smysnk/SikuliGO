@@ -1,26 +1,27 @@
-import { SikuliGrpcClient } from "../src/client";
+import { Sikuli } from "../src";
 
 async function main(): Promise<void> {
-  const client = new SikuliGrpcClient();
+  const client = await Sikuli.launch();
   try {
     await client.moveMouse({
       x: 200,
       y: 180,
-      opts: { delay_millis: 30 }
+      opts: { delayMillis: 30 }
     });
     await client.click({
       x: 200,
       y: 180,
-      opts: { button: "left", delay_millis: 20 }
+      button: "left",
+      delayMillis: 20
     });
     await client.typeText({
       text: "hello from node grpc",
-      opts: { delay_millis: 15 }
+      delayMillis: 15
     });
-    await client.hotkey({ keys: ["cmd", "a"] });
+    await client.hotkey(["cmd", "a"]);
     console.log("input actions sent");
   } finally {
-    client.close();
+    await client.close();
   }
 }
 

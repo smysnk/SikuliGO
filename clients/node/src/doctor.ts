@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-import { resolveSikuliGrpcBinary } from "./binary";
+import { resolveSikuliBinary } from "./binary";
 
 function run(): number {
   try {
-    const binary = resolveSikuliGrpcBinary();
+    const binary = resolveSikuliBinary();
     console.log("sikuligo doctor: ok");
     console.log(`binary: ${binary}`);
     console.log(`platform: ${process.platform}/${process.arch}`);

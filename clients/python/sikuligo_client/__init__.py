@@ -1,6 +1,6 @@
 from .client import (
-    SikuliGrpcClient,
-    SikuliGrpcError,
+    Sikuli,
+    SikuliError,
     gray_image_from_png,
     gray_image_from_rows,
     pattern_from_png,
@@ -8,8 +8,8 @@ from .client import (
 )
 
 __all__ = [
-    "SikuliGrpcClient",
-    "SikuliGrpcError",
+    "Sikuli",
+    "SikuliError",
     "gray_image_from_png",
     "gray_image_from_rows",
     "pattern_from_png",

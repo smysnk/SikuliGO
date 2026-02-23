@@ -1,4 +1,4 @@
-import { SikuliGrpcClient } from "../src/client";
+import { Sikuli } from "../src";
 
 function grayImageFromRows(name: string, rows: number[][]) {
   const height = rows.length;
@@ -13,7 +13,7 @@ function grayImageFromRows(name: string, rows: number[][]) {
 }
 
 async function main(): Promise<void> {
-  const client = new SikuliGrpcClient();
+  const client = await Sikuli.launch();
   const source = grayImageFromRows("ocr-source", [
     [220, 220, 220, 220],
     [220, 20, 20, 220],
@@ -39,7 +39,7 @@ async function main(): Promise<void> {
     });
     console.log("findText", JSON.stringify(findText, null, 2));
   } finally {
-    client.close();
+    await client.close();
   }
 }
 

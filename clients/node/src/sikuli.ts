@@ -1,6 +1,6 @@
 import { ChildProcess } from "node:child_process";
-import { launchClient, LaunchOptions, stopSpawnedProcess } from "./launcher";
-import { RpcMessage, SikuliGrpcClient, UnaryCallOptions } from "./client";
+import { launchSikuli, LaunchOptions, stopSpawnedProcess } from "./launcher";
+import { RpcMessage, Sikuli as SikuliTransport, UnaryCallOptions } from "./client";
 
 export interface InputOptions {
   delayMillis?: number;
@@ -32,19 +32,19 @@ export interface LaunchResultMeta {
 }
 
 export class Sikuli {
-  private readonly client: SikuliGrpcClient;
+  private readonly transport: SikuliTransport;
   private readonly child?: ChildProcess;
   readonly meta: LaunchResultMeta;
   private closed = false;
 
-  private constructor(client: SikuliGrpcClient, child: ChildProcess | undefined, meta: LaunchResultMeta) {
-    this.client = client;
+  private constructor(client: SikuliTransport, child: ChildProcess | undefined, meta: LaunchResultMeta) {
+    this.transport = client;
     this.child = child;
     this.meta = meta;
   }
 
   static async launch(opts: LaunchOptions = {}): Promise<Sikuli> {
-    const result = await launchClient({ ...opts, spawnServer: opts.spawnServer ?? true });
+    const result = await launchSikuli({ ...opts, spawnServer: opts.spawnServer ?? true });
     return new Sikuli(result.client, result.child, {
       address: result.address,
       authToken: result.authToken,
@@ -53,7 +53,7 @@ export class Sikuli {
   }
 
   static async connect(opts: LaunchOptions = {}): Promise<Sikuli> {
-    const result = await launchClient({ ...opts, spawnServer: false });
+    const result = await launchSikuli({ ...opts, spawnServer: false });
     return new Sikuli(result.client, undefined, {
       address: result.address,
       authToken: result.authToken,
@@ -61,8 +61,8 @@ export class Sikuli {
     });
   }
 
-  grpc(): SikuliGrpcClient {
-    return this.client;
+  client(): SikuliTransport {
+    return this.transport;
   }
 
   async close(): Promise<void> {
@@ -70,36 +70,36 @@ export class Sikuli {
       return;
     }
     this.closed = true;
-    this.client.close();
+    this.transport.close();
     await stopSpawnedProcess(this.child);
   }
 
   async findOnScreen(request: RpcMessage, opts?: UnaryCallOptions): Promise<RpcMessage> {
-    return await this.client.findOnScreen(request, opts);
+    return await this.transport.findOnScreen(request, opts);
   }
 
   async existsOnScreen(request: RpcMessage, opts?: UnaryCallOptions): Promise<RpcMessage> {
-    return await this.client.existsOnScreen(request, opts);
+    return await this.transport.existsOnScreen(request, opts);
   }
 
   async waitOnScreen(request: RpcMessage, opts?: UnaryCallOptions): Promise<RpcMessage> {
-    return await this.client.waitOnScreen(request, opts);
+    return await this.transport.waitOnScreen(request, opts);
   }
 
   async clickOnScreen(request: RpcMessage, opts?: UnaryCallOptions): Promise<RpcMessage> {
-    return await this.client.clickOnScreen(request, opts);
+    return await this.transport.clickOnScreen(request, opts);
   }
 
   async readText(request: RpcMessage, opts?: UnaryCallOptions): Promise<RpcMessage> {
-    return await this.client.readText(request, opts);
+    return await this.transport.readText(request, opts);
   }
 
   async findText(request: RpcMessage, opts?: UnaryCallOptions): Promise<RpcMessage> {
-    return await this.client.findText(request, opts);
+    return await this.transport.findText(request, opts);
   }
 
   async moveMouse(request: MoveMouseRequest, opts?: UnaryCallOptions): Promise<void> {
-    await this.client.moveMouse(
+    await this.transport.moveMouse(
       {
         x: request.x,
         y: request.y,
@@ -112,7 +112,7 @@ export class Sikuli {
   }
 
   async click(request: ClickRequest, opts?: UnaryCallOptions): Promise<void> {
-    await this.client.click(
+    await this.transport.click(
       {
         x: request.x,
         y: request.y,
@@ -127,7 +127,7 @@ export class Sikuli {
 
   async typeText(request: TypeTextRequest | string, opts?: UnaryCallOptions): Promise<void> {
     const input = typeof request === "string" ? { text: request } : request;
-    await this.client.typeText(
+    await this.transport.typeText(
       {
         text: input.text,
         opts: {
@@ -139,11 +139,11 @@ export class Sikuli {
   }
 
   async hotkey(keys: string[], opts?: UnaryCallOptions): Promise<void> {
-    await this.client.hotkey({ keys }, opts);
+    await this.transport.hotkey({ keys }, opts);
   }
 
   async openApp(request: { name: string; args?: string[] }, opts?: UnaryCallOptions): Promise<void> {
-    await this.client.openApp(
+    await this.transport.openApp(
       {
         name: request.name,
         args: request.args ?? []
@@ -153,19 +153,19 @@ export class Sikuli {
   }
 
   async focusApp(name: string, opts?: UnaryCallOptions): Promise<void> {
-    await this.client.focusApp({ name }, opts);
+    await this.transport.focusApp({ name }, opts);
   }
 
   async closeApp(name: string, opts?: UnaryCallOptions): Promise<void> {
-    await this.client.closeApp({ name }, opts);
+    await this.transport.closeApp({ name }, opts);
   }
 
   async isAppRunning(name: string, opts?: UnaryCallOptions): Promise<boolean> {
-    const out = await this.client.isAppRunning({ name }, opts);
+    const out = await this.transport.isAppRunning({ name }, opts);
     return Boolean((out as { running?: boolean }).running);
   }
 
   async listWindows(name: string, opts?: UnaryCallOptions): Promise<RpcMessage> {
-    return await this.client.listWindows({ name }, opts);
+    return await this.transport.listWindows({ name }, opts);
   }
 }

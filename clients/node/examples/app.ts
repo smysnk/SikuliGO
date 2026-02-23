@@ -1,7 +1,7 @@
-import { SikuliGrpcClient } from "../src/client";
+import { Sikuli } from "../src";
 
 async function main(): Promise<void> {
-  const client = new SikuliGrpcClient();
+  const client = await Sikuli.launch();
   const appName = process.env.SIKULI_APP_NAME ?? "Calculator";
 
   try {
@@ -10,17 +10,17 @@ async function main(): Promise<void> {
       args: []
     });
 
-    const running = await client.isAppRunning({ name: appName });
+    const running = await client.isAppRunning(appName);
     console.log("isAppRunning", JSON.stringify(running, null, 2));
 
-    const windows = await client.listWindows({ name: appName });
+    const windows = await client.listWindows(appName);
     console.log("listWindows", JSON.stringify(windows, null, 2));
 
-    await client.focusApp({ name: appName });
-    await client.closeApp({ name: appName });
+    await client.focusApp(appName);
+    await client.closeApp(appName);
     console.log("app control actions sent");
   } finally {
-    client.close();
+    await client.close();
   }
 }
 
