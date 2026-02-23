@@ -1,14 +1,11 @@
 import { Screen, Pattern } from "../src";
 
 async function main(): Promise<void> {
-  const screen = await Screen.start({
-    startupTimeoutMs: 10_000
-  });
+  const screen = await Screen.start();
   try {
     const pattern = new Pattern("assets/pattern.png").exact();
     const match = await screen.click(pattern);
     console.log(`clicked match target at (${match.targetX}, ${match.targetY})`);
-    console.log("automation actions sent");
   } finally {
     await screen.close();
   }

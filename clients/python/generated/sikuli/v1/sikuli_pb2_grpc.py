@@ -24,6 +24,26 @@ class SikuliServiceStub(object):
                 request_serializer=sikuli_dot_v1_dot_sikuli__pb2.FindRequest.SerializeToString,
                 response_deserializer=sikuli_dot_v1_dot_sikuli__pb2.FindAllResponse.FromString,
                 _registered_method=True)
+        self.FindOnScreen = channel.unary_unary(
+                '/sikuli.v1.SikuliService/FindOnScreen',
+                request_serializer=sikuli_dot_v1_dot_sikuli__pb2.FindOnScreenRequest.SerializeToString,
+                response_deserializer=sikuli_dot_v1_dot_sikuli__pb2.FindResponse.FromString,
+                _registered_method=True)
+        self.ExistsOnScreen = channel.unary_unary(
+                '/sikuli.v1.SikuliService/ExistsOnScreen',
+                request_serializer=sikuli_dot_v1_dot_sikuli__pb2.ExistsOnScreenRequest.SerializeToString,
+                response_deserializer=sikuli_dot_v1_dot_sikuli__pb2.ExistsOnScreenResponse.FromString,
+                _registered_method=True)
+        self.WaitOnScreen = channel.unary_unary(
+                '/sikuli.v1.SikuliService/WaitOnScreen',
+                request_serializer=sikuli_dot_v1_dot_sikuli__pb2.WaitOnScreenRequest.SerializeToString,
+                response_deserializer=sikuli_dot_v1_dot_sikuli__pb2.FindResponse.FromString,
+                _registered_method=True)
+        self.ClickOnScreen = channel.unary_unary(
+                '/sikuli.v1.SikuliService/ClickOnScreen',
+                request_serializer=sikuli_dot_v1_dot_sikuli__pb2.ClickOnScreenRequest.SerializeToString,
+                response_deserializer=sikuli_dot_v1_dot_sikuli__pb2.FindResponse.FromString,
+                _registered_method=True)
         self.ReadText = channel.unary_unary(
                 '/sikuli.v1.SikuliService/ReadText',
                 request_serializer=sikuli_dot_v1_dot_sikuli__pb2.ReadTextRequest.SerializeToString,
@@ -106,6 +126,30 @@ class SikuliServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def FindAll(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def FindOnScreen(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ExistsOnScreen(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def WaitOnScreen(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ClickOnScreen(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -207,6 +251,26 @@ def add_SikuliServiceServicer_to_server(servicer, server):
                     servicer.FindAll,
                     request_deserializer=sikuli_dot_v1_dot_sikuli__pb2.FindRequest.FromString,
                     response_serializer=sikuli_dot_v1_dot_sikuli__pb2.FindAllResponse.SerializeToString,
+            ),
+            'FindOnScreen': grpc.unary_unary_rpc_method_handler(
+                    servicer.FindOnScreen,
+                    request_deserializer=sikuli_dot_v1_dot_sikuli__pb2.FindOnScreenRequest.FromString,
+                    response_serializer=sikuli_dot_v1_dot_sikuli__pb2.FindResponse.SerializeToString,
+            ),
+            'ExistsOnScreen': grpc.unary_unary_rpc_method_handler(
+                    servicer.ExistsOnScreen,
+                    request_deserializer=sikuli_dot_v1_dot_sikuli__pb2.ExistsOnScreenRequest.FromString,
+                    response_serializer=sikuli_dot_v1_dot_sikuli__pb2.ExistsOnScreenResponse.SerializeToString,
+            ),
+            'WaitOnScreen': grpc.unary_unary_rpc_method_handler(
+                    servicer.WaitOnScreen,
+                    request_deserializer=sikuli_dot_v1_dot_sikuli__pb2.WaitOnScreenRequest.FromString,
+                    response_serializer=sikuli_dot_v1_dot_sikuli__pb2.FindResponse.SerializeToString,
+            ),
+            'ClickOnScreen': grpc.unary_unary_rpc_method_handler(
+                    servicer.ClickOnScreen,
+                    request_deserializer=sikuli_dot_v1_dot_sikuli__pb2.ClickOnScreenRequest.FromString,
+                    response_serializer=sikuli_dot_v1_dot_sikuli__pb2.FindResponse.SerializeToString,
             ),
             'ReadText': grpc.unary_unary_rpc_method_handler(
                     servicer.ReadText,
@@ -333,6 +397,114 @@ class SikuliService(object):
             '/sikuli.v1.SikuliService/FindAll',
             sikuli_dot_v1_dot_sikuli__pb2.FindRequest.SerializeToString,
             sikuli_dot_v1_dot_sikuli__pb2.FindAllResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def FindOnScreen(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/sikuli.v1.SikuliService/FindOnScreen',
+            sikuli_dot_v1_dot_sikuli__pb2.FindOnScreenRequest.SerializeToString,
+            sikuli_dot_v1_dot_sikuli__pb2.FindResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ExistsOnScreen(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/sikuli.v1.SikuliService/ExistsOnScreen',
+            sikuli_dot_v1_dot_sikuli__pb2.ExistsOnScreenRequest.SerializeToString,
+            sikuli_dot_v1_dot_sikuli__pb2.ExistsOnScreenResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def WaitOnScreen(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/sikuli.v1.SikuliService/WaitOnScreen',
+            sikuli_dot_v1_dot_sikuli__pb2.WaitOnScreenRequest.SerializeToString,
+            sikuli_dot_v1_dot_sikuli__pb2.FindResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ClickOnScreen(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/sikuli.v1.SikuliService/ClickOnScreen',
+            sikuli_dot_v1_dot_sikuli__pb2.ClickOnScreenRequest.SerializeToString,
+            sikuli_dot_v1_dot_sikuli__pb2.FindResponse.FromString,
             options,
             channel_credentials,
             insecure,

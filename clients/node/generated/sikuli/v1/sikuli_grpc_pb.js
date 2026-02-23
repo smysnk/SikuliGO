@@ -26,6 +26,17 @@ function deserialize_sikuli_v1_AppActionRequest(buffer_arg) {
   return sikuli_v1_sikuli_pb.AppActionRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_sikuli_v1_ClickOnScreenRequest(arg) {
+  if (!(arg instanceof sikuli_v1_sikuli_pb.ClickOnScreenRequest)) {
+    throw new Error('Expected argument of type sikuli.v1.ClickOnScreenRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_sikuli_v1_ClickOnScreenRequest(buffer_arg) {
+  return sikuli_v1_sikuli_pb.ClickOnScreenRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_sikuli_v1_ClickRequest(arg) {
   if (!(arg instanceof sikuli_v1_sikuli_pb.ClickRequest)) {
     throw new Error('Expected argument of type sikuli.v1.ClickRequest');
@@ -37,6 +48,28 @@ function deserialize_sikuli_v1_ClickRequest(buffer_arg) {
   return sikuli_v1_sikuli_pb.ClickRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_sikuli_v1_ExistsOnScreenRequest(arg) {
+  if (!(arg instanceof sikuli_v1_sikuli_pb.ExistsOnScreenRequest)) {
+    throw new Error('Expected argument of type sikuli.v1.ExistsOnScreenRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_sikuli_v1_ExistsOnScreenRequest(buffer_arg) {
+  return sikuli_v1_sikuli_pb.ExistsOnScreenRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_sikuli_v1_ExistsOnScreenResponse(arg) {
+  if (!(arg instanceof sikuli_v1_sikuli_pb.ExistsOnScreenResponse)) {
+    throw new Error('Expected argument of type sikuli.v1.ExistsOnScreenResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_sikuli_v1_ExistsOnScreenResponse(buffer_arg) {
+  return sikuli_v1_sikuli_pb.ExistsOnScreenResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_sikuli_v1_FindAllResponse(arg) {
   if (!(arg instanceof sikuli_v1_sikuli_pb.FindAllResponse)) {
     throw new Error('Expected argument of type sikuli.v1.FindAllResponse');
@@ -46,6 +79,17 @@ function serialize_sikuli_v1_FindAllResponse(arg) {
 
 function deserialize_sikuli_v1_FindAllResponse(buffer_arg) {
   return sikuli_v1_sikuli_pb.FindAllResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_sikuli_v1_FindOnScreenRequest(arg) {
+  if (!(arg instanceof sikuli_v1_sikuli_pb.FindOnScreenRequest)) {
+    throw new Error('Expected argument of type sikuli.v1.FindOnScreenRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_sikuli_v1_FindOnScreenRequest(buffer_arg) {
+  return sikuli_v1_sikuli_pb.FindOnScreenRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_sikuli_v1_FindRequest(arg) {
@@ -202,6 +246,17 @@ function deserialize_sikuli_v1_TypeTextRequest(buffer_arg) {
   return sikuli_v1_sikuli_pb.TypeTextRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_sikuli_v1_WaitOnScreenRequest(arg) {
+  if (!(arg instanceof sikuli_v1_sikuli_pb.WaitOnScreenRequest)) {
+    throw new Error('Expected argument of type sikuli.v1.WaitOnScreenRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_sikuli_v1_WaitOnScreenRequest(buffer_arg) {
+  return sikuli_v1_sikuli_pb.WaitOnScreenRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 
 var SikuliServiceService = exports.SikuliServiceService = {
   find: {
@@ -225,6 +280,50 @@ var SikuliServiceService = exports.SikuliServiceService = {
     requestDeserialize: deserialize_sikuli_v1_FindRequest,
     responseSerialize: serialize_sikuli_v1_FindAllResponse,
     responseDeserialize: deserialize_sikuli_v1_FindAllResponse,
+  },
+  findOnScreen: {
+    path: '/sikuli.v1.SikuliService/FindOnScreen',
+    requestStream: false,
+    responseStream: false,
+    requestType: sikuli_v1_sikuli_pb.FindOnScreenRequest,
+    responseType: sikuli_v1_sikuli_pb.FindResponse,
+    requestSerialize: serialize_sikuli_v1_FindOnScreenRequest,
+    requestDeserialize: deserialize_sikuli_v1_FindOnScreenRequest,
+    responseSerialize: serialize_sikuli_v1_FindResponse,
+    responseDeserialize: deserialize_sikuli_v1_FindResponse,
+  },
+  existsOnScreen: {
+    path: '/sikuli.v1.SikuliService/ExistsOnScreen',
+    requestStream: false,
+    responseStream: false,
+    requestType: sikuli_v1_sikuli_pb.ExistsOnScreenRequest,
+    responseType: sikuli_v1_sikuli_pb.ExistsOnScreenResponse,
+    requestSerialize: serialize_sikuli_v1_ExistsOnScreenRequest,
+    requestDeserialize: deserialize_sikuli_v1_ExistsOnScreenRequest,
+    responseSerialize: serialize_sikuli_v1_ExistsOnScreenResponse,
+    responseDeserialize: deserialize_sikuli_v1_ExistsOnScreenResponse,
+  },
+  waitOnScreen: {
+    path: '/sikuli.v1.SikuliService/WaitOnScreen',
+    requestStream: false,
+    responseStream: false,
+    requestType: sikuli_v1_sikuli_pb.WaitOnScreenRequest,
+    responseType: sikuli_v1_sikuli_pb.FindResponse,
+    requestSerialize: serialize_sikuli_v1_WaitOnScreenRequest,
+    requestDeserialize: deserialize_sikuli_v1_WaitOnScreenRequest,
+    responseSerialize: serialize_sikuli_v1_FindResponse,
+    responseDeserialize: deserialize_sikuli_v1_FindResponse,
+  },
+  clickOnScreen: {
+    path: '/sikuli.v1.SikuliService/ClickOnScreen',
+    requestStream: false,
+    responseStream: false,
+    requestType: sikuli_v1_sikuli_pb.ClickOnScreenRequest,
+    responseType: sikuli_v1_sikuli_pb.FindResponse,
+    requestSerialize: serialize_sikuli_v1_ClickOnScreenRequest,
+    requestDeserialize: deserialize_sikuli_v1_ClickOnScreenRequest,
+    responseSerialize: serialize_sikuli_v1_FindResponse,
+    responseDeserialize: deserialize_sikuli_v1_FindResponse,
   },
   readText: {
     path: '/sikuli.v1.SikuliService/ReadText',

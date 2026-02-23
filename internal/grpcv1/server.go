@@ -18,6 +18,13 @@ type Server struct {
 	pb.UnimplementedSikuliServiceServer
 }
 
+var captureScreenFn = captureScreenImage
+
+var clickOnScreenFn = func(x, y int, opts sikuli.InputOptions) error {
+	c := sikuli.NewInputController()
+	return c.Click(x, y, opts)
+}
+
 func NewServer() *Server {
 	return &Server{}
 }
@@ -54,6 +61,95 @@ func (s *Server) FindAll(_ context.Context, req *pb.FindRequest) (*pb.FindAllRes
 	return &pb.FindAllResponse{Matches: toProtoMatches(matches)}, nil
 }
 
+func (s *Server) FindOnScreen(_ context.Context, req *pb.FindOnScreenRequest) (*pb.FindResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "request is nil")
+	}
+	match, err := s.findOnScreenOnce(req.GetPattern(), req.GetOpts())
+	if err != nil {
+		return nil, mapStatusError(err)
+	}
+	return &pb.FindResponse{Match: toProtoMatch(match)}, nil
+}
+
+func (s *Server) ExistsOnScreen(_ context.Context, req *pb.ExistsOnScreenRequest) (*pb.ExistsOnScreenResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "request is nil")
+	}
+	opts := screenQueryFromProto(req.GetOpts())
+	if opts.Timeout <= 0 {
+		match, err := s.findOnScreenOnce(req.GetPattern(), req.GetOpts())
+		if err != nil {
+			if errors.Is(err, sikuli.ErrFindFailed) {
+				return &pb.ExistsOnScreenResponse{Exists: false}, nil
+			}
+			return nil, mapStatusError(err)
+		}
+		return &pb.ExistsOnScreenResponse{Exists: true, Match: toProtoMatch(match)}, nil
+	}
+
+	deadline := time.Now().Add(opts.Timeout)
+	for {
+		match, err := s.findOnScreenOnce(req.GetPattern(), req.GetOpts())
+		if err == nil {
+			return &pb.ExistsOnScreenResponse{Exists: true, Match: toProtoMatch(match)}, nil
+		}
+		if !errors.Is(err, sikuli.ErrFindFailed) {
+			return nil, mapStatusError(err)
+		}
+		if !time.Now().Before(deadline) {
+			return &pb.ExistsOnScreenResponse{Exists: false}, nil
+		}
+		time.Sleep(waitInterval(opts.Interval, deadline))
+	}
+}
+
+func (s *Server) WaitOnScreen(_ context.Context, req *pb.WaitOnScreenRequest) (*pb.FindResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "request is nil")
+	}
+	opts := screenQueryFromProto(req.GetOpts())
+	if opts.Timeout <= 0 {
+		opts.Timeout = time.Duration(sikuli.DefaultAutoWaitTimeout * float64(time.Second))
+	}
+	deadline := time.Now().Add(opts.Timeout)
+	for {
+		match, err := s.findOnScreenOnce(req.GetPattern(), req.GetOpts())
+		if err == nil {
+			return &pb.FindResponse{Match: toProtoMatch(match)}, nil
+		}
+		if !errors.Is(err, sikuli.ErrFindFailed) {
+			return nil, mapStatusError(err)
+		}
+		if !time.Now().Before(deadline) {
+			return nil, mapStatusError(sikuli.ErrTimeout)
+		}
+		time.Sleep(waitInterval(opts.Interval, deadline))
+	}
+}
+
+func (s *Server) ClickOnScreen(ctx context.Context, req *pb.ClickOnScreenRequest) (*pb.FindResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "request is nil")
+	}
+	waitReq := &pb.WaitOnScreenRequest{
+		Pattern: req.GetPattern(),
+		Opts:    req.GetOpts(),
+	}
+	found, err := s.WaitOnScreen(ctx, waitReq)
+	if err != nil {
+		return nil, err
+	}
+	match := found.GetMatch()
+	if match == nil || match.GetTarget() == nil {
+		return nil, status.Error(codes.Internal, "match target missing")
+	}
+	if err := clickOnScreenFn(int(match.GetTarget().GetX()), int(match.GetTarget().GetY()), inputOptionsFromProto(req.GetClickOpts())); err != nil {
+		return nil, mapStatusError(err)
+	}
+	return found, nil
+}
+
 func (s *Server) ReadText(_ context.Context, req *pb.ReadTextRequest) (*pb.ReadTextResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "request is nil")
@@ -71,6 +167,72 @@ func (s *Server) ReadText(_ context.Context, req *pb.ReadTextRequest) (*pb.ReadT
 		return nil, mapStatusError(err)
 	}
 	return &pb.ReadTextResponse{Text: text}, nil
+}
+
+type screenQuery struct {
+	Region   sikuli.Region
+	Timeout  time.Duration
+	Interval time.Duration
+}
+
+func screenQueryFromProto(in *pb.ScreenQueryOptions) screenQuery {
+	out := screenQuery{
+		Region:   sikuli.NewRegion(0, 0, 0, 0),
+		Timeout:  0,
+		Interval: time.Millisecond * 100,
+	}
+	if in == nil {
+		return out
+	}
+	out.Region = regionFromProto(in.GetRegion())
+	if in.TimeoutMillis != nil {
+		out.Timeout = durationMillis(in.GetTimeoutMillis())
+		if out.Timeout < 0 {
+			out.Timeout = 0
+		}
+	}
+	if in.IntervalMillis != nil {
+		out.Interval = durationMillis(in.GetIntervalMillis())
+		if out.Interval <= 0 {
+			out.Interval = time.Millisecond * 100
+		}
+	}
+	return out
+}
+
+func waitInterval(interval time.Duration, deadline time.Time) time.Duration {
+	remaining := time.Until(deadline)
+	if remaining <= 0 {
+		return 0
+	}
+	if interval <= 0 {
+		interval = time.Millisecond * 100
+	}
+	if interval > remaining {
+		return remaining
+	}
+	return interval
+}
+
+func (s *Server) findOnScreenOnce(patternReq *pb.Pattern, optsReq *pb.ScreenQueryOptions) (sikuli.Match, error) {
+	pattern, err := patternFromProto(patternReq)
+	if err != nil {
+		return sikuli.Match{}, err
+	}
+	source, err := captureScreenFn("screen")
+	if err != nil {
+		return sikuli.Match{}, err
+	}
+
+	opts := screenQueryFromProto(optsReq)
+	if opts.Region.Empty() {
+		f, err := sikuli.NewFinder(source)
+		if err != nil {
+			return sikuli.Match{}, err
+		}
+		return f.Find(pattern)
+	}
+	return opts.Region.Find(source, pattern)
 }
 
 func (s *Server) FindText(_ context.Context, req *pb.FindTextRequest) (*pb.FindTextResponse, error) {

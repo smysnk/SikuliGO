@@ -19,22 +19,26 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	SikuliService_Find_FullMethodName          = "/sikuli.v1.SikuliService/Find"
-	SikuliService_FindAll_FullMethodName       = "/sikuli.v1.SikuliService/FindAll"
-	SikuliService_ReadText_FullMethodName      = "/sikuli.v1.SikuliService/ReadText"
-	SikuliService_FindText_FullMethodName      = "/sikuli.v1.SikuliService/FindText"
-	SikuliService_MoveMouse_FullMethodName     = "/sikuli.v1.SikuliService/MoveMouse"
-	SikuliService_Click_FullMethodName         = "/sikuli.v1.SikuliService/Click"
-	SikuliService_TypeText_FullMethodName      = "/sikuli.v1.SikuliService/TypeText"
-	SikuliService_Hotkey_FullMethodName        = "/sikuli.v1.SikuliService/Hotkey"
-	SikuliService_ObserveAppear_FullMethodName = "/sikuli.v1.SikuliService/ObserveAppear"
-	SikuliService_ObserveVanish_FullMethodName = "/sikuli.v1.SikuliService/ObserveVanish"
-	SikuliService_ObserveChange_FullMethodName = "/sikuli.v1.SikuliService/ObserveChange"
-	SikuliService_OpenApp_FullMethodName       = "/sikuli.v1.SikuliService/OpenApp"
-	SikuliService_FocusApp_FullMethodName      = "/sikuli.v1.SikuliService/FocusApp"
-	SikuliService_CloseApp_FullMethodName      = "/sikuli.v1.SikuliService/CloseApp"
-	SikuliService_IsAppRunning_FullMethodName  = "/sikuli.v1.SikuliService/IsAppRunning"
-	SikuliService_ListWindows_FullMethodName   = "/sikuli.v1.SikuliService/ListWindows"
+	SikuliService_Find_FullMethodName           = "/sikuli.v1.SikuliService/Find"
+	SikuliService_FindAll_FullMethodName        = "/sikuli.v1.SikuliService/FindAll"
+	SikuliService_FindOnScreen_FullMethodName   = "/sikuli.v1.SikuliService/FindOnScreen"
+	SikuliService_ExistsOnScreen_FullMethodName = "/sikuli.v1.SikuliService/ExistsOnScreen"
+	SikuliService_WaitOnScreen_FullMethodName   = "/sikuli.v1.SikuliService/WaitOnScreen"
+	SikuliService_ClickOnScreen_FullMethodName  = "/sikuli.v1.SikuliService/ClickOnScreen"
+	SikuliService_ReadText_FullMethodName       = "/sikuli.v1.SikuliService/ReadText"
+	SikuliService_FindText_FullMethodName       = "/sikuli.v1.SikuliService/FindText"
+	SikuliService_MoveMouse_FullMethodName      = "/sikuli.v1.SikuliService/MoveMouse"
+	SikuliService_Click_FullMethodName          = "/sikuli.v1.SikuliService/Click"
+	SikuliService_TypeText_FullMethodName       = "/sikuli.v1.SikuliService/TypeText"
+	SikuliService_Hotkey_FullMethodName         = "/sikuli.v1.SikuliService/Hotkey"
+	SikuliService_ObserveAppear_FullMethodName  = "/sikuli.v1.SikuliService/ObserveAppear"
+	SikuliService_ObserveVanish_FullMethodName  = "/sikuli.v1.SikuliService/ObserveVanish"
+	SikuliService_ObserveChange_FullMethodName  = "/sikuli.v1.SikuliService/ObserveChange"
+	SikuliService_OpenApp_FullMethodName        = "/sikuli.v1.SikuliService/OpenApp"
+	SikuliService_FocusApp_FullMethodName       = "/sikuli.v1.SikuliService/FocusApp"
+	SikuliService_CloseApp_FullMethodName       = "/sikuli.v1.SikuliService/CloseApp"
+	SikuliService_IsAppRunning_FullMethodName   = "/sikuli.v1.SikuliService/IsAppRunning"
+	SikuliService_ListWindows_FullMethodName    = "/sikuli.v1.SikuliService/ListWindows"
 )
 
 // SikuliServiceClient is the client API for SikuliService service.
@@ -43,6 +47,10 @@ const (
 type SikuliServiceClient interface {
 	Find(ctx context.Context, in *FindRequest, opts ...grpc.CallOption) (*FindResponse, error)
 	FindAll(ctx context.Context, in *FindRequest, opts ...grpc.CallOption) (*FindAllResponse, error)
+	FindOnScreen(ctx context.Context, in *FindOnScreenRequest, opts ...grpc.CallOption) (*FindResponse, error)
+	ExistsOnScreen(ctx context.Context, in *ExistsOnScreenRequest, opts ...grpc.CallOption) (*ExistsOnScreenResponse, error)
+	WaitOnScreen(ctx context.Context, in *WaitOnScreenRequest, opts ...grpc.CallOption) (*FindResponse, error)
+	ClickOnScreen(ctx context.Context, in *ClickOnScreenRequest, opts ...grpc.CallOption) (*FindResponse, error)
 	ReadText(ctx context.Context, in *ReadTextRequest, opts ...grpc.CallOption) (*ReadTextResponse, error)
 	FindText(ctx context.Context, in *FindTextRequest, opts ...grpc.CallOption) (*FindTextResponse, error)
 	MoveMouse(ctx context.Context, in *MoveMouseRequest, opts ...grpc.CallOption) (*ActionResponse, error)
@@ -81,6 +89,46 @@ func (c *sikuliServiceClient) FindAll(ctx context.Context, in *FindRequest, opts
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(FindAllResponse)
 	err := c.cc.Invoke(ctx, SikuliService_FindAll_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *sikuliServiceClient) FindOnScreen(ctx context.Context, in *FindOnScreenRequest, opts ...grpc.CallOption) (*FindResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(FindResponse)
+	err := c.cc.Invoke(ctx, SikuliService_FindOnScreen_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *sikuliServiceClient) ExistsOnScreen(ctx context.Context, in *ExistsOnScreenRequest, opts ...grpc.CallOption) (*ExistsOnScreenResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ExistsOnScreenResponse)
+	err := c.cc.Invoke(ctx, SikuliService_ExistsOnScreen_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *sikuliServiceClient) WaitOnScreen(ctx context.Context, in *WaitOnScreenRequest, opts ...grpc.CallOption) (*FindResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(FindResponse)
+	err := c.cc.Invoke(ctx, SikuliService_WaitOnScreen_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *sikuliServiceClient) ClickOnScreen(ctx context.Context, in *ClickOnScreenRequest, opts ...grpc.CallOption) (*FindResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(FindResponse)
+	err := c.cc.Invoke(ctx, SikuliService_ClickOnScreen_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -233,6 +281,10 @@ func (c *sikuliServiceClient) ListWindows(ctx context.Context, in *AppActionRequ
 type SikuliServiceServer interface {
 	Find(context.Context, *FindRequest) (*FindResponse, error)
 	FindAll(context.Context, *FindRequest) (*FindAllResponse, error)
+	FindOnScreen(context.Context, *FindOnScreenRequest) (*FindResponse, error)
+	ExistsOnScreen(context.Context, *ExistsOnScreenRequest) (*ExistsOnScreenResponse, error)
+	WaitOnScreen(context.Context, *WaitOnScreenRequest) (*FindResponse, error)
+	ClickOnScreen(context.Context, *ClickOnScreenRequest) (*FindResponse, error)
 	ReadText(context.Context, *ReadTextRequest) (*ReadTextResponse, error)
 	FindText(context.Context, *FindTextRequest) (*FindTextResponse, error)
 	MoveMouse(context.Context, *MoveMouseRequest) (*ActionResponse, error)
@@ -262,6 +314,18 @@ func (UnimplementedSikuliServiceServer) Find(context.Context, *FindRequest) (*Fi
 }
 func (UnimplementedSikuliServiceServer) FindAll(context.Context, *FindRequest) (*FindAllResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindAll not implemented")
+}
+func (UnimplementedSikuliServiceServer) FindOnScreen(context.Context, *FindOnScreenRequest) (*FindResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindOnScreen not implemented")
+}
+func (UnimplementedSikuliServiceServer) ExistsOnScreen(context.Context, *ExistsOnScreenRequest) (*ExistsOnScreenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ExistsOnScreen not implemented")
+}
+func (UnimplementedSikuliServiceServer) WaitOnScreen(context.Context, *WaitOnScreenRequest) (*FindResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WaitOnScreen not implemented")
+}
+func (UnimplementedSikuliServiceServer) ClickOnScreen(context.Context, *ClickOnScreenRequest) (*FindResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ClickOnScreen not implemented")
 }
 func (UnimplementedSikuliServiceServer) ReadText(context.Context, *ReadTextRequest) (*ReadTextResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReadText not implemented")
@@ -358,6 +422,78 @@ func _SikuliService_FindAll_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SikuliServiceServer).FindAll(ctx, req.(*FindRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SikuliService_FindOnScreen_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindOnScreenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SikuliServiceServer).FindOnScreen(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SikuliService_FindOnScreen_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SikuliServiceServer).FindOnScreen(ctx, req.(*FindOnScreenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SikuliService_ExistsOnScreen_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExistsOnScreenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SikuliServiceServer).ExistsOnScreen(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SikuliService_ExistsOnScreen_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SikuliServiceServer).ExistsOnScreen(ctx, req.(*ExistsOnScreenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SikuliService_WaitOnScreen_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WaitOnScreenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SikuliServiceServer).WaitOnScreen(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SikuliService_WaitOnScreen_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SikuliServiceServer).WaitOnScreen(ctx, req.(*WaitOnScreenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SikuliService_ClickOnScreen_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ClickOnScreenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SikuliServiceServer).ClickOnScreen(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SikuliService_ClickOnScreen_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SikuliServiceServer).ClickOnScreen(ctx, req.(*ClickOnScreenRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -628,6 +764,22 @@ var SikuliService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FindAll",
 			Handler:    _SikuliService_FindAll_Handler,
+		},
+		{
+			MethodName: "FindOnScreen",
+			Handler:    _SikuliService_FindOnScreen_Handler,
+		},
+		{
+			MethodName: "ExistsOnScreen",
+			Handler:    _SikuliService_ExistsOnScreen_Handler,
+		},
+		{
+			MethodName: "WaitOnScreen",
+			Handler:    _SikuliService_WaitOnScreen_Handler,
+		},
+		{
+			MethodName: "ClickOnScreen",
+			Handler:    _SikuliService_ClickOnScreen_Handler,
 		},
 		{
 			MethodName: "ReadText",

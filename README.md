@@ -23,27 +23,28 @@ Sikuli is an open-source tool for automating anything visible on a computer scre
 
 ## Python
 ```python
-from generated.sikuli.v1 import sikuli_pb2 as pb
 from sikuligo_client.client import SikuliGrpcClient
 
 client = SikuliGrpcClient(address="127.0.0.1:50051")
 try:
-    client.click(pb.ClickRequest(x=300, y=220))
-    client.type_text(pb.TypeTextRequest(text="hello from sikuligo"))
-    client.hotkey(pb.HotkeyRequest(keys=["cmd", "enter"]))
+    match = client.click_on_screen("assets/pattern.png", exact=True, timeout_millis=5000)
+    print(match.match.target.x, match.match.target.y)
 finally:
     client.close()
 ```
 
 ## Node
 ```ts
-import { Sikuli } from "@sikuligo/sikuligo";
+import { Screen, Pattern } from "@sikuligo/sikuligo";
 
-const bot = await Sikuli.launch();
-await bot.click({ x: 300, y: 220 });
-await bot.typeText("hello");
-await bot.hotkey(["cmd", "enter"]);
-await bot.close();
+const screen = await Screen.start();
+try {
+  const pattern = new Pattern("assets/pattern.png").exact();
+  const match = await screen.click(pattern);
+  console.log(match.targetX, match.targetY);
+} finally {
+  await screen.close();
+}
 ```
 
 ## Example: Dashboard

@@ -153,12 +153,20 @@ export class SikuliGrpcClient {
     });
   }
 
-  find(request: RpcMessage, opts?: UnaryCallOptions): Promise<RpcMessage> {
-    return this.unary("Find", request, opts);
+  findOnScreen(request: RpcMessage, opts?: UnaryCallOptions): Promise<RpcMessage> {
+    return this.unary("FindOnScreen", request, opts);
   }
 
-  findAll(request: RpcMessage, opts?: UnaryCallOptions): Promise<RpcMessage> {
-    return this.unary("FindAll", request, opts);
+  existsOnScreen(request: RpcMessage, opts?: UnaryCallOptions): Promise<RpcMessage> {
+    return this.unary("ExistsOnScreen", request, opts);
+  }
+
+  waitOnScreen(request: RpcMessage, opts?: UnaryCallOptions): Promise<RpcMessage> {
+    return this.unary("WaitOnScreen", request, opts);
+  }
+
+  clickOnScreen(request: RpcMessage, opts?: UnaryCallOptions): Promise<RpcMessage> {
+    return this.unary("ClickOnScreen", request, opts);
   }
 
   readText(request: RpcMessage, opts?: UnaryCallOptions): Promise<RpcMessage> {

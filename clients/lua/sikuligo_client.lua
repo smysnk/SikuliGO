@@ -167,12 +167,20 @@ function Client:invoke(method_name, payload, headers)
   return output, nil
 end
 
-function Client:find(request, headers)
-  return self:invoke("Find", request, headers)
+function Client:find_on_screen(request, headers)
+  return self:invoke("FindOnScreen", request, headers)
 end
 
-function Client:find_all(request, headers)
-  return self:invoke("FindAll", request, headers)
+function Client:exists_on_screen(request, headers)
+  return self:invoke("ExistsOnScreen", request, headers)
+end
+
+function Client:wait_on_screen(request, headers)
+  return self:invoke("WaitOnScreen", request, headers)
+end
+
+function Client:click_on_screen(request, headers)
+  return self:invoke("ClickOnScreen", request, headers)
 end
 
 function Client:read_text(request, headers)

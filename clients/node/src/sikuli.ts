@@ -74,12 +74,20 @@ export class Sikuli {
     await stopSpawnedProcess(this.child);
   }
 
-  async find(request: RpcMessage, opts?: UnaryCallOptions): Promise<RpcMessage> {
-    return await this.client.find(request, opts);
+  async findOnScreen(request: RpcMessage, opts?: UnaryCallOptions): Promise<RpcMessage> {
+    return await this.client.findOnScreen(request, opts);
   }
 
-  async findAll(request: RpcMessage, opts?: UnaryCallOptions): Promise<RpcMessage> {
-    return await this.client.findAll(request, opts);
+  async existsOnScreen(request: RpcMessage, opts?: UnaryCallOptions): Promise<RpcMessage> {
+    return await this.client.existsOnScreen(request, opts);
+  }
+
+  async waitOnScreen(request: RpcMessage, opts?: UnaryCallOptions): Promise<RpcMessage> {
+    return await this.client.waitOnScreen(request, opts);
+  }
+
+  async clickOnScreen(request: RpcMessage, opts?: UnaryCallOptions): Promise<RpcMessage> {
+    return await this.client.clickOnScreen(request, opts);
   }
 
   async readText(request: RpcMessage, opts?: UnaryCallOptions): Promise<RpcMessage> {

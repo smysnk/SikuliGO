@@ -18,7 +18,6 @@ if [[ ! -x "node_modules/.bin/tsc" ]]; then
   exit 1
 fi
 
-npm run generate
 npm run build
 npm pack --dry-run
 

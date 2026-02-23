@@ -93,6 +93,38 @@ message FindAllResponse {
   repeated Match matches = 1;
 }
 
+message ScreenQueryOptions {
+  Rect region = 1;
+  optional int64 timeout_millis = 2;
+  optional int64 interval_millis = 3;
+}
+
+message FindOnScreenRequest {
+  Pattern pattern = 1;
+  ScreenQueryOptions opts = 2;
+}
+
+message ExistsOnScreenRequest {
+  Pattern pattern = 1;
+  ScreenQueryOptions opts = 2;
+}
+
+message ExistsOnScreenResponse {
+  bool exists = 1;
+  Match match = 2;
+}
+
+message WaitOnScreenRequest {
+  Pattern pattern = 1;
+  ScreenQueryOptions opts = 2;
+}
+
+message ClickOnScreenRequest {
+  Pattern pattern = 1;
+  ScreenQueryOptions opts = 2;
+  InputOptions click_opts = 3;
+}
+
 message ReadTextRequest {
   GrayImage source = 1;
   OCRParams params = 2;
@@ -169,6 +201,10 @@ message ListWindowsResponse {
 service SikuliService {
   rpc Find(FindRequest) returns (FindResponse);
   rpc FindAll(FindRequest) returns (FindAllResponse);
+  rpc FindOnScreen(FindOnScreenRequest) returns (FindResponse);
+  rpc ExistsOnScreen(ExistsOnScreenRequest) returns (ExistsOnScreenResponse);
+  rpc WaitOnScreen(WaitOnScreenRequest) returns (FindResponse);
+  rpc ClickOnScreen(ClickOnScreenRequest) returns (FindResponse);
 
   rpc ReadText(ReadTextRequest) returns (ReadTextResponse);
   rpc FindText(FindTextRequest) returns (FindTextResponse);

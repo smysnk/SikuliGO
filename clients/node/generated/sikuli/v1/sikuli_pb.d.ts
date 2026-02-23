@@ -460,6 +460,189 @@ export namespace FindAllResponse {
     }
 }
 
+export class ScreenQueryOptions extends jspb.Message { 
+
+    hasRegion(): boolean;
+    clearRegion(): void;
+    getRegion(): Rect | undefined;
+    setRegion(value?: Rect): ScreenQueryOptions;
+
+    hasTimeoutMillis(): boolean;
+    clearTimeoutMillis(): void;
+    getTimeoutMillis(): number | undefined;
+    setTimeoutMillis(value: number): ScreenQueryOptions;
+
+    hasIntervalMillis(): boolean;
+    clearIntervalMillis(): void;
+    getIntervalMillis(): number | undefined;
+    setIntervalMillis(value: number): ScreenQueryOptions;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): ScreenQueryOptions.AsObject;
+    static toObject(includeInstance: boolean, msg: ScreenQueryOptions): ScreenQueryOptions.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: ScreenQueryOptions, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): ScreenQueryOptions;
+    static deserializeBinaryFromReader(message: ScreenQueryOptions, reader: jspb.BinaryReader): ScreenQueryOptions;
+}
+
+export namespace ScreenQueryOptions {
+    export type AsObject = {
+        region?: Rect.AsObject,
+        timeoutMillis?: number,
+        intervalMillis?: number,
+    }
+}
+
+export class FindOnScreenRequest extends jspb.Message { 
+
+    hasPattern(): boolean;
+    clearPattern(): void;
+    getPattern(): Pattern | undefined;
+    setPattern(value?: Pattern): FindOnScreenRequest;
+
+    hasOpts(): boolean;
+    clearOpts(): void;
+    getOpts(): ScreenQueryOptions | undefined;
+    setOpts(value?: ScreenQueryOptions): FindOnScreenRequest;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): FindOnScreenRequest.AsObject;
+    static toObject(includeInstance: boolean, msg: FindOnScreenRequest): FindOnScreenRequest.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: FindOnScreenRequest, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): FindOnScreenRequest;
+    static deserializeBinaryFromReader(message: FindOnScreenRequest, reader: jspb.BinaryReader): FindOnScreenRequest;
+}
+
+export namespace FindOnScreenRequest {
+    export type AsObject = {
+        pattern?: Pattern.AsObject,
+        opts?: ScreenQueryOptions.AsObject,
+    }
+}
+
+export class ExistsOnScreenRequest extends jspb.Message { 
+
+    hasPattern(): boolean;
+    clearPattern(): void;
+    getPattern(): Pattern | undefined;
+    setPattern(value?: Pattern): ExistsOnScreenRequest;
+
+    hasOpts(): boolean;
+    clearOpts(): void;
+    getOpts(): ScreenQueryOptions | undefined;
+    setOpts(value?: ScreenQueryOptions): ExistsOnScreenRequest;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): ExistsOnScreenRequest.AsObject;
+    static toObject(includeInstance: boolean, msg: ExistsOnScreenRequest): ExistsOnScreenRequest.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: ExistsOnScreenRequest, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): ExistsOnScreenRequest;
+    static deserializeBinaryFromReader(message: ExistsOnScreenRequest, reader: jspb.BinaryReader): ExistsOnScreenRequest;
+}
+
+export namespace ExistsOnScreenRequest {
+    export type AsObject = {
+        pattern?: Pattern.AsObject,
+        opts?: ScreenQueryOptions.AsObject,
+    }
+}
+
+export class ExistsOnScreenResponse extends jspb.Message { 
+    getExists(): boolean;
+    setExists(value: boolean): ExistsOnScreenResponse;
+
+    hasMatch(): boolean;
+    clearMatch(): void;
+    getMatch(): Match | undefined;
+    setMatch(value?: Match): ExistsOnScreenResponse;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): ExistsOnScreenResponse.AsObject;
+    static toObject(includeInstance: boolean, msg: ExistsOnScreenResponse): ExistsOnScreenResponse.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: ExistsOnScreenResponse, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): ExistsOnScreenResponse;
+    static deserializeBinaryFromReader(message: ExistsOnScreenResponse, reader: jspb.BinaryReader): ExistsOnScreenResponse;
+}
+
+export namespace ExistsOnScreenResponse {
+    export type AsObject = {
+        exists: boolean,
+        match?: Match.AsObject,
+    }
+}
+
+export class WaitOnScreenRequest extends jspb.Message { 
+
+    hasPattern(): boolean;
+    clearPattern(): void;
+    getPattern(): Pattern | undefined;
+    setPattern(value?: Pattern): WaitOnScreenRequest;
+
+    hasOpts(): boolean;
+    clearOpts(): void;
+    getOpts(): ScreenQueryOptions | undefined;
+    setOpts(value?: ScreenQueryOptions): WaitOnScreenRequest;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): WaitOnScreenRequest.AsObject;
+    static toObject(includeInstance: boolean, msg: WaitOnScreenRequest): WaitOnScreenRequest.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: WaitOnScreenRequest, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): WaitOnScreenRequest;
+    static deserializeBinaryFromReader(message: WaitOnScreenRequest, reader: jspb.BinaryReader): WaitOnScreenRequest;
+}
+
+export namespace WaitOnScreenRequest {
+    export type AsObject = {
+        pattern?: Pattern.AsObject,
+        opts?: ScreenQueryOptions.AsObject,
+    }
+}
+
+export class ClickOnScreenRequest extends jspb.Message { 
+
+    hasPattern(): boolean;
+    clearPattern(): void;
+    getPattern(): Pattern | undefined;
+    setPattern(value?: Pattern): ClickOnScreenRequest;
+
+    hasOpts(): boolean;
+    clearOpts(): void;
+    getOpts(): ScreenQueryOptions | undefined;
+    setOpts(value?: ScreenQueryOptions): ClickOnScreenRequest;
+
+    hasClickOpts(): boolean;
+    clearClickOpts(): void;
+    getClickOpts(): InputOptions | undefined;
+    setClickOpts(value?: InputOptions): ClickOnScreenRequest;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): ClickOnScreenRequest.AsObject;
+    static toObject(includeInstance: boolean, msg: ClickOnScreenRequest): ClickOnScreenRequest.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: ClickOnScreenRequest, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): ClickOnScreenRequest;
+    static deserializeBinaryFromReader(message: ClickOnScreenRequest, reader: jspb.BinaryReader): ClickOnScreenRequest;
+}
+
+export namespace ClickOnScreenRequest {
+    export type AsObject = {
+        pattern?: Pattern.AsObject,
+        opts?: ScreenQueryOptions.AsObject,
+        clickOpts?: InputOptions.AsObject,
+    }
+}
+
 export class ReadTextRequest extends jspb.Message { 
 
     hasSource(): boolean;

@@ -28,29 +28,23 @@ local client = sikuligo.new({
   protoset = script_dir .. "../generated/sikuli.protoset"
 })
 
-local source = gray_image("source", {
-  { 10, 10, 10, 10, 10, 10, 10, 10 },
-  { 10, 0, 255, 10, 10, 10, 10, 10 },
-  { 10, 255, 0, 10, 0, 255, 10, 10 },
-  { 10, 10, 10, 10, 255, 0, 10, 10 },
-  { 10, 10, 10, 10, 10, 10, 10, 10 }
-})
-
 local needle = gray_image("needle", {
   { 0, 255 },
   { 255, 0 }
 })
 
-local response, err = client:find({
-  source = source,
+local response, err = client:exists_on_screen({
   pattern = {
     image = needle,
     exact = true
+  },
+  opts = {
+    timeout_millis = 250
   }
 })
 
 if err ~= nil then
-  io.stderr:write("find failed:\n" .. err .. "\n")
+  io.stderr:write("exists_on_screen failed:\n" .. err .. "\n")
   os.exit(1)
 end
 
