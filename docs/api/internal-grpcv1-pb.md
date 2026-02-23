@@ -20,8 +20,12 @@ Package: `package sikuliv1 // import "github.com/sikulix/portgo/internal/grpcv1/
 - <span class="api-type">[`ActionResponse`](#type-actionresponse)</span>
 - <span class="api-type">[`AppActionRequest`](#type-appactionrequest)</span>
 - <span class="api-type">[`AppOptions`](#type-appoptions)</span>
+- <span class="api-type">[`ClickOnScreenRequest`](#type-clickonscreenrequest)</span>
 - <span class="api-type">[`ClickRequest`](#type-clickrequest)</span>
+- <span class="api-type">[`ExistsOnScreenRequest`](#type-existsonscreenrequest)</span>
+- <span class="api-type">[`ExistsOnScreenResponse`](#type-existsonscreenresponse)</span>
 - <span class="api-type">[`FindAllResponse`](#type-findallresponse)</span>
+- <span class="api-type">[`FindOnScreenRequest`](#type-findonscreenrequest)</span>
 - <span class="api-type">[`FindRequest`](#type-findrequest)</span>
 - <span class="api-type">[`FindResponse`](#type-findresponse)</span>
 - <span class="api-type">[`FindTextRequest`](#type-findtextrequest)</span>
@@ -44,12 +48,14 @@ Package: `package sikuliv1 // import "github.com/sikulix/portgo/internal/grpcv1/
 - <span class="api-type">[`ReadTextRequest`](#type-readtextrequest)</span>
 - <span class="api-type">[`ReadTextResponse`](#type-readtextresponse)</span>
 - <span class="api-type">[`Rect`](#type-rect)</span>
+- <span class="api-type">[`ScreenQueryOptions`](#type-screenqueryoptions)</span>
 - <span class="api-type">[`SikuliServiceClient`](#type-sikuliserviceclient)</span>
 - <span class="api-type">[`SikuliServiceServer`](#type-sikuliserviceserver)</span>
 - <span class="api-type">[`TextMatch`](#type-textmatch)</span>
 - <span class="api-type">[`TypeTextRequest`](#type-typetextrequest)</span>
 - <span class="api-type">[`UnimplementedSikuliServiceServer`](#type-unimplementedsikuliserviceserver)</span>
 - <span class="api-type">[`UnsafeSikuliServiceServer`](#type-unsafesikuliserviceserver)</span>
+- <span class="api-type">[`WaitOnScreenRequest`](#type-waitonscreenrequest)</span>
 - <span class="api-type">[`Window`](#type-window)</span>
 
 ### Functions
@@ -78,6 +84,14 @@ Package: `package sikuliv1 // import "github.com/sikulix/portgo/internal/grpcv1/
 - <span class="api-method">[`AppOptions.ProtoReflect`](#method-appoptions-protoreflect)</span>
 - <span class="api-method">[`AppOptions.Reset`](#method-appoptions-reset)</span>
 - <span class="api-method">[`AppOptions.String`](#method-appoptions-string)</span>
+- <span class="api-method">[`ClickOnScreenRequest.Descriptor`](#method-clickonscreenrequest-descriptor)</span>
+- <span class="api-method">[`ClickOnScreenRequest.GetClickOpts`](#method-clickonscreenrequest-getclickopts)</span>
+- <span class="api-method">[`ClickOnScreenRequest.GetOpts`](#method-clickonscreenrequest-getopts)</span>
+- <span class="api-method">[`ClickOnScreenRequest.GetPattern`](#method-clickonscreenrequest-getpattern)</span>
+- <span class="api-method">[`ClickOnScreenRequest.ProtoMessage`](#method-clickonscreenrequest-protomessage)</span>
+- <span class="api-method">[`ClickOnScreenRequest.ProtoReflect`](#method-clickonscreenrequest-protoreflect)</span>
+- <span class="api-method">[`ClickOnScreenRequest.Reset`](#method-clickonscreenrequest-reset)</span>
+- <span class="api-method">[`ClickOnScreenRequest.String`](#method-clickonscreenrequest-string)</span>
 - <span class="api-method">[`ClickRequest.Descriptor`](#method-clickrequest-descriptor)</span>
 - <span class="api-method">[`ClickRequest.GetOpts`](#method-clickrequest-getopts)</span>
 - <span class="api-method">[`ClickRequest.GetX`](#method-clickrequest-getx)</span>
@@ -86,12 +100,33 @@ Package: `package sikuliv1 // import "github.com/sikulix/portgo/internal/grpcv1/
 - <span class="api-method">[`ClickRequest.ProtoReflect`](#method-clickrequest-protoreflect)</span>
 - <span class="api-method">[`ClickRequest.Reset`](#method-clickrequest-reset)</span>
 - <span class="api-method">[`ClickRequest.String`](#method-clickrequest-string)</span>
+- <span class="api-method">[`ExistsOnScreenRequest.Descriptor`](#method-existsonscreenrequest-descriptor)</span>
+- <span class="api-method">[`ExistsOnScreenRequest.GetOpts`](#method-existsonscreenrequest-getopts)</span>
+- <span class="api-method">[`ExistsOnScreenRequest.GetPattern`](#method-existsonscreenrequest-getpattern)</span>
+- <span class="api-method">[`ExistsOnScreenRequest.ProtoMessage`](#method-existsonscreenrequest-protomessage)</span>
+- <span class="api-method">[`ExistsOnScreenRequest.ProtoReflect`](#method-existsonscreenrequest-protoreflect)</span>
+- <span class="api-method">[`ExistsOnScreenRequest.Reset`](#method-existsonscreenrequest-reset)</span>
+- <span class="api-method">[`ExistsOnScreenRequest.String`](#method-existsonscreenrequest-string)</span>
+- <span class="api-method">[`ExistsOnScreenResponse.Descriptor`](#method-existsonscreenresponse-descriptor)</span>
+- <span class="api-method">[`ExistsOnScreenResponse.GetExists`](#method-existsonscreenresponse-getexists)</span>
+- <span class="api-method">[`ExistsOnScreenResponse.GetMatch`](#method-existsonscreenresponse-getmatch)</span>
+- <span class="api-method">[`ExistsOnScreenResponse.ProtoMessage`](#method-existsonscreenresponse-protomessage)</span>
+- <span class="api-method">[`ExistsOnScreenResponse.ProtoReflect`](#method-existsonscreenresponse-protoreflect)</span>
+- <span class="api-method">[`ExistsOnScreenResponse.Reset`](#method-existsonscreenresponse-reset)</span>
+- <span class="api-method">[`ExistsOnScreenResponse.String`](#method-existsonscreenresponse-string)</span>
 - <span class="api-method">[`FindAllResponse.Descriptor`](#method-findallresponse-descriptor)</span>
 - <span class="api-method">[`FindAllResponse.GetMatches`](#method-findallresponse-getmatches)</span>
 - <span class="api-method">[`FindAllResponse.ProtoMessage`](#method-findallresponse-protomessage)</span>
 - <span class="api-method">[`FindAllResponse.ProtoReflect`](#method-findallresponse-protoreflect)</span>
 - <span class="api-method">[`FindAllResponse.Reset`](#method-findallresponse-reset)</span>
 - <span class="api-method">[`FindAllResponse.String`](#method-findallresponse-string)</span>
+- <span class="api-method">[`FindOnScreenRequest.Descriptor`](#method-findonscreenrequest-descriptor)</span>
+- <span class="api-method">[`FindOnScreenRequest.GetOpts`](#method-findonscreenrequest-getopts)</span>
+- <span class="api-method">[`FindOnScreenRequest.GetPattern`](#method-findonscreenrequest-getpattern)</span>
+- <span class="api-method">[`FindOnScreenRequest.ProtoMessage`](#method-findonscreenrequest-protomessage)</span>
+- <span class="api-method">[`FindOnScreenRequest.ProtoReflect`](#method-findonscreenrequest-protoreflect)</span>
+- <span class="api-method">[`FindOnScreenRequest.Reset`](#method-findonscreenrequest-reset)</span>
+- <span class="api-method">[`FindOnScreenRequest.String`](#method-findonscreenrequest-string)</span>
 - <span class="api-method">[`FindRequest.Descriptor`](#method-findrequest-descriptor)</span>
 - <span class="api-method">[`FindRequest.GetPattern`](#method-findrequest-getpattern)</span>
 - <span class="api-method">[`FindRequest.GetSource`](#method-findrequest-getsource)</span>
@@ -258,6 +293,14 @@ Package: `package sikuliv1 // import "github.com/sikulix/portgo/internal/grpcv1/
 - <span class="api-method">[`Rect.ProtoReflect`](#method-rect-protoreflect)</span>
 - <span class="api-method">[`Rect.Reset`](#method-rect-reset)</span>
 - <span class="api-method">[`Rect.String`](#method-rect-string)</span>
+- <span class="api-method">[`ScreenQueryOptions.Descriptor`](#method-screenqueryoptions-descriptor)</span>
+- <span class="api-method">[`ScreenQueryOptions.GetIntervalMillis`](#method-screenqueryoptions-getintervalmillis)</span>
+- <span class="api-method">[`ScreenQueryOptions.GetRegion`](#method-screenqueryoptions-getregion)</span>
+- <span class="api-method">[`ScreenQueryOptions.GetTimeoutMillis`](#method-screenqueryoptions-gettimeoutmillis)</span>
+- <span class="api-method">[`ScreenQueryOptions.ProtoMessage`](#method-screenqueryoptions-protomessage)</span>
+- <span class="api-method">[`ScreenQueryOptions.ProtoReflect`](#method-screenqueryoptions-protoreflect)</span>
+- <span class="api-method">[`ScreenQueryOptions.Reset`](#method-screenqueryoptions-reset)</span>
+- <span class="api-method">[`ScreenQueryOptions.String`](#method-screenqueryoptions-string)</span>
 - <span class="api-method">[`TextMatch.Descriptor`](#method-textmatch-descriptor)</span>
 - <span class="api-method">[`TextMatch.GetConfidence`](#method-textmatch-getconfidence)</span>
 - <span class="api-method">[`TextMatch.GetIndex`](#method-textmatch-getindex)</span>
@@ -275,9 +318,12 @@ Package: `package sikuliv1 // import "github.com/sikulix/portgo/internal/grpcv1/
 - <span class="api-method">[`TypeTextRequest.Reset`](#method-typetextrequest-reset)</span>
 - <span class="api-method">[`TypeTextRequest.String`](#method-typetextrequest-string)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.Click`](#method-unimplementedsikuliserviceserver-click)</span>
+- <span class="api-method">[`UnimplementedSikuliServiceServer.ClickOnScreen`](#method-unimplementedsikuliserviceserver-clickonscreen)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.CloseApp`](#method-unimplementedsikuliserviceserver-closeapp)</span>
+- <span class="api-method">[`UnimplementedSikuliServiceServer.ExistsOnScreen`](#method-unimplementedsikuliserviceserver-existsonscreen)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.Find`](#method-unimplementedsikuliserviceserver-find)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.FindAll`](#method-unimplementedsikuliserviceserver-findall)</span>
+- <span class="api-method">[`UnimplementedSikuliServiceServer.FindOnScreen`](#method-unimplementedsikuliserviceserver-findonscreen)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.FindText`](#method-unimplementedsikuliserviceserver-findtext)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.FocusApp`](#method-unimplementedsikuliserviceserver-focusapp)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.Hotkey`](#method-unimplementedsikuliserviceserver-hotkey)</span>
@@ -290,6 +336,14 @@ Package: `package sikuliv1 // import "github.com/sikulix/portgo/internal/grpcv1/
 - <span class="api-method">[`UnimplementedSikuliServiceServer.OpenApp`](#method-unimplementedsikuliserviceserver-openapp)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.ReadText`](#method-unimplementedsikuliserviceserver-readtext)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.TypeText`](#method-unimplementedsikuliserviceserver-typetext)</span>
+- <span class="api-method">[`UnimplementedSikuliServiceServer.WaitOnScreen`](#method-unimplementedsikuliserviceserver-waitonscreen)</span>
+- <span class="api-method">[`WaitOnScreenRequest.Descriptor`](#method-waitonscreenrequest-descriptor)</span>
+- <span class="api-method">[`WaitOnScreenRequest.GetOpts`](#method-waitonscreenrequest-getopts)</span>
+- <span class="api-method">[`WaitOnScreenRequest.GetPattern`](#method-waitonscreenrequest-getpattern)</span>
+- <span class="api-method">[`WaitOnScreenRequest.ProtoMessage`](#method-waitonscreenrequest-protomessage)</span>
+- <span class="api-method">[`WaitOnScreenRequest.ProtoReflect`](#method-waitonscreenrequest-protoreflect)</span>
+- <span class="api-method">[`WaitOnScreenRequest.Reset`](#method-waitonscreenrequest-reset)</span>
+- <span class="api-method">[`WaitOnScreenRequest.String`](#method-waitonscreenrequest-string)</span>
 - <span class="api-method">[`Window.Descriptor`](#method-window-descriptor)</span>
 - <span class="api-method">[`Window.GetBounds`](#method-window-getbounds)</span>
 - <span class="api-method">[`Window.GetFocused`](#method-window-getfocused)</span>
@@ -315,13 +369,29 @@ Package: `package sikuliv1 // import "github.com/sikulix/portgo/internal/grpcv1/
 
 - Signature: <span class="api-signature">`type AppOptions struct {`</span>
 
+#### <a id="type-clickonscreenrequest"></a><span class="api-type">Type</span> `ClickOnScreenRequest`
+
+- Signature: <span class="api-signature">`type ClickOnScreenRequest struct {`</span>
+
 #### <a id="type-clickrequest"></a><span class="api-type">Type</span> `ClickRequest`
 
 - Signature: <span class="api-signature">`type ClickRequest struct {`</span>
 
+#### <a id="type-existsonscreenrequest"></a><span class="api-type">Type</span> `ExistsOnScreenRequest`
+
+- Signature: <span class="api-signature">`type ExistsOnScreenRequest struct {`</span>
+
+#### <a id="type-existsonscreenresponse"></a><span class="api-type">Type</span> `ExistsOnScreenResponse`
+
+- Signature: <span class="api-signature">`type ExistsOnScreenResponse struct {`</span>
+
 #### <a id="type-findallresponse"></a><span class="api-type">Type</span> `FindAllResponse`
 
 - Signature: <span class="api-signature">`type FindAllResponse struct {`</span>
+
+#### <a id="type-findonscreenrequest"></a><span class="api-type">Type</span> `FindOnScreenRequest`
+
+- Signature: <span class="api-signature">`type FindOnScreenRequest struct {`</span>
 
 #### <a id="type-findrequest"></a><span class="api-type">Type</span> `FindRequest`
 
@@ -411,6 +481,10 @@ Package: `package sikuliv1 // import "github.com/sikulix/portgo/internal/grpcv1/
 
 - Signature: <span class="api-signature">`type Rect struct {`</span>
 
+#### <a id="type-screenqueryoptions"></a><span class="api-type">Type</span> `ScreenQueryOptions`
+
+- Signature: <span class="api-signature">`type ScreenQueryOptions struct {`</span>
+
 #### <a id="type-sikuliserviceclient"></a><span class="api-type">Type</span> `SikuliServiceClient`
 
 - Signature: <span class="api-signature">`type SikuliServiceClient interface {`</span>
@@ -435,6 +509,10 @@ Package: `package sikuliv1 // import "github.com/sikulix/portgo/internal/grpcv1/
 #### <a id="type-unsafesikuliserviceserver"></a><span class="api-type">Type</span> `UnsafeSikuliServiceServer`
 
 - Signature: <span class="api-signature">`type UnsafeSikuliServiceServer interface {`</span>
+
+#### <a id="type-waitonscreenrequest"></a><span class="api-type">Type</span> `WaitOnScreenRequest`
+
+- Signature: <span class="api-signature">`type WaitOnScreenRequest struct {`</span>
 
 #### <a id="type-window"></a><span class="api-type">Type</span> `Window`
 
@@ -534,6 +612,42 @@ Package: `package sikuliv1 // import "github.com/sikulix/portgo/internal/grpcv1/
 
 - Signature: <span class="api-signature">`func (x *AppOptions) String() string`</span>
 
+#### <a id="method-clickonscreenrequest-descriptor"></a><span class="api-method">Method</span> `ClickOnScreenRequest.Descriptor`
+
+- Signature: <span class="api-signature">`func (*ClickOnScreenRequest) Descriptor() ([]byte, []int)`</span>
+- Notes: Deprecated: Use ClickOnScreenRequest.ProtoReflect.Descriptor instead.
+
+#### <a id="method-clickonscreenrequest-getclickopts"></a><span class="api-method">Method</span> `ClickOnScreenRequest.GetClickOpts`
+
+- Signature: <span class="api-signature">`func (x *ClickOnScreenRequest) GetClickOpts() *InputOptions`</span>
+- Uses: [`InputOptions`](#type-inputoptions)
+
+#### <a id="method-clickonscreenrequest-getopts"></a><span class="api-method">Method</span> `ClickOnScreenRequest.GetOpts`
+
+- Signature: <span class="api-signature">`func (x *ClickOnScreenRequest) GetOpts() *ScreenQueryOptions`</span>
+- Uses: [`ScreenQueryOptions`](#type-screenqueryoptions)
+
+#### <a id="method-clickonscreenrequest-getpattern"></a><span class="api-method">Method</span> `ClickOnScreenRequest.GetPattern`
+
+- Signature: <span class="api-signature">`func (x *ClickOnScreenRequest) GetPattern() *Pattern`</span>
+- Uses: [`Pattern`](#type-pattern)
+
+#### <a id="method-clickonscreenrequest-protomessage"></a><span class="api-method">Method</span> `ClickOnScreenRequest.ProtoMessage`
+
+- Signature: <span class="api-signature">`func (*ClickOnScreenRequest) ProtoMessage()`</span>
+
+#### <a id="method-clickonscreenrequest-protoreflect"></a><span class="api-method">Method</span> `ClickOnScreenRequest.ProtoReflect`
+
+- Signature: <span class="api-signature">`func (x *ClickOnScreenRequest) ProtoReflect() protoreflect.Message`</span>
+
+#### <a id="method-clickonscreenrequest-reset"></a><span class="api-method">Method</span> `ClickOnScreenRequest.Reset`
+
+- Signature: <span class="api-signature">`func (x *ClickOnScreenRequest) Reset()`</span>
+
+#### <a id="method-clickonscreenrequest-string"></a><span class="api-method">Method</span> `ClickOnScreenRequest.String`
+
+- Signature: <span class="api-signature">`func (x *ClickOnScreenRequest) String() string`</span>
+
 #### <a id="method-clickrequest-descriptor"></a><span class="api-method">Method</span> `ClickRequest.Descriptor`
 
 - Signature: <span class="api-signature">`func (*ClickRequest) Descriptor() ([]byte, []int)`</span>
@@ -568,6 +682,67 @@ Package: `package sikuliv1 // import "github.com/sikulix/portgo/internal/grpcv1/
 
 - Signature: <span class="api-signature">`func (x *ClickRequest) String() string`</span>
 
+#### <a id="method-existsonscreenrequest-descriptor"></a><span class="api-method">Method</span> `ExistsOnScreenRequest.Descriptor`
+
+- Signature: <span class="api-signature">`func (*ExistsOnScreenRequest) Descriptor() ([]byte, []int)`</span>
+- Notes: Deprecated: Use ExistsOnScreenRequest.ProtoReflect.Descriptor instead.
+
+#### <a id="method-existsonscreenrequest-getopts"></a><span class="api-method">Method</span> `ExistsOnScreenRequest.GetOpts`
+
+- Signature: <span class="api-signature">`func (x *ExistsOnScreenRequest) GetOpts() *ScreenQueryOptions`</span>
+- Uses: [`ScreenQueryOptions`](#type-screenqueryoptions)
+
+#### <a id="method-existsonscreenrequest-getpattern"></a><span class="api-method">Method</span> `ExistsOnScreenRequest.GetPattern`
+
+- Signature: <span class="api-signature">`func (x *ExistsOnScreenRequest) GetPattern() *Pattern`</span>
+- Uses: [`Pattern`](#type-pattern)
+
+#### <a id="method-existsonscreenrequest-protomessage"></a><span class="api-method">Method</span> `ExistsOnScreenRequest.ProtoMessage`
+
+- Signature: <span class="api-signature">`func (*ExistsOnScreenRequest) ProtoMessage()`</span>
+
+#### <a id="method-existsonscreenrequest-protoreflect"></a><span class="api-method">Method</span> `ExistsOnScreenRequest.ProtoReflect`
+
+- Signature: <span class="api-signature">`func (x *ExistsOnScreenRequest) ProtoReflect() protoreflect.Message`</span>
+
+#### <a id="method-existsonscreenrequest-reset"></a><span class="api-method">Method</span> `ExistsOnScreenRequest.Reset`
+
+- Signature: <span class="api-signature">`func (x *ExistsOnScreenRequest) Reset()`</span>
+
+#### <a id="method-existsonscreenrequest-string"></a><span class="api-method">Method</span> `ExistsOnScreenRequest.String`
+
+- Signature: <span class="api-signature">`func (x *ExistsOnScreenRequest) String() string`</span>
+
+#### <a id="method-existsonscreenresponse-descriptor"></a><span class="api-method">Method</span> `ExistsOnScreenResponse.Descriptor`
+
+- Signature: <span class="api-signature">`func (*ExistsOnScreenResponse) Descriptor() ([]byte, []int)`</span>
+- Notes: Deprecated: Use ExistsOnScreenResponse.ProtoReflect.Descriptor instead.
+
+#### <a id="method-existsonscreenresponse-getexists"></a><span class="api-method">Method</span> `ExistsOnScreenResponse.GetExists`
+
+- Signature: <span class="api-signature">`func (x *ExistsOnScreenResponse) GetExists() bool`</span>
+
+#### <a id="method-existsonscreenresponse-getmatch"></a><span class="api-method">Method</span> `ExistsOnScreenResponse.GetMatch`
+
+- Signature: <span class="api-signature">`func (x *ExistsOnScreenResponse) GetMatch() *Match`</span>
+- Uses: [`Match`](#type-match)
+
+#### <a id="method-existsonscreenresponse-protomessage"></a><span class="api-method">Method</span> `ExistsOnScreenResponse.ProtoMessage`
+
+- Signature: <span class="api-signature">`func (*ExistsOnScreenResponse) ProtoMessage()`</span>
+
+#### <a id="method-existsonscreenresponse-protoreflect"></a><span class="api-method">Method</span> `ExistsOnScreenResponse.ProtoReflect`
+
+- Signature: <span class="api-signature">`func (x *ExistsOnScreenResponse) ProtoReflect() protoreflect.Message`</span>
+
+#### <a id="method-existsonscreenresponse-reset"></a><span class="api-method">Method</span> `ExistsOnScreenResponse.Reset`
+
+- Signature: <span class="api-signature">`func (x *ExistsOnScreenResponse) Reset()`</span>
+
+#### <a id="method-existsonscreenresponse-string"></a><span class="api-method">Method</span> `ExistsOnScreenResponse.String`
+
+- Signature: <span class="api-signature">`func (x *ExistsOnScreenResponse) String() string`</span>
+
 #### <a id="method-findallresponse-descriptor"></a><span class="api-method">Method</span> `FindAllResponse.Descriptor`
 
 - Signature: <span class="api-signature">`func (*FindAllResponse) Descriptor() ([]byte, []int)`</span>
@@ -593,6 +768,37 @@ Package: `package sikuliv1 // import "github.com/sikulix/portgo/internal/grpcv1/
 #### <a id="method-findallresponse-string"></a><span class="api-method">Method</span> `FindAllResponse.String`
 
 - Signature: <span class="api-signature">`func (x *FindAllResponse) String() string`</span>
+
+#### <a id="method-findonscreenrequest-descriptor"></a><span class="api-method">Method</span> `FindOnScreenRequest.Descriptor`
+
+- Signature: <span class="api-signature">`func (*FindOnScreenRequest) Descriptor() ([]byte, []int)`</span>
+- Notes: Deprecated: Use FindOnScreenRequest.ProtoReflect.Descriptor instead.
+
+#### <a id="method-findonscreenrequest-getopts"></a><span class="api-method">Method</span> `FindOnScreenRequest.GetOpts`
+
+- Signature: <span class="api-signature">`func (x *FindOnScreenRequest) GetOpts() *ScreenQueryOptions`</span>
+- Uses: [`ScreenQueryOptions`](#type-screenqueryoptions)
+
+#### <a id="method-findonscreenrequest-getpattern"></a><span class="api-method">Method</span> `FindOnScreenRequest.GetPattern`
+
+- Signature: <span class="api-signature">`func (x *FindOnScreenRequest) GetPattern() *Pattern`</span>
+- Uses: [`Pattern`](#type-pattern)
+
+#### <a id="method-findonscreenrequest-protomessage"></a><span class="api-method">Method</span> `FindOnScreenRequest.ProtoMessage`
+
+- Signature: <span class="api-signature">`func (*FindOnScreenRequest) ProtoMessage()`</span>
+
+#### <a id="method-findonscreenrequest-protoreflect"></a><span class="api-method">Method</span> `FindOnScreenRequest.ProtoReflect`
+
+- Signature: <span class="api-signature">`func (x *FindOnScreenRequest) ProtoReflect() protoreflect.Message`</span>
+
+#### <a id="method-findonscreenrequest-reset"></a><span class="api-method">Method</span> `FindOnScreenRequest.Reset`
+
+- Signature: <span class="api-signature">`func (x *FindOnScreenRequest) Reset()`</span>
+
+#### <a id="method-findonscreenrequest-string"></a><span class="api-method">Method</span> `FindOnScreenRequest.String`
+
+- Signature: <span class="api-signature">`func (x *FindOnScreenRequest) String() string`</span>
 
 #### <a id="method-findrequest-descriptor"></a><span class="api-method">Method</span> `FindRequest.Descriptor`
 
@@ -1304,6 +1510,40 @@ Package: `package sikuliv1 // import "github.com/sikulix/portgo/internal/grpcv1/
 
 - Signature: <span class="api-signature">`func (x *Rect) String() string`</span>
 
+#### <a id="method-screenqueryoptions-descriptor"></a><span class="api-method">Method</span> `ScreenQueryOptions.Descriptor`
+
+- Signature: <span class="api-signature">`func (*ScreenQueryOptions) Descriptor() ([]byte, []int)`</span>
+- Notes: Deprecated: Use ScreenQueryOptions.ProtoReflect.Descriptor instead.
+
+#### <a id="method-screenqueryoptions-getintervalmillis"></a><span class="api-method">Method</span> `ScreenQueryOptions.GetIntervalMillis`
+
+- Signature: <span class="api-signature">`func (x *ScreenQueryOptions) GetIntervalMillis() int64`</span>
+
+#### <a id="method-screenqueryoptions-getregion"></a><span class="api-method">Method</span> `ScreenQueryOptions.GetRegion`
+
+- Signature: <span class="api-signature">`func (x *ScreenQueryOptions) GetRegion() *Rect`</span>
+- Uses: [`Rect`](#type-rect)
+
+#### <a id="method-screenqueryoptions-gettimeoutmillis"></a><span class="api-method">Method</span> `ScreenQueryOptions.GetTimeoutMillis`
+
+- Signature: <span class="api-signature">`func (x *ScreenQueryOptions) GetTimeoutMillis() int64`</span>
+
+#### <a id="method-screenqueryoptions-protomessage"></a><span class="api-method">Method</span> `ScreenQueryOptions.ProtoMessage`
+
+- Signature: <span class="api-signature">`func (*ScreenQueryOptions) ProtoMessage()`</span>
+
+#### <a id="method-screenqueryoptions-protoreflect"></a><span class="api-method">Method</span> `ScreenQueryOptions.ProtoReflect`
+
+- Signature: <span class="api-signature">`func (x *ScreenQueryOptions) ProtoReflect() protoreflect.Message`</span>
+
+#### <a id="method-screenqueryoptions-reset"></a><span class="api-method">Method</span> `ScreenQueryOptions.Reset`
+
+- Signature: <span class="api-signature">`func (x *ScreenQueryOptions) Reset()`</span>
+
+#### <a id="method-screenqueryoptions-string"></a><span class="api-method">Method</span> `ScreenQueryOptions.String`
+
+- Signature: <span class="api-signature">`func (x *ScreenQueryOptions) String() string`</span>
+
 #### <a id="method-textmatch-descriptor"></a><span class="api-method">Method</span> `TextMatch.Descriptor`
 
 - Signature: <span class="api-signature">`func (*TextMatch) Descriptor() ([]byte, []int)`</span>
@@ -1377,10 +1617,20 @@ Package: `package sikuliv1 // import "github.com/sikulix/portgo/internal/grpcv1/
 - Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) Click(context.Context, *ClickRequest) (*ActionResponse, error)`</span>
 - Uses: [`ClickRequest`](#type-clickrequest), [`ActionResponse`](#type-actionresponse)
 
+#### <a id="method-unimplementedsikuliserviceserver-clickonscreen"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.ClickOnScreen`
+
+- Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) ClickOnScreen(context.Context, *ClickOnScreenRequest) (*FindResponse, error)`</span>
+- Uses: [`ClickOnScreenRequest`](#type-clickonscreenrequest), [`FindResponse`](#type-findresponse)
+
 #### <a id="method-unimplementedsikuliserviceserver-closeapp"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.CloseApp`
 
 - Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) CloseApp(context.Context, *AppActionRequest) (*ActionResponse, error)`</span>
 - Uses: [`AppActionRequest`](#type-appactionrequest), [`ActionResponse`](#type-actionresponse)
+
+#### <a id="method-unimplementedsikuliserviceserver-existsonscreen"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.ExistsOnScreen`
+
+- Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) ExistsOnScreen(context.Context, *ExistsOnScreenRequest) (*ExistsOnScreenResponse, error)`</span>
+- Uses: [`ExistsOnScreenResponse`](#type-existsonscreenresponse), [`ExistsOnScreenRequest`](#type-existsonscreenrequest)
 
 #### <a id="method-unimplementedsikuliserviceserver-find"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.Find`
 
@@ -1391,6 +1641,11 @@ Package: `package sikuliv1 // import "github.com/sikulix/portgo/internal/grpcv1/
 
 - Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) FindAll(context.Context, *FindRequest) (*FindAllResponse, error)`</span>
 - Uses: [`FindRequest`](#type-findrequest), [`FindAllResponse`](#type-findallresponse)
+
+#### <a id="method-unimplementedsikuliserviceserver-findonscreen"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.FindOnScreen`
+
+- Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) FindOnScreen(context.Context, *FindOnScreenRequest) (*FindResponse, error)`</span>
+- Uses: [`FindOnScreenRequest`](#type-findonscreenrequest), [`FindResponse`](#type-findresponse)
 
 #### <a id="method-unimplementedsikuliserviceserver-findtext"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.FindText`
 
@@ -1452,6 +1707,42 @@ Package: `package sikuliv1 // import "github.com/sikulix/portgo/internal/grpcv1/
 - Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) TypeText(context.Context, *TypeTextRequest) (*ActionResponse, error)`</span>
 - Uses: [`TypeTextRequest`](#type-typetextrequest), [`ActionResponse`](#type-actionresponse)
 
+#### <a id="method-unimplementedsikuliserviceserver-waitonscreen"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.WaitOnScreen`
+
+- Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) WaitOnScreen(context.Context, *WaitOnScreenRequest) (*FindResponse, error)`</span>
+- Uses: [`FindResponse`](#type-findresponse), [`WaitOnScreenRequest`](#type-waitonscreenrequest)
+
+#### <a id="method-waitonscreenrequest-descriptor"></a><span class="api-method">Method</span> `WaitOnScreenRequest.Descriptor`
+
+- Signature: <span class="api-signature">`func (*WaitOnScreenRequest) Descriptor() ([]byte, []int)`</span>
+- Notes: Deprecated: Use WaitOnScreenRequest.ProtoReflect.Descriptor instead.
+
+#### <a id="method-waitonscreenrequest-getopts"></a><span class="api-method">Method</span> `WaitOnScreenRequest.GetOpts`
+
+- Signature: <span class="api-signature">`func (x *WaitOnScreenRequest) GetOpts() *ScreenQueryOptions`</span>
+- Uses: [`ScreenQueryOptions`](#type-screenqueryoptions)
+
+#### <a id="method-waitonscreenrequest-getpattern"></a><span class="api-method">Method</span> `WaitOnScreenRequest.GetPattern`
+
+- Signature: <span class="api-signature">`func (x *WaitOnScreenRequest) GetPattern() *Pattern`</span>
+- Uses: [`Pattern`](#type-pattern)
+
+#### <a id="method-waitonscreenrequest-protomessage"></a><span class="api-method">Method</span> `WaitOnScreenRequest.ProtoMessage`
+
+- Signature: <span class="api-signature">`func (*WaitOnScreenRequest) ProtoMessage()`</span>
+
+#### <a id="method-waitonscreenrequest-protoreflect"></a><span class="api-method">Method</span> `WaitOnScreenRequest.ProtoReflect`
+
+- Signature: <span class="api-signature">`func (x *WaitOnScreenRequest) ProtoReflect() protoreflect.Message`</span>
+
+#### <a id="method-waitonscreenrequest-reset"></a><span class="api-method">Method</span> `WaitOnScreenRequest.Reset`
+
+- Signature: <span class="api-signature">`func (x *WaitOnScreenRequest) Reset()`</span>
+
+#### <a id="method-waitonscreenrequest-string"></a><span class="api-method">Method</span> `WaitOnScreenRequest.String`
+
+- Signature: <span class="api-signature">`func (x *WaitOnScreenRequest) String() string`</span>
+
 #### <a id="method-window-descriptor"></a><span class="api-method">Method</span> `Window.Descriptor`
 
 - Signature: <span class="api-signature">`func (*Window) Descriptor() ([]byte, []int)`</span>
@@ -1495,22 +1786,26 @@ package sikuliv1 // import "github.com/sikulix/portgo/internal/grpcv1/pb"
 CONSTANTS
 
 const (
-	SikuliService_Find_FullMethodName          = "/sikuli.v1.SikuliService/Find"
-	SikuliService_FindAll_FullMethodName       = "/sikuli.v1.SikuliService/FindAll"
-	SikuliService_ReadText_FullMethodName      = "/sikuli.v1.SikuliService/ReadText"
-	SikuliService_FindText_FullMethodName      = "/sikuli.v1.SikuliService/FindText"
-	SikuliService_MoveMouse_FullMethodName     = "/sikuli.v1.SikuliService/MoveMouse"
-	SikuliService_Click_FullMethodName         = "/sikuli.v1.SikuliService/Click"
-	SikuliService_TypeText_FullMethodName      = "/sikuli.v1.SikuliService/TypeText"
-	SikuliService_Hotkey_FullMethodName        = "/sikuli.v1.SikuliService/Hotkey"
-	SikuliService_ObserveAppear_FullMethodName = "/sikuli.v1.SikuliService/ObserveAppear"
-	SikuliService_ObserveVanish_FullMethodName = "/sikuli.v1.SikuliService/ObserveVanish"
-	SikuliService_ObserveChange_FullMethodName = "/sikuli.v1.SikuliService/ObserveChange"
-	SikuliService_OpenApp_FullMethodName       = "/sikuli.v1.SikuliService/OpenApp"
-	SikuliService_FocusApp_FullMethodName      = "/sikuli.v1.SikuliService/FocusApp"
-	SikuliService_CloseApp_FullMethodName      = "/sikuli.v1.SikuliService/CloseApp"
-	SikuliService_IsAppRunning_FullMethodName  = "/sikuli.v1.SikuliService/IsAppRunning"
-	SikuliService_ListWindows_FullMethodName   = "/sikuli.v1.SikuliService/ListWindows"
+	SikuliService_Find_FullMethodName           = "/sikuli.v1.SikuliService/Find"
+	SikuliService_FindAll_FullMethodName        = "/sikuli.v1.SikuliService/FindAll"
+	SikuliService_FindOnScreen_FullMethodName   = "/sikuli.v1.SikuliService/FindOnScreen"
+	SikuliService_ExistsOnScreen_FullMethodName = "/sikuli.v1.SikuliService/ExistsOnScreen"
+	SikuliService_WaitOnScreen_FullMethodName   = "/sikuli.v1.SikuliService/WaitOnScreen"
+	SikuliService_ClickOnScreen_FullMethodName  = "/sikuli.v1.SikuliService/ClickOnScreen"
+	SikuliService_ReadText_FullMethodName       = "/sikuli.v1.SikuliService/ReadText"
+	SikuliService_FindText_FullMethodName       = "/sikuli.v1.SikuliService/FindText"
+	SikuliService_MoveMouse_FullMethodName      = "/sikuli.v1.SikuliService/MoveMouse"
+	SikuliService_Click_FullMethodName          = "/sikuli.v1.SikuliService/Click"
+	SikuliService_TypeText_FullMethodName       = "/sikuli.v1.SikuliService/TypeText"
+	SikuliService_Hotkey_FullMethodName         = "/sikuli.v1.SikuliService/Hotkey"
+	SikuliService_ObserveAppear_FullMethodName  = "/sikuli.v1.SikuliService/ObserveAppear"
+	SikuliService_ObserveVanish_FullMethodName  = "/sikuli.v1.SikuliService/ObserveVanish"
+	SikuliService_ObserveChange_FullMethodName  = "/sikuli.v1.SikuliService/ObserveChange"
+	SikuliService_OpenApp_FullMethodName        = "/sikuli.v1.SikuliService/OpenApp"
+	SikuliService_FocusApp_FullMethodName       = "/sikuli.v1.SikuliService/FocusApp"
+	SikuliService_CloseApp_FullMethodName       = "/sikuli.v1.SikuliService/CloseApp"
+	SikuliService_IsAppRunning_FullMethodName   = "/sikuli.v1.SikuliService/IsAppRunning"
+	SikuliService_ListWindows_FullMethodName    = "/sikuli.v1.SikuliService/ListWindows"
 )
 
 VARIABLES
@@ -1527,6 +1822,22 @@ var SikuliService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FindAll",
 			Handler:    _SikuliService_FindAll_Handler,
+		},
+		{
+			MethodName: "FindOnScreen",
+			Handler:    _SikuliService_FindOnScreen_Handler,
+		},
+		{
+			MethodName: "ExistsOnScreen",
+			Handler:    _SikuliService_ExistsOnScreen_Handler,
+		},
+		{
+			MethodName: "WaitOnScreen",
+			Handler:    _SikuliService_WaitOnScreen_Handler,
+		},
+		{
+			MethodName: "ClickOnScreen",
+			Handler:    _SikuliService_ClickOnScreen_Handler,
 		},
 		{
 			MethodName: "ReadText",
@@ -1658,6 +1969,31 @@ func (x *AppOptions) Reset()
 
 func (x *AppOptions) String() string
 
+type ClickOnScreenRequest struct {
+	Pattern   *Pattern            `protobuf:"bytes,1,opt,name=pattern,proto3" json:"pattern,omitempty"`
+	Opts      *ScreenQueryOptions `protobuf:"bytes,2,opt,name=opts,proto3" json:"opts,omitempty"`
+	ClickOpts *InputOptions       `protobuf:"bytes,3,opt,name=click_opts,json=clickOpts,proto3" json:"click_opts,omitempty"`
+
+	// Has unexported fields.
+}
+
+func (*ClickOnScreenRequest) Descriptor() ([]byte, []int)
+    Deprecated: Use ClickOnScreenRequest.ProtoReflect.Descriptor instead.
+
+func (x *ClickOnScreenRequest) GetClickOpts() *InputOptions
+
+func (x *ClickOnScreenRequest) GetOpts() *ScreenQueryOptions
+
+func (x *ClickOnScreenRequest) GetPattern() *Pattern
+
+func (*ClickOnScreenRequest) ProtoMessage()
+
+func (x *ClickOnScreenRequest) ProtoReflect() protoreflect.Message
+
+func (x *ClickOnScreenRequest) Reset()
+
+func (x *ClickOnScreenRequest) String() string
+
 type ClickRequest struct {
 	X    int32         `protobuf:"varint,1,opt,name=x,proto3" json:"x,omitempty"`
 	Y    int32         `protobuf:"varint,2,opt,name=y,proto3" json:"y,omitempty"`
@@ -1683,6 +2019,50 @@ func (x *ClickRequest) Reset()
 
 func (x *ClickRequest) String() string
 
+type ExistsOnScreenRequest struct {
+	Pattern *Pattern            `protobuf:"bytes,1,opt,name=pattern,proto3" json:"pattern,omitempty"`
+	Opts    *ScreenQueryOptions `protobuf:"bytes,2,opt,name=opts,proto3" json:"opts,omitempty"`
+
+	// Has unexported fields.
+}
+
+func (*ExistsOnScreenRequest) Descriptor() ([]byte, []int)
+    Deprecated: Use ExistsOnScreenRequest.ProtoReflect.Descriptor instead.
+
+func (x *ExistsOnScreenRequest) GetOpts() *ScreenQueryOptions
+
+func (x *ExistsOnScreenRequest) GetPattern() *Pattern
+
+func (*ExistsOnScreenRequest) ProtoMessage()
+
+func (x *ExistsOnScreenRequest) ProtoReflect() protoreflect.Message
+
+func (x *ExistsOnScreenRequest) Reset()
+
+func (x *ExistsOnScreenRequest) String() string
+
+type ExistsOnScreenResponse struct {
+	Exists bool   `protobuf:"varint,1,opt,name=exists,proto3" json:"exists,omitempty"`
+	Match  *Match `protobuf:"bytes,2,opt,name=match,proto3" json:"match,omitempty"`
+
+	// Has unexported fields.
+}
+
+func (*ExistsOnScreenResponse) Descriptor() ([]byte, []int)
+    Deprecated: Use ExistsOnScreenResponse.ProtoReflect.Descriptor instead.
+
+func (x *ExistsOnScreenResponse) GetExists() bool
+
+func (x *ExistsOnScreenResponse) GetMatch() *Match
+
+func (*ExistsOnScreenResponse) ProtoMessage()
+
+func (x *ExistsOnScreenResponse) ProtoReflect() protoreflect.Message
+
+func (x *ExistsOnScreenResponse) Reset()
+
+func (x *ExistsOnScreenResponse) String() string
+
 type FindAllResponse struct {
 	Matches []*Match `protobuf:"bytes,1,rep,name=matches,proto3" json:"matches,omitempty"`
 
@@ -1701,6 +2081,28 @@ func (x *FindAllResponse) ProtoReflect() protoreflect.Message
 func (x *FindAllResponse) Reset()
 
 func (x *FindAllResponse) String() string
+
+type FindOnScreenRequest struct {
+	Pattern *Pattern            `protobuf:"bytes,1,opt,name=pattern,proto3" json:"pattern,omitempty"`
+	Opts    *ScreenQueryOptions `protobuf:"bytes,2,opt,name=opts,proto3" json:"opts,omitempty"`
+
+	// Has unexported fields.
+}
+
+func (*FindOnScreenRequest) Descriptor() ([]byte, []int)
+    Deprecated: Use FindOnScreenRequest.ProtoReflect.Descriptor instead.
+
+func (x *FindOnScreenRequest) GetOpts() *ScreenQueryOptions
+
+func (x *FindOnScreenRequest) GetPattern() *Pattern
+
+func (*FindOnScreenRequest) ProtoMessage()
+
+func (x *FindOnScreenRequest) ProtoReflect() protoreflect.Message
+
+func (x *FindOnScreenRequest) Reset()
+
+func (x *FindOnScreenRequest) String() string
 
 type FindRequest struct {
 	Source  *GrayImage `protobuf:"bytes,1,opt,name=source,proto3" json:"source,omitempty"`
@@ -2222,9 +2624,38 @@ func (x *Rect) Reset()
 
 func (x *Rect) String() string
 
+type ScreenQueryOptions struct {
+	Region         *Rect  `protobuf:"bytes,1,opt,name=region,proto3" json:"region,omitempty"`
+	TimeoutMillis  *int64 `protobuf:"varint,2,opt,name=timeout_millis,json=timeoutMillis,proto3,oneof" json:"timeout_millis,omitempty"`
+	IntervalMillis *int64 `protobuf:"varint,3,opt,name=interval_millis,json=intervalMillis,proto3,oneof" json:"interval_millis,omitempty"`
+
+	// Has unexported fields.
+}
+
+func (*ScreenQueryOptions) Descriptor() ([]byte, []int)
+    Deprecated: Use ScreenQueryOptions.ProtoReflect.Descriptor instead.
+
+func (x *ScreenQueryOptions) GetIntervalMillis() int64
+
+func (x *ScreenQueryOptions) GetRegion() *Rect
+
+func (x *ScreenQueryOptions) GetTimeoutMillis() int64
+
+func (*ScreenQueryOptions) ProtoMessage()
+
+func (x *ScreenQueryOptions) ProtoReflect() protoreflect.Message
+
+func (x *ScreenQueryOptions) Reset()
+
+func (x *ScreenQueryOptions) String() string
+
 type SikuliServiceClient interface {
 	Find(ctx context.Context, in *FindRequest, opts ...grpc.CallOption) (*FindResponse, error)
 	FindAll(ctx context.Context, in *FindRequest, opts ...grpc.CallOption) (*FindAllResponse, error)
+	FindOnScreen(ctx context.Context, in *FindOnScreenRequest, opts ...grpc.CallOption) (*FindResponse, error)
+	ExistsOnScreen(ctx context.Context, in *ExistsOnScreenRequest, opts ...grpc.CallOption) (*ExistsOnScreenResponse, error)
+	WaitOnScreen(ctx context.Context, in *WaitOnScreenRequest, opts ...grpc.CallOption) (*FindResponse, error)
+	ClickOnScreen(ctx context.Context, in *ClickOnScreenRequest, opts ...grpc.CallOption) (*FindResponse, error)
 	ReadText(ctx context.Context, in *ReadTextRequest, opts ...grpc.CallOption) (*ReadTextResponse, error)
 	FindText(ctx context.Context, in *FindTextRequest, opts ...grpc.CallOption) (*FindTextResponse, error)
 	MoveMouse(ctx context.Context, in *MoveMouseRequest, opts ...grpc.CallOption) (*ActionResponse, error)
@@ -2250,6 +2681,10 @@ func NewSikuliServiceClient(cc grpc.ClientConnInterface) SikuliServiceClient
 type SikuliServiceServer interface {
 	Find(context.Context, *FindRequest) (*FindResponse, error)
 	FindAll(context.Context, *FindRequest) (*FindAllResponse, error)
+	FindOnScreen(context.Context, *FindOnScreenRequest) (*FindResponse, error)
+	ExistsOnScreen(context.Context, *ExistsOnScreenRequest) (*ExistsOnScreenResponse, error)
+	WaitOnScreen(context.Context, *WaitOnScreenRequest) (*FindResponse, error)
+	ClickOnScreen(context.Context, *ClickOnScreenRequest) (*FindResponse, error)
 	ReadText(context.Context, *ReadTextRequest) (*ReadTextResponse, error)
 	FindText(context.Context, *FindTextRequest) (*FindTextResponse, error)
 	MoveMouse(context.Context, *MoveMouseRequest) (*ActionResponse, error)
@@ -2329,11 +2764,17 @@ type UnimplementedSikuliServiceServer struct{}
 
 func (UnimplementedSikuliServiceServer) Click(context.Context, *ClickRequest) (*ActionResponse, error)
 
+func (UnimplementedSikuliServiceServer) ClickOnScreen(context.Context, *ClickOnScreenRequest) (*FindResponse, error)
+
 func (UnimplementedSikuliServiceServer) CloseApp(context.Context, *AppActionRequest) (*ActionResponse, error)
+
+func (UnimplementedSikuliServiceServer) ExistsOnScreen(context.Context, *ExistsOnScreenRequest) (*ExistsOnScreenResponse, error)
 
 func (UnimplementedSikuliServiceServer) Find(context.Context, *FindRequest) (*FindResponse, error)
 
 func (UnimplementedSikuliServiceServer) FindAll(context.Context, *FindRequest) (*FindAllResponse, error)
+
+func (UnimplementedSikuliServiceServer) FindOnScreen(context.Context, *FindOnScreenRequest) (*FindResponse, error)
 
 func (UnimplementedSikuliServiceServer) FindText(context.Context, *FindTextRequest) (*FindTextResponse, error)
 
@@ -2359,12 +2800,36 @@ func (UnimplementedSikuliServiceServer) ReadText(context.Context, *ReadTextReque
 
 func (UnimplementedSikuliServiceServer) TypeText(context.Context, *TypeTextRequest) (*ActionResponse, error)
 
+func (UnimplementedSikuliServiceServer) WaitOnScreen(context.Context, *WaitOnScreenRequest) (*FindResponse, error)
+
 type UnsafeSikuliServiceServer interface {
 	// Has unexported methods.
 }
     UnsafeSikuliServiceServer may be embedded to opt out of forward
     compatibility for this service. Use of this interface is not recommended,
     as added methods to SikuliServiceServer will result in compilation errors.
+
+type WaitOnScreenRequest struct {
+	Pattern *Pattern            `protobuf:"bytes,1,opt,name=pattern,proto3" json:"pattern,omitempty"`
+	Opts    *ScreenQueryOptions `protobuf:"bytes,2,opt,name=opts,proto3" json:"opts,omitempty"`
+
+	// Has unexported fields.
+}
+
+func (*WaitOnScreenRequest) Descriptor() ([]byte, []int)
+    Deprecated: Use WaitOnScreenRequest.ProtoReflect.Descriptor instead.
+
+func (x *WaitOnScreenRequest) GetOpts() *ScreenQueryOptions
+
+func (x *WaitOnScreenRequest) GetPattern() *Pattern
+
+func (*WaitOnScreenRequest) ProtoMessage()
+
+func (x *WaitOnScreenRequest) ProtoReflect() protoreflect.Message
+
+func (x *WaitOnScreenRequest) Reset()
+
+func (x *WaitOnScreenRequest) String() string
 
 type Window struct {
 	Title   string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`

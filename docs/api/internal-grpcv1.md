@@ -38,9 +38,12 @@ Package: `package grpcv1 // import "github.com/sikulix/portgo/internal/grpcv1"`
 - <span class="api-method">[`MetricsRegistry.Snapshot`](#method-metricsregistry-snapshot)</span>
 - <span class="api-method">[`MetricsRegistry.StartRequest`](#method-metricsregistry-startrequest)</span>
 - <span class="api-method">[`Server.Click`](#method-server-click)</span>
+- <span class="api-method">[`Server.ClickOnScreen`](#method-server-clickonscreen)</span>
 - <span class="api-method">[`Server.CloseApp`](#method-server-closeapp)</span>
+- <span class="api-method">[`Server.ExistsOnScreen`](#method-server-existsonscreen)</span>
 - <span class="api-method">[`Server.Find`](#method-server-find)</span>
 - <span class="api-method">[`Server.FindAll`](#method-server-findall)</span>
+- <span class="api-method">[`Server.FindOnScreen`](#method-server-findonscreen)</span>
 - <span class="api-method">[`Server.FindText`](#method-server-findtext)</span>
 - <span class="api-method">[`Server.FocusApp`](#method-server-focusapp)</span>
 - <span class="api-method">[`Server.Hotkey`](#method-server-hotkey)</span>
@@ -53,6 +56,7 @@ Package: `package grpcv1 // import "github.com/sikulix/portgo/internal/grpcv1"`
 - <span class="api-method">[`Server.OpenApp`](#method-server-openapp)</span>
 - <span class="api-method">[`Server.ReadText`](#method-server-readtext)</span>
 - <span class="api-method">[`Server.TypeText`](#method-server-typetext)</span>
+- <span class="api-method">[`Server.WaitOnScreen`](#method-server-waitonscreen)</span>
 
 ## Declarations
 
@@ -128,9 +132,17 @@ Package: `package grpcv1 // import "github.com/sikulix/portgo/internal/grpcv1"`
 
 - Signature: <span class="api-signature">`func (s *Server) Click(_ context.Context, req *pb.ClickRequest) (*pb.ActionResponse, error)`</span>
 
+#### <a id="method-server-clickonscreen"></a><span class="api-method">Method</span> `Server.ClickOnScreen`
+
+- Signature: <span class="api-signature">`func (s *Server) ClickOnScreen(ctx context.Context, req *pb.ClickOnScreenRequest) (*pb.FindResponse, error)`</span>
+
 #### <a id="method-server-closeapp"></a><span class="api-method">Method</span> `Server.CloseApp`
 
 - Signature: <span class="api-signature">`func (s *Server) CloseApp(_ context.Context, req *pb.AppActionRequest) (*pb.ActionResponse, error)`</span>
+
+#### <a id="method-server-existsonscreen"></a><span class="api-method">Method</span> `Server.ExistsOnScreen`
+
+- Signature: <span class="api-signature">`func (s *Server) ExistsOnScreen(_ context.Context, req *pb.ExistsOnScreenRequest) (*pb.ExistsOnScreenResponse, error)`</span>
 
 #### <a id="method-server-find"></a><span class="api-method">Method</span> `Server.Find`
 
@@ -139,6 +151,10 @@ Package: `package grpcv1 // import "github.com/sikulix/portgo/internal/grpcv1"`
 #### <a id="method-server-findall"></a><span class="api-method">Method</span> `Server.FindAll`
 
 - Signature: <span class="api-signature">`func (s *Server) FindAll(_ context.Context, req *pb.FindRequest) (*pb.FindAllResponse, error)`</span>
+
+#### <a id="method-server-findonscreen"></a><span class="api-method">Method</span> `Server.FindOnScreen`
+
+- Signature: <span class="api-signature">`func (s *Server) FindOnScreen(_ context.Context, req *pb.FindOnScreenRequest) (*pb.FindResponse, error)`</span>
 
 #### <a id="method-server-findtext"></a><span class="api-method">Method</span> `Server.FindText`
 
@@ -187,6 +203,10 @@ Package: `package grpcv1 // import "github.com/sikulix/portgo/internal/grpcv1"`
 #### <a id="method-server-typetext"></a><span class="api-method">Method</span> `Server.TypeText`
 
 - Signature: <span class="api-signature">`func (s *Server) TypeText(_ context.Context, req *pb.TypeTextRequest) (*pb.ActionResponse, error)`</span>
+
+#### <a id="method-server-waitonscreen"></a><span class="api-method">Method</span> `Server.WaitOnScreen`
+
+- Signature: <span class="api-signature">`func (s *Server) WaitOnScreen(_ context.Context, req *pb.WaitOnScreenRequest) (*pb.FindResponse, error)`</span>
 
 ## Raw Package Doc
 
@@ -250,11 +270,17 @@ func NewServer() *Server
 
 func (s *Server) Click(_ context.Context, req *pb.ClickRequest) (*pb.ActionResponse, error)
 
+func (s *Server) ClickOnScreen(ctx context.Context, req *pb.ClickOnScreenRequest) (*pb.FindResponse, error)
+
 func (s *Server) CloseApp(_ context.Context, req *pb.AppActionRequest) (*pb.ActionResponse, error)
+
+func (s *Server) ExistsOnScreen(_ context.Context, req *pb.ExistsOnScreenRequest) (*pb.ExistsOnScreenResponse, error)
 
 func (s *Server) Find(_ context.Context, req *pb.FindRequest) (*pb.FindResponse, error)
 
 func (s *Server) FindAll(_ context.Context, req *pb.FindRequest) (*pb.FindAllResponse, error)
+
+func (s *Server) FindOnScreen(_ context.Context, req *pb.FindOnScreenRequest) (*pb.FindResponse, error)
 
 func (s *Server) FindText(_ context.Context, req *pb.FindTextRequest) (*pb.FindTextResponse, error)
 
@@ -279,5 +305,7 @@ func (s *Server) OpenApp(_ context.Context, req *pb.AppActionRequest) (*pb.Actio
 func (s *Server) ReadText(_ context.Context, req *pb.ReadTextRequest) (*pb.ReadTextResponse, error)
 
 func (s *Server) TypeText(_ context.Context, req *pb.TypeTextRequest) (*pb.ActionResponse, error)
+
+func (s *Server) WaitOnScreen(_ context.Context, req *pb.WaitOnScreenRequest) (*pb.FindResponse, error)
 
 ```
