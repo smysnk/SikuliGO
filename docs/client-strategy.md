@@ -19,7 +19,7 @@ This document defines the client delivery strategy for SikuliGO gRPC APIs across
 
 ## Current Implementation Snapshot (February 21, 2026)
 
-- Python client wrapper: `clients/python/sikuligo_client/client.py`
+- Python client wrapper: `clients/python/sikuligo/client.py`
 - Python examples: `clients/python/examples/`
 - Python generator: `scripts/clients/generate-python-stubs.sh`
 - Node client wrapper: `clients/node/src/client.ts`
@@ -95,7 +95,7 @@ Status: ✅ Implemented
 Status: ✅ Implemented (baseline wrapper and examples)
 
 - Generate Python stubs into `clients/python/generated/`.
-- Add wrapper in `clients/python/sikuligo_client/` for deadlines, metadata/auth, and error mapping.
+- Add wrapper in `clients/python/sikuligo/` for deadlines, metadata/auth, and error mapping.
 - Add runnable examples in `clients/python/examples/` (`find.py`, `read_text.py`, `click_and_type.py`, `app_control.py`).
 - Add CI smoke tests against local `cmd/sikuligrpc` (next step).
 

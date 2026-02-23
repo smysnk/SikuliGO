@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sikuligo_client.client import Sikuli
+from sikuligo.client import Sikuli
 
 
 def main() -> int:

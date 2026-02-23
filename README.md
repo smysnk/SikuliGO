@@ -23,7 +23,7 @@ Sikuli is an open-source tool for automating anything visible on a computer scre
 
 ## Python
 ```python
-from sikuligo_client.client import Sikuli
+from sikuligo.client import Sikuli
 
 client = Sikuli()
 try:

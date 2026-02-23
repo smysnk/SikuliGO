@@ -1,5 +1,5 @@
 from generated.sikuli.v1 import sikuli_pb2 as pb
-from sikuligo_client.client import Sikuli
+from sikuligo.client import Sikuli
 
 
 def main() -> int:

@@ -32,7 +32,7 @@ pip install sikuligo
 ## Quick Example
 
 ```python
-from sikuligo_client.client import Sikuli
+from sikuligo.client import Sikuli
 
 client = Sikuli()
 try:
