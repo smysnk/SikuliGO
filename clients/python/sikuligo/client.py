@@ -57,8 +57,22 @@ class Sikuli:
         )
         self._stub = pb_grpc.SikuliServiceStub(self._channel)
 
+    @property
+    def address(self) -> str:
+        return self._address
+
+    @property
+    def auth_token(self) -> str:
+        return self._auth_token
+
     def close(self) -> None:
         self._channel.close()
+
+    def wait_for_ready(self, timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS) -> None:
+        try:
+            grpc.channel_ready_future(self._channel).result(timeout=timeout_seconds)
+        except grpc.FutureTimeoutError as exc:
+            raise TimeoutError(f"timeout waiting for Sikuli server at {self._address}") from exc
 
     def _metadata(self, extra: Mapping[str, str] | None = None) -> Sequence[tuple[str, str]]:
         out: list[tuple[str, str]] = []

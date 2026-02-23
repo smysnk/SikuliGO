@@ -1,10 +1,10 @@
 {
   "name": "@sikuligo/bin-win32-x64",
   "version": "0.1.4",
-  "description": "sikuligrpc binary for win32 x64",
+  "description": "sikuligo binary for win32 x64",
   "license": "MIT",
   "files": [
-    "bin/sikuligrpc.exe",
+    "bin/sikuligo.exe",
     "README.md"
   ],
   "publishConfig": {

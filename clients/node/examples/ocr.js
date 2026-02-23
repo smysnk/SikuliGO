@@ -1,6 +1,6 @@
 import { Sikuli } from "../src";
 
-function grayImageFromRows(name: string, rows: number[][]) {
+function grayImageFromRows(name, rows) {
   const height = rows.length;
   const width = rows[0].length;
   const pix = rows.flat().map((v) => v & 0xff);
@@ -12,7 +12,7 @@ function grayImageFromRows(name: string, rows: number[][]) {
   };
 }
 
-async function main(): Promise<void> {
+async function main() {
   const client = await Sikuli.launch();
   const source = grayImageFromRows("ocr-source", [
     [220, 220, 220, 220],

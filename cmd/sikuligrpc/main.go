@@ -44,7 +44,7 @@ func main() {
 
 	grpcErrCh := make(chan error, 1)
 	go func() {
-		logger.Printf("sikuligrpc listening grpc=%s auth=%t reflection=%t", *listenAddr, *authToken != "", *enableReflection)
+		logger.Printf("sikuligo listening grpc=%s auth=%t reflection=%t", *listenAddr, *authToken != "", *enableReflection)
 		if err := srv.Serve(lis); err != nil {
 			grpcErrCh <- fmt.Errorf("grpc serve: %w", err)
 		}
@@ -59,7 +59,7 @@ func main() {
 			ReadHeaderTimeout: 5 * time.Second,
 		}
 		go func() {
-			logger.Printf("sikuligrpc admin listening http=%s endpoints=/healthz,/snapshot,/metrics,/dashboard", *adminListenAddr)
+			logger.Printf("sikuligo admin listening http=%s endpoints=/healthz,/snapshot,/metrics,/dashboard", *adminListenAddr)
 			if err := adminSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 				adminErrCh <- fmt.Errorf("admin serve: %w", err)
 			}

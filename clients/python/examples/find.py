@@ -1,19 +1,18 @@
 from __future__ import annotations
 
-from sikuligo.client import Sikuli
+from sikuligo import Pattern, Screen
 
 
 def main() -> int:
-    client = Sikuli()
+    screen = Screen.connect()
     try:
-        res = client.find_on_screen("assets/pattern.png", exact=True, timeout_millis=3000)
-        match = res.match
+        match = screen.find(Pattern("assets/pattern.png").exact(), timeout_millis=3000)
         print(
-            f"match rect=({match.rect.x},{match.rect.y},{match.rect.w},{match.rect.h}) "
-            f"score={match.score:.3f} target=({match.target.x},{match.target.y})"
+            f"match rect=({match.x},{match.y},{match.w},{match.h}) "
+            f"score={match.score:.3f} target=({match.target_x},{match.target_y})"
         )
     finally:
-        client.close()
+        screen.close()
     return 0
 
 

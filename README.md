@@ -21,30 +21,45 @@ Sikuli is an open-source tool for automating anything visible on a computer scre
 | Robot Framework | 🟡 | Planned |
 | Web IDE | 🟡 | Planned |
 
-## Python
-```python
-from sikuligo.client import Sikuli
+## Examples
 
-client = Sikuli()
-try:
-    match = client.click_on_screen("assets/pattern.png", exact=True, timeout_millis=5000)
-    print(match.match.target.x, match.match.target.y)
-finally:
-    client.close()
+### JavaScript (auto-launch)
+
+```bash
+cd clients/node
+npm run example:workflow:auto
 ```
 
-## Node
-```ts
-import { Screen, Pattern } from "@sikuligo/sikuligo";
+Runs:
+```js
+import { Screen, Pattern } from "../src";
 
 const screen = await Screen.start();
 try {
-  const pattern = new Pattern("assets/pattern.png").exact();
-  const match = await screen.click(pattern);
-  console.log(match.targetX, match.targetY);
+  const match = await screen.click(new Pattern("assets/pattern.png").exact());
+  console.log(`clicked match target at (${match.targetX}, ${match.targetY})`);
 } finally {
   await screen.close();
 }
+```
+
+### Python (auto-launch)
+
+```bash
+cd clients/python
+python3 examples/workflow_auto_launch.py
+```
+
+Runs:
+```python
+from sikuligo import Pattern, Screen
+
+screen = Screen.start()
+try:
+    match = screen.click(Pattern("assets/pattern.png").exact())
+    print(f"clicked match target at ({match.target_x}, {match.target_y})")
+finally:
+    screen.close()
 ```
 
 ## Example: Dashboard
@@ -101,6 +116,23 @@ Requires GoLang `1.24+`.
 go mod tidy
 go test ./...
 ```
+
+## Build Binaries
+
+Build a local `sikuligo` binary:
+
+```bash
+go build -trimpath -ldflags="-s -w" -o sikuligo ./cmd/sikuligrpc
+./sikuligo -listen 127.0.0.1:50051
+```
+
+Build cross-platform client binaries (darwin arm64/x64, linux x64, windows x64):
+
+```bash
+./scripts/clients/build-node-binaries.sh
+```
+
+Output binaries are written under `clients/node/packages/bin-*/bin/` with checksums at `clients/node/packages/checksums.txt`.
 
 Optional OCR backend (gosseract):
 

@@ -105,7 +105,7 @@ Status: ✅ Implemented (baseline wrapper and examples)
 
 - Generate JS/TS stubs into `clients/node/generated/`.
 - Add Promise-based wrapper in `clients/node/src/`.
-- Add runnable examples in `clients/node/examples/` (`find.ts`, `ocr.ts`, `input.ts`, `app.ts`).
+- Add runnable examples in `clients/node/examples/` (`find.js`, `ocr.js`, `input.js`, `app.js`).
 - Add CI smoke tests against local `cmd/sikuligrpc` (next step).
 
 ### Phase 4: Lua client path

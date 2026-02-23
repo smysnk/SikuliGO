@@ -38,10 +38,10 @@ Implementation status (baseline in repo):
 
 1. `sikuligo` npm package (SDK/meta package):
 - high-level API (`launch`, `find`, `click`, `typeText`, `hotkey`, app control methods).
-- process manager that starts/stops `sikuligrpc`.
+- process manager that starts/stops `sikuligo`.
 - gRPC client wrapper with deadlines, auth metadata, and error mapping.
 
-2. `sikuligrpc` binary:
+2. `sikuligo` binary:
 - packaged per OS/arch.
 - spawned as a child process by SDK `launch()`.
 - bound to localhost with ephemeral port and startup auth token.
@@ -69,7 +69,7 @@ Repository scaffolding:
 - release script: `scripts/clients/release-node-binaries.sh`
 
 3. Each binary package:
-- includes one `sikuligrpc` executable.
+- includes one `sikuligo` executable.
 - installs to predictable path resolved by `sikuligo` at runtime.
 
 4. Runtime resolution in `sikuligo`:

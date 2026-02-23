@@ -22,11 +22,11 @@ for target in "${TARGETS[@]}"; do
   mkdir -p "$bin_dir"
 
   if [[ "$goos" == "windows" ]]; then
-    out="$bin_dir/sikuligrpc.exe"
-    rm -f "$bin_dir/sikuligrpc"
+    out="$bin_dir/sikuligo.exe"
+    rm -f "$bin_dir/sikuligrpc" "$bin_dir/sikuligrpc.exe" "$bin_dir/sikuligo"
   else
-    out="$bin_dir/sikuligrpc"
-    rm -f "$bin_dir/sikuligrpc.exe"
+    out="$bin_dir/sikuligo"
+    rm -f "$bin_dir/sikuligrpc" "$bin_dir/sikuligrpc.exe" "$bin_dir/sikuligo.exe"
   fi
 
   echo "Building $pkg ($goos/$goarch)"
@@ -43,12 +43,12 @@ rm -f "$checksum_file"
 if command -v sha256sum >/dev/null 2>&1; then
   (
     cd "$PACKAGES_DIR"
-    sha256sum bin-*/bin/sikuligrpc* > checksums.txt
+    sha256sum bin-*/bin/sikuligo* > checksums.txt
   )
 elif command -v shasum >/dev/null 2>&1; then
   (
     cd "$PACKAGES_DIR"
-    shasum -a 256 bin-*/bin/sikuligrpc* > checksums.txt
+    shasum -a 256 bin-*/bin/sikuligo* > checksums.txt
   )
 fi
 

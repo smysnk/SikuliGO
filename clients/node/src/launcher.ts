@@ -71,14 +71,14 @@ async function waitForStartup(client: SikuliTransport, child: ChildProcess, time
         rejected = true;
         reject(
           new Error(
-            `sikuligrpc exited before startup completed (code=${code ?? "nil"} signal=${signal ?? "nil"})`
+            `sikuligo exited before startup completed (code=${code ?? "nil"} signal=${signal ?? "nil"})`
           )
         );
       });
     })
   ]);
   if (rejected) {
-    throw new Error("sikuligrpc exited before ready");
+    throw new Error("sikuligo exited before ready");
   }
 }
 

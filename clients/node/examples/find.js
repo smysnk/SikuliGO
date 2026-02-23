@@ -1,6 +1,6 @@
 import { Screen, Pattern } from "../src";
 
-async function main(): Promise<void> {
+async function main() {
   const screen = await Screen.start();
   try {
     const pattern = new Pattern("assets/pattern.png").exact();

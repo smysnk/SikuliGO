@@ -1,12 +1,10 @@
 # SikuliGO Python Client
 
-This directory contains a minimal Python gRPC client wrapper for `sikuli.v1.SikuliService`.
+This directory contains the Python client for SikuliGO with Sikuli-style `Screen` + `Pattern` APIs.
 
 ## Prerequisites
-
 - Python 3.10+
 - `protoc`
-- SikuliGO gRPC server running (default `127.0.0.1:50051`)
 
 ## Setup
 
@@ -24,32 +22,67 @@ Install from PyPI:
 pip install sikuligo
 ```
 
+## Quickstart
+
+### 1) Launch `sikuligo` manually, then run the client script
+
+```bash
+# terminal 1 (repo root): start the API
+./sikuligo -listen 127.0.0.1:50051
+```
+
+```bash
+# terminal 2: run the Python workflow script
+cd clients/python
+python3 examples/workflow_connect.py
+```
+
+`python3 examples/workflow_connect.py` runs:
+
+```python
+from __future__ import annotations
+from sikuligo import Pattern, Screen
+import os
+
+screen = Screen.connect()
+try:
+    match = screen.click(Pattern("assets/pattern.png").exact())
+    print(f"clicked match target at ({match.target_x}, {match.target_y})")
+finally:
+    screen.close()
+```
+
+### 2) Run script only – (auto-launch sikuligo on demand)
+
+```bash
+cd clients/python
+python3 examples/workflow_auto_launch.py
+```
+```python
+from __future__ import annotations
+from sikuligo import Pattern, Screen
+
+screen = Screen.start()
+try:
+    match = screen.click(Pattern("assets/pattern.png").exact())
+    print(f"clicked match target at ({match.target_x}, {match.target_y})")
+finally:
+    screen.close()
+```
+
 ## Environment
 
 - `SIKULI_GRPC_ADDR` (default: `127.0.0.1:50051`)
 - `SIKULI_GRPC_AUTH_TOKEN` (optional; sent as `x-api-key`)
 
-## Quick Example
-
-```python
-from sikuligo.client import Sikuli
-
-client = Sikuli()
-try:
-    match = client.click_on_screen("assets/pattern.png", exact=True, timeout_millis=5000)
-    print(match.match.target.x, match.match.target.y)
-finally:
-    client.close()
-```
-
-## Run Examples
+## Run Additional Examples
 
 ```bash
 cd clients/python
-PYTHONPATH=. python3 examples/find.py
-PYTHONPATH=. python3 examples/read_text.py
-PYTHONPATH=. python3 examples/click_and_type.py
-PYTHONPATH=. python3 examples/app_control.py
+python3 examples/find.py
+python3 examples/read_text.py
+python3 examples/click_and_type.py
+python3 examples/app_control.py
 ```
 
 ## Build/Release Scaffold

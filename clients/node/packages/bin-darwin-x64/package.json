@@ -1,10 +1,10 @@
 {
   "name": "@sikuligo/bin-darwin-x64",
   "version": "0.1.4",
-  "description": "sikuligrpc binary for darwin x64",
+  "description": "sikuligo binary for darwin x64",
   "license": "MIT",
   "files": [
-    "bin/sikuligrpc",
+    "bin/sikuligo",
     "README.md"
   ],
   "publishConfig": {

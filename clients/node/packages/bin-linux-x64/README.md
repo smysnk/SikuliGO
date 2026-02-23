@@ -1,3 +1,3 @@
 # @sikuligo/bin-linux-x64
 
-Platform binary package for `sikuligrpc` on Linux x64.
+Platform binary package for `sikuligo` on Linux x64.

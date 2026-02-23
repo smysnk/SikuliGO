@@ -1,6 +1,6 @@
 import { Sikuli } from "../src";
 
-async function main(): Promise<void> {
+async function main() {
   const client = await Sikuli.launch();
   const appName = process.env.SIKULI_APP_NAME ?? "Calculator";
 

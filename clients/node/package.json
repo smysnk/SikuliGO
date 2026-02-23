@@ -1,7 +1,7 @@
 {
   "name": "@sikuligo/sikuligo",
   "version": "0.1.4",
-  "description": "SikuliGO Node.js SDK with local sikuligrpc launcher",
+  "description": "SikuliGO Node.js client",
   "keywords": [
     "sikuli",
     "sikulix",
@@ -49,16 +49,20 @@
     "build": "bash ../../scripts/clients/generate-node-stubs.sh && tsc -p tsconfig.json",
     "prepack": "npm run clean && npm run build",
     "doctor": "node dist/src/doctor.js",
-    "example:find": "tsx examples/find.ts",
-    "example:click": "tsx examples/click.ts",
-    "example:ocr": "tsx examples/ocr.ts",
-    "example:input": "tsx examples/input.ts",
-    "example:app": "tsx examples/app.ts",
-    "example:user-flow": "tsx examples/user-flow.ts"
+    "example:workflow:auto": "tsx examples/workflow-auto-launch.js",
+    "example:workflow:connect": "tsx examples/workflow-connect.js",
+    "example:find": "tsx examples/find.js",
+    "example:click": "tsx examples/click.js",
+    "example:ocr": "tsx examples/ocr.js",
+    "example:input": "tsx examples/input.js",
+    "example:app": "tsx examples/app.js",
+    "example:user-flow": "tsx examples/user-flow.js"
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.14.0",
-    "@grpc/proto-loader": "^0.8.0",
+    "@grpc/proto-loader": "^0.8.0"
+  },
+  "optionalDependencies": {
     "@sikuligo/bin-darwin-arm64": "0.1.4",
     "@sikuligo/bin-darwin-x64": "0.1.4",
     "@sikuligo/bin-linux-x64": "0.1.4",

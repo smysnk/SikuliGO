@@ -120,10 +120,22 @@ export class Sikuli {
     return md;
   }
 
-  private clientError(err: grpc.ServiceError): SikuliError {
+  private clientError(methodName: string, err: grpc.ServiceError): SikuliError {
     const traceValues = err.metadata?.get(TRACE_HEADER) ?? [];
     const traceId = traceValues.length > 0 ? String(traceValues[0]) : undefined;
-    return new SikuliError(err.code ?? grpc.status.UNKNOWN, err.details || err.message, traceId);
+    const code = err.code ?? grpc.status.UNKNOWN;
+    let details = err.details || err.message;
+    if (
+      code === grpc.status.UNIMPLEMENTED &&
+      typeof details === "string" &&
+      details.toLowerCase().includes("unknown method")
+    ) {
+      details +=
+        `; server does not implement ${methodName}. ` +
+        "This usually means the sikuligo binary is older than this client. " +
+        "Build/update sikuligo or set SIKULIGO_BINARY_PATH to a current binary.";
+    }
+    return new SikuliError(code, details, traceId);
   }
 
   private unary(methodName: string, request: RpcMessage, opts: UnaryCallOptions = {}): Promise<RpcMessage> {
@@ -144,7 +156,7 @@ export class Sikuli {
         { deadline },
         (err: grpc.ServiceError | null, response: RpcMessage) => {
           if (err) {
-            reject(this.clientError(err));
+            reject(this.clientError(methodName, err));
             return;
           }
           resolve(response);

@@ -30,9 +30,9 @@ for pkg in "${PACKAGES[@]}"; do
   cd "$pkg_dir"
 
   if [[ "$pkg" == "bin-win32-x64" ]]; then
-    test -f "bin/sikuligrpc.exe" || { echo "Missing binary for $pkg" >&2; exit 1; }
+    test -f "bin/sikuligo.exe" || { echo "Missing binary for $pkg" >&2; exit 1; }
   else
-    test -f "bin/sikuligrpc" || { echo "Missing binary for $pkg" >&2; exit 1; }
+    test -f "bin/sikuligo" || { echo "Missing binary for $pkg" >&2; exit 1; }
   fi
 
   npm pack --dry-run >/dev/null
