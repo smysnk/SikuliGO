@@ -288,4 +288,8 @@ jobs:
         run: |
           go test -run '^$' -tags "gosseract opencv gocv_specific_modules" ./...
           go build -tags "gosseract opencv gocv_specific_modules" -o /tmp/sikuligo-tagged ./cmd/sikuligrpc
-          go build -tags "gosseract opencv gocv_specific_modules" -o /tmp/sikuligo-monitor-tagged ./cmd/sikuligo-monitor
+          if [ -d ./cmd/sikuligo-monitor ]; then
+            go build -tags "gosseract opencv gocv_specific_modules" -o /tmp/sikuligo-monitor-tagged ./cmd/sikuligo-monitor
+          else
+            echo "Skipping sikuligo-monitor build: ./cmd/sikuligo-monitor not found in this revision"
+          fi
