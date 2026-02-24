@@ -37,7 +37,7 @@ build-go: build-go-api build-go-monitor
 
 build-go-api:
 	cd "$(ROOT_DIR)" && \
-	$(GO) build -tags "gosseract opencv" -trimpath -ldflags="-s -w" -o sikuligo ./cmd/sikuligrpc
+	$(GO) build -tags "gosseract opencv gocv_specific_modules" -trimpath -ldflags="-s -w" -o sikuligo ./cmd/sikuligrpc
 
 build-go-monitor:
 	cd "$(ROOT_DIR)" && \

@@ -122,14 +122,14 @@ go test ./...
 Build a local `sikuligo` binary:
 
 ```bash
-go build -tags "gosseract opencv" -trimpath -ldflags="-s -w" -o sikuligo ./cmd/sikuligrpc
+go build -tags "gosseract opencv gocv_specific_modules" -trimpath -ldflags="-s -w" -o sikuligo ./cmd/sikuligrpc
 ./sikuligo -listen 127.0.0.1:50051
 ```
 
 Build the dashboard/session viewer monitor binary (used with ad-hoc client-spawned API sessions):
 
 ```bash
-go build -tags "gosseract opencv" -trimpath -ldflags="-s -w" -o sikuligo-monitor ./cmd/sikuligo-monitor
+go build -tags "gosseract opencv gocv_specific_modules" -trimpath -ldflags="-s -w" -o sikuligo-monitor ./cmd/sikuligo-monitor
 ./sikuligo-monitor -listen :8080 -sqlite-path ./sikuligo.db
 ```
 
