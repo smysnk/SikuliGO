@@ -294,12 +294,14 @@ class Screen(Region):
         startup_timeout_seconds: float = DEFAULT_STARTUP_TIMEOUT_SECONDS,
         binary_path: str | None = None,
         admin_listen: str = "",
+        sqlite_path: str | None = None,
         server_args: Sequence[str] | None = None,
         stdio: Literal["ignore", "pipe", "inherit"] = "ignore",
     ) -> Screen:
         resolved_address = address or os.getenv("SIKULI_GRPC_ADDR") or f"127.0.0.1:{_find_open_port()}"
         token = auth_token or os.getenv("SIKULI_GRPC_AUTH_TOKEN") or secrets.token_hex(24)
         binary = _resolve_sikuli_binary(binary_path)
+        resolved_sqlite_path = sqlite_path or os.getenv("SIKULIGO_SQLITE_PATH", "").strip() or "sikuligo.db"
         stdout, stderr = _stdio_targets(stdio)
 
         args = [
@@ -311,6 +313,8 @@ class Screen(Region):
             "-auth-token",
             token,
             "-enable-reflection=false",
+            "-sqlite-path",
+            resolved_sqlite_path,
             *(server_args or []),
         ]
         child = subprocess.Popen(
@@ -369,6 +373,47 @@ class Screen(Region):
             child=None,
             meta=LaunchMeta(address=resolved_address, auth_token=resolved_auth_token, spawned_server=False),
         )
+
+    @classmethod
+    def auto(
+        cls,
+        *,
+        address: str | None = None,
+        auth_token: str | None = None,
+        trace_id: str | None = None,
+        timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
+        secure: bool = False,
+        startup_timeout_seconds: float = DEFAULT_STARTUP_TIMEOUT_SECONDS,
+        binary_path: str | None = None,
+        admin_listen: str = "",
+        sqlite_path: str | None = None,
+        server_args: Sequence[str] | None = None,
+        stdio: Literal["ignore", "pipe", "inherit"] = "ignore",
+    ) -> Screen:
+        probe_address = address or os.getenv("SIKULI_GRPC_ADDR", DEFAULT_ADDR)
+        try:
+            return cls.connect(
+                address=probe_address,
+                auth_token=auth_token,
+                trace_id=trace_id,
+                timeout_seconds=timeout_seconds,
+                secure=secure,
+                startup_timeout_seconds=1.0,
+            )
+        except Exception:
+            return cls.start(
+                address=address,
+                auth_token=auth_token,
+                trace_id=trace_id,
+                timeout_seconds=timeout_seconds,
+                secure=secure,
+                startup_timeout_seconds=startup_timeout_seconds,
+                binary_path=binary_path,
+                admin_listen=admin_listen,
+                sqlite_path=sqlite_path,
+                server_args=server_args,
+                stdio=stdio,
+            )
 
     def region(self, x: int, y: int, w: int, h: int) -> Region:
         return Region(self._session, (int(x), int(y), int(w), int(h)))

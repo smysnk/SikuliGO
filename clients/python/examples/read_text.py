@@ -1,9 +1,11 @@
 from generated.sikuli.v1 import sikuli_pb2 as pb
-from sikuligo.client import Sikuli, gray_image_from_rows
+from sikuligo import Screen
+from sikuligo.client import gray_image_from_rows
 
 
 def main() -> int:
-    client = Sikuli()
+    screen = Screen.auto()
+    client = screen.client
     try:
         source = gray_image_from_rows(
             "ocr-source",
@@ -29,7 +31,7 @@ def main() -> int:
         find_res = client.find_text(find_req, timeout_seconds=10.0)
         print(f"find_text matches => {len(find_res.matches)}")
     finally:
-        client.close()
+        screen.close()
     return 0
 
 

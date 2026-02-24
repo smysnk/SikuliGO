@@ -1,7 +1,7 @@
 import { Screen, Pattern } from "../src";
 
 async function main() {
-  const screen = await Screen.start({
+  const screen = await Screen.auto({
     startupTimeoutMs: 10_000
   });
   try {

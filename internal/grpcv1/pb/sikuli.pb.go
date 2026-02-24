@@ -2179,7 +2179,7 @@ const file_sikuli_v1_sikuli_proto_rawDesc = "" +
 	"\bFocusApp\x12\x1b.sikuli.v1.AppActionRequest\x1a\x19.sikuli.v1.ActionResponse\x12B\n" +
 	"\bCloseApp\x12\x1b.sikuli.v1.AppActionRequest\x1a\x19.sikuli.v1.ActionResponse\x12L\n" +
 	"\fIsAppRunning\x12\x1b.sikuli.v1.AppActionRequest\x1a\x1f.sikuli.v1.IsAppRunningResponse\x12J\n" +
-	"\vListWindows\x12\x1b.sikuli.v1.AppActionRequest\x1a\x1e.sikuli.v1.ListWindowsResponseB7Z5github.com/smysnk/sikuligo/internal/grpcv1/pb;sikuliv1b\x06proto3"
+	"\vListWindows\x12\x1b.sikuli.v1.AppActionRequest\x1a\x1e.sikuli.v1.ListWindowsResponseB8Z6github.com/smysnk/sikuligo/internal/grpcv1/pb;sikuliv1b\x06proto3"
 
 var (
 	file_sikuli_v1_sikuli_proto_rawDescOnce sync.Once

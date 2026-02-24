@@ -177,6 +177,11 @@ export class Screen extends Region {
     return new Screen(session);
   }
 
+  static async auto(opts: LaunchOptions = {}): Promise<Screen> {
+    const session = await Sikuli.auto(opts);
+    return new Screen(session);
+  }
+
   region(x: number, y: number, w: number, h: number): Region {
     return new Region(this.session, { x, y, w, h });
   }

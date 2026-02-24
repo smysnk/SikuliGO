@@ -61,6 +61,19 @@ export class Sikuli {
     });
   }
 
+  static async auto(opts: LaunchOptions = {}): Promise<Sikuli> {
+    const probeAddress = opts.address ?? process.env.SIKULI_GRPC_ADDR ?? "127.0.0.1:50051";
+    try {
+      return await Sikuli.connect({
+        ...opts,
+        address: probeAddress,
+        startupTimeoutMs: 1_000
+      });
+    } catch {
+      return await Sikuli.launch(opts);
+    }
+  }
+
   client(): SikuliTransport {
     return this.transport;
   }

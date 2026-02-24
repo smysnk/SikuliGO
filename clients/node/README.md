@@ -12,16 +12,7 @@ npm run build
 
 ## Quickstart
 
-### 1) Start API manually, then run the client script
-
-Start `sikuligo` yourself first:
-
-```bash
-# from repo root
-./sikuligo -listen 127.0.0.1:50051
-```
-
-Then run:
+Run:
 
 ```bash
 cd clients/node
@@ -34,9 +25,7 @@ npm run example:workflow:connect
 import { Screen, Pattern } from "../src";
 
 async function main() {
-  const screen = await Screen.connect({
-    address: process.env.SIKULI_GRPC_ADDR ?? "127.0.0.1:50051"
-  });
+  const screen = await Screen.auto();
   try {
     const match = await screen.click(new Pattern("assets/pattern.png").exact());
     console.log(`clicked match target at (${match.targetX}, ${match.targetY})`);
@@ -46,7 +35,7 @@ async function main() {
 }
 ```
 
-### 2) Run script only (auto-launch API)
+`npm run example:workflow:auto` uses the same constructor pattern (`connect -> launch`):
 
 ```bash
 cd clients/node
@@ -59,7 +48,7 @@ npm run example:workflow:auto
 import { Screen, Pattern } from "../src";
 
 async function main() {
-  const screen = await Screen.start();
+  const screen = await Screen.auto();
   try {
     const match = await screen.click(new Pattern("assets/pattern.png").exact());
     console.log(`clicked match target at (${match.targetX}, ${match.targetY})`);
@@ -86,6 +75,8 @@ npm run doctor
 
 ## Environment
 - `SIKULIGO_BINARY_PATH` (optional explicit path to `sikuligo`)
-- `SIKULI_GRPC_ADDR` (used by `Sikuli.connect`; default `127.0.0.1:50051`)
+- `SIKULI_GRPC_ADDR` (optional address used by `auto` probe/connect; default probe `127.0.0.1:50051`)
 - `SIKULI_GRPC_AUTH_TOKEN` (optional; sent as `x-api-key` for spawned/connected sessions)
+- `SIKULI_DEBUG` (optional; set to `1` to log launcher and per-RPC timing details; spawned `sikuligo` logs are shown too)
+- `SIKULIGO_SQLITE_PATH` (optional sqlite path for spawned server sessions; default `sikuligo.db`)
 - `SIKULI_APP_NAME` (optional; used by `examples/app.js`)

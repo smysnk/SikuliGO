@@ -1,9 +1,10 @@
 from generated.sikuli.v1 import sikuli_pb2 as pb
-from sikuligo.client import Sikuli
+from sikuligo import Screen
 
 
 def main() -> int:
-    client = Sikuli()
+    screen = Screen.auto()
+    client = screen.client
     try:
         client.move_mouse(pb.MoveMouseRequest(x=200, y=180, opts=pb.InputOptions(delay_millis=30)))
         client.click(pb.ClickRequest(x=200, y=180, opts=pb.InputOptions(button="left", delay_millis=20)))
@@ -11,7 +12,7 @@ def main() -> int:
         client.hotkey(pb.HotkeyRequest(keys=["cmd", "a"]))
         print("input actions sent")
     finally:
-        client.close()
+        screen.close()
     return 0
 
 

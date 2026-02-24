@@ -315,7 +315,7 @@ func TestClickOnScreenInvokesClickBackend(t *testing.T) {
 func withMockScreenCapture(t *testing.T, img *sikuli.Image) {
 	t.Helper()
 	original := captureScreenFn
-	captureScreenFn = func(_ string) (*sikuli.Image, error) {
+	captureScreenFn = func(_ context.Context, _ string) (*sikuli.Image, error) {
 		return img, nil
 	}
 	t.Cleanup(func() {

@@ -1,9 +1,10 @@
 from generated.sikuli.v1 import sikuli_pb2 as pb
-from sikuligo.client import Sikuli
+from sikuligo import Screen
 
 
 def main() -> int:
-    client = Sikuli()
+    screen = Screen.auto()
+    client = screen.client
     app_name = "Calculator"
     try:
         client.open_app(pb.AppActionRequest(name=app_name))
@@ -17,7 +18,7 @@ def main() -> int:
         client.close_app(pb.AppActionRequest(name=app_name))
         print("app control actions sent")
     finally:
-        client.close()
+        screen.close()
     return 0
 
 

@@ -1,13 +1,17 @@
 package grpcv1
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/gorilla/websocket"
+	"github.com/smysnk/sikuligo/internal/sessionstore"
 	"google.golang.org/grpc/codes"
 )
 
@@ -19,7 +23,7 @@ func TestAdminMuxHealthSnapshotAndMetrics(t *testing.T) {
 	metrics.RecordAuthFailure("/sikuli.v1.SikuliService/Find")
 	metrics.FinishRequest()
 
-	mux := NewAdminMux(metrics)
+	mux := NewAdminMux(metrics, nil)
 
 	healthReq := httptest.NewRequest(http.MethodGet, "/healthz", nil)
 	healthRes := httptest.NewRecorder()
@@ -77,7 +81,7 @@ func TestAdminMuxDashboard(t *testing.T) {
 	metrics := NewMetricsRegistry()
 	metrics.Record("/sikuli.v1.SikuliService/Find", codes.OK, 5*time.Millisecond, "trace-1")
 
-	mux := NewAdminMux(metrics)
+	mux := NewAdminMux(metrics, nil)
 	req := httptest.NewRequest(http.MethodGet, "/dashboard", nil)
 	res := httptest.NewRecorder()
 	mux.ServeHTTP(res, req)
@@ -90,5 +94,125 @@ func TestAdminMuxDashboard(t *testing.T) {
 	}
 	if !strings.Contains(body, "/sikuli.v1.SikuliService/Find") {
 		t.Fatalf("dashboard missing method row")
+	}
+}
+
+func TestAdminMuxSessionsViewerEndpoints(t *testing.T) {
+	metrics := NewMetricsRegistry()
+	store, err := sessionstore.OpenSQLite(":memory:")
+	if err != nil {
+		t.Fatalf("open sqlite: %v", err)
+	}
+	defer func() {
+		_ = store.Close()
+	}()
+
+	api, err := store.StartAPISession(context.Background(), sessionstore.APISessionStartInput{
+		PID:            111,
+		GRPCListenAddr: "127.0.0.1:50051",
+	})
+	if err != nil {
+		t.Fatalf("start api session: %v", err)
+	}
+	client, err := store.StartClientSession(context.Background(), sessionstore.ClientSessionStartInput{
+		APISessionID: api.ID,
+		ConnectionID: "conn-1",
+		RemoteAddr:   "127.0.0.1:60000",
+		LocalAddr:    "127.0.0.1:50051",
+	})
+	if err != nil {
+		t.Fatalf("start client session: %v", err)
+	}
+	if err := store.RecordInteraction(context.Background(), sessionstore.InteractionInput{
+		APISessionID:    api.ID,
+		ClientSessionID: client.ID,
+		Method:          "/sikuli.v1.SikuliService/FindOnScreen",
+		TraceID:         "trace-1",
+		GRPCCode:        "OK",
+		DurationMS:      23,
+		StartedAt:       time.Now().UTC().Add(-23 * time.Millisecond),
+		CompletedAt:     time.Now().UTC(),
+	}); err != nil {
+		t.Fatalf("record interaction: %v", err)
+	}
+
+	mux := NewAdminMux(metrics, store)
+
+	viewReq := httptest.NewRequest(http.MethodGet, "/sessions", nil)
+	viewRes := httptest.NewRecorder()
+	mux.ServeHTTP(viewRes, viewReq)
+	if viewRes.Code != http.StatusOK {
+		t.Fatalf("sessions view status mismatch: %d", viewRes.Code)
+	}
+	if !strings.Contains(viewRes.Body.String(), "Session Viewer") {
+		t.Fatalf("sessions view title missing")
+	}
+
+	apiReq := httptest.NewRequest(http.MethodGet, "/sessions/api", nil)
+	apiRes := httptest.NewRecorder()
+	mux.ServeHTTP(apiRes, apiReq)
+	if apiRes.Code != http.StatusOK {
+		t.Fatalf("sessions api list status mismatch: %d", apiRes.Code)
+	}
+	var apiRows []sessionSummary
+	if err := json.Unmarshal(apiRes.Body.Bytes(), &apiRows); err != nil {
+		t.Fatalf("sessions api parse failed: %v", err)
+	}
+	if len(apiRows) != 1 {
+		t.Fatalf("expected 1 api session row, got %d", len(apiRows))
+	}
+
+	clientReq := httptest.NewRequest(http.MethodGet, "/sessions/api/"+strconv.FormatUint(uint64(api.ID), 10)+"/clients", nil)
+	clientRes := httptest.NewRecorder()
+	mux.ServeHTTP(clientRes, clientReq)
+	if clientRes.Code != http.StatusOK {
+		t.Fatalf("sessions client list status mismatch: %d", clientRes.Code)
+	}
+	var clientRows []sessionSummary
+	if err := json.Unmarshal(clientRes.Body.Bytes(), &clientRows); err != nil {
+		t.Fatalf("sessions client parse failed: %v", err)
+	}
+	if len(clientRows) != 1 {
+		t.Fatalf("expected 1 client session row, got %d", len(clientRows))
+	}
+
+	interactionReq := httptest.NewRequest(http.MethodGet, "/sessions/client/"+strconv.FormatUint(uint64(client.ID), 10)+"/interactions", nil)
+	interactionRes := httptest.NewRecorder()
+	mux.ServeHTTP(interactionRes, interactionReq)
+	if interactionRes.Code != http.StatusOK {
+		t.Fatalf("sessions interaction list status mismatch: %d", interactionRes.Code)
+	}
+	var interactions []interactionSummary
+	if err := json.Unmarshal(interactionRes.Body.Bytes(), &interactions); err != nil {
+		t.Fatalf("sessions interaction parse failed: %v", err)
+	}
+	if len(interactions) != 1 {
+		t.Fatalf("expected 1 interaction row, got %d", len(interactions))
+	}
+	if interactions[0].Method != "/sikuli.v1.SikuliService/FindOnScreen" {
+		t.Fatalf("unexpected interaction method: %s", interactions[0].Method)
+	}
+}
+
+func TestAdminMuxWebSocketPush(t *testing.T) {
+	metrics := NewMetricsRegistry()
+	metrics.Record("/sikuli.v1.SikuliService/Find", codes.OK, 5*time.Millisecond, "trace-ws")
+
+	server := httptest.NewServer(NewAdminMux(metrics, nil))
+	defer server.Close()
+
+	wsURL := "ws" + strings.TrimPrefix(server.URL, "http") + "/ws"
+	conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+	if err != nil {
+		t.Fatalf("websocket dial failed: %v", err)
+	}
+	defer conn.Close()
+
+	var payload dashboardPushPayload
+	if err := conn.ReadJSON(&payload); err != nil {
+		t.Fatalf("websocket read json failed: %v", err)
+	}
+	if payload.Snapshot.TotalRequests < 1 {
+		t.Fatalf("expected snapshot requests >= 1, got %d", payload.Snapshot.TotalRequests)
 	}
 }

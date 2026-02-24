@@ -19,10 +19,11 @@ import (
 const traceHeader = "x-trace-id"
 
 type interceptorOptions struct {
-	authToken     string
-	logger        *log.Logger
-	metrics       *MetricsRegistry
-	publicMethods map[string]struct{}
+	authToken      string
+	logger         *log.Logger
+	metrics        *MetricsRegistry
+	sessionTracker *SessionTracker
+	publicMethods  map[string]struct{}
 }
 
 type contextKeyTraceID struct{}
@@ -38,11 +39,12 @@ func (w *wrappedServerStream) Context() context.Context {
 
 var traceCounter uint64
 
-func newInterceptorOptions(authToken string, logger *log.Logger, metrics *MetricsRegistry) interceptorOptions {
+func newInterceptorOptions(authToken string, logger *log.Logger, metrics *MetricsRegistry, tracker *SessionTracker) interceptorOptions {
 	return interceptorOptions{
-		authToken: strings.TrimSpace(authToken),
-		logger:    logger,
-		metrics:   metrics,
+		authToken:      strings.TrimSpace(authToken),
+		logger:         logger,
+		metrics:        metrics,
+		sessionTracker: tracker,
 	}
 }
 
@@ -54,8 +56,8 @@ func (o *interceptorOptions) allowMethod(method string) bool {
 	return ok
 }
 
-func UnaryInterceptors(authToken string, logger *log.Logger, metrics *MetricsRegistry) []grpc.UnaryServerInterceptor {
-	opts := newInterceptorOptions(authToken, logger, metrics)
+func UnaryInterceptors(authToken string, logger *log.Logger, metrics *MetricsRegistry, tracker *SessionTracker) []grpc.UnaryServerInterceptor {
+	opts := newInterceptorOptions(authToken, logger, metrics, tracker)
 	return []grpc.UnaryServerInterceptor{
 		tracingUnaryInterceptor(opts),
 		loggingUnaryInterceptor(opts),
@@ -63,8 +65,8 @@ func UnaryInterceptors(authToken string, logger *log.Logger, metrics *MetricsReg
 	}
 }
 
-func StreamInterceptors(authToken string, logger *log.Logger, metrics *MetricsRegistry) []grpc.StreamServerInterceptor {
-	opts := newInterceptorOptions(authToken, logger, metrics)
+func StreamInterceptors(authToken string, logger *log.Logger, metrics *MetricsRegistry, tracker *SessionTracker) []grpc.StreamServerInterceptor {
+	opts := newInterceptorOptions(authToken, logger, metrics, tracker)
 	return []grpc.StreamServerInterceptor{
 		tracingStreamInterceptor(opts),
 		loggingStreamInterceptor(opts),
@@ -113,6 +115,9 @@ func loggingUnaryInterceptor(opts interceptorOptions) grpc.UnaryServerIntercepto
 		if opts.metrics != nil {
 			opts.metrics.Record(info.FullMethod, code, duration, traceID)
 		}
+		if opts.sessionTracker != nil {
+			opts.sessionTracker.RecordInteraction(ctx, info.FullMethod, code, duration, traceID)
+		}
 		if opts.logger != nil {
 			opts.logger.Printf("grpc unary method=%s code=%s duration=%s trace_id=%s peer=%s", info.FullMethod, code.String(), duration, traceID, peerAddress(ctx))
 		}
@@ -133,6 +138,9 @@ func loggingStreamInterceptor(opts interceptorOptions) grpc.StreamServerIntercep
 		traceID := traceIDFromContext(ss.Context())
 		if opts.metrics != nil {
 			opts.metrics.Record(info.FullMethod, code, duration, traceID)
+		}
+		if opts.sessionTracker != nil {
+			opts.sessionTracker.RecordInteraction(ss.Context(), info.FullMethod, code, duration, traceID)
 		}
 		if opts.logger != nil {
 			opts.logger.Printf("grpc stream method=%s code=%s duration=%s trace_id=%s peer=%s", info.FullMethod, code.String(), duration, traceID, peerAddress(ss.Context()))

@@ -23,3 +23,6 @@ original/
 native/
 .test-results/
 **/packages/bin*
+*.db
+sikuligo
+sikuligo-monitor

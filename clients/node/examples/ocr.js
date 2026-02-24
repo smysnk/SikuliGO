@@ -13,7 +13,7 @@ function grayImageFromRows(name, rows) {
 }
 
 async function main() {
-  const client = await Sikuli.launch();
+  const client = await Sikuli.auto();
   const source = grayImageFromRows("ocr-source", [
     [220, 220, 220, 220],
     [220, 20, 20, 220],

@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"image"
+	"log"
+	"os"
 	"strings"
 	"time"
 
@@ -16,6 +18,23 @@ import (
 
 type Server struct {
 	pb.UnimplementedSikuliServiceServer
+}
+
+var debugEnabled = func() bool {
+	v := strings.TrimSpace(os.Getenv("SIKULI_DEBUG"))
+	switch strings.ToLower(v) {
+	case "1", "true", "yes", "on":
+		return true
+	default:
+		return false
+	}
+}()
+
+func debugLogf(format string, args ...any) {
+	if !debugEnabled {
+		return
+	}
+	log.Printf("[sikuligo-debug] "+format, args...)
 }
 
 var captureScreenFn = captureScreenImage
@@ -61,24 +80,24 @@ func (s *Server) FindAll(_ context.Context, req *pb.FindRequest) (*pb.FindAllRes
 	return &pb.FindAllResponse{Matches: toProtoMatches(matches)}, nil
 }
 
-func (s *Server) FindOnScreen(_ context.Context, req *pb.FindOnScreenRequest) (*pb.FindResponse, error) {
+func (s *Server) FindOnScreen(ctx context.Context, req *pb.FindOnScreenRequest) (*pb.FindResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "request is nil")
 	}
-	match, err := s.findOnScreenOnce(req.GetPattern(), req.GetOpts())
+	match, err := s.findOnScreenOnce(ctx, req.GetPattern(), req.GetOpts())
 	if err != nil {
 		return nil, mapStatusError(err)
 	}
 	return &pb.FindResponse{Match: toProtoMatch(match)}, nil
 }
 
-func (s *Server) ExistsOnScreen(_ context.Context, req *pb.ExistsOnScreenRequest) (*pb.ExistsOnScreenResponse, error) {
+func (s *Server) ExistsOnScreen(ctx context.Context, req *pb.ExistsOnScreenRequest) (*pb.ExistsOnScreenResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "request is nil")
 	}
 	opts := screenQueryFromProto(req.GetOpts())
 	if opts.Timeout <= 0 {
-		match, err := s.findOnScreenOnce(req.GetPattern(), req.GetOpts())
+		match, err := s.findOnScreenOnce(ctx, req.GetPattern(), req.GetOpts())
 		if err != nil {
 			if errors.Is(err, sikuli.ErrFindFailed) {
 				return &pb.ExistsOnScreenResponse{Exists: false}, nil
@@ -90,7 +109,7 @@ func (s *Server) ExistsOnScreen(_ context.Context, req *pb.ExistsOnScreenRequest
 
 	deadline := time.Now().Add(opts.Timeout)
 	for {
-		match, err := s.findOnScreenOnce(req.GetPattern(), req.GetOpts())
+		match, err := s.findOnScreenOnce(ctx, req.GetPattern(), req.GetOpts())
 		if err == nil {
 			return &pb.ExistsOnScreenResponse{Exists: true, Match: toProtoMatch(match)}, nil
 		}
@@ -104,7 +123,7 @@ func (s *Server) ExistsOnScreen(_ context.Context, req *pb.ExistsOnScreenRequest
 	}
 }
 
-func (s *Server) WaitOnScreen(_ context.Context, req *pb.WaitOnScreenRequest) (*pb.FindResponse, error) {
+func (s *Server) WaitOnScreen(ctx context.Context, req *pb.WaitOnScreenRequest) (*pb.FindResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "request is nil")
 	}
@@ -114,7 +133,7 @@ func (s *Server) WaitOnScreen(_ context.Context, req *pb.WaitOnScreenRequest) (*
 	}
 	deadline := time.Now().Add(opts.Timeout)
 	for {
-		match, err := s.findOnScreenOnce(req.GetPattern(), req.GetOpts())
+		match, err := s.findOnScreenOnce(ctx, req.GetPattern(), req.GetOpts())
 		if err == nil {
 			return &pb.FindResponse{Match: toProtoMatch(match)}, nil
 		}
@@ -136,17 +155,23 @@ func (s *Server) ClickOnScreen(ctx context.Context, req *pb.ClickOnScreenRequest
 		Pattern: req.GetPattern(),
 		Opts:    req.GetOpts(),
 	}
+	debugLogf("click_on_screen.start")
 	found, err := s.WaitOnScreen(ctx, waitReq)
 	if err != nil {
+		debugLogf("click_on_screen.wait.error err=%v", err)
 		return nil, err
 	}
 	match := found.GetMatch()
 	if match == nil || match.GetTarget() == nil {
+		debugLogf("click_on_screen.match_missing_target")
 		return nil, status.Error(codes.Internal, "match target missing")
 	}
+	clickStart := time.Now()
 	if err := clickOnScreenFn(int(match.GetTarget().GetX()), int(match.GetTarget().GetY()), inputOptionsFromProto(req.GetClickOpts())); err != nil {
+		debugLogf("click_on_screen.click.error duration=%s err=%v", time.Since(clickStart), err)
 		return nil, mapStatusError(err)
 	}
+	debugLogf("click_on_screen.click.ok duration=%s target=(%d,%d)", time.Since(clickStart), match.GetTarget().GetX(), match.GetTarget().GetY())
 	return found, nil
 }
 
@@ -214,25 +239,44 @@ func waitInterval(interval time.Duration, deadline time.Time) time.Duration {
 	return interval
 }
 
-func (s *Server) findOnScreenOnce(patternReq *pb.Pattern, optsReq *pb.ScreenQueryOptions) (sikuli.Match, error) {
+func (s *Server) findOnScreenOnce(ctx context.Context, patternReq *pb.Pattern, optsReq *pb.ScreenQueryOptions) (sikuli.Match, error) {
+	start := time.Now()
 	pattern, err := patternFromProto(patternReq)
 	if err != nil {
+		debugLogf("find_on_screen.pattern.error err=%v", err)
 		return sikuli.Match{}, err
 	}
-	source, err := captureScreenFn("screen")
+	captureStart := time.Now()
+	source, err := captureScreenFn(ctx, "screen")
 	if err != nil {
+		debugLogf("find_on_screen.capture.error duration=%s total=%s err=%v", time.Since(captureStart), time.Since(start), err)
 		return sikuli.Match{}, err
 	}
+	debugLogf("find_on_screen.capture.ok duration=%s", time.Since(captureStart))
 
 	opts := screenQueryFromProto(optsReq)
+	matchStart := time.Now()
 	if opts.Region.Empty() {
 		f, err := sikuli.NewFinder(source)
 		if err != nil {
+			debugLogf("find_on_screen.finder.error err=%v", err)
 			return sikuli.Match{}, err
 		}
-		return f.Find(pattern)
+		m, err := f.Find(pattern)
+		if err != nil {
+			debugLogf("find_on_screen.match.error duration=%s total=%s err=%v", time.Since(matchStart), time.Since(start), err)
+			return sikuli.Match{}, err
+		}
+		debugLogf("find_on_screen.match.ok duration=%s total=%s", time.Since(matchStart), time.Since(start))
+		return m, nil
 	}
-	return opts.Region.Find(source, pattern)
+	m, err := opts.Region.Find(source, pattern)
+	if err != nil {
+		debugLogf("find_on_screen.region_match.error duration=%s total=%s err=%v", time.Since(matchStart), time.Since(start), err)
+		return sikuli.Match{}, err
+	}
+	debugLogf("find_on_screen.region_match.ok duration=%s total=%s", time.Since(matchStart), time.Since(start))
+	return m, nil
 }
 
 func (s *Server) FindText(_ context.Context, req *pb.FindTextRequest) (*pb.FindTextResponse, error) {

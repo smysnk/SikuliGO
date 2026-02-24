@@ -23,7 +23,36 @@ on:
         type: boolean
 
 jobs:
+  tagged-server-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Install OCR/OpenCV native dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            pkg-config \
+            libopencv-dev \
+            tesseract-ocr \
+            libtesseract-dev \
+            libleptonica-dev \
+            tesseract-ocr-eng
+
+      - name: Verify tagged server binaries compile
+        run: |
+          go build -tags "gosseract opencv" -o /tmp/sikuligo-tagged ./cmd/sikuligrpc
+          go build -tags "gosseract opencv" -o /tmp/sikuligo-monitor-tagged ./cmd/sikuligo-monitor
+
   python-client:
+    needs: tagged-server-build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -66,6 +95,7 @@ jobs:
           path: clients/python/dist/*
 
   node-binaries:
+    needs: tagged-server-build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

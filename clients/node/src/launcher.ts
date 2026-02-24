@@ -9,6 +9,7 @@ export interface LaunchOptions extends SikuliOptions {
   startupTimeoutMs?: number;
   binaryPath?: string;
   adminListen?: string;
+  sqlitePath?: string;
   serverArgs?: string[];
   stdio?: "ignore" | "pipe" | "inherit";
 }
@@ -22,6 +23,19 @@ export interface LaunchResult {
 }
 
 const DEFAULT_STARTUP_TIMEOUT_MS = 10_000;
+const DEBUG_ENABLED = /^(1|true|yes|on)$/i.test(process.env.SIKULI_DEBUG ?? "");
+
+function debugLog(message: string, fields: Record<string, unknown> = {}): void {
+  if (!DEBUG_ENABLED) {
+    return;
+  }
+  const parts = Object.entries(fields)
+    .filter(([k, v]) => k !== "address" && v !== undefined && v !== null && v !== "")
+    .map(([k, v]) => `${k}=${String(v)}`);
+  const suffix = parts.length > 0 ? ` ${parts.join(" ")}` : "";
+  // eslint-disable-next-line no-console
+  console.error(`[sikuligo-debug] ${message}${suffix}`);
+}
 
 async function findOpenPort(): Promise<number> {
   return await new Promise((resolve, reject) => {
@@ -103,13 +117,15 @@ export async function stopSpawnedProcess(child?: ChildProcess, timeoutMs = 3_000
 export async function launchSikuli(opts: LaunchOptions = {}): Promise<LaunchResult> {
   const spawnServer = opts.spawnServer !== false;
   const startupTimeoutMs = opts.startupTimeoutMs ?? DEFAULT_STARTUP_TIMEOUT_MS;
-  const address =
-    opts.address ||
-    process.env.SIKULI_GRPC_ADDR ||
-    (spawnServer ? `127.0.0.1:${await findOpenPort()}` : "127.0.0.1:50051");
+  const explicitAddress = opts.address || process.env.SIKULI_GRPC_ADDR || "";
+  const address = explicitAddress || (spawnServer ? `127.0.0.1:${await findOpenPort()}` : "127.0.0.1:50051");
   const authToken = opts.authToken || process.env.SIKULI_GRPC_AUTH_TOKEN || "";
 
   if (!spawnServer) {
+    debugLog("launcher.connect.start", {
+      address,
+      startup_timeout_ms: startupTimeoutMs
+    });
     const client = new SikuliTransport({
       address,
       authToken,
@@ -119,6 +135,7 @@ export async function launchSikuli(opts: LaunchOptions = {}): Promise<LaunchResu
       credentials: opts.credentials
     });
     await client.waitForReady(startupTimeoutMs);
+    debugLog("launcher.connect.ready", { address });
     return {
       address,
       authToken,
@@ -129,6 +146,8 @@ export async function launchSikuli(opts: LaunchOptions = {}): Promise<LaunchResu
 
   const binaryPath = resolveSikuliBinary(opts.binaryPath);
   const token = authToken || randomBytes(24).toString("hex");
+  const sqlitePath = opts.sqlitePath || process.env.SIKULIGO_SQLITE_PATH || "sikuligo.db";
+  const stdioMode: "ignore" | "pipe" | "inherit" = opts.stdio ?? (DEBUG_ENABLED ? "inherit" : "ignore");
   const serverArgs = [
     "-listen",
     address,
@@ -137,11 +156,21 @@ export async function launchSikuli(opts: LaunchOptions = {}): Promise<LaunchResu
     "-auth-token",
     token,
     "-enable-reflection=false",
+    "-sqlite-path",
+    sqlitePath,
     ...(opts.serverArgs ?? [])
   ];
+  debugLog("launcher.spawn.start", {
+    binary: binaryPath,
+    address,
+    admin_listen: opts.adminListen ?? "",
+    sqlite_path: sqlitePath,
+    stdio: stdioMode,
+    startup_timeout_ms: startupTimeoutMs
+  });
 
   const child = spawn(binaryPath, serverArgs, {
-    stdio: opts.stdio ?? "ignore",
+    stdio: stdioMode,
     env: {
       ...process.env,
       SIKULI_GRPC_AUTH_TOKEN: token
@@ -160,7 +189,30 @@ export async function launchSikuli(opts: LaunchOptions = {}): Promise<LaunchResu
 
   try {
     await waitForStartup(client, child, startupTimeoutMs);
+    debugLog("launcher.spawn.ready", {
+      address,
+      pid: child.pid ?? "unknown"
+    });
   } catch (err) {
+    const canFallbackToConnect = explicitAddress !== "";
+    if (canFallbackToConnect) {
+      try {
+        await client.waitForReady(Math.max(250, Math.min(startupTimeoutMs, 1_500)));
+        debugLog("launcher.spawn.fallback_connect", {
+          address,
+          reason: (err as Error)?.message ?? "spawn failed"
+        });
+        unwire.forEach((fn) => fn());
+        return {
+          address,
+          authToken: opts.authToken || process.env.SIKULI_GRPC_AUTH_TOKEN || "",
+          client,
+          spawnedServer: false
+        };
+      } catch {
+        // Fall through to original failure handling.
+      }
+    }
     await stopSpawnedProcess(child);
     client.close();
     unwire.forEach((fn) => fn());
@@ -168,6 +220,11 @@ export async function launchSikuli(opts: LaunchOptions = {}): Promise<LaunchResu
   }
 
   child.once("exit", () => {
+    debugLog("launcher.spawn.exit", {
+      address,
+      pid: child.pid ?? "unknown",
+      code: child.exitCode ?? "nil"
+    });
     unwire.forEach((fn) => fn());
   });
 

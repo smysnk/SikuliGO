@@ -70,15 +70,19 @@ function serviceConstructorFromProto(protoPath: string): grpc.ServiceClientConst
 
 export class Sikuli {
   private readonly client: grpc.Client & Record<string, unknown>;
+  private readonly address: string;
   private readonly authToken: string;
   private readonly traceId: string;
   private readonly defaultTimeoutMs: number;
+  private readonly debugEnabled: boolean;
 
   constructor(opts: SikuliOptions = {}) {
     const address = opts.address ?? process.env.SIKULI_GRPC_ADDR ?? DEFAULT_ADDR;
+    this.address = address;
     this.authToken = opts.authToken ?? process.env.SIKULI_GRPC_AUTH_TOKEN ?? "";
     this.traceId = opts.traceId ?? "";
     this.defaultTimeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+    this.debugEnabled = /^(1|true|yes|on)$/i.test(process.env.SIKULI_DEBUG ?? "");
 
     const protoPath = opts.protoPath ?? resolveDefaultProtoPath();
     const ctor = serviceConstructorFromProto(protoPath);
@@ -87,18 +91,43 @@ export class Sikuli {
     this.client = new ctor(address, credentials) as grpc.Client & Record<string, unknown>;
   }
 
+  private debugLog(message: string, fields: Record<string, unknown> = {}): void {
+    if (!this.debugEnabled) {
+      return;
+    }
+    const parts = Object.entries(fields)
+      .filter(([k, v]) => k !== "address" && v !== undefined && v !== null && v !== "")
+      .map(([k, v]) => `${k}=${String(v)}`);
+    const suffix = parts.length > 0 ? ` ${parts.join(" ")}` : "";
+    // eslint-disable-next-line no-console
+    console.error(`[sikuligo-debug] ${message}${suffix}`);
+  }
+
   close(): void {
+    this.debugLog("grpc.close", { address: this.address });
     this.client.close();
   }
 
   waitForReady(timeoutMs = DEFAULT_TIMEOUT_MS): Promise<void> {
+    const startedAt = Date.now();
+    this.debugLog("grpc.wait_for_ready.start", { address: this.address, timeout_ms: timeoutMs });
     const deadline = new Date(Date.now() + timeoutMs);
     return new Promise((resolve, reject) => {
       this.client.waitForReady(deadline, (err?: Error | null) => {
         if (err) {
+          this.debugLog("grpc.wait_for_ready.error", {
+            address: this.address,
+            timeout_ms: timeoutMs,
+            duration_ms: Date.now() - startedAt,
+            error: err.message
+          });
           reject(err);
           return;
         }
+        this.debugLog("grpc.wait_for_ready.ok", {
+          address: this.address,
+          duration_ms: Date.now() - startedAt
+        });
         resolve();
       });
     });
@@ -120,7 +149,7 @@ export class Sikuli {
     return md;
   }
 
-  private clientError(methodName: string, err: grpc.ServiceError): SikuliError {
+  private clientError(methodName: string, err: grpc.ServiceError, timeoutMs: number): SikuliError {
     const traceValues = err.metadata?.get(TRACE_HEADER) ?? [];
     const traceId = traceValues.length > 0 ? String(traceValues[0]) : undefined;
     const code = err.code ?? grpc.status.UNKNOWN;
@@ -135,6 +164,12 @@ export class Sikuli {
         "This usually means the sikuligo binary is older than this client. " +
         "Build/update sikuligo or set SIKULIGO_BINARY_PATH to a current binary.";
     }
+    if (code === grpc.status.DEADLINE_EXCEEDED) {
+      details +=
+        `; client deadline=${timeoutMs}ms. ` +
+        "Set SIKULI_DEBUG=1 to log RPC and launcher details. " +
+        "If this is ClickOnScreen/FindOnScreen on macOS, verify Screen Recording permission for your terminal/IDE.";
+    }
     return new SikuliError(code, details, traceId);
   }
 
@@ -145,8 +180,14 @@ export class Sikuli {
     }
 
     const timeoutMs = opts.timeoutMs ?? this.defaultTimeoutMs;
+    const startedAt = Date.now();
     const deadline = new Date(Date.now() + timeoutMs);
     const metadata = this.buildMetadata(opts.metadata);
+    this.debugLog("rpc.start", {
+      method: methodName,
+      address: this.address,
+      timeout_ms: timeoutMs
+    });
 
     return new Promise((resolve, reject) => {
       callFn.call(
@@ -156,9 +197,22 @@ export class Sikuli {
         { deadline },
         (err: grpc.ServiceError | null, response: RpcMessage) => {
           if (err) {
-            reject(this.clientError(methodName, err));
+            this.debugLog("rpc.error", {
+              method: methodName,
+              address: this.address,
+              timeout_ms: timeoutMs,
+              duration_ms: Date.now() - startedAt,
+              grpc_code: err.code,
+              details: err.details || err.message
+            });
+            reject(this.clientError(methodName, err, timeoutMs));
             return;
           }
+          this.debugLog("rpc.ok", {
+            method: methodName,
+            address: this.address,
+            duration_ms: Date.now() - startedAt
+          });
           resolve(response);
         }
       );

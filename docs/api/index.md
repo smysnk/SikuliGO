@@ -21,5 +21,6 @@ Legend: <span class="api-type">Type</span>, <span class="api-func">Function</spa
 - [`internal/input`](./internal-input)
 - [`internal/observe`](./internal-observe)
 - [`internal/ocr`](./internal-ocr)
+- [`internal/sessionstore`](./internal-sessionstore)
 - [`internal/testharness`](./internal-testharness)
 - [`pkg/sikuli`](./pkg-sikuli)

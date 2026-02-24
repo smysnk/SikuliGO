@@ -13,7 +13,7 @@ import (
 
 func TestAuthUnaryInterceptorRejectsMissingToken(t *testing.T) {
 	metrics := NewMetricsRegistry()
-	opts := newInterceptorOptions("secret-token", nil, metrics)
+	opts := newInterceptorOptions("secret-token", nil, metrics, nil)
 	interceptor := authUnaryInterceptor(opts)
 
 	called := false
@@ -42,7 +42,7 @@ func TestAuthUnaryInterceptorRejectsMissingToken(t *testing.T) {
 }
 
 func TestAuthUnaryInterceptorAcceptsBearerToken(t *testing.T) {
-	opts := newInterceptorOptions("secret-token", nil, NewMetricsRegistry())
+	opts := newInterceptorOptions("secret-token", nil, NewMetricsRegistry(), nil)
 	interceptor := authUnaryInterceptor(opts)
 
 	ctx := metadata.NewIncomingContext(context.Background(), metadata.Pairs("authorization", "Bearer secret-token"))
@@ -66,7 +66,7 @@ func TestAuthUnaryInterceptorAcceptsBearerToken(t *testing.T) {
 }
 
 func TestTracingUnaryInterceptorSetsTraceID(t *testing.T) {
-	interceptor := tracingUnaryInterceptor(newInterceptorOptions("", nil, nil))
+	interceptor := tracingUnaryInterceptor(newInterceptorOptions("", nil, nil, nil))
 
 	var gotTraceID string
 	_, err := interceptor(
@@ -88,7 +88,7 @@ func TestTracingUnaryInterceptorSetsTraceID(t *testing.T) {
 
 func TestLoggingUnaryInterceptorRecordsMetrics(t *testing.T) {
 	metrics := NewMetricsRegistry()
-	interceptor := loggingUnaryInterceptor(newInterceptorOptions("", nil, metrics))
+	interceptor := loggingUnaryInterceptor(newInterceptorOptions("", nil, metrics, nil))
 
 	_, err := interceptor(
 		context.Background(),

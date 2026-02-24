@@ -258,3 +258,33 @@ jobs:
           name: go-parity-e2e-results
           path: .test-results-e2e
           retention-days: 14
+
+  tagged-backend-build:
+    name: Tagged Backend Build (gosseract+opencv)
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up GoLang
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Install OCR/OpenCV native dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            pkg-config \
+            libopencv-dev \
+            tesseract-ocr \
+            libtesseract-dev \
+            libleptonica-dev \
+            tesseract-ocr-eng
+
+      - name: Compile with OCR + OpenCV tags
+        run: |
+          go test -run '^$' -tags "gosseract opencv" ./...
+          go build -tags "gosseract opencv" -o /tmp/sikuligo-tagged ./cmd/sikuligrpc
+          go build -tags "gosseract opencv" -o /tmp/sikuligo-monitor-tagged ./cmd/sikuligo-monitor

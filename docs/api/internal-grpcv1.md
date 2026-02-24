@@ -20,7 +20,10 @@ Package: `package grpcv1 // import "github.com/smysnk/sikuligo/internal/grpcv1"`
 - <span class="api-type">[`MethodSnapshot`](#type-methodsnapshot)</span>
 - <span class="api-type">[`MetricsRegistry`](#type-metricsregistry)</span>
 - <span class="api-type">[`MetricsSnapshot`](#type-metricssnapshot)</span>
+- <span class="api-type">[`MetricsSnapshotProvider`](#type-metricssnapshotprovider)</span>
 - <span class="api-type">[`Server`](#type-server)</span>
+- <span class="api-type">[`SessionTracker`](#type-sessiontracker)</span>
+- <span class="api-type">[`StoreMetricsProvider`](#type-storemetricsprovider)</span>
 
 ### Functions
 
@@ -29,6 +32,8 @@ Package: `package grpcv1 // import "github.com/smysnk/sikuligo/internal/grpcv1"`
 - <span class="api-func">[`UnaryInterceptors`](#func-unaryinterceptors)</span>
 - <span class="api-func">[`NewMetricsRegistry`](#func-newmetricsregistry)</span>
 - <span class="api-func">[`NewServer`](#func-newserver)</span>
+- <span class="api-func">[`NewSessionTracker`](#func-newsessiontracker)</span>
+- <span class="api-func">[`NewStoreMetricsProvider`](#func-newstoremetricsprovider)</span>
 
 ### Methods
 
@@ -57,6 +62,12 @@ Package: `package grpcv1 // import "github.com/smysnk/sikuligo/internal/grpcv1"`
 - <span class="api-method">[`Server.ReadText`](#method-server-readtext)</span>
 - <span class="api-method">[`Server.TypeText`](#method-server-typetext)</span>
 - <span class="api-method">[`Server.WaitOnScreen`](#method-server-waitonscreen)</span>
+- <span class="api-method">[`SessionTracker.HandleConn`](#method-sessiontracker-handleconn)</span>
+- <span class="api-method">[`SessionTracker.HandleRPC`](#method-sessiontracker-handlerpc)</span>
+- <span class="api-method">[`SessionTracker.RecordInteraction`](#method-sessiontracker-recordinteraction)</span>
+- <span class="api-method">[`SessionTracker.TagConn`](#method-sessiontracker-tagconn)</span>
+- <span class="api-method">[`SessionTracker.TagRPC`](#method-sessiontracker-tagrpc)</span>
+- <span class="api-method">[`StoreMetricsProvider.Snapshot`](#method-storemetricsprovider-snapshot)</span>
 
 ## Declarations
 
@@ -74,26 +85,38 @@ Package: `package grpcv1 // import "github.com/smysnk/sikuligo/internal/grpcv1"`
 
 - Signature: <span class="api-signature">`type MetricsSnapshot struct {`</span>
 
+#### <a id="type-metricssnapshotprovider"></a><span class="api-type">Type</span> `MetricsSnapshotProvider`
+
+- Signature: <span class="api-signature">`type MetricsSnapshotProvider interface {`</span>
+
 #### <a id="type-server"></a><span class="api-type">Type</span> `Server`
 
 - Signature: <span class="api-signature">`type Server struct {`</span>
+
+#### <a id="type-sessiontracker"></a><span class="api-type">Type</span> `SessionTracker`
+
+- Signature: <span class="api-signature">`type SessionTracker struct {`</span>
+
+#### <a id="type-storemetricsprovider"></a><span class="api-type">Type</span> `StoreMetricsProvider`
+
+- Signature: <span class="api-signature">`type StoreMetricsProvider struct {`</span>
 
 ### Functions
 
 #### <a id="func-newadminmux"></a><span class="api-func">Function</span> `NewAdminMux`
 
-- Signature: <span class="api-signature">`func NewAdminMux(metrics *MetricsRegistry) *http.ServeMux`</span>
-- Uses: [`MetricsRegistry`](#type-metricsregistry)
+- Signature: <span class="api-signature">`func NewAdminMux(provider MetricsSnapshotProvider, store *sessionstore.Store) *http.ServeMux`</span>
+- Uses: [`MetricsSnapshotProvider`](#type-metricssnapshotprovider)
 
 #### <a id="func-streaminterceptors"></a><span class="api-func">Function</span> `StreamInterceptors`
 
-- Signature: <span class="api-signature">`func StreamInterceptors(authToken string, logger *log.Logger, metrics *MetricsRegistry) []grpc.StreamServerInterceptor`</span>
-- Uses: [`MetricsRegistry`](#type-metricsregistry)
+- Signature: <span class="api-signature">`func StreamInterceptors(authToken string, logger *log.Logger, metrics *MetricsRegistry, tracker *SessionTracker) []grpc.StreamServerInterceptor`</span>
+- Uses: [`MetricsRegistry`](#type-metricsregistry), [`SessionTracker`](#type-sessiontracker)
 
 #### <a id="func-unaryinterceptors"></a><span class="api-func">Function</span> `UnaryInterceptors`
 
-- Signature: <span class="api-signature">`func UnaryInterceptors(authToken string, logger *log.Logger, metrics *MetricsRegistry) []grpc.UnaryServerInterceptor`</span>
-- Uses: [`MetricsRegistry`](#type-metricsregistry)
+- Signature: <span class="api-signature">`func UnaryInterceptors(authToken string, logger *log.Logger, metrics *MetricsRegistry, tracker *SessionTracker) []grpc.UnaryServerInterceptor`</span>
+- Uses: [`MetricsRegistry`](#type-metricsregistry), [`SessionTracker`](#type-sessiontracker)
 
 #### <a id="func-newmetricsregistry"></a><span class="api-func">Function</span> `NewMetricsRegistry`
 
@@ -104,6 +127,16 @@ Package: `package grpcv1 // import "github.com/smysnk/sikuligo/internal/grpcv1"`
 
 - Signature: <span class="api-signature">`func NewServer() *Server`</span>
 - Uses: [`Server`](#type-server)
+
+#### <a id="func-newsessiontracker"></a><span class="api-func">Function</span> `NewSessionTracker`
+
+- Signature: <span class="api-signature">`func NewSessionTracker(store *sessionstore.Store, apiSessionID uint, logger *log.Logger) *SessionTracker`</span>
+- Uses: [`SessionTracker`](#type-sessiontracker)
+
+#### <a id="func-newstoremetricsprovider"></a><span class="api-func">Function</span> `NewStoreMetricsProvider`
+
+- Signature: <span class="api-signature">`func NewStoreMetricsProvider(store *sessionstore.Store) *StoreMetricsProvider`</span>
+- Uses: [`StoreMetricsProvider`](#type-storemetricsprovider)
 
 ### Methods
 
@@ -142,7 +175,7 @@ Package: `package grpcv1 // import "github.com/smysnk/sikuligo/internal/grpcv1"`
 
 #### <a id="method-server-existsonscreen"></a><span class="api-method">Method</span> `Server.ExistsOnScreen`
 
-- Signature: <span class="api-signature">`func (s *Server) ExistsOnScreen(_ context.Context, req *pb.ExistsOnScreenRequest) (*pb.ExistsOnScreenResponse, error)`</span>
+- Signature: <span class="api-signature">`func (s *Server) ExistsOnScreen(ctx context.Context, req *pb.ExistsOnScreenRequest) (*pb.ExistsOnScreenResponse, error)`</span>
 
 #### <a id="method-server-find"></a><span class="api-method">Method</span> `Server.Find`
 
@@ -154,7 +187,7 @@ Package: `package grpcv1 // import "github.com/smysnk/sikuligo/internal/grpcv1"`
 
 #### <a id="method-server-findonscreen"></a><span class="api-method">Method</span> `Server.FindOnScreen`
 
-- Signature: <span class="api-signature">`func (s *Server) FindOnScreen(_ context.Context, req *pb.FindOnScreenRequest) (*pb.FindResponse, error)`</span>
+- Signature: <span class="api-signature">`func (s *Server) FindOnScreen(ctx context.Context, req *pb.FindOnScreenRequest) (*pb.FindResponse, error)`</span>
 
 #### <a id="method-server-findtext"></a><span class="api-method">Method</span> `Server.FindText`
 
@@ -206,7 +239,32 @@ Package: `package grpcv1 // import "github.com/smysnk/sikuligo/internal/grpcv1"`
 
 #### <a id="method-server-waitonscreen"></a><span class="api-method">Method</span> `Server.WaitOnScreen`
 
-- Signature: <span class="api-signature">`func (s *Server) WaitOnScreen(_ context.Context, req *pb.WaitOnScreenRequest) (*pb.FindResponse, error)`</span>
+- Signature: <span class="api-signature">`func (s *Server) WaitOnScreen(ctx context.Context, req *pb.WaitOnScreenRequest) (*pb.FindResponse, error)`</span>
+
+#### <a id="method-sessiontracker-handleconn"></a><span class="api-method">Method</span> `SessionTracker.HandleConn`
+
+- Signature: <span class="api-signature">`func (s *SessionTracker) HandleConn(ctx context.Context, conn stats.ConnStats)`</span>
+
+#### <a id="method-sessiontracker-handlerpc"></a><span class="api-method">Method</span> `SessionTracker.HandleRPC`
+
+- Signature: <span class="api-signature">`func (s *SessionTracker) HandleRPC(context.Context, stats.RPCStats)`</span>
+
+#### <a id="method-sessiontracker-recordinteraction"></a><span class="api-method">Method</span> `SessionTracker.RecordInteraction`
+
+- Signature: <span class="api-signature">`func (s *SessionTracker) RecordInteraction(ctx context.Context, method string, code codes.Code, duration time.Duration, traceID string)`</span>
+
+#### <a id="method-sessiontracker-tagconn"></a><span class="api-method">Method</span> `SessionTracker.TagConn`
+
+- Signature: <span class="api-signature">`func (s *SessionTracker) TagConn(ctx context.Context, info *stats.ConnTagInfo) context.Context`</span>
+
+#### <a id="method-sessiontracker-tagrpc"></a><span class="api-method">Method</span> `SessionTracker.TagRPC`
+
+- Signature: <span class="api-signature">`func (s *SessionTracker) TagRPC(ctx context.Context, _ *stats.RPCTagInfo) context.Context`</span>
+
+#### <a id="method-storemetricsprovider-snapshot"></a><span class="api-method">Method</span> `StoreMetricsProvider.Snapshot`
+
+- Signature: <span class="api-signature">`func (p *StoreMetricsProvider) Snapshot() MetricsSnapshot`</span>
+- Uses: [`MetricsSnapshot`](#type-metricssnapshot)
 
 ## Raw Package Doc
 
@@ -216,9 +274,9 @@ package grpcv1 // import "github.com/smysnk/sikuligo/internal/grpcv1"
 
 FUNCTIONS
 
-func NewAdminMux(metrics *MetricsRegistry) *http.ServeMux
-func StreamInterceptors(authToken string, logger *log.Logger, metrics *MetricsRegistry) []grpc.StreamServerInterceptor
-func UnaryInterceptors(authToken string, logger *log.Logger, metrics *MetricsRegistry) []grpc.UnaryServerInterceptor
+func NewAdminMux(provider MetricsSnapshotProvider, store *sessionstore.Store) *http.ServeMux
+func StreamInterceptors(authToken string, logger *log.Logger, metrics *MetricsRegistry, tracker *SessionTracker) []grpc.StreamServerInterceptor
+func UnaryInterceptors(authToken string, logger *log.Logger, metrics *MetricsRegistry, tracker *SessionTracker) []grpc.UnaryServerInterceptor
 
 TYPES
 
@@ -262,6 +320,10 @@ type MetricsSnapshot struct {
 	Methods           []MethodSnapshot `json:"methods"`
 }
 
+type MetricsSnapshotProvider interface {
+	Snapshot() MetricsSnapshot
+}
+
 type Server struct {
 	pb.UnimplementedSikuliServiceServer
 }
@@ -274,13 +336,13 @@ func (s *Server) ClickOnScreen(ctx context.Context, req *pb.ClickOnScreenRequest
 
 func (s *Server) CloseApp(_ context.Context, req *pb.AppActionRequest) (*pb.ActionResponse, error)
 
-func (s *Server) ExistsOnScreen(_ context.Context, req *pb.ExistsOnScreenRequest) (*pb.ExistsOnScreenResponse, error)
+func (s *Server) ExistsOnScreen(ctx context.Context, req *pb.ExistsOnScreenRequest) (*pb.ExistsOnScreenResponse, error)
 
 func (s *Server) Find(_ context.Context, req *pb.FindRequest) (*pb.FindResponse, error)
 
 func (s *Server) FindAll(_ context.Context, req *pb.FindRequest) (*pb.FindAllResponse, error)
 
-func (s *Server) FindOnScreen(_ context.Context, req *pb.FindOnScreenRequest) (*pb.FindResponse, error)
+func (s *Server) FindOnScreen(ctx context.Context, req *pb.FindOnScreenRequest) (*pb.FindResponse, error)
 
 func (s *Server) FindText(_ context.Context, req *pb.FindTextRequest) (*pb.FindTextResponse, error)
 
@@ -306,6 +368,30 @@ func (s *Server) ReadText(_ context.Context, req *pb.ReadTextRequest) (*pb.ReadT
 
 func (s *Server) TypeText(_ context.Context, req *pb.TypeTextRequest) (*pb.ActionResponse, error)
 
-func (s *Server) WaitOnScreen(_ context.Context, req *pb.WaitOnScreenRequest) (*pb.FindResponse, error)
+func (s *Server) WaitOnScreen(ctx context.Context, req *pb.WaitOnScreenRequest) (*pb.FindResponse, error)
+
+type SessionTracker struct {
+	// Has unexported fields.
+}
+
+func NewSessionTracker(store *sessionstore.Store, apiSessionID uint, logger *log.Logger) *SessionTracker
+
+func (s *SessionTracker) HandleConn(ctx context.Context, conn stats.ConnStats)
+
+func (s *SessionTracker) HandleRPC(context.Context, stats.RPCStats)
+
+func (s *SessionTracker) RecordInteraction(ctx context.Context, method string, code codes.Code, duration time.Duration, traceID string)
+
+func (s *SessionTracker) TagConn(ctx context.Context, info *stats.ConnTagInfo) context.Context
+
+func (s *SessionTracker) TagRPC(ctx context.Context, _ *stats.RPCTagInfo) context.Context
+
+type StoreMetricsProvider struct {
+	// Has unexported fields.
+}
+
+func NewStoreMetricsProvider(store *sessionstore.Store) *StoreMetricsProvider
+
+func (p *StoreMetricsProvider) Snapshot() MetricsSnapshot
 
 ```

@@ -4,7 +4,7 @@ from sikuligo import Pattern, Screen
 
 
 def main() -> int:
-    screen = Screen.connect()
+    screen = Screen.auto()
     try:
         match = screen.find(Pattern("assets/pattern.png").exact(), timeout_millis=3000)
         print(

@@ -23,7 +23,7 @@ Sikuli is an open-source tool for automating anything visible on a computer scre
 
 ## Examples
 
-### JavaScript (auto-launch)
+### Node.js
 
 ```bash
 cd clients/node
@@ -43,7 +43,7 @@ try {
 }
 ```
 
-### Python (auto-launch)
+### Python
 
 ```bash
 cd clients/python
@@ -124,6 +124,13 @@ Build a local `sikuligo` binary:
 ```bash
 go build -trimpath -ldflags="-s -w" -o sikuligo ./cmd/sikuligrpc
 ./sikuligo -listen 127.0.0.1:50051
+```
+
+Build the dashboard/session viewer monitor binary (used with ad-hoc client-spawned API sessions):
+
+```bash
+go build -trimpath -ldflags="-s -w" -o sikuligo-monitor ./cmd/sikuligo-monitor
+./sikuligo-monitor -listen :8080 -sqlite-path ./sikuligo.db
 ```
 
 Build cross-platform client binaries (darwin arm64/x64, linux x64, windows x64):

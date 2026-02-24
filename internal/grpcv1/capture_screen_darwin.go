@@ -4,6 +4,8 @@ package grpcv1
 
 import (
 	"bytes"
+	"context"
+	"errors"
 	"fmt"
 	"image"
 	_ "image/png"
@@ -14,7 +16,10 @@ import (
 	"github.com/smysnk/sikuligo/pkg/sikuli"
 )
 
-func captureScreenImage(name string) (*sikuli.Image, error) {
+func captureScreenImage(ctx context.Context, name string) (*sikuli.Image, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
 	tmp, err := os.CreateTemp("", "sikuligrpc-screen-*.png")
 	if err != nil {
 		return nil, err
@@ -23,8 +28,14 @@ func captureScreenImage(name string) (*sikuli.Image, error) {
 	_ = tmp.Close()
 	defer func() { _ = os.Remove(tmpPath) }()
 
-	cmd := exec.Command("screencapture", "-x", "-t", "png", tmpPath)
+	cmd := exec.CommandContext(ctx, "screencapture", "-x", "-t", "png", tmpPath)
 	if out, err := cmd.CombinedOutput(); err != nil {
+		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+			return nil, fmt.Errorf("%w: screencapture canceled by request deadline", sikuli.ErrTimeout)
+		}
+		if errors.Is(ctx.Err(), context.Canceled) {
+			return nil, fmt.Errorf("%w: screencapture canceled", sikuli.ErrTimeout)
+		}
 		msg := strings.TrimSpace(string(out))
 		if msg == "" {
 			msg = err.Error()

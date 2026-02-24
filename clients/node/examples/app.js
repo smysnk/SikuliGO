@@ -1,7 +1,7 @@
 import { Sikuli } from "../src";
 
 async function main() {
-  const client = await Sikuli.launch();
+  const client = await Sikuli.auto();
   const appName = process.env.SIKULI_APP_NAME ?? "Calculator";
 
   try {

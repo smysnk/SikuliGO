@@ -24,15 +24,9 @@ pip install sikuligo
 
 ## Quickstart
 
-### 1) Launch `sikuligo` manually, then run the client script
+Run:
 
 ```bash
-# terminal 1 (repo root): start the API
-./sikuligo -listen 127.0.0.1:50051
-```
-
-```bash
-# terminal 2: run the Python workflow script
 cd clients/python
 python3 examples/workflow_connect.py
 ```
@@ -42,9 +36,8 @@ python3 examples/workflow_connect.py
 ```python
 from __future__ import annotations
 from sikuligo import Pattern, Screen
-import os
 
-screen = Screen.connect()
+screen = Screen.auto()
 try:
     match = screen.click(Pattern("assets/pattern.png").exact())
     print(f"clicked match target at ({match.target_x}, {match.target_y})")
@@ -52,7 +45,7 @@ finally:
     screen.close()
 ```
 
-### 2) Run script only – (auto-launch sikuligo on demand)
+`python3 examples/workflow_auto_launch.py` uses the same constructor pattern (`connect -> launch`):
 
 ```bash
 cd clients/python
@@ -62,7 +55,7 @@ python3 examples/workflow_auto_launch.py
 from __future__ import annotations
 from sikuligo import Pattern, Screen
 
-screen = Screen.start()
+screen = Screen.auto()
 try:
     match = screen.click(Pattern("assets/pattern.png").exact())
     print(f"clicked match target at ({match.target_x}, {match.target_y})")
@@ -72,8 +65,9 @@ finally:
 
 ## Environment
 
-- `SIKULI_GRPC_ADDR` (default: `127.0.0.1:50051`)
+- `SIKULI_GRPC_ADDR` (optional address used by `auto` probe/connect; default probe `127.0.0.1:50051`)
 - `SIKULI_GRPC_AUTH_TOKEN` (optional; sent as `x-api-key`)
+- `SIKULIGO_SQLITE_PATH` (optional sqlite path for spawned server sessions; default `sikuligo.db`)
 
 ## Run Additional Examples
 
