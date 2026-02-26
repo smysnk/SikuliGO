@@ -11,6 +11,7 @@ PYTHON ?= python3
 # Set to 0 to skip dependency install steps.
 NPM_INSTALL ?= 1
 PYTHON_INSTALL ?= 1
+GO_OPENCV_TAGS := gosseract opencv gocv_specific_modules gocv_features2d gocv_calib3d
 
 # macOS Homebrew OCR/OpenCV build flags (requested fixed versions)
 OS_NAME := $(shell uname -s)
@@ -43,7 +44,7 @@ build-go: build-go-api build-go-monitor
 build-go-api:
 	cd "$(ROOT_DIR)" && \
 	$(if $(filter Darwin,$(OS_NAME)),CGO_CXXFLAGS='$(MACOS_CGO_CXXFLAGS)' CGO_LDFLAGS='$(MACOS_CGO_LDFLAGS)',) \
-	$(GO) build -tags "gosseract opencv gocv_specific_modules" -trimpath -ldflags="-s -w" -o sikuligo ./cmd/sikuligrpc
+	$(GO) build -tags "$(GO_OPENCV_TAGS)" -trimpath -ldflags="-s -w" -o sikuligo ./cmd/sikuligrpc
 
 build-go-monitor:
 	cd "$(ROOT_DIR)" && \

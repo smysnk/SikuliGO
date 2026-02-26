@@ -335,10 +335,10 @@ jobs:
 
       - name: Compile with OCR + OpenCV tags
         run: |
-          go test -run '^$' -tags "gosseract opencv gocv_specific_modules" ./...
-          go build -tags "gosseract opencv gocv_specific_modules" -o /tmp/sikuligo-tagged ./cmd/sikuligrpc
+          go test -run '^$' -tags "gosseract opencv gocv_specific_modules gocv_features2d gocv_calib3d" ./...
+          go build -tags "gosseract opencv gocv_specific_modules gocv_features2d gocv_calib3d" -o /tmp/sikuligo-tagged ./cmd/sikuligrpc
           if [ -d ./cmd/sikuligo-monitor ]; then
-            go build -tags "gosseract opencv gocv_specific_modules" -o /tmp/sikuligo-monitor-tagged ./cmd/sikuligo-monitor
+            go build -tags "gosseract opencv gocv_specific_modules gocv_features2d gocv_calib3d" -o /tmp/sikuligo-monitor-tagged ./cmd/sikuligo-monitor
           else
             echo "Skipping sikuligo-monitor build: ./cmd/sikuligo-monitor not found in this revision"
           fi
