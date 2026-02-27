@@ -26,3 +26,9 @@ native/
 *.db
 sikuligo
 sikuligo-monitor
+node_modules/
+**/node_modules/
+packages/editor/.next/
+packages/dashboard-electron/dist/
+.yarn/install-state.gz
+yarn-error.log

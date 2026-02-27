@@ -28,11 +28,11 @@ await bot.close();
 
 Implementation status (baseline in repo):
 
-- SDK entrypoint exported from `clients/node/src/index.ts`.
-- `Sikuli.launch()` and `Sikuli.connect()` implemented in `clients/node/src/sikuli.ts`.
-- local process launcher implemented in `clients/node/src/launcher.ts`.
-- binary resolution implemented in `clients/node/src/binary.ts`.
-- diagnostics command available via `sikuligo-doctor` (`clients/node/src/doctor.ts`).
+- SDK entrypoint exported from `packages/client-node/src/index.ts`.
+- `Sikuli.launch()` and `Sikuli.connect()` implemented in `packages/client-node/src/sikuli.ts`.
+- local process launcher implemented in `packages/client-node/src/launcher.ts`.
+- binary resolution implemented in `packages/client-node/src/binary.ts`.
+- diagnostics command available via `sikuligo-doctor` (`packages/client-node/src/doctor.ts`).
 
 ## Required Components
 
@@ -64,7 +64,7 @@ Recommended packaging model:
 - `@sikuligo/bin-win32-x64`
 
 Repository scaffolding:
-- package manifests under `clients/node/packages/bin-*/package.json`
+- package manifests under `packages/client-node/packages/bin-*/package.json`
 - build script: `scripts/clients/build-node-binaries.sh`
 - release script: `scripts/clients/release-node-binaries.sh`
 

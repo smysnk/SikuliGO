@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 SET_VERSION_SCRIPT="$ROOT_DIR/scripts/clients/set-version.sh"
-NODE_PKG="$ROOT_DIR/clients/node/package.json"
+NODE_PKG="$ROOT_DIR/packages/client-node/package.json"
 
 if [[ ! -x "$SET_VERSION_SCRIPT" ]]; then
   echo "Missing executable: $SET_VERSION_SCRIPT" >&2

@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+API_DIR="$ROOT_DIR/packages/api"
 PROTO_FILE="sikuli/v1/sikuli.proto"
 
 if ! command -v protoc >/dev/null 2>&1; then
@@ -19,7 +20,7 @@ if ! command -v protoc-gen-go-grpc >/dev/null 2>&1; then
   exit 1
 fi
 
-cd "$ROOT_DIR"
+cd "$API_DIR"
 protoc \
   --proto_path=proto \
   --go_out=. \

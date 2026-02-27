@@ -21,6 +21,14 @@ on:
         required: false
         default: false
         type: boolean
+      publish_homebrew:
+        description: "Publish Homebrew formula/artifacts"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
 
 jobs:
   tagged-server-build:
@@ -32,7 +40,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
-          go-version-file: go.mod
+          go-version-file: packages/api/go.mod
           cache: true
 
       - name: Install OCR/OpenCV native dependencies
@@ -49,6 +57,7 @@ jobs:
 
       - name: Verify tagged server binaries compile
         run: |
+          cd packages/api
           go build -tags "gosseract opencv gocv_specific_modules gocv_features2d gocv_calib3d" -o /tmp/sikuligo-tagged ./cmd/sikuligrpc
           if [ -d ./cmd/sikuligo-monitor ]; then
             go build -tags "gosseract opencv gocv_specific_modules gocv_features2d gocv_calib3d" -o /tmp/sikuligo-monitor-tagged ./cmd/sikuligo-monitor
@@ -97,7 +106,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: python-client-dist
-          path: clients/python/dist/*
+          path: packages/python/dist/*
 
   node-binaries:
     needs: tagged-server-build
@@ -109,7 +118,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
-          go-version-file: go.mod
+          go-version-file: packages/api/go.mod
 
       - name: Setup Node
         uses: actions/setup-node@v6
@@ -136,7 +145,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: node-binary-checksums
-          path: clients/node/packages/checksums.txt
+          path: packages/node/packages/checksums.txt
 
   node-client:
     needs: node-binaries
@@ -151,7 +160,7 @@ jobs:
           node-version: "20"
           registry-url: "https://registry.npmjs.org"
           cache: "npm"
-          cache-dependency-path: clients/node/package-lock.json
+          cache-dependency-path: packages/node/package-lock.json
 
       - name: Setup protoc
         uses: arduino/setup-protoc@v3
@@ -172,3 +181,38 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_PUBLISH: ${{ ((github.event_name == 'push' && github.ref_name == 'release') || inputs.publish_node || inputs.publish_node_binaries) && '1' || '0' }}
         run: ./scripts/clients/release-node-client.sh
+
+  homebrew:
+    needs: tagged-server-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: packages/api/go.mod
+          cache: true
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+
+      - name: Set client version from build number
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
+          VERSION_MAJOR: ${{ vars.CLIENT_VERSION_MAJOR }}
+          VERSION_MINOR: ${{ vars.CLIENT_VERSION_MINOR }}
+          PATCH_MODE: ${{ vars.CLIENT_VERSION_PATCH_MODE }}
+          PATCH_FIXED: ${{ vars.CLIENT_VERSION_PATCH_FIXED }}
+        run: ./scripts/clients/set-version-from-build.sh
+
+      - name: Build and optionally publish Homebrew formula
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          HOMEBREW_TAP_REPO: ${{ vars.HOMEBREW_TAP_REPO }}
+          HOMEBREW_PUBLISH: ${{ ((github.event_name == 'push' && github.ref_name == 'release') || inputs.publish_homebrew) && '1' || '0' }}
+        run: bash ./scripts/clients/release-homebrew.sh

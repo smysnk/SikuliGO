@@ -1,0 +1,11 @@
+{
+  "name": "@sikuligo/api",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "build": "go build ./...",
+    "test": "go test ./...",
+    "build:server": "go build -o sikuligo ./cmd/sikuligrpc",
+    "build:monitor": "go build -o sikuligo-monitor ./cmd/sikuligo-monitor"
+  }
+}

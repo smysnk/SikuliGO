@@ -5,25 +5,25 @@ on:
     branches:
       - master
     paths:
-      - "internal/**"
-      - "cmd/**"
-      - "proto/**"
-      - "pkg/**"
+      - "packages/api/internal/**"
+      - "packages/api/cmd/**"
+      - "packages/api/proto/**"
+      - "packages/api/pkg/**"
       - "docs/**"
       - "scripts/**"
-      - "go.mod"
-      - "go.sum"
+      - "packages/api/go.mod"
+      - "packages/api/go.sum"
       - ".github/workflows/go-test.yml"
   pull_request:
     paths:
-      - "internal/**"
-      - "cmd/**"
-      - "proto/**"
-      - "pkg/**"
+      - "packages/api/internal/**"
+      - "packages/api/cmd/**"
+      - "packages/api/proto/**"
+      - "packages/api/pkg/**"
       - "docs/**"
       - "scripts/**"
-      - "go.mod"
-      - "go.sum"
+      - "packages/api/go.mod"
+      - "packages/api/go.sum"
       - ".github/workflows/go-test.yml"
   workflow_dispatch:
 
@@ -46,7 +46,7 @@ jobs:
       - name: Set up GoLang
         uses: actions/setup-go@v6
         with:
-          go-version-file: go.mod
+          go-version-file: packages/api/go.mod
           cache: true
 
       - name: Setup protoc
@@ -62,7 +62,7 @@ jobs:
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
       - name: Run protocol package tests
-        run: go test ./internal/app ./internal/input ./internal/observe
+        run: cd packages/api && go test ./internal/app ./internal/input ./internal/observe
 
   test:
     runs-on: ubuntu-latest
@@ -79,7 +79,7 @@ jobs:
       - name: Set up GoLang
         uses: actions/setup-go@v6
         with:
-          go-version-file: go.mod
+          go-version-file: packages/api/go.mod
           cache: true
 
       - name: Install test tooling
@@ -87,7 +87,7 @@ jobs:
           go install gotest.tools/gotestsum@v1.12.0
 
       - name: Tidy module
-        run: go mod tidy
+        run: cd packages/api && go mod tidy
 
       - name: Verify tidy has no diffs
         run: git diff --exit-code
@@ -99,20 +99,21 @@ jobs:
         run: ./scripts/check-grpc-stubs.sh
 
       - name: Run vet
-        run: go vet ./...
+        run: cd packages/api && go vet ./...
 
       - name: Run tests
         run: |
           set -euo pipefail
           mkdir -p .test-results
+          cd packages/api
           "$(go env GOPATH)/bin/gotestsum" \
             --format standard-verbose \
-            --junitfile .test-results/junit.xml \
-            --jsonfile .test-results/go-test.json \
+            --junitfile ../../.test-results/junit.xml \
+            --jsonfile ../../.test-results/go-test.json \
             -- \
-            -race -covermode=atomic -coverprofile=.test-results/coverage.out ./...
-          go tool cover -func=.test-results/coverage.out > .test-results/coverage.txt
-          awk '/^total:/{print "TOTAL_COVERAGE="$3}' .test-results/coverage.txt >> "$GITHUB_ENV"
+            -race -covermode=atomic -coverprofile=../../.test-results/coverage.out ./...
+          go tool cover -func=../../.test-results/coverage.out > ../../.test-results/coverage.txt
+          awk '/^total:/{print "TOTAL_COVERAGE="$3}' ../../.test-results/coverage.txt >> "$GITHUB_ENV"
 
       - name: Build JSON test summary
         if: always()
@@ -180,7 +181,7 @@ jobs:
       - name: Set up GoLang
         uses: actions/setup-go@v6
         with:
-          go-version-file: go.mod
+          go-version-file: packages/api/go.mod
           cache: true
 
       - name: Install OCR native dependencies
@@ -189,7 +190,7 @@ jobs:
           sudo apt-get install -y tesseract-ocr libtesseract-dev libleptonica-dev tesseract-ocr-eng
 
       - name: Run OCR tagged tests
-        run: go test -tags gosseract ./internal/ocr ./pkg/sikuli
+        run: cd packages/api && go test -tags gosseract ./internal/ocr ./pkg/sikuli
 
   parity-e2e:
     runs-on: ubuntu-latest
@@ -200,7 +201,7 @@ jobs:
       - name: Set up GoLang
         uses: actions/setup-go@v6
         with:
-          go-version-file: go.mod
+          go-version-file: packages/api/go.mod
           cache: true
 
       - name: Install OCR native dependencies
@@ -216,20 +217,22 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p .test-results-e2e
+          cd packages/api
           "$(go env GOPATH)/bin/gotestsum" \
             --format standard-verbose \
-            --junitfile .test-results-e2e/junit-default.xml \
-            --jsonfile .test-results-e2e/go-test-default.json \
+            --junitfile ../../.test-results-e2e/junit-default.xml \
+            --jsonfile ../../.test-results-e2e/go-test-default.json \
             -- \
             -run '^TestCrossProtocolIntegrationFlow$' ./pkg/sikuli
 
       - name: Run parity e2e tests (gosseract build tag)
         run: |
           set -euo pipefail
+          cd packages/api
           "$(go env GOPATH)/bin/gotestsum" \
             --format standard-verbose \
-            --junitfile .test-results-e2e/junit-gosseract.xml \
-            --jsonfile .test-results-e2e/go-test-gosseract.json \
+            --junitfile ../../.test-results-e2e/junit-gosseract.xml \
+            --jsonfile ../../.test-results-e2e/go-test-gosseract.json \
             -- \
             -tags gosseract -run '^TestCrossProtocolIntegrationFlowTaggedOCR$' ./pkg/sikuli
 
@@ -269,7 +272,7 @@ jobs:
       - name: Set up GoLang
         uses: actions/setup-go@v6
         with:
-          go-version-file: go.mod
+          go-version-file: packages/api/go.mod
           cache: true
 
       - name: Install OCR/OpenCV native dependencies
@@ -286,6 +289,7 @@ jobs:
 
       - name: Compile with OCR + OpenCV tags
         run: |
+          cd packages/api
           go test -run '^$' -tags "gosseract opencv gocv_specific_modules gocv_features2d gocv_calib3d" ./...
           go build -tags "gosseract opencv gocv_specific_modules gocv_features2d gocv_calib3d" -o /tmp/sikuligo-tagged ./cmd/sikuligrpc
           if [ -d ./cmd/sikuligo-monitor ]; then

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-CLIENT_DIR="$ROOT_DIR/clients/node"
+CLIENT_DIR="$ROOT_DIR/packages/client-node"
 NPM_CACHE_DIR="${NPM_CONFIG_CACHE:-$ROOT_DIR/.test-results/npm-cache}"
 
 mkdir -p "$NPM_CACHE_DIR"

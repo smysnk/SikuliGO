@@ -19,14 +19,14 @@ This document defines the client delivery strategy for SikuliGO gRPC APIs across
 
 ## Current Implementation Snapshot (February 21, 2026)
 
-- Python client wrapper: `clients/python/sikuligo/client.py`
-- Python examples: `clients/python/examples/`
+- Python client wrapper: `packages/client-python/sikuligo/client.py`
+- Python examples: `packages/client-python/examples/`
 - Python generator: `scripts/clients/generate-python-stubs.sh`
-- Node client wrapper: `clients/node/src/client.ts`
-- Node examples: `clients/node/examples/`
+- Node client wrapper: `packages/client-node/src/client.ts`
+- Node examples: `packages/client-node/examples/`
 - Node generator: `scripts/clients/generate-node-stubs.sh`
-- Lua client wrapper: `clients/lua/sikuligo_client.lua`
-- Lua examples: `clients/lua/examples/`
+- Lua client wrapper: `packages/client-lua/sikuligo_client.lua`
+- Lua examples: `packages/client-lua/examples/`
 - Lua descriptor generator: `scripts/clients/generate-lua-descriptor.sh`
 
 ## Python
@@ -68,9 +68,9 @@ Node package runtime binary selection is owned by the SDK launcher/runtime layer
 
 Repository references:
 
-- runtime resolver: `clients/node/src/binary.ts`
-- process launcher: `clients/node/src/launcher.ts`
-- binary package manifests: `clients/node/packages/bin-*/package.json`
+- runtime resolver: `packages/client-node/src/binary.ts`
+- process launcher: `packages/client-node/src/launcher.ts`
+- binary package manifests: `packages/client-node/packages/bin-*/package.json`
 
 ## Lua
 
@@ -94,18 +94,18 @@ Status: ✅ Implemented
 
 Status: ✅ Implemented (baseline wrapper and examples)
 
-- Generate Python stubs into `clients/python/generated/`.
-- Add wrapper in `clients/python/sikuligo/` for deadlines, metadata/auth, and error mapping.
-- Add runnable examples in `clients/python/examples/` (`find.py`, `read_text.py`, `click_and_type.py`, `app_control.py`).
+- Generate Python stubs into `packages/client-python/generated/`.
+- Add wrapper in `packages/client-python/sikuligo/` for deadlines, metadata/auth, and error mapping.
+- Add runnable examples in `packages/client-python/examples/` (`find.py`, `read_text.py`, `click_and_type.py`, `app_control.py`).
 - Add CI smoke tests against local `cmd/sikuligrpc` (next step).
 
 ### Phase 3: Node.js client
 
 Status: ✅ Implemented (baseline wrapper and examples)
 
-- Generate JS/TS stubs into `clients/node/generated/`.
-- Add Promise-based wrapper in `clients/node/src/`.
-- Add runnable examples in `clients/node/examples/` (`find.js`, `ocr.js`, `input.js`, `app.js`).
+- Generate JS/TS stubs into `packages/client-node/generated/`.
+- Add Promise-based wrapper in `packages/client-node/src/`.
+- Add runnable examples in `packages/client-node/examples/` (`find.js`, `ocr.js`, `input.js`, `app.js`).
 - Add CI smoke tests against local `cmd/sikuligrpc` (next step).
 
 ### Phase 4: Lua client path
@@ -113,8 +113,8 @@ Status: ✅ Implemented (baseline wrapper and examples)
 Status: ✅ Implemented (grpcurl method path)
 
 - Use `grpcurl` transport with generated descriptor set for direct gRPC method calls.
-- Implement a thin SDK in `clients/lua/` with the same high-level methods.
-- Add runnable examples in `clients/lua/examples/`.
+- Implement a thin SDK in `packages/client-lua/` with the same high-level methods.
+- Add runnable examples in `packages/client-lua/examples/`.
 - Add runtime-appropriate CI smoke tests (next step).
 
 ### Phase 5: Documentation and distribution
@@ -127,9 +127,9 @@ Status: 🟡 In progress
   - Release scaffolding added:
   - Single-command version bump: `./scripts/clients/set-version.sh <X.Y.Z>`
   - Build-number versioning: `./scripts/clients/set-version-from-build.sh`
-  - Python package metadata: `clients/python/pyproject.toml`
-  - Node package metadata: `clients/node/package.json`
-  - Node binary package metadata: `clients/node/packages/bin-*/package.json`
+  - Python package metadata: `packages/client-python/pyproject.toml`
+  - Node package metadata: `packages/client-node/package.json`
+  - Node binary package metadata: `packages/client-node/packages/bin-*/package.json`
   - Manual release workflow: `.github/workflows/client-release.yml`
   - Release helpers: `scripts/clients/release-python-client.sh`, `scripts/clients/release-node-client.sh`, `scripts/clients/release-node-binaries.sh`
   - Protected-branch pushes auto-trigger publish flows through `.github/workflows/client-release.yml`

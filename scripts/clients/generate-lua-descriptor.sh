@@ -2,7 +2,8 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-OUT_DIR="$ROOT_DIR/clients/lua/generated"
+API_DIR="$ROOT_DIR/packages/api"
+OUT_DIR="$ROOT_DIR/packages/client-lua/generated"
 OUT_FILE="$OUT_DIR/sikuli.protoset"
 PROTO_FILE="sikuli/v1/sikuli.proto"
 
@@ -13,7 +14,7 @@ fi
 
 mkdir -p "$OUT_DIR"
 
-cd "$ROOT_DIR"
+cd "$API_DIR"
 protoc \
   --proto_path=proto \
   --descriptor_set_out="$OUT_FILE" \

@@ -3,9 +3,11 @@ SHELL := /usr/bin/env bash
 .DEFAULT_GOAL := build
 
 ROOT_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+API_DIR := $(ROOT_DIR)/packages/api
 
 GO ?= go
 NPM ?= npm
+YARN ?= yarn
 PYTHON ?= python3
 
 # Set to 0 to skip dependency install steps.
@@ -42,14 +44,14 @@ build-all: build-stubs build-go build-node build-python
 build-go: build-go-api build-go-monitor
 
 build-go-api:
-	cd "$(ROOT_DIR)" && \
+	cd "$(API_DIR)" && \
 	$(if $(filter Darwin,$(OS_NAME)),CGO_CXXFLAGS='$(MACOS_CGO_CXXFLAGS)' CGO_LDFLAGS='$(MACOS_CGO_LDFLAGS)',) \
-	$(GO) build -tags "$(GO_OPENCV_TAGS)" -trimpath -ldflags="-s -w" -o sikuligo ./cmd/sikuligrpc
+	$(GO) build -tags "$(GO_OPENCV_TAGS)" -trimpath -ldflags="-s -w" -o "$(ROOT_DIR)/sikuligo" ./cmd/sikuligrpc
 
 build-go-monitor:
-	cd "$(ROOT_DIR)" && \
+	cd "$(API_DIR)" && \
 	$(if $(filter Darwin,$(OS_NAME)),CGO_CXXFLAGS='$(MACOS_CGO_CXXFLAGS)' CGO_LDFLAGS='$(MACOS_CGO_LDFLAGS)',) \
-	$(GO) build -trimpath -ldflags="-s -w" -o sikuligo-monitor ./cmd/sikuligo-monitor
+	$(GO) build -trimpath -ldflags="-s -w" -o "$(ROOT_DIR)/sikuligo-monitor" ./cmd/sikuligo-monitor
 
 build-stubs: build-grpc-stubs build-node-stubs build-python-stubs build-lua-descriptor
 
@@ -71,9 +73,10 @@ build-node-binaries:
 	cd "$(ROOT_DIR)" && ./scripts/clients/build-node-binaries.sh
 
 build-node-client:
-	cd "$(ROOT_DIR)/clients/node" && \
-	if [[ "$(NPM_INSTALL)" == "1" ]]; then $(NPM) install; fi && \
-	$(NPM) run build && \
+	cd "$(ROOT_DIR)" && \
+	if [[ "$(NPM_INSTALL)" == "1" ]]; then $(YARN) install; fi && \
+	$(YARN) workspace @sikuligo/sikuligo build && \
+	cd "$(ROOT_DIR)/packages/client-node" && \
 	$(NPM) pack --dry-run
 
 build-python:
@@ -84,14 +87,14 @@ build-python:
 clean:
 	cd "$(ROOT_DIR)" && \
 	rm -rf \
-	clients/node/dist \
-	clients/node/generated \
-	clients/node/packages/bin-*/bin/sikuligo \
-	clients/node/packages/bin-*/bin/sikuligo.exe \
-	clients/node/packages/checksums.txt \
-	clients/python/dist \
-	clients/python/build \
-	clients/python/*.egg-info \
-	internal/grpcv1/pb \
-	sikuligo \
-	sikuligo-monitor
+	packages/client-node/dist \
+	packages/client-node/generated \
+	packages/client-node/packages/bin-*/bin/sikuligo \
+	packages/client-node/packages/bin-*/bin/sikuligo.exe \
+	packages/client-node/packages/checksums.txt \
+	packages/client-python/dist \
+	packages/client-python/build \
+	packages/client-python/*.egg-info \
+	packages/api/internal/grpcv1/pb \
+	packages/api/sikuligo \
+	packages/api/sikuligo-monitor

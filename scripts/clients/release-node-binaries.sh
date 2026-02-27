@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-PACKAGES_DIR="$ROOT_DIR/clients/node/packages"
+PACKAGES_DIR="$ROOT_DIR/packages/client-node/packages"
 NPM_CACHE_DIR="${NPM_CONFIG_CACHE:-$ROOT_DIR/.test-results/npm-cache}"
 PACKAGES=(
   "bin-darwin-arm64"

@@ -27,9 +27,9 @@ This document defines and tracks the gRPC approach for exposing the SikuliGO API
   - `scripts/generate-grpc-stubs.sh`
   - `scripts/check-grpc-stubs.sh`
 - Client wrappers and examples:
-  - Python: `clients/python/` + `scripts/clients/generate-python-stubs.sh`
-  - Node.js: `clients/node/` + `scripts/clients/generate-node-stubs.sh`
-  - Lua: `clients/lua/` + `scripts/clients/generate-lua-descriptor.sh`
+  - Python: `packages/client-python/` + `scripts/clients/generate-python-stubs.sh`
+  - Node.js: `packages/client-node/` + `scripts/clients/generate-node-stubs.sh`
+  - Lua: `packages/client-lua/` + `scripts/clients/generate-lua-descriptor.sh`
 
 ## Proposed API Surface
 

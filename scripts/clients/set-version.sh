@@ -15,10 +15,10 @@ if [[ ! "$NEW_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   exit 1
 fi
 
-NODE_PKG="$ROOT_DIR/clients/node/package.json"
-NODE_LOCK="$ROOT_DIR/clients/node/package-lock.json"
-PYPROJECT="$ROOT_DIR/clients/python/pyproject.toml"
-BIN_PKG_DIR="$ROOT_DIR/clients/node/packages"
+NODE_PKG="$ROOT_DIR/packages/client-node/package.json"
+NODE_LOCK="$ROOT_DIR/packages/client-node/package-lock.json"
+PYPROJECT="$ROOT_DIR/packages/client-python/pyproject.toml"
+BIN_PKG_DIR="$ROOT_DIR/packages/client-node/packages"
 
 if ! command -v node >/dev/null 2>&1; then
   echo "Missing node in PATH" >&2
@@ -111,7 +111,7 @@ PY
 
 echo "Updated project version: $OLD_VERSION -> $NEW_VERSION"
 echo "Files updated:"
-echo "  - clients/python/pyproject.toml"
-echo "  - clients/node/package.json"
-echo "  - clients/node/package-lock.json"
-echo "  - clients/node/packages/bin-*/package.json"
+echo "  - packages/client-python/pyproject.toml"
+echo "  - packages/client-node/package.json"
+echo "  - packages/client-node/package-lock.json"
+echo "  - packages/client-node/packages/bin-*/package.json"

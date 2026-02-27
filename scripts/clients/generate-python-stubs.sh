@@ -2,7 +2,8 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-OUT_DIR="$ROOT_DIR/clients/python/generated"
+API_DIR="$ROOT_DIR/packages/api"
+OUT_DIR="$ROOT_DIR/packages/client-python/generated"
 PROTO_FILE="sikuli/v1/sikuli.proto"
 
 if ! command -v protoc >/dev/null 2>&1; then
@@ -12,7 +13,7 @@ fi
 
 mkdir -p "$OUT_DIR"
 
-cd "$ROOT_DIR"
+cd "$API_DIR"
 if command -v grpc_python_plugin >/dev/null 2>&1; then
   protoc \
     --proto_path=proto \
@@ -36,7 +37,7 @@ else
     --python_out="$OUT_DIR" \
     "$PROTO_FILE"
   echo "Missing grpc_python_plugin and grpcio-tools; generated protobuf messages only (no *_pb2_grpc.py)." >&2
-  echo "Install with: python3 -m pip install -r clients/python/requirements.txt" >&2
+  echo "Install with: python3 -m pip install -r packages/client-python/requirements.txt" >&2
 fi
 
 # Ensure importable Python package structure.

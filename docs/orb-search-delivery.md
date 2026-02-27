@@ -109,7 +109,6 @@ Deliverables:
 - proto/API options for matcher engine
 - server logic for precedence rules
 - Node/Python client constructor defaults + per-method overrides
-- server compatibility fallback for legacy header-based clients
 
 Entry criteria:
 

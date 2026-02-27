@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-CLIENT_DIR="$ROOT_DIR/clients/python"
+CLIENT_DIR="$ROOT_DIR/packages/client-python"
 
 cd "$ROOT_DIR"
 ./scripts/clients/generate-python-stubs.sh

@@ -1,0 +1,16 @@
+{
+  "name": "sikuligo-monorepo",
+  "private": true,
+  "packageManager": "yarn@4.6.0",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "yarn workspaces foreach -pt run build",
+    "test": "yarn workspaces foreach -pt run test",
+    "dev:editor": "yarn workspace @sikuligo/editor dev",
+    "dev:api-electron": "yarn workspace @sikuligo/api-electron dev",
+    "api:build": "yarn workspace @sikuligo/api build",
+    "api:test": "yarn workspace @sikuligo/api test"
+  }
+}

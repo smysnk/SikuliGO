@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+API_DIR="$ROOT_DIR/packages/api"
 OUT_ROOT="${API_DOCS_OUT_DIR:-$ROOT_DIR/docs/api}"
 INDEX_FILE="$OUT_ROOT/index.md"
 RENDERER="$ROOT_DIR/scripts/render-api-doc.awk"
@@ -14,7 +15,7 @@ fi
 mkdir -p "$OUT_ROOT"
 rm -f "$OUT_ROOT"/*.md
 
-MODULE_PATH="$(cd "$ROOT_DIR" && go list -m)"
+MODULE_PATH="$(cd "$API_DIR" && go list -m)"
 
 {
   echo "# API Reference"
@@ -36,13 +37,13 @@ STYLE
   echo
 } > "$INDEX_FILE"
 
-for pkg in $(cd "$ROOT_DIR" && go list ./pkg/... ./internal/... | sort); do
+for pkg in $(cd "$API_DIR" && go list ./pkg/... ./internal/... | sort); do
   rel="${pkg#${MODULE_PATH}/}"
   slug="${rel//\//-}"
   out_file="$OUT_ROOT/${slug}.md"
   tmp_doc="$(mktemp)"
 
-  (cd "$ROOT_DIR" && go doc -all "$pkg") > "$tmp_doc"
+  (cd "$API_DIR" && go doc -all "$pkg") > "$tmp_doc"
   awk -v rel="$rel" -f "$RENDERER" "$tmp_doc" > "$out_file"
   rm -f "$tmp_doc"
 

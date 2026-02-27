@@ -2,9 +2,10 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-CLIENT_DIR="$ROOT_DIR/clients/node"
+API_DIR="$ROOT_DIR/packages/api"
+CLIENT_DIR="$ROOT_DIR/packages/client-node"
 OUT_DIR="$CLIENT_DIR/generated"
-PROTO_FILE="$ROOT_DIR/proto/sikuli/v1/sikuli.proto"
+PROTO_FILE="$API_DIR/proto/sikuli/v1/sikuli.proto"
 NODE_BIN="$CLIENT_DIR/node_modules/.bin"
 
 if [[ ! -x "$NODE_BIN/grpc_tools_node_protoc" ]]; then
@@ -25,14 +26,14 @@ fi
 mkdir -p "$OUT_DIR"
 
 "$NODE_BIN/grpc_tools_node_protoc" \
-  --proto_path="$ROOT_DIR/proto" \
+  --proto_path="$API_DIR/proto" \
   --js_out=import_style=commonjs,binary:"$OUT_DIR" \
   --grpc_out=grpc_js:"$OUT_DIR" \
   --plugin=protoc-gen-grpc="$NODE_BIN/grpc_tools_node_protoc_plugin" \
   "$PROTO_FILE"
 
 "$NODE_BIN/grpc_tools_node_protoc" \
-  --proto_path="$ROOT_DIR/proto" \
+  --proto_path="$API_DIR/proto" \
   --plugin=protoc-gen-ts="$NODE_BIN/protoc-gen-ts" \
   --ts_out=grpc_js:"$OUT_DIR" \
   "$PROTO_FILE"

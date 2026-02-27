@@ -1,0 +1,14 @@
+{
+  "name": "@sikuligo/api-electron",
+  "private": true,
+  "version": "0.1.0",
+  "main": "src/main.js",
+  "scripts": {
+    "dev": "electron .",
+    "build": "echo 'no build pipeline configured yet'",
+    "test": "echo 'no tests for api-electron yet'"
+  },
+  "dependencies": {
+    "electron": "31.7.7"
+  }
+}

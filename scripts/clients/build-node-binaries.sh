@@ -2,7 +2,8 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-PACKAGES_DIR="$ROOT_DIR/clients/node/packages"
+API_DIR="$ROOT_DIR/packages/api"
+PACKAGES_DIR="$ROOT_DIR/packages/client-node/packages"
 TARGETS=(
   "darwin arm64 bin-darwin-arm64"
   "darwin amd64 bin-darwin-x64"
@@ -30,8 +31,11 @@ for target in "${TARGETS[@]}"; do
   fi
 
   echo "Building $pkg ($goos/$goarch)"
-  CGO_ENABLED=0 GOOS="$goos" GOARCH="$goarch" \
-    go build -trimpath -ldflags="-s -w" -o "$out" ./cmd/sikuligrpc
+  (
+    cd "$API_DIR"
+    CGO_ENABLED=0 GOOS="$goos" GOARCH="$goarch" \
+      go build -trimpath -ldflags="-s -w" -o "$out" ./cmd/sikuligrpc
+  )
 
   if [[ "$goos" != "windows" ]]; then
     chmod +x "$out"

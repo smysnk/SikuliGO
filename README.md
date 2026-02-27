@@ -25,9 +25,14 @@ Sikuli is an open-source tool for automating anything visible on a computer scre
 
 ### Node.js
 
+Install the Node client package:
+
 ```bash
-cd clients/node
-npm run example:workflow:auto
+yarn add @sikuligo/sikuligo
+```
+
+```bash
+yarn workspace @sikuligo/sikuligo example:workflow:auto
 ```
 
 Runs:
@@ -45,9 +50,19 @@ try {
 
 ### Python
 
+Install the Python client package:
+
 ```bash
-cd clients/python
-python3 examples/workflow_auto_launch.py
+python3 -m pip install sikuligo
+```
+
+```bash
+cd packages/client-python
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install -r requirements.txt
+python3 -m pip install -e .
+SIKULIGO_BINARY_PATH=../../sikuligo python3 examples/workflow_auto_launch.py
 ```
 
 Runs:
@@ -104,7 +119,9 @@ finally:
 ## Repository Layout
 
 - [`pkg`](pkg) : public GoLang API packages
-- [`internal`](internal) : internal GoLang implementation packages
+- [`packages/api`](packages/api) : GoLang API module (`cmd`, `internal`, `pkg`, `proto`)
+- [`packages/editor`](packages/editor) : Next.js editor app
+- [`packages/api-electron`](packages/api-electron) : macOS Electron API + dashboard/session viewer app
 - [`clients`](clients) : language client SDKs and packaging artifacts
 - [`docs`](docs) : documentation and assets
 - [`legacy`](legacy) : previous Java-era project directories retained for reference
@@ -114,42 +131,41 @@ finally:
 Requires GoLang `1.24+`.
 
 ```bash
+yarn install
+cd packages/api
 go mod tidy
 go test ./...
 ```
 
-## Build Binaries
-
-Build a local `sikuligo` binary:
+Start the new workspace apps:
 
 ```bash
-go build -tags "gosseract opencv gocv_specific_modules" -trimpath -ldflags="-s -w" -o sikuligo ./cmd/sikuligrpc
-./sikuligo -listen 127.0.0.1:50051
+yarn workspace @sikuligo/editor dev
+yarn workspace @sikuligo/api-electron dev
 ```
 
-Build the dashboard/session viewer monitor binary (used with ad-hoc client-spawned API sessions):
+For all source build commands, use:
+
+## Install and Build
+
+Build from source:
+
+- [Build From Source](docs/build-from-source.md)
+
+API publish/install guidance for Windows and Linux:
+
+- [API Publish/Install (Windows/Linux)](docs/api-publish-install.md)
+
+Install on macOS with Homebrew:
 
 ```bash
-go build -tags "gosseract opencv gocv_specific_modules" -trimpath -ldflags="-s -w" -o sikuligo-monitor ./cmd/sikuligo-monitor
-./sikuligo-monitor -listen :8080 -sqlite-path ./sikuligo.db
+brew tap sikuligo/tap
+brew install sikuligo/tap/sikuligo
 ```
 
-Build cross-platform client binaries (darwin arm64/x64, linux x64, windows x64):
+Install on Linux/Windows from release artifacts:
 
-```bash
-./scripts/clients/build-node-binaries.sh
-```
-
-Output binaries are written under `clients/node/packages/bin-*/bin/` with checksums at `clients/node/packages/checksums.txt`.
-
-Optional OCR backend (gosseract):
-
-```bash
-go test -tags gosseract ./...
-```
-
-Tagged OCR builds require native Tesseract + Leptonica runtime libraries and installed language data.
-See [OCR](https://smysnk.github.io/SikuliGO/ocr-integration) for full macOS/Homebrew setup and troubleshooting steps.
+- [Windows/Linux install commands](docs/api-publish-install.md#install-on-linux)
 
 ## Project History and Credits
 
