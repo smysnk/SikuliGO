@@ -10,33 +10,32 @@ export NPM_CONFIG_CACHE="$NPM_CACHE_DIR"
 
 cd "$CLIENT_DIR"
 if [[ "${SKIP_INSTALL:-0}" != "1" ]]; then
-  NPM_CONFIG_PRODUCTION=false NPM_CONFIG_OMIT= npm install --include=dev
+  NPM_CONFIG_OMIT= npm install --include=dev
 fi
 
-if [[ "${NODE_CLIENT_BUILD:-0}" == "1" ]]; then
-  npm run build
-else
-  required_files=(
-    "dist/src/index.js"
-    "dist/src/index.d.ts"
-    "dist/src/client.js"
-    "generated/sikuli/v1/sikuli_pb.js"
-    "generated/sikuli/v1/sikuli_pb.d.ts"
-    "generated/sikuli/v1/sikuli_grpc_pb.js"
-    "generated/sikuli/v1/sikuli_grpc_pb.d.ts"
-  )
-  missing=()
-  for f in "${required_files[@]}"; do
-    if [[ ! -f "$f" ]]; then
-      missing+=("$f")
-    fi
-  done
-  if [[ ${#missing[@]} -gt 0 ]]; then
-    echo "Missing prebuilt Node client artifacts: ${missing[*]}" >&2
-    echo "Run NODE_CLIENT_BUILD=1 ./scripts/clients/release-node-client.sh (with grpc-tools installed)." >&2
-    exit 1
+required_files=(
+  "dist/src/index.js"
+  "dist/src/index.d.ts"
+  "dist/src/client.js"
+  "generated/sikuli/v1/sikuli_pb.js"
+  "generated/sikuli/v1/sikuli_pb.d.ts"
+  "generated/sikuli/v1/sikuli_grpc_pb.js"
+  "generated/sikuli/v1/sikuli_grpc_pb.d.ts"
+)
+
+missing=()
+for f in "${required_files[@]}"; do
+  if [[ ! -f "$f" ]]; then
+    missing+=("$f")
   fi
-  echo "Skipping Node client build (NODE_CLIENT_BUILD!=1); using committed dist/generated artifacts"
+done
+
+if [[ "${NODE_CLIENT_BUILD:-0}" == "1" || ${#missing[@]} -gt 0 ]]; then
+  if [[ ${#missing[@]} -gt 0 ]]; then
+    echo "Missing Node client artifacts: ${missing[*]}"
+    echo "Attempting npm run build to regenerate dist/generated artifacts..."
+  fi
+  npm run build
 fi
 
 npm pack --dry-run --ignore-scripts
