@@ -11,16 +11,6 @@ Sikuli is an open-source tool for automating anything visible on a computer scre
 - Provide a modern, testable architecture with explicit contracts and deterministic matching behavior.
 - Establish a maintainable foundation for cross-platform automation features.
 
-## Available Clients
-
-| Client |  | Notes |
-| :---  | --- | :---  |
-| [Python](https://pypi.org/project/sikuligo/)  | ✅ | Implemented |
-| [Node](https://www.npmjs.com/package/@sikuligo/sikuligo)  | ✅ | Implemented |
-| Lua  | ✅ | Implemented |
-| Robot Framework | 🟡 | Planned |
-| Web IDE | 🟡 | Planned |
-
 ## Examples
 
 ### Node.js
@@ -29,15 +19,15 @@ Install the Node client package:
 
 ```bash
 yarn add @sikuligo/sikuligo
+yarn init:examples
+node examples/click.js
 ```
 
-```bash
-yarn workspace @sikuligo/sikuligo example:workflow:auto
-```
+`yarn init:examples` copies the packaged examples into `./examples`.
 
 Runs:
 ```js
-import { Screen, Pattern } from "../src";
+import { Screen, Pattern } from "@sikuligo/sikuligo";
 
 const screen = await Screen();
 try {
@@ -54,15 +44,12 @@ Install the Python client package:
 
 ```bash
 python3 -m pip install sikuligo
-```
-
-```bash
 cd packages/client-python
 python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install -r requirements.txt
 python3 -m pip install -e .
-SIKULIGO_BINARY_PATH=../../sikuligo python3 examples/workflow_auto_launch.py
+python3 examples/workflow_auto_launch.py
 ```
 
 Runs:
@@ -80,6 +67,16 @@ finally:
 ## API Dashboard
 
 ![SikuliGO Dashboard Demo](docs/images/dashboard.png)
+
+## Available Clients
+
+| Client |  | Notes |
+| :---  | --- | :---  |
+| [Python](https://pypi.org/project/sikuligo/)  | ✅ | Implemented |
+| [Node](https://www.npmjs.com/package/@sikuligo/sikuligo)  | ✅ | Implemented |
+| Lua  | ✅ | Implemented |
+| Robot Framework | 🟡 | Planned |
+| Web IDE | 🟡 | Planned |
 
 
 ## Current Focus
@@ -166,6 +163,12 @@ brew install sikuligo/tap/sikuligo
 Install on Linux/Windows from release artifacts:
 
 - [Windows/Linux install commands](docs/api-publish-install.md#install-on-linux)
+
+Run the repo workspace Node example:
+
+```bash
+yarn workspace @sikuligo/sikuligo example:workflow:auto
+```
 
 ## Project History and Credits
 

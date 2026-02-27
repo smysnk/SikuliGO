@@ -27,11 +27,14 @@
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "bin": {
-    "sikuligo-doctor": "dist/src/doctor.js"
+    "sikuligo-doctor": "dist/src/doctor.js",
+    "sikuligo-init-examples": "dist/src/init-examples.js",
+    "init:examples": "dist/src/init-examples.js"
   },
   "files": [
     "dist",
     "generated",
+    "examples",
     "README.md"
   ],
   "exports": {
@@ -49,6 +52,7 @@
     "build": "bash ../../scripts/clients/generate-node-stubs.sh && tsc -p tsconfig.json",
     "prepack": "npm run clean && npm run build",
     "doctor": "node dist/src/doctor.js",
+    "examples:init": "node dist/src/init-examples.js",
     "example:workflow:auto": "tsx examples/workflow-auto-launch.js",
     "example:workflow:connect": "tsx examples/workflow-connect.js",
     "example:find": "tsx examples/find.js",

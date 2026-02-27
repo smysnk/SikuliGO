@@ -21,6 +21,16 @@ For source build details, see:
 
 ## Quickstart
 
+Use the published package examples in any project directory:
+
+```bash
+yarn add @sikuligo/sikuligo
+yarn init:examples
+node examples/click.js
+```
+
+`yarn init:examples` copies package examples into `./examples`.
+
 Run:
 
 ```bash
