@@ -7,19 +7,36 @@ CLIENT_DIR="$ROOT_DIR/packages/client-node"
 OUT_DIR="$CLIENT_DIR/generated"
 PROTO_FILE="$API_DIR/proto/sikuli/v1/sikuli.proto"
 NODE_BIN="$CLIENT_DIR/node_modules/.bin"
+REQUIRED_GENERATED=(
+  "$OUT_DIR/sikuli/v1/sikuli_pb.js"
+  "$OUT_DIR/sikuli/v1/sikuli_pb.d.ts"
+  "$OUT_DIR/sikuli/v1/sikuli_grpc_pb.js"
+  "$OUT_DIR/sikuli/v1/sikuli_grpc_pb.d.ts"
+)
 
-if [[ ! -x "$NODE_BIN/grpc_tools_node_protoc" ]]; then
-  echo "Missing grpc_tools_node_protoc. Run: (cd $CLIENT_DIR && npm install)" >&2
-  exit 1
-fi
+has_generated_artifacts() {
+  for f in "${REQUIRED_GENERATED[@]}"; do
+    if [[ ! -f "$f" ]]; then
+      return 1
+    fi
+  done
+  return 0
+}
 
-if [[ ! -x "$NODE_BIN/grpc_tools_node_protoc_plugin" ]]; then
-  echo "Missing grpc_tools_node_protoc_plugin. Run: (cd $CLIENT_DIR && npm install)" >&2
-  exit 1
-fi
+missing_tools=()
+for tool in grpc_tools_node_protoc grpc_tools_node_protoc_plugin protoc-gen-ts; do
+  if [[ ! -x "$NODE_BIN/$tool" ]]; then
+    missing_tools+=("$tool")
+  fi
+done
 
-if [[ ! -x "$NODE_BIN/protoc-gen-ts" ]]; then
-  echo "Missing protoc-gen-ts. Run: (cd $CLIENT_DIR && npm install)" >&2
+if [[ ${#missing_tools[@]} -gt 0 ]]; then
+  if has_generated_artifacts; then
+    echo "Missing Node protobuf tooling (${missing_tools[*]}), reusing committed generated artifacts in $OUT_DIR" >&2
+    exit 0
+  fi
+  echo "Missing Node protobuf tooling: ${missing_tools[*]}. Run: (cd $CLIENT_DIR && npm install)" >&2
+  echo "No generated artifacts found at $OUT_DIR, cannot continue." >&2
   exit 1
 fi
 

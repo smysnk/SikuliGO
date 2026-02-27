@@ -13,8 +13,33 @@ if [[ "${SKIP_INSTALL:-0}" != "1" ]]; then
   NPM_CONFIG_PRODUCTION=false NPM_CONFIG_OMIT= npm install --include=dev
 fi
 
-npm run build
-npm pack --dry-run
+if [[ "${NODE_CLIENT_BUILD:-0}" == "1" ]]; then
+  npm run build
+else
+  required_files=(
+    "dist/src/index.js"
+    "dist/src/index.d.ts"
+    "dist/src/client.js"
+    "generated/sikuli/v1/sikuli_pb.js"
+    "generated/sikuli/v1/sikuli_pb.d.ts"
+    "generated/sikuli/v1/sikuli_grpc_pb.js"
+    "generated/sikuli/v1/sikuli_grpc_pb.d.ts"
+  )
+  missing=()
+  for f in "${required_files[@]}"; do
+    if [[ ! -f "$f" ]]; then
+      missing+=("$f")
+    fi
+  done
+  if [[ ${#missing[@]} -gt 0 ]]; then
+    echo "Missing prebuilt Node client artifacts: ${missing[*]}" >&2
+    echo "Run NODE_CLIENT_BUILD=1 ./scripts/clients/release-node-client.sh (with grpc-tools installed)." >&2
+    exit 1
+  fi
+  echo "Skipping Node client build (NODE_CLIENT_BUILD!=1); using committed dist/generated artifacts"
+fi
+
+npm pack --dry-run --ignore-scripts
 
 if [[ "${NPM_PUBLISH:-0}" == "1" ]]; then
   if [[ -z "${NPM_TOKEN:-}" ]]; then
@@ -22,7 +47,7 @@ if [[ "${NPM_PUBLISH:-0}" == "1" ]]; then
     exit 1
   fi
   npm config set //registry.npmjs.org/:_authToken="${NPM_TOKEN}"
-  npm publish --access public
+  npm publish --ignore-scripts --access public
 else
   echo "Node package scaffold validated (publish skipped; set NPM_PUBLISH=1)"
 fi
