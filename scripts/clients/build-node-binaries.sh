@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 API_DIR="$ROOT_DIR/packages/api"
 PACKAGES_DIR="$ROOT_DIR/packages/client-node/packages"
+NODE_CLIENT_PKG="$ROOT_DIR/packages/client-node/package.json"
 TARGETS=(
   "darwin arm64 bin-darwin-arm64"
   "darwin amd64 bin-darwin-x64"
@@ -16,10 +17,59 @@ if ! command -v go >/dev/null 2>&1; then
   exit 1
 fi
 
+if ! command -v node >/dev/null 2>&1; then
+  echo "Missing node in PATH" >&2
+  exit 1
+fi
+
+NODE_VERSION="$(node -e "console.log(require(process.argv[1]).version)" "$NODE_CLIENT_PKG")"
+
+ensure_pkg_scaffold() {
+  local pkg="$1"
+  local goos="$2"
+  local goarch="$3"
+  local pkg_dir="$PACKAGES_DIR/$pkg"
+  local readme="$pkg_dir/README.md"
+  local manifest="$pkg_dir/package.json"
+  local bin_name="sikuligo"
+  if [[ "$goos" == "windows" ]]; then
+    bin_name="sikuligo.exe"
+  fi
+
+  mkdir -p "$pkg_dir/bin"
+
+  if [[ ! -f "$readme" ]]; then
+    cat >"$readme" <<EOF
+# @sikuligo/$pkg
+
+Platform binary package for SikuliGO ($goos/$goarch).
+EOF
+  fi
+
+  if [[ ! -f "$manifest" ]]; then
+    cat >"$manifest" <<EOF
+{
+  "name": "@sikuligo/$pkg",
+  "version": "$NODE_VERSION",
+  "description": "sikuligo binary for $goos $goarch",
+  "license": "MIT",
+  "files": [
+    "bin/$bin_name",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}
+EOF
+  fi
+}
+
 for target in "${TARGETS[@]}"; do
   IFS=' ' read -r goos goarch pkg <<<"$target"
   pkg_dir="$PACKAGES_DIR/$pkg"
   bin_dir="$pkg_dir/bin"
+  ensure_pkg_scaffold "$pkg" "$goos" "$goarch"
   mkdir -p "$bin_dir"
 
   if [[ "$goos" == "windows" ]]; then
