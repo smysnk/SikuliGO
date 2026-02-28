@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${THIS_DIR}/paths.sh"
 
 if [[ $# -ne 1 ]]; then
   echo "Usage: $0 <semver>" >&2
@@ -15,10 +16,10 @@ if [[ ! "$NEW_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   exit 1
 fi
 
-NODE_PKG="$ROOT_DIR/packages/client-node/package.json"
-NODE_LOCK="$ROOT_DIR/packages/client-node/package-lock.json"
-PYPROJECT="$ROOT_DIR/packages/client-python/pyproject.toml"
-BIN_PKG_DIR="$ROOT_DIR/packages/client-node/packages"
+NODE_PKG="$NODE_PACKAGE_JSON"
+NODE_LOCK="$NODE_PACKAGE_LOCK"
+PYPROJECT="$PYTHON_PROJECT_TOML"
+BIN_PKG_DIR="$NODE_BIN_PACKAGES_DIR"
 
 if ! command -v node >/dev/null 2>&1; then
   echo "Missing node in PATH" >&2

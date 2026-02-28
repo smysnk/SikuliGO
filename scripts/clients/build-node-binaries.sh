@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-API_DIR="$ROOT_DIR/packages/api"
-PACKAGES_DIR="$ROOT_DIR/packages/client-node/packages"
-NODE_CLIENT_PKG="$ROOT_DIR/packages/client-node/package.json"
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${THIS_DIR}/paths.sh"
+
+PACKAGES_DIR="$NODE_BIN_PACKAGES_DIR"
+NODE_CLIENT_PKG="$NODE_PACKAGE_JSON"
+GO_CACHE_DIR="${GOCACHE:-$ROOT_DIR/.test-results/go-build}"
+GO_MOD_CACHE_DIR="${GOMODCACHE:-$ROOT_DIR/.test-results/go-mod}"
 TARGETS=(
   "darwin arm64 bin-darwin-arm64"
   "darwin amd64 bin-darwin-x64"
@@ -21,6 +24,8 @@ if ! command -v node >/dev/null 2>&1; then
   echo "Missing node in PATH" >&2
   exit 1
 fi
+
+mkdir -p "$GO_CACHE_DIR" "$GO_MOD_CACHE_DIR"
 
 NODE_VERSION="$(node -e "console.log(require(process.argv[1]).version)" "$NODE_CLIENT_PKG")"
 
@@ -83,6 +88,8 @@ for target in "${TARGETS[@]}"; do
   echo "Building $pkg ($goos/$goarch)"
   (
     cd "$API_DIR"
+    export GOCACHE="$GO_CACHE_DIR"
+    export GOMODCACHE="$GO_MOD_CACHE_DIR"
     CGO_ENABLED=0 GOOS="$goos" GOARCH="$goarch" \
       go build -trimpath -ldflags="-s -w" -o "$out" ./cmd/sikuligrpc
   )

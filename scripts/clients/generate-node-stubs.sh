@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-API_DIR="$ROOT_DIR/packages/api"
-CLIENT_DIR="$ROOT_DIR/packages/client-node"
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${THIS_DIR}/paths.sh"
+
+CLIENT_DIR="$CLIENT_NODE_DIR"
 OUT_DIR="$CLIENT_DIR/generated"
 PROTO_FILE="$API_DIR/proto/sikuli/v1/sikuli.proto"
 NODE_BIN="$CLIENT_DIR/node_modules/.bin"

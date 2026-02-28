@@ -1,15 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-PACKAGES_DIR="$ROOT_DIR/packages/client-node/packages"
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${THIS_DIR}/paths.sh"
+source "${THIS_DIR}/npm-helpers.sh"
+
+PACKAGES_DIR="$NODE_BIN_PACKAGES_DIR"
 NPM_CACHE_DIR="${NPM_CONFIG_CACHE:-$ROOT_DIR/.test-results/npm-cache}"
-PACKAGES=(
-  "bin-darwin-arm64"
-  "bin-darwin-x64"
-  "bin-linux-x64"
-  "bin-win32-x64"
-)
 
 mkdir -p "$NPM_CACHE_DIR"
 export NPM_CONFIG_CACHE="$NPM_CACHE_DIR"
@@ -18,14 +15,11 @@ cd "$ROOT_DIR"
 ./scripts/clients/build-node-binaries.sh
 
 if [[ "${NPM_PUBLISH:-0}" == "1" ]]; then
-  if [[ -z "${NPM_TOKEN:-}" ]]; then
-    echo "Missing NPM_TOKEN for publish" >&2
-    exit 1
-  fi
-  npm config set //registry.npmjs.org/:_authToken="${NPM_TOKEN}"
+  configure_npm_auth_token "${NPM_TOKEN:-}"
+  verify_npm_auth
 fi
 
-for pkg in "${PACKAGES[@]}"; do
+for pkg in "${NODE_BIN_PACKAGES[@]}"; do
   pkg_dir="$PACKAGES_DIR/$pkg"
   if [[ ! -f "$pkg_dir/package.json" ]]; then
     echo "Missing package.json for $pkg at $pkg_dir" >&2
@@ -39,10 +33,11 @@ for pkg in "${PACKAGES[@]}"; do
   fi
 
   # Pack from explicit directory and disable scripts to avoid workspace/root prepack hooks.
-  npm pack --dry-run --ignore-scripts "$pkg_dir" >/dev/null
+  run_npm_no_workspace pack --dry-run --ignore-scripts "$pkg_dir" >/dev/null
 
   if [[ "${NPM_PUBLISH:-0}" == "1" ]]; then
-    npm publish --ignore-scripts --access public "$pkg_dir"
+    check_npm_package_visibility "@sikuligo/${pkg}"
+    run_npm_no_workspace publish --ignore-scripts --access public "$pkg_dir"
   fi
 done
 

@@ -65,8 +65,45 @@ jobs:
             echo "Skipping sikuligo-monitor build: ./cmd/sikuligo-monitor not found in this revision"
           fi
 
-  python-client:
+  client-release-smoke:
     needs: tagged-server-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: packages/api/go.mod
+          cache: true
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Setup protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          version: "27.x"
+
+      - name: Verify release flows (no publish)
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
+          VERSION_MAJOR: ${{ vars.CLIENT_VERSION_MAJOR }}
+          VERSION_MINOR: ${{ vars.CLIENT_VERSION_MINOR }}
+          PATCH_MODE: ${{ vars.CLIENT_VERSION_PATCH_MODE }}
+          PATCH_FIXED: ${{ vars.CLIENT_VERSION_PATCH_FIXED }}
+        run: ./scripts/clients/release-verify.sh
+
+  python-client:
+    needs: client-release-smoke
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -106,10 +143,10 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: python-client-dist
-          path: packages/python/dist/*
+          path: packages/client-python/dist/*
 
   node-binaries:
-    needs: tagged-server-build
+    needs: client-release-smoke
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -148,7 +185,9 @@ jobs:
           path: packages/client-node/packages/checksums.txt
 
   node-client:
-    needs: node-binaries
+    needs:
+      - client-release-smoke
+      - node-binaries
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -183,7 +222,7 @@ jobs:
         run: ./scripts/clients/release-node-client.sh
 
   homebrew:
-    needs: tagged-server-build
+    needs: client-release-smoke
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-API_DIR="$ROOT_DIR/packages/api"
-OUT_DIR="$ROOT_DIR/packages/client-lua/generated"
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${THIS_DIR}/paths.sh"
+
+OUT_DIR="$CLIENT_LUA_DIR/generated"
 OUT_FILE="$OUT_DIR/sikuli.protoset"
 PROTO_FILE="sikuli/v1/sikuli.proto"
 

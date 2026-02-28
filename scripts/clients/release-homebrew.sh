@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-API_DIR="$ROOT_DIR/packages/api"
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${THIS_DIR}/paths.sh"
+
 DIST_DIR="${HOME_BREW_DIST_DIR:-$ROOT_DIR/.test-results/homebrew}"
 OWNER_REPO="${GITHUB_REPOSITORY:-smysnk/SikuliGO}"
 TAP_REPO="${HOMEBREW_TAP_REPO:-sikuligo/homebrew-tap}"
@@ -10,7 +11,7 @@ FORMULA_NAME="sikuligo"
 FORMULA_PATH="Formula/${FORMULA_NAME}.rb"
 ARM_ARCHIVE="$DIST_DIR/${FORMULA_NAME}-darwin-arm64.tar.gz"
 AMD_ARCHIVE="$DIST_DIR/${FORMULA_NAME}-darwin-amd64.tar.gz"
-PKG_JSON="$ROOT_DIR/packages/client-node/package.json"
+PKG_JSON="$NODE_PACKAGE_JSON"
 
 mkdir -p "$DIST_DIR"
 cd "$ROOT_DIR"

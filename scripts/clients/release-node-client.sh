@@ -1,25 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-CLIENT_DIR="$ROOT_DIR/packages/client-node"
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${THIS_DIR}/paths.sh"
+source "${THIS_DIR}/npm-helpers.sh"
+
+CLIENT_DIR="$CLIENT_NODE_DIR"
 NPM_CACHE_DIR="${NPM_CONFIG_CACHE:-$ROOT_DIR/.test-results/npm-cache}"
 
 mkdir -p "$NPM_CACHE_DIR"
 export NPM_CONFIG_CACHE="$NPM_CACHE_DIR"
 
-run_npm_without_workspace_flags() {
-  env \
-    -u NPM_CONFIG_WORKSPACE \
-    -u npm_config_workspace \
-    -u NPM_CONFIG_WORKSPACES \
-    -u npm_config_workspaces \
-    npm "$@"
-}
-
 cd "$CLIENT_DIR"
 if [[ "${SKIP_INSTALL:-0}" != "1" ]]; then
-  NPM_CONFIG_OMIT= run_npm_without_workspace_flags install --include=dev
+  NPM_CONFIG_OMIT= run_npm_no_workspace install --include=dev
 fi
 
 required_files=(
@@ -44,18 +38,16 @@ if [[ "${NODE_CLIENT_BUILD:-0}" == "1" || ${#missing[@]} -gt 0 ]]; then
     echo "Missing Node client artifacts: ${missing[*]}"
     echo "Attempting npm run build to regenerate dist/generated artifacts..."
   fi
-  run_npm_without_workspace_flags run build
+  run_npm_no_workspace run build
 fi
 
-run_npm_without_workspace_flags pack --dry-run --ignore-scripts
+run_npm_no_workspace pack --dry-run --ignore-scripts
 
 if [[ "${NPM_PUBLISH:-0}" == "1" ]]; then
-  if [[ -z "${NPM_TOKEN:-}" ]]; then
-    echo "Missing NPM_TOKEN for publish" >&2
-    exit 1
-  fi
-  run_npm_without_workspace_flags config set //registry.npmjs.org/:_authToken="${NPM_TOKEN}"
-  run_npm_without_workspace_flags publish --ignore-scripts --access public
+  configure_npm_auth_token "${NPM_TOKEN:-}"
+  verify_npm_auth
+  check_npm_package_visibility "@sikuligo/sikuligo"
+  run_npm_no_workspace publish --ignore-scripts --access public
 else
   echo "Node package scaffold validated (publish skipped; set NPM_PUBLISH=1)"
 fi
