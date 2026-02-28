@@ -24,6 +24,7 @@
     "robot framework"
   ],
   "license": "MIT",
+  "type": "commonjs",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "bin": {
@@ -40,6 +41,8 @@
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js",
+      "require": "./dist/src/index.js",
       "default": "./dist/src/index.js"
     }
   },
@@ -53,14 +56,14 @@
     "prepack": "npm run clean && npm run build",
     "doctor": "node dist/src/doctor.js",
     "examples:init": "node dist/src/init-examples.js",
-    "example:workflow:auto": "tsx examples/workflow-auto-launch.js",
-    "example:workflow:connect": "tsx examples/workflow-connect.js",
-    "example:find": "tsx examples/find.js",
-    "example:click": "tsx examples/click.js",
-    "example:ocr": "tsx examples/ocr.js",
-    "example:input": "tsx examples/input.js",
-    "example:app": "tsx examples/app.js",
-    "example:user-flow": "tsx examples/user-flow.js"
+    "example:workflow:auto": "node examples/workflow-auto-launch.mjs",
+    "example:workflow:connect": "node examples/workflow-connect.mjs",
+    "example:find": "node examples/find.mjs",
+    "example:click": "node examples/click.mjs",
+    "example:ocr": "node examples/ocr.mjs",
+    "example:input": "node examples/input.mjs",
+    "example:app": "node examples/app.mjs",
+    "example:user-flow": "node examples/user-flow.mjs"
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.14.0",

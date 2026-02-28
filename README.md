@@ -23,7 +23,7 @@ cd sikuligo-demo
 yarn init -y
 yarn add @sikuligo/sikuligo
 yarn init-examples # copies the packaged examples into ./examples
-node examples/click.js
+yarn node examples/click.mjs
 ```
 
 Runs:

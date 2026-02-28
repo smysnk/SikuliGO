@@ -12,34 +12,32 @@ cd sikuligo-demo
 yarn init -y
 yarn add @sikuligo/sikuligo
 yarn init-examples
-node examples/click.js  # copies package examples into `./examples`.
+yarn node examples/click.mjs
 ```
 
 ```js
 import { Screen, Pattern } from "@sikuligo/sikuligo";
 
-async function main() {
-  const screen = await Screen();
-  try {
-    const match = await screen.click(Pattern("assets/pattern.png").exact());
-    console.log(`clicked match target at (${match.targetX}, ${match.targetY})`);
-  } finally {
-    await screen.close();
-  }
+const screen = await Screen();
+try {
+  const match = await screen.click(Pattern("assets/pattern.png").exact());
+  console.log(`clicked match target at (${match.targetX}, ${match.targetY})`);
+} finally {
+  await screen.close();
 }
 ```
 
 ## Run Examples
 
 ```bash
-node examples/workflow-auto-launch.js
-node examples/workflow-connect.js
-node examples/find.js
-node examples/click.js
-node examples/ocr.js
-node examples/input.js
-node examples/app.js
-node examples/user-flow.js
+yarn node examples/workflow-auto-launch.mjs
+yarn node examples/workflow-connect.mjs
+yarn node examples/find.mjs
+yarn node examples/click.mjs
+yarn node examples/ocr.mjs
+yarn node examples/input.mjs
+yarn node examples/app.mjs
+yarn node examples/user-flow.mjs
 yarn sikuligo-doctor
 ```
 
@@ -50,7 +48,7 @@ yarn sikuligo-doctor
 - `SIKULI_MATCHER_ENGINE` (optional default matcher engine: `template`, `orb`, `hybrid`)
 - `SIKULI_DEBUG` (optional; set to `1` to log launcher and per-RPC timing details; spawned `sikuligo` logs are shown too)
 - `SIKULIGO_SQLITE_PATH` (optional sqlite path for spawned server sessions; default `sikuligo.db`)
-- `SIKULI_APP_NAME` (optional; used by `examples/app.js`)
+- `SIKULI_APP_NAME` (optional; used by `examples/app.mjs`)
 
 Primary constructors:
 - `Screen()` / `Sikuli()` = connect to default address first (1s), else spawn
