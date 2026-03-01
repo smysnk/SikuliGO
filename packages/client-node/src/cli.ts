@@ -82,14 +82,15 @@ function parseInitExamplesArgs(argv: string[]): InitExamplesArgs {
 }
 
 async function promptProjectDir(): Promise<string> {
+  const defaultDir = "sikuligo-demo";
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
   });
   try {
-    const answer = (await rl.question("Project directory name: ")).trim();
+    const answer = (await rl.question(`Project directory name [${defaultDir}]: `)).trim();
     if (!answer) {
-      throw new Error("Project directory name is required");
+      return path.resolve(defaultDir);
     }
     return path.resolve(answer);
   } finally {

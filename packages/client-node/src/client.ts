@@ -1,7 +1,5 @@
-import fs from "node:fs";
-import path from "node:path";
 import * as grpc from "@grpc/grpc-js";
-import * as protoLoader from "@grpc/proto-loader";
+import { SikuliServiceClient } from "../generated/sikuli/v1/sikuli_grpc_pb";
 
 const DEFAULT_ADDR = "127.0.0.1:50051";
 const DEFAULT_TIMEOUT_MS = 5000;
@@ -18,7 +16,6 @@ export interface SikuliOptions {
   traceId?: string;
   timeoutMs?: number;
   matcherEngine?: MatcherEngine;
-  protoPath?: string;
   credentials?: grpc.ChannelCredentials;
 }
 
@@ -40,37 +37,6 @@ export class SikuliError extends Error {
     this.details = details;
     this.traceId = traceId;
   }
-}
-
-function resolveDefaultProtoPath(): string {
-  const candidates = [
-    path.resolve(__dirname, "../../../proto/sikuli/v1/sikuli.proto"),
-    path.resolve(__dirname, "../../../../proto/sikuli/v1/sikuli.proto"),
-    path.resolve(process.cwd(), "proto/sikuli/v1/sikuli.proto"),
-    path.resolve(process.cwd(), "../../proto/sikuli/v1/sikuli.proto")
-  ];
-  for (const candidate of candidates) {
-    if (fs.existsSync(candidate)) {
-      return candidate;
-    }
-  }
-  return candidates[0];
-}
-
-function serviceConstructorFromProto(protoPath: string): grpc.ServiceClientConstructor {
-  const packageDefinition = protoLoader.loadSync(protoPath, {
-    keepCase: true,
-    longs: String,
-    enums: String,
-    defaults: true,
-    oneofs: true
-  });
-  const root = grpc.loadPackageDefinition(packageDefinition) as any;
-  const serviceCtor = root?.sikuli?.v1?.SikuliService;
-  if (!serviceCtor) {
-    throw new Error(`SikuliService not found in proto: ${protoPath}`);
-  }
-  return serviceCtor as grpc.ServiceClientConstructor;
 }
 
 function normalizeMatcherEngine(raw: string | undefined): MatcherEngine {
@@ -134,11 +100,9 @@ export class Sikuli {
     this.matcherEngine = normalizeMatcherEngine(opts.matcherEngine ?? process.env.SIKULI_MATCHER_ENGINE);
     this.debugEnabled = /^(1|true|yes|on)$/i.test(process.env.SIKULI_DEBUG ?? "");
 
-    const protoPath = opts.protoPath ?? resolveDefaultProtoPath();
-    const ctor = serviceConstructorFromProto(protoPath);
     const credentials = opts.credentials ?? grpc.credentials.createInsecure();
-
-    this.client = new ctor(address, credentials) as grpc.Client & Record<string, unknown>;
+    this.client = new SikuliServiceClient(address, credentials) as unknown as grpc.Client &
+      Record<string, unknown>;
   }
 
   private debugLog(message: string, fields: Record<string, unknown> = {}): void {

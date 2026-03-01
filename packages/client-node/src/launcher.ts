@@ -131,7 +131,6 @@ export async function launchSikuli(opts: LaunchOptions = {}): Promise<LaunchResu
       authToken,
       traceId: opts.traceId,
       timeoutMs: opts.timeoutMs,
-      protoPath: opts.protoPath,
       credentials: opts.credentials
     });
     await client.waitForReady(startupTimeoutMs);
@@ -183,7 +182,6 @@ export async function launchSikuli(opts: LaunchOptions = {}): Promise<LaunchResu
     authToken: token,
     traceId: opts.traceId,
     timeoutMs: opts.timeoutMs,
-    protoPath: opts.protoPath,
     credentials: opts.credentials
   });
 
