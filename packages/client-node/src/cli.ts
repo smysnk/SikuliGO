@@ -19,7 +19,11 @@ function runBinaryPassthrough(argv: string[]): number {
 }
 
 function main(): number {
-  return runBinaryPassthrough(process.argv.slice(2));
+  const args = process.argv.slice(2);
+  if (args.length === 0) {
+    return runBinaryPassthrough(["-h"]);
+  }
+  return runBinaryPassthrough(args);
 }
 
 try {

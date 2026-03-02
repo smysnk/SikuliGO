@@ -18,6 +18,10 @@ function isExecutable(candidatePath: string): boolean {
     if (!candidatePath) {
       return false;
     }
+    const stat = fs.statSync(candidatePath);
+    if (!stat.isFile()) {
+      return false;
+    }
     if (process.platform === "win32") {
       fs.accessSync(candidatePath, fs.constants.F_OK);
     } else {
