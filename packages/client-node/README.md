@@ -12,12 +12,12 @@ SikuliGO is a GoLang implementation of Sikuli visual automation. This package pr
 
 ## Quickstart
 
-`init:js-examples` prompts for a target directory, scaffolds a `package.json` with the latest `@sikuligo/sikuligo` dependency, runs `yarn install`, and copies `.js` + `.mjs` examples into `examples/`.
+`init:js-examples` prompts for a target directory, scaffolds a `package.json` with the latest `@sikuligo/sikuligo` dependency, runs `yarn install`, and copies `.mjs` examples into `examples/`.
 
 ```bash
 yarn dlx @sikuligo/sikuligo init:js-examples
 cd sikuligo-demo
-yarn node examples/click.js
+yarn node examples/click.mjs
 ```
 
 ```js

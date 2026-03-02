@@ -20,7 +20,7 @@ Install the Node client package:
 ```bash
 yarn dlx @sikuligo/sikuligo init:js-examples
 cd sikuligo-demo
-yarn node examples/click.js
+yarn node examples/click.mjs
 ```
 
 Runs:

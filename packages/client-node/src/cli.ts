@@ -3,54 +3,22 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
 import readline from "node:readline/promises";
 import { resolveSikuliBinary } from "./binary";
 import { runInitExamples } from "./init-examples";
-
-const EXAMPLE_NAMES = new Set([
-  "workflow-auto-launch",
-  "workflow-connect",
-  "find",
-  "click",
-  "ocr",
-  "input",
-  "app",
-  "user-flow"
-]);
+import { launchSikuli, stopSpawnedProcess } from "./launcher";
 
 function usage(): string {
   return [
     "Usage: sikuligo <command> [options]",
     "",
-    "Commands:",
-    "  init-examples [--dir <targetDir>]            Scaffold a project and copy examples into ./examples",
-    "  init:js-examples [--dir <targetDir>]         Scaffold a JS project and copy .js examples into ./examples",
-    "  example <name>                               Run a packaged example by name",
-    "  doctor                                       Print binary/platform diagnostics",
+    "Wrapper Commands:",
+    "  init:js-examples [--dir <targetDir>]         Scaffold a JS project and copy .mjs examples into ./examples",
     "  install-binary [--dir <binDir>]              Copy sikuli runtimes to a PATH-ready directory",
     "",
-    `Example names: ${Array.from(EXAMPLE_NAMES).join(", ")}`
+    "All other commands/flags are forwarded to the native sikuligo binary."
   ].join("\n");
-}
-
-function normalizeExampleName(raw: string): string {
-  const normalized = raw.trim().toLowerCase().replace(/\.mjs$/, "");
-  if (!EXAMPLE_NAMES.has(normalized)) {
-    throw new Error(`Unknown example "${raw}". Valid names: ${Array.from(EXAMPLE_NAMES).join(", ")}`);
-  }
-  return normalized;
-}
-
-async function runPackagedExample(nameArg: string): Promise<void> {
-  const name = normalizeExampleName(nameArg);
-  const packageRoot = path.resolve(__dirname, "..", "..");
-  const examplePath = path.join(packageRoot, "examples", `${name}.mjs`);
-  if (!fs.existsSync(examplePath)) {
-    throw new Error(`Packaged example not found: ${examplePath}`);
-  }
-  await import(pathToFileURL(examplePath).href);
 }
 
 type InitExamplesArgs = {
@@ -145,22 +113,6 @@ function runYarnInstall(projectDir: string): void {
   }
 }
 
-function createJsExampleVariants(projectDir: string): void {
-  const examplesDir = path.join(projectDir, "examples");
-  if (!fs.existsSync(examplesDir)) {
-    return;
-  }
-  const entries = fs.readdirSync(examplesDir, { withFileTypes: true });
-  for (const entry of entries) {
-    if (!entry.isFile() || !entry.name.endsWith(".mjs")) {
-      continue;
-    }
-    const source = path.join(examplesDir, entry.name);
-    const target = path.join(examplesDir, `${entry.name.slice(0, -4)}.js`);
-    fs.copyFileSync(source, target);
-  }
-}
-
 async function runInitExamplesScaffold(
   argv: string[],
   opts: { jsMode?: boolean; defaultSkipInstall?: boolean } = {}
@@ -175,9 +127,6 @@ async function runInitExamplesScaffold(
     runYarnInstall(projectDir);
   }
   runInitExamples(["--dir", projectDir, "--force"]);
-  if (opts.jsMode === true) {
-    createJsExampleVariants(projectDir);
-  }
   console.log(`Initialized SikuliGO project in: ${projectDir}`);
   console.log(`Examples copied to: ${path.join(projectDir, "examples")}`);
 }
@@ -312,44 +261,100 @@ async function installBinary(argv: string[]): Promise<{ copied: string[]; target
   return { copied, targetDir, sourceCmd };
 }
 
-function runDoctor(): number {
+function runBinaryProbe(binary: string): { ok: boolean; detail: string } {
+  const out = spawnSync(binary, ["-h"], {
+    env: process.env,
+    encoding: "utf8"
+  });
+  if (out.error) {
+    return { ok: false, detail: out.error.message };
+  }
+  if (typeof out.status === "number" && out.status !== 0) {
+    return { ok: false, detail: `exit=${out.status}` };
+  }
+  return { ok: true, detail: "ok" };
+}
+
+async function runDoctor(): Promise<number> {
+  const report: Array<{ check: string; ok: boolean; detail: string }> = [];
+  let tmpDir = "";
   try {
     const binary = resolveSikuliBinary();
+    report.push({ check: "binary.resolve", ok: true, detail: binary });
+
+    const probe = runBinaryProbe(binary);
+    report.push({ check: "binary.execute", ok: probe.ok, detail: probe.detail });
+    if (!probe.ok) {
+      throw new Error(`binary execution probe failed: ${probe.detail}`);
+    }
+
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "sikuligo-doctor-"));
+    const sqlitePath = path.join(tmpDir, "sikuligo-doctor.db");
+    const launch = await launchSikuli({
+      binaryPath: binary,
+      startupTimeoutMs: 3_000,
+      adminListen: "",
+      sqlitePath,
+      spawnServer: true,
+      timeoutMs: 3_000
+    });
+    report.push({ check: "grpc.launch", ok: true, detail: `address=${launch.address}` });
+    launch.client.close();
+    await stopSpawnedProcess(launch.child);
+    report.push({ check: "grpc.shutdown", ok: true, detail: "ok" });
+
     console.log("sikuligo doctor: ok");
-    console.log(`binary: ${binary}`);
     console.log(`platform: ${process.platform}/${process.arch}`);
+    for (const row of report) {
+      console.log(`- ${row.check}: ok (${row.detail})`);
+    }
     return 0;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error("sikuligo doctor: failed");
-    console.error(message);
+    for (const row of report) {
+      const status = row.ok ? "ok" : "failed";
+      console.error(`- ${row.check}: ${status} (${row.detail})`);
+    }
+    console.error(`- error: ${message}`);
     return 1;
+  } finally {
+    if (tmpDir) {
+      try {
+        fs.rmSync(tmpDir, { recursive: true, force: true });
+      } catch {
+        // Ignore cleanup errors.
+      }
+    }
   }
+}
+
+function runBinaryPassthrough(argv: string[]): number {
+  const binary = resolveSikuliBinary();
+  const out = spawnSync(binary, argv, {
+    stdio: "inherit",
+    env: process.env
+  });
+  if (out.error) {
+    throw out.error;
+  }
+  if (typeof out.status === "number") {
+    return out.status;
+  }
+  return 1;
 }
 
 async function main(): Promise<number> {
   const [command = "", ...rest] = process.argv.slice(2);
   switch (command) {
-    case "init-examples": {
-      await runInitExamplesScaffold(rest);
-      return 0;
-    }
     case "init:js-examples": {
       await runInitExamplesScaffold(rest, {
         jsMode: true
       });
       return 0;
     }
-    case "example": {
-      const [name = ""] = rest;
-      if (!name) {
-        throw new Error(`Missing example name\n${usage()}`);
-      }
-      await runPackagedExample(name);
-      return 0;
-    }
     case "doctor": {
-      return runDoctor();
+      return await runDoctor();
     }
     case "install-binary": {
       const result = await installBinary(rest);
@@ -363,15 +368,14 @@ async function main(): Promise<number> {
       }
       return 0;
     }
-    case "help":
     case "--help":
     case "-h":
-    case "": {
+    case "help": {
       console.log(usage());
-      return command === "" ? 1 : 0;
+      return 0;
     }
     default: {
-      throw new Error(`Unknown command: ${command}\n${usage()}`);
+      return runBinaryPassthrough(process.argv.slice(2));
     }
   }
 }

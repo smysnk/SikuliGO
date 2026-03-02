@@ -76,16 +76,23 @@ function wireShutdown(child: ChildProcess): Array<() => void> {
   ];
 }
 
-async function waitForStartup(client: SikuliTransport, child: ChildProcess, timeoutMs: number): Promise<void> {
+async function waitForStartup(
+  client: SikuliTransport,
+  child: ChildProcess,
+  timeoutMs: number,
+  exitDetail?: () => string
+): Promise<void> {
   let rejected = false;
   await Promise.race([
     client.waitForReady(timeoutMs),
     new Promise<never>((_, reject) => {
       child.once("exit", (code, signal) => {
         rejected = true;
+        const detail = exitDetail ? exitDetail() : "";
+        const suffix = detail ? ` stderr_tail=${JSON.stringify(detail)}` : "";
         reject(
           new Error(
-            `sikuligo exited before startup completed (code=${code ?? "nil"} signal=${signal ?? "nil"})`
+            `sikuligo exited before startup completed (code=${code ?? "nil"} signal=${signal ?? "nil"})${suffix}`
           )
         );
       });
@@ -175,6 +182,18 @@ export async function launchSikuli(opts: LaunchOptions = {}): Promise<LaunchResu
       SIKULI_GRPC_AUTH_TOKEN: token
     }
   });
+  let stderrTail = "";
+  const appendStderr = (chunk: Buffer | string) => {
+    const text = typeof chunk === "string" ? chunk : chunk.toString("utf8");
+    stderrTail = `${stderrTail}${text}`;
+    const max = 2000;
+    if (stderrTail.length > max) {
+      stderrTail = stderrTail.slice(stderrTail.length - max);
+    }
+  };
+  if (child.stderr) {
+    child.stderr.on("data", appendStderr);
+  }
   const unwire = wireShutdown(child);
 
   const client = new SikuliTransport({
@@ -186,7 +205,7 @@ export async function launchSikuli(opts: LaunchOptions = {}): Promise<LaunchResu
   });
 
   try {
-    await waitForStartup(client, child, startupTimeoutMs);
+    await waitForStartup(client, child, startupTimeoutMs, () => stderrTail.trim());
     debugLog("launcher.spawn.ready", {
       address,
       pid: child.pid ?? "unknown"
