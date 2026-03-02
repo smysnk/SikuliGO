@@ -210,7 +210,15 @@ export class Sikuli {
   }
 
   private unary(methodName: string, request: RpcMessage, opts: UnaryCallOptions = {}): Promise<RpcMessage> {
-    const callFn = this.client[methodName] as Function | undefined;
+    const candidates = [methodName, `${methodName.charAt(0).toLowerCase()}${methodName.slice(1)}`];
+    let callFn: Function | undefined;
+    for (const candidate of candidates) {
+      const fn = this.client[candidate] as Function | undefined;
+      if (typeof fn === "function") {
+        callFn = fn;
+        break;
+      }
+    }
     if (typeof callFn !== "function") {
       return Promise.reject(new Error(`unknown gRPC method: ${methodName}`));
     }
