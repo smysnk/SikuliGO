@@ -56,6 +56,7 @@ type Region struct {
 	ObserveScanRate float64
 }
 
+// NewRegion constructs a rectangular search area with default timing settings.
 func NewRegion(x, y, w, h int) Region {
 	return Region{
 		Rect:            NewRect(x, y, w, h),
@@ -66,6 +67,7 @@ func NewRegion(x, y, w, h int) Region {
 	}
 }
 
+// Center returns the midpoint of the region.
 func (r Region) Center() Point {
 	return Point{
 		X: r.X + r.W/2,
@@ -73,10 +75,12 @@ func (r Region) Center() Point {
 	}
 }
 
+// Grow expands the region outward in both directions.
 func (r Region) Grow(dx, dy int) Region {
 	return NewRegion(r.X-dx, r.Y-dy, r.W+dx*2, r.H+dy*2)
 }
 
+// Offset translates the region by dx and dy.
 func (r Region) Offset(dx, dy int) Region {
 	return NewRegion(r.X+dx, r.Y+dy, r.W, r.H)
 }
@@ -95,6 +99,7 @@ func (r Region) MoveToLocation(loc Location) Region {
 	return r.MoveTo(loc.X, loc.Y)
 }
 
+// SetSize updates width and height while clamping negatives to zero.
 func (r Region) SetSize(w, h int) Region {
 	if w < 0 {
 		w = 0
@@ -105,6 +110,7 @@ func (r Region) SetSize(w, h int) Region {
 	return NewRegion(r.X, r.Y, w, h)
 }
 
+// Contains reports whether a point lies within the region.
 func (r Region) Contains(p Point) bool {
 	return r.Rect.Contains(p)
 }
@@ -122,6 +128,7 @@ func (r Region) ContainsRegion(other Region) bool {
 		r.Contains(NewPoint(other.X+other.W-1, other.Y+other.H-1))
 }
 
+// Union returns the smallest region containing both regions.
 func (r Region) Union(other Region) Region {
 	if r.Empty() {
 		return other
@@ -136,6 +143,7 @@ func (r Region) Union(other Region) Region {
 	return NewRegion(left, top, right-left, bottom-top)
 }
 
+// Intersection returns the overlap between this region and another.
 func (r Region) Intersection(other Region) Region {
 	if r.Empty() || other.Empty() {
 		return NewRegion(0, 0, 0, 0)
@@ -187,6 +195,7 @@ func (r Region) Find(source *Image, pattern *Pattern) (Match, error) {
 	return f.Find(pattern)
 }
 
+// Exists checks for pattern presence within timeout and returns first match when found.
 func (r Region) Exists(source *Image, pattern *Pattern, timeout time.Duration) (Match, bool, error) {
 	checkOnce := func() (Match, bool, error) {
 		f, err := r.newFinder(source)
@@ -250,6 +259,7 @@ func (r Region) Wait(source *Image, pattern *Pattern, timeout time.Duration) (Ma
 	return m, nil
 }
 
+// WaitVanish waits until pattern disappears or timeout expires.
 func (r Region) WaitVanish(source *Image, pattern *Pattern, timeout time.Duration) (bool, error) {
 	checkOnce := func() (bool, error) {
 		_, ok, err := r.Exists(source, pattern, 0)
@@ -286,6 +296,7 @@ func (r Region) WaitVanish(source *Image, pattern *Pattern, timeout time.Duratio
 	}
 }
 
+// FindAll returns all matches in this region.
 func (r Region) FindAll(source *Image, pattern *Pattern) ([]Match, error) {
 	f, err := r.newFinder(source)
 	if err != nil {
@@ -327,6 +338,7 @@ func (r Region) ReadText(source *Image, params OCRParams) (string, error) {
 	return f.ReadText(params)
 }
 
+// FindText runs OCR in region and returns matches for the query.
 func (r Region) FindText(source *Image, query string, params OCRParams) ([]TextMatch, error) {
 	f, err := r.newFinder(source)
 	if err != nil {
@@ -380,6 +392,7 @@ type Screen struct {
 	Bounds Rect
 }
 
+// NewScreen constructs a logical screen descriptor.
 func NewScreen(id int, bounds Rect) Screen {
 	return Screen{ID: id, Bounds: bounds}
 }

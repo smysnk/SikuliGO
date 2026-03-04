@@ -5,9 +5,13 @@ import type { ImageInput } from "./image";
 export { resolveSikuliBinary } from "./binary";
 export { launchSikuli, stopSpawnedProcess } from "./launcher";
 export { SikuliError } from "./client";
-export { Image, loadGrayImage } from "./image";
+export { Image, loadGrayImage, loadPatternImage } from "./image";
 export { Region, Match };
 
+/**
+ * Top-level Sikuli constructor in auto mode.
+ * Equivalent to `Sikuli.launch(opts)`.
+ */
 export const Sikuli = Object.assign(
   async (opts: LaunchOptions = {}) => await SikuliClass.launch(opts),
   {
@@ -17,6 +21,10 @@ export const Sikuli = Object.assign(
   }
 );
 
+/**
+ * Top-level Screen constructor in auto mode.
+ * Equivalent to `Screen.start(opts)`.
+ */
 export const Screen = Object.assign(
   async (opts: LaunchOptions = {}) => await ScreenClass.start(opts),
   {
@@ -26,6 +34,7 @@ export const Screen = Object.assign(
   }
 );
 
+/** Build a Pattern from local image path or PNG bytes. */
 export const Pattern = (image: ImageInput) => new PatternClass(image);
 
 export type {
@@ -47,6 +56,7 @@ export type {
 } from "./client";
 export type {
   GrayImage,
+  PatternImage,
   ImageFormat,
   ImageInput
 } from "./image";

@@ -1864,12 +1864,20 @@ var (
 		1: "MATCHER_ENGINE_TEMPLATE",
 		2: "MATCHER_ENGINE_ORB",
 		3: "MATCHER_ENGINE_HYBRID",
+		4: "MATCHER_ENGINE_AKAZE",
+		5: "MATCHER_ENGINE_BRISK",
+		6: "MATCHER_ENGINE_KAZE",
+		7: "MATCHER_ENGINE_SIFT",
 	}
 	MatcherEngine_value = map[string]int32{
 		"MATCHER_ENGINE_UNSPECIFIED": 0,
 		"MATCHER_ENGINE_TEMPLATE":    1,
 		"MATCHER_ENGINE_ORB":         2,
 		"MATCHER_ENGINE_HYBRID":      3,
+		"MATCHER_ENGINE_AKAZE":       4,
+		"MATCHER_ENGINE_BRISK":       5,
+		"MATCHER_ENGINE_KAZE":        6,
+		"MATCHER_ENGINE_SIFT":        7,
 	}
 )
     Enum value maps for MatcherEngine.
@@ -2398,6 +2406,10 @@ const (
 	MatcherEngine_MATCHER_ENGINE_TEMPLATE    MatcherEngine = 1
 	MatcherEngine_MATCHER_ENGINE_ORB         MatcherEngine = 2
 	MatcherEngine_MATCHER_ENGINE_HYBRID      MatcherEngine = 3
+	MatcherEngine_MATCHER_ENGINE_AKAZE       MatcherEngine = 4
+	MatcherEngine_MATCHER_ENGINE_BRISK       MatcherEngine = 5
+	MatcherEngine_MATCHER_ENGINE_KAZE        MatcherEngine = 6
+	MatcherEngine_MATCHER_ENGINE_SIFT        MatcherEngine = 7
 )
 func (MatcherEngine) Descriptor() protoreflect.EnumDescriptor
 

@@ -82,7 +82,34 @@ func runDoctor(args []string) error {
 	fmt.Println("sikuligo doctor: ok")
 	fmt.Printf("binary: %s\n", exeReal)
 	fmt.Printf("platform: %s/%s\n", runtime.GOOS, runtime.GOARCH)
-	return nil
+	depsMissing := doctorMissingRuntimeDeps()
+	if len(depsMissing) == 0 {
+		fmt.Println("runtime deps: ok")
+		return nil
+	}
+	for _, dep := range depsMissing {
+		fmt.Printf("runtime deps: missing %s\n", dep)
+	}
+	return fmt.Errorf("missing runtime dependencies: %s", strings.Join(depsMissing, ", "))
+}
+
+func doctorMissingRuntimeDeps() []string {
+	missing := make([]string, 0, 2)
+	switch runtime.GOOS {
+	case "darwin":
+		if _, err := exec.LookPath("cliclick"); err != nil {
+			missing = append(missing, `cliclick (install with "brew install cliclick")`)
+		}
+	case "linux":
+		if _, err := exec.LookPath("xdotool"); err != nil {
+			missing = append(missing, "xdotool")
+		}
+	case "windows":
+		if _, err := exec.LookPath("powershell"); err != nil {
+			missing = append(missing, "powershell")
+		}
+	}
+	return missing
 }
 
 func runInstallBinary(args []string) error {

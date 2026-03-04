@@ -9,6 +9,7 @@ PROJECT_DIR="${TMP_ROOT}/project"
 LOG_FILE="${TMP_ROOT}/smoke.log"
 KEEP_TMP="${KEEP_TMP:-0}"
 VERIFY_PACKED_INSTALL="${VERIFY_PACKED_INSTALL:-0}"
+GO_BUILD_TAGS="${GO_BUILD_TAGS:-gosseract opencv gocv_specific_modules gocv_features2d gocv_calib3d}"
 
 cleanup() {
   if [[ "${KEEP_TMP}" == "1" ]]; then
@@ -41,7 +42,7 @@ assert_dir() {
 step "1/8 Build local sikuligo binary"
 (
   cd "${API_DIR}"
-  go build -o "${API_DIR}/sikuligrpc" ./cmd/sikuligrpc
+  go build -tags "${GO_BUILD_TAGS}" -o "${API_DIR}/sikuligrpc" ./cmd/sikuligrpc
 )
 assert_file "${API_DIR}/sikuligrpc"
 

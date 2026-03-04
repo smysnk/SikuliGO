@@ -23,6 +23,7 @@ var newOCRBackend = func() core.OCR {
 	return ocrbackend.New()
 }
 
+// NewFinder creates a search/OCR helper bound to a source image.
 func NewFinder(source *Image) (*Finder, error) {
 	if source == nil || source.Gray() == nil {
 		return nil, fmt.Errorf("%w: source image is nil", ErrInvalidTarget)
@@ -35,6 +36,7 @@ func NewFinder(source *Image) (*Finder, error) {
 	}, nil
 }
 
+// SetMatcher overrides the matcher backend used by this finder.
 func (f *Finder) SetMatcher(m core.Matcher) {
 	if m == nil {
 		return
@@ -42,6 +44,7 @@ func (f *Finder) SetMatcher(m core.Matcher) {
 	f.matcher = m
 }
 
+// SetOCRBackend overrides the OCR backend used by this finder.
 func (f *Finder) SetOCRBackend(ocr core.OCR) {
 	if ocr == nil {
 		return
@@ -49,6 +52,7 @@ func (f *Finder) SetOCRBackend(ocr core.OCR) {
 	f.ocr = ocr
 }
 
+// Find returns the best match for the pattern.
 func (f *Finder) Find(pattern *Pattern) (Match, error) {
 	req, err := f.buildRequest(pattern, 1)
 	if err != nil {
@@ -71,6 +75,7 @@ func (f *Finder) Find(pattern *Pattern) (Match, error) {
 	return match, nil
 }
 
+// FindAll returns all candidate matches for the pattern.
 func (f *Finder) FindAll(pattern *Pattern) ([]Match, error) {
 	req, err := f.buildRequest(pattern, 0)
 	if err != nil {
@@ -113,6 +118,7 @@ func (f *Finder) FindAllByRow(pattern *Pattern) ([]Match, error) {
 	return matches, nil
 }
 
+// FindAllByColumn returns all matches sorted left-to-right then top-to-bottom.
 func (f *Finder) FindAllByColumn(pattern *Pattern) ([]Match, error) {
 	matches, err := f.FindAll(pattern)
 	if err != nil {
@@ -185,6 +191,7 @@ func (f *Finder) Wait(pattern *Pattern, timeout time.Duration) (Match, error) {
 	}
 }
 
+// WaitVanish blocks until the pattern disappears or timeout expires.
 func (f *Finder) WaitVanish(pattern *Pattern, timeout time.Duration) (bool, error) {
 	checkOnce := func() (bool, error) {
 		_, ok, err := f.Exists(pattern)
@@ -221,6 +228,7 @@ func (f *Finder) WaitVanish(pattern *Pattern, timeout time.Duration) (bool, erro
 	}
 }
 
+// LastMatches returns a copy of the most recent match set.
 func (f *Finder) LastMatches() []Match {
 	if len(f.last) == 0 {
 		return nil
@@ -230,6 +238,7 @@ func (f *Finder) LastMatches() []Match {
 	return out
 }
 
+// ReadText runs OCR and returns normalized text.
 func (f *Finder) ReadText(params OCRParams) (string, error) {
 	result, err := f.readOCR(params)
 	if err != nil {
@@ -238,6 +247,7 @@ func (f *Finder) ReadText(params OCRParams) (string, error) {
 	return strings.TrimSpace(result.Text), nil
 }
 
+// FindText runs OCR and returns word-level matches for the query string.
 func (f *Finder) FindText(query string, params OCRParams) ([]TextMatch, error) {
 	query = strings.TrimSpace(query)
 	if query == "" {

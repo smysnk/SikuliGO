@@ -8,6 +8,8 @@ import (
 // This file intentionally defines stable workstream-1 public signatures.
 // If these interfaces are changed, update the generated API reference docs.
 
+// ImageAPI describes immutable image primitives used by matching and OCR.
+// This aligns with the SikuliX notion of image snapshots used by Region/Finder.
 type ImageAPI interface {
 	Name() string
 	Width() int
@@ -17,6 +19,8 @@ type ImageAPI interface {
 	Crop(rect Rect) (*Image, error)
 }
 
+// PatternAPI configures how a target image should be matched on screen.
+// It mirrors SikuliX Pattern behavior such as similar(), exact(), and targetOffset().
 type PatternAPI interface {
 	Image() *Image
 	Similar(sim float64) *Pattern
@@ -29,6 +33,8 @@ type PatternAPI interface {
 	Mask() *image.Gray
 }
 
+// FinderAPI performs match/OCR operations against a source image.
+// Semantics follow SikuliX Finder style calls for find/findAll/exists/wait flows.
 type FinderAPI interface {
 	Find(pattern *Pattern) (Match, error)
 	FindAll(pattern *Pattern) ([]Match, error)
@@ -43,6 +49,8 @@ type FinderAPI interface {
 	LastMatches() []Match
 }
 
+// RegionAPI defines region geometry and region-scoped automation operations.
+// It maps to familiar SikuliX Region methods (find, exists, wait, findAll, readText).
 type RegionAPI interface {
 	Center() Point
 	Grow(dx, dy int) Region
@@ -65,6 +73,8 @@ type RegionAPI interface {
 	FindText(source *Image, query string, params OCRParams) ([]TextMatch, error)
 }
 
+// InputAPI exposes desktop input actions.
+// This is the compatibility layer for click/type/hotkey style operations.
 type InputAPI interface {
 	MoveMouse(x, y int, opts InputOptions) error
 	Click(x, y int, opts InputOptions) error
@@ -72,12 +82,14 @@ type InputAPI interface {
 	Hotkey(keys ...string) error
 }
 
+// ObserveAPI exposes appear/vanish/change polling contracts for a region.
 type ObserveAPI interface {
 	ObserveAppear(source *Image, region Region, pattern *Pattern, opts ObserveOptions) ([]ObserveEvent, error)
 	ObserveVanish(source *Image, region Region, pattern *Pattern, opts ObserveOptions) ([]ObserveEvent, error)
 	ObserveChange(source *Image, region Region, opts ObserveOptions) ([]ObserveEvent, error)
 }
 
+// AppAPI exposes lightweight app lifecycle helpers used by script flows.
 type AppAPI interface {
 	Open(name string, args []string, opts AppOptions) error
 	Focus(name string, opts AppOptions) error

@@ -3,6 +3,7 @@ package sikuli
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -114,18 +115,48 @@ func (c *InputController) execute(req core.InputRequest) error {
 		return ErrBackendUnsupported
 	}
 	if err := c.backend.Execute(req); err != nil {
+		lowerErr := strings.ToLower(err.Error())
 		if errors.Is(err, core.ErrInputUnsupported) {
 			return fmt.Errorf("%w: %v", ErrBackendUnsupported, err)
 		}
-		if strings.Contains(strings.ToLower(err.Error()), "executable file not found") {
-			return fmt.Errorf("%w: %v", ErrBackendUnsupported, err)
+		if tool := missingExecutableTool(err); tool != "" {
+			return fmt.Errorf("%w: %s", ErrBackendUnsupported, inputDependencyHelp(tool))
 		}
-		if strings.Contains(strings.ToLower(err.Error()), "cannot be") ||
-			strings.Contains(strings.ToLower(err.Error()), "requires") ||
-			strings.Contains(strings.ToLower(err.Error()), "unsupported input action") {
+		if strings.Contains(lowerErr, "executable file not found") {
+			return fmt.Errorf("%w: input dependency missing: executable not found in PATH", ErrBackendUnsupported)
+		}
+		if strings.Contains(lowerErr, "cannot be") ||
+			strings.Contains(lowerErr, "requires") ||
+			strings.Contains(lowerErr, "unsupported input action") {
 			return fmt.Errorf("%w: %v", ErrInvalidTarget, err)
 		}
 		return err
 	}
 	return nil
+}
+
+var missingExecutablePattern = regexp.MustCompile(`exec: "([^"]+)": executable file not found in \$PATH`)
+
+func missingExecutableTool(err error) string {
+	if err == nil {
+		return ""
+	}
+	matches := missingExecutablePattern.FindStringSubmatch(err.Error())
+	if len(matches) != 2 {
+		return ""
+	}
+	return strings.TrimSpace(matches[1])
+}
+
+func inputDependencyHelp(tool string) string {
+	switch strings.ToLower(strings.TrimSpace(tool)) {
+	case "cliclick":
+		return `input dependency missing: cliclick not found in PATH (required for mouse automation on macOS). Install with "brew install cliclick" and ensure /opt/homebrew/bin or /usr/local/bin is on PATH`
+	case "xdotool":
+		return `input dependency missing: xdotool not found in PATH (required for mouse/keyboard automation on Linux). Install with your distro package manager`
+	case "powershell":
+		return `input dependency missing: powershell not found in PATH (required for mouse/keyboard automation on Windows)`
+	default:
+		return fmt.Sprintf("input dependency missing: %s executable not found in PATH", tool)
+	}
 }

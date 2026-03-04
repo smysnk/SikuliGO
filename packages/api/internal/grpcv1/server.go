@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/smysnk/sikuligo/internal/cv"
@@ -379,53 +380,189 @@ func newFinderWithEngine(source *sikuli.Image, engine cv.MatcherEngine) (*sikuli
 
 func (s *Server) findOnScreenOnce(ctx context.Context, patternReq *pb.Pattern, optsReq *pb.ScreenQueryOptions, engine cv.MatcherEngine) (sikuli.Match, error) {
 	start := time.Now()
-	debugLogf("find_on_screen.start engine=%s", engine)
+	traceID := traceIDFromContext(ctx)
+	debugLogf("find_on_screen.start engine=%s opencv=%t trace_id=%s", engine, cv.OpenCVEnabled(), traceID)
 	pattern, err := patternFromProto(patternReq)
 	if err != nil {
-		debugLogf("find_on_screen.pattern.error err=%v", err)
+		debugLogf("find_on_screen.pattern.error trace_id=%s err=%v", traceID, err)
 		return sikuli.Match{}, err
 	}
 	captureStart := time.Now()
+	debugLogf("find_on_screen.capture.start trace_id=%s", traceID)
 	source, err := s.capture(ctx, "screen")
 	if err != nil {
-		debugLogf("find_on_screen.capture.error duration=%s total=%s err=%v", time.Since(captureStart), time.Since(start), err)
+		debugLogf("find_on_screen.capture.error trace_id=%s duration=%s total=%s err=%v", traceID, time.Since(captureStart), time.Since(start), err)
 		return sikuli.Match{}, err
 	}
-	debugLogf("find_on_screen.capture.ok duration=%s", time.Since(captureStart))
+	debugLogf(
+		"find_on_screen.capture.ok trace_id=%s duration=%s width=%d height=%d",
+		traceID,
+		time.Since(captureStart),
+		source.Width(),
+		source.Height(),
+	)
 
 	opts := screenQueryFromProto(optsReq)
 	matchStart := time.Now()
+	patternW := pattern.Image().Width()
+	patternH := pattern.Image().Height()
+	deadlineRemaining := deadlineRemainingMillis(ctx)
 	if opts.Region.Empty() {
 		f, err := s.finderWithEngine(source, engine)
 		if err != nil {
-			debugLogf("find_on_screen.finder.error err=%v", err)
+			debugLogf("find_on_screen.finder.error trace_id=%s err=%v", traceID, err)
 			return sikuli.Match{}, err
 		}
+		sourceW := source.Width()
+		sourceH := source.Height()
+		positions := searchPositions(sourceW, sourceH, patternW, patternH)
+		debugLogf(
+			"find_on_screen.match.start trace_id=%s engine=%s source=%dx%d pattern=%dx%d positions=%d similarity=%.3f deadline_remaining_ms=%d region=full_screen",
+			traceID,
+			engine,
+			sourceW,
+			sourceH,
+			patternW,
+			patternH,
+			positions,
+			pattern.Similarity(),
+			deadlineRemaining,
+		)
+		stopProgress := startMatchProgressLogger(ctx, traceID, engine, matchStart)
 		m, err := f.Find(pattern)
+		stopProgress()
 		if err != nil {
-			debugLogf("find_on_screen.match.error duration=%s total=%s err=%v", time.Since(matchStart), time.Since(start), err)
+			debugLogf("find_on_screen.match.error trace_id=%s duration=%s total=%s err=%v", traceID, time.Since(matchStart), time.Since(start), err)
 			return sikuli.Match{}, err
 		}
-		debugLogf("find_on_screen.match.ok duration=%s total=%s", time.Since(matchStart), time.Since(start))
+		debugLogf(
+			"find_on_screen.match.ok trace_id=%s duration=%s total=%s rect=(%d,%d %dx%d) score=%.3f",
+			traceID,
+			time.Since(matchStart),
+			time.Since(start),
+			m.Rect.X,
+			m.Rect.Y,
+			m.Rect.W,
+			m.Rect.H,
+			m.Score,
+		)
 		return m, nil
 	}
 	regionSource, err := source.Crop(opts.Region.Rect)
 	if err != nil {
-		debugLogf("find_on_screen.region_crop.error duration=%s total=%s err=%v", time.Since(matchStart), time.Since(start), err)
+		debugLogf("find_on_screen.region_crop.error trace_id=%s duration=%s total=%s err=%v", traceID, time.Since(matchStart), time.Since(start), err)
 		return sikuli.Match{}, err
 	}
 	f, err := s.finderWithEngine(regionSource, engine)
 	if err != nil {
-		debugLogf("find_on_screen.region_finder.error duration=%s total=%s err=%v", time.Since(matchStart), time.Since(start), err)
+		debugLogf("find_on_screen.region_finder.error trace_id=%s duration=%s total=%s err=%v", traceID, time.Since(matchStart), time.Since(start), err)
 		return sikuli.Match{}, err
 	}
+	regionW := regionSource.Width()
+	regionH := regionSource.Height()
+	positions := searchPositions(regionW, regionH, patternW, patternH)
+	debugLogf(
+		"find_on_screen.region_match.start trace_id=%s engine=%s region_source=%dx%d pattern=%dx%d positions=%d similarity=%.3f deadline_remaining_ms=%d region=(%d,%d %dx%d)",
+		traceID,
+		engine,
+		regionW,
+		regionH,
+		patternW,
+		patternH,
+		positions,
+		pattern.Similarity(),
+		deadlineRemaining,
+		opts.Region.X,
+		opts.Region.Y,
+		opts.Region.W,
+		opts.Region.H,
+	)
+	stopProgress := startMatchProgressLogger(ctx, traceID, engine, matchStart)
 	m, err := f.Find(pattern)
+	stopProgress()
 	if err != nil {
-		debugLogf("find_on_screen.region_match.error duration=%s total=%s err=%v", time.Since(matchStart), time.Since(start), err)
+		debugLogf("find_on_screen.region_match.error trace_id=%s duration=%s total=%s err=%v", traceID, time.Since(matchStart), time.Since(start), err)
 		return sikuli.Match{}, err
 	}
-	debugLogf("find_on_screen.region_match.ok duration=%s total=%s", time.Since(matchStart), time.Since(start))
+	debugLogf(
+		"find_on_screen.region_match.ok trace_id=%s duration=%s total=%s rect=(%d,%d %dx%d) score=%.3f",
+		traceID,
+		time.Since(matchStart),
+		time.Since(start),
+		m.Rect.X,
+		m.Rect.Y,
+		m.Rect.W,
+		m.Rect.H,
+		m.Score,
+	)
 	return m, nil
+}
+
+func searchPositions(sourceW, sourceH, patternW, patternH int) int64 {
+	x := sourceW - patternW + 1
+	y := sourceH - patternH + 1
+	if x < 0 || y < 0 {
+		return 0
+	}
+	return int64(x) * int64(y)
+}
+
+func deadlineRemainingMillis(ctx context.Context) int64 {
+	if ctx == nil {
+		return -1
+	}
+	deadline, ok := ctx.Deadline()
+	if !ok {
+		return -1
+	}
+	return maxInt64(0, time.Until(deadline).Milliseconds())
+}
+
+func startMatchProgressLogger(ctx context.Context, traceID string, engine cv.MatcherEngine, started time.Time) func() {
+	if !debugEnabled {
+		return func() {}
+	}
+	done := make(chan struct{})
+	var once sync.Once
+	go func() {
+		ticker := time.NewTicker(1 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-done:
+				return
+			case <-ticker.C:
+				debugLogf(
+					"find_on_screen.match.progress trace_id=%s engine=%s elapsed=%s deadline_remaining_ms=%d",
+					traceID,
+					engine,
+					time.Since(started),
+					deadlineRemainingMillis(ctx),
+				)
+			case <-ctx.Done():
+				debugLogf(
+					"find_on_screen.match.context_done trace_id=%s engine=%s elapsed=%s err=%v",
+					traceID,
+					engine,
+					time.Since(started),
+					ctx.Err(),
+				)
+				return
+			}
+		}
+	}()
+	return func() {
+		once.Do(func() {
+			close(done)
+		})
+	}
+}
+
+func maxInt64(a, b int64) int64 {
+	if a > b {
+		return a
+	}
+	return b
 }
 
 func (s *Server) FindText(_ context.Context, req *pb.FindTextRequest) (*pb.FindTextResponse, error) {

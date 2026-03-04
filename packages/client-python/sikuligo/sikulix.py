@@ -134,6 +134,26 @@ def _resolve_sikuli_binary(binary_path: str | None = None) -> str:
     )
 
 
+def _merge_runtime_path(current_path: str | None) -> str:
+    delimiter = ";" if os.name == "nt" else ":"
+    existing = [part.strip() for part in (current_path or "").split(delimiter) if part.strip()]
+    seen = {part.lower() if os.name == "nt" else part for part in existing}
+    home_local = str(Path.home() / ".local" / "bin")
+    if os.name == "posix" and os.uname().sysname.lower() == "darwin":
+        defaults = ["/opt/homebrew/bin", "/usr/local/bin", "/usr/bin", "/bin", home_local]
+    elif os.name == "posix":
+        defaults = ["/usr/local/bin", "/usr/bin", "/bin", home_local]
+    else:
+        defaults = []
+    for candidate in defaults:
+        key = candidate.lower() if os.name == "nt" else candidate
+        if key in seen:
+            continue
+        seen.add(key)
+        existing.append(candidate)
+    return delimiter.join(existing)
+
+
 def _stdio_targets(mode: Literal["ignore", "pipe", "inherit"]) -> tuple[int | None, int | None]:
     if mode == "ignore":
         return subprocess.DEVNULL, subprocess.DEVNULL
@@ -356,6 +376,7 @@ class Screen(Region):
             args,
             env={
                 **os.environ,
+                "PATH": _merge_runtime_path(os.environ.get("PATH", "")),
                 "SIKULI_GRPC_AUTH_TOKEN": token,
             },
             stdout=stdout,

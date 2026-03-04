@@ -9,6 +9,7 @@ API_BINARY="${TMP_ROOT}/sikuligo"
 SPAWN_SQLITE="${TMP_ROOT}/node-spawn.db"
 CONNECT_SQLITE="${TMP_ROOT}/node-connect.db"
 KEEP_TMP="${KEEP_TMP:-0}"
+GO_BUILD_TAGS="${GO_BUILD_TAGS:-gosseract opencv gocv_specific_modules gocv_features2d gocv_calib3d}"
 
 cleanup() {
   if [[ "${KEEP_TMP}" == "1" ]]; then
@@ -26,7 +27,7 @@ step() {
 step "1/3 Build local sikuligo API binary"
 (
   cd "${API_DIR}"
-  go build -o "${API_BINARY}" ./cmd/sikuligrpc
+  go build -tags "${GO_BUILD_TAGS}" -o "${API_BINARY}" ./cmd/sikuligrpc
 )
 
 step "2/3 Build local Node client artifacts"

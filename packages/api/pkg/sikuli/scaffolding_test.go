@@ -774,6 +774,15 @@ func TestInputControllerValidation(t *testing.T) {
 	if err := c.Click(1, 2, InputOptions{}); err == nil || errors.Is(err, ErrInvalidTarget) {
 		t.Fatalf("expected raw backend error, got=%v", err)
 	}
+
+	stub.err = errors.New(`cliclick input action failed: exec: "cliclick": executable file not found in $PATH`)
+	err := c.Click(1, 2, InputOptions{})
+	if !errors.Is(err, ErrBackendUnsupported) {
+		t.Fatalf("expected ErrBackendUnsupported for missing cliclick, got=%v", err)
+	}
+	if !strings.Contains(err.Error(), "brew install cliclick") {
+		t.Fatalf("expected cliclick install hint, got=%v", err)
+	}
 }
 
 func TestObserverControllerMapsUnsupportedBackend(t *testing.T) {

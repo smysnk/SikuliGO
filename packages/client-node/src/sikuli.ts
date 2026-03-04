@@ -2,6 +2,20 @@ import { ChildProcess } from "node:child_process";
 import { launchSikuli, LaunchOptions, stopSpawnedProcess } from "./launcher";
 import { RpcMessage, Sikuli as SikuliTransport, UnaryCallOptions } from "./client";
 
+const DEBUG_ENABLED = /^(1|true|yes|on)$/i.test(process.env.SIKULI_DEBUG ?? "");
+
+function debugLog(message: string, fields: Record<string, unknown> = {}): void {
+  if (!DEBUG_ENABLED) {
+    return;
+  }
+  const parts = Object.entries(fields)
+    .filter(([k, v]) => k !== "address" && v !== undefined && v !== null && v !== "")
+    .map(([k, v]) => `${k}=${String(v)}`);
+  const suffix = parts.length > 0 ? ` ${parts.join(" ")}` : "";
+  // eslint-disable-next-line no-console
+  console.error(`[sikuligo-debug] ${message}${suffix}`);
+}
+
 export interface InputOptions {
   delayMillis?: number;
   button?: string;
@@ -31,6 +45,10 @@ export interface LaunchResultMeta {
   spawnedServer: boolean;
 }
 
+/**
+ * Sikuli is the transport-level API client.
+ * It maps high-level SikuliX-style actions to gRPC calls against the SikuliGO API.
+ */
 export class Sikuli {
   private readonly transport: SikuliTransport;
   private readonly child?: ChildProcess;
@@ -43,6 +61,7 @@ export class Sikuli {
     this.meta = meta;
   }
 
+  /** Force-launch a new API process and connect to it. */
   static async spawn(opts: LaunchOptions = {}): Promise<Sikuli> {
     const result = await launchSikuli({ ...opts, spawnServer: opts.spawnServer ?? true });
     return new Sikuli(result.client, result.child, {
@@ -52,10 +71,12 @@ export class Sikuli {
     });
   }
 
+  /** Auto mode entry point (`connect` first, then spawn fallback). */
   static async launch(opts: LaunchOptions = {}): Promise<Sikuli> {
     return await Sikuli.auto(opts);
   }
 
+  /** Connect only. Does not spawn a new API process. */
   static async connect(opts: LaunchOptions = {}): Promise<Sikuli> {
     const result = await launchSikuli({ ...opts, spawnServer: false });
     return new Sikuli(result.client, undefined, {
@@ -65,16 +86,43 @@ export class Sikuli {
     });
   }
 
+  /** Connect first, and spawn only when connect probe fails. */
   static async auto(opts: LaunchOptions = {}): Promise<Sikuli> {
     const probeAddress = opts.address ?? process.env.SIKULI_GRPC_ADDR ?? "127.0.0.1:50051";
+    const probeTimeoutMs = 1_000;
+    debugLog("launcher.auto.start", {
+      probe_timeout_ms: probeTimeoutMs,
+      explicit_address: opts.address ? "yes" : "no",
+      env_address: process.env.SIKULI_GRPC_ADDR ? "yes" : "no"
+    });
     try {
-      return await Sikuli.connect({
+      debugLog("launcher.auto.probe.connect", {
+        probe_timeout_ms: probeTimeoutMs
+      });
+      const connected = await Sikuli.connect({
         ...opts,
         address: probeAddress,
-        startupTimeoutMs: 1_000
+        startupTimeoutMs: probeTimeoutMs
       });
-    } catch {
-      return await Sikuli.spawn(opts);
+      debugLog("launcher.auto.probe.connected_existing", {
+        spawn_attempted: "no",
+        spawned_server: connected.meta.spawnedServer ? "yes" : "no"
+      });
+      return connected;
+    } catch (err) {
+      debugLog("launcher.auto.probe.failed", {
+        probe_timeout_ms: probeTimeoutMs,
+        reason: (err as Error)?.message ?? "connect probe failed"
+      });
+      debugLog("launcher.auto.spawn.start", {
+        spawn_attempted: "yes",
+        startup_timeout_ms: opts.startupTimeoutMs ?? undefined
+      });
+      const spawned = await Sikuli.spawn(opts);
+      debugLog("launcher.auto.spawn.ready", {
+        spawned_server: spawned.meta.spawnedServer ? "yes" : "no"
+      });
+      return spawned;
     }
   }
 
@@ -91,18 +139,22 @@ export class Sikuli {
     await stopSpawnedProcess(this.child);
   }
 
+  /** Unary passthrough: FindOnScreen RPC. */
   async findOnScreen(request: RpcMessage, opts?: UnaryCallOptions): Promise<RpcMessage> {
     return await this.transport.findOnScreen(request, opts);
   }
 
+  /** Unary passthrough: ExistsOnScreen RPC. */
   async existsOnScreen(request: RpcMessage, opts?: UnaryCallOptions): Promise<RpcMessage> {
     return await this.transport.existsOnScreen(request, opts);
   }
 
+  /** Unary passthrough: WaitOnScreen RPC. */
   async waitOnScreen(request: RpcMessage, opts?: UnaryCallOptions): Promise<RpcMessage> {
     return await this.transport.waitOnScreen(request, opts);
   }
 
+  /** Unary passthrough: ClickOnScreen RPC. */
   async clickOnScreen(request: RpcMessage, opts?: UnaryCallOptions): Promise<RpcMessage> {
     return await this.transport.clickOnScreen(request, opts);
   }

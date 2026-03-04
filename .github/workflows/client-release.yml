@@ -57,13 +57,7 @@ jobs:
 
       - name: Verify tagged server binaries compile
         run: |
-          cd packages/api
-          go build -tags "gosseract opencv gocv_specific_modules gocv_features2d gocv_calib3d" -o /tmp/sikuligo-tagged ./cmd/sikuligrpc
-          if [ -d ./cmd/sikuligo-monitor ]; then
-            go build -tags "gosseract opencv gocv_specific_modules gocv_features2d gocv_calib3d" -o /tmp/sikuligo-monitor-tagged ./cmd/sikuligo-monitor
-          else
-            echo "Skipping sikuligo-monitor build: ./cmd/sikuligo-monitor not found in this revision"
-          fi
+          make build-go
 
   client-release-smoke:
     needs: tagged-server-build

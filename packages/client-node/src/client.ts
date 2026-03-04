@@ -136,6 +136,82 @@ function withMatcherEngine(methodName: string, request: RpcMessage, engine: Matc
   return req;
 }
 
+function screenRequestDebugFields(methodName: string, request: RpcMessage): Record<string, unknown> {
+  if (!SCREEN_SEARCH_METHODS.has(methodName)) {
+    return {};
+  }
+  const req = request as Record<string, unknown>;
+  const pattern = (req.pattern ?? {}) as Record<string, unknown>;
+  const image = (pattern.image ?? {}) as Record<string, unknown>;
+  const opts = (req.opts ?? {}) as Record<string, unknown>;
+  const region = (opts.region ?? {}) as Record<string, unknown>;
+
+  const width = Number(image.width ?? 0);
+  const height = Number(image.height ?? 0);
+  const rx = Number(region.x ?? 0);
+  const ry = Number(region.y ?? 0);
+  const rw = Number(region.w ?? 0);
+  const rh = Number(region.h ?? 0);
+
+  return {
+    screen_capture: "server",
+    pattern_w: Number.isFinite(width) && width > 0 ? width : undefined,
+    pattern_h: Number.isFinite(height) && height > 0 ? height : undefined,
+    region: Number.isFinite(rw) && Number.isFinite(rh) && rw > 0 && rh > 0 ? `${rx},${ry},${rw},${rh}` : "full_screen"
+  };
+}
+
+function screenResponseDebugFields(methodName: string, response: RpcMessage): Record<string, unknown> {
+  if (!SCREEN_SEARCH_METHODS.has(methodName)) {
+    return {};
+  }
+  const resp = response as Record<string, unknown>;
+  const match = (resp.match ?? {}) as Record<string, unknown>;
+  const rect = (match.rect ?? {}) as Record<string, unknown>;
+  const x = Number(rect.x ?? 0);
+  const y = Number(rect.y ?? 0);
+  const w = Number(rect.w ?? 0);
+  const h = Number(rect.h ?? 0);
+  if (!(Number.isFinite(w) && Number.isFinite(h) && w > 0 && h > 0)) {
+    return { match_found: "no" };
+  }
+  return {
+    match_found: "yes",
+    match_rect: `${x},${y},${w},${h}`
+  };
+}
+
+function isLikelyCaptureFailure(methodName: string, code: number, details: string): boolean {
+  if (!SCREEN_SEARCH_METHODS.has(methodName)) {
+    return false;
+  }
+  const lower = String(details || "").toLowerCase();
+  if (lower.includes("screencapture")) {
+    return true;
+  }
+  if (lower.includes("screen capture")) {
+    return true;
+  }
+  if (lower.includes("capture failed")) {
+    return true;
+  }
+  return false;
+}
+
+function missingInputDependency(details: string): string {
+  const lower = String(details || "").toLowerCase();
+  if (lower.includes("exec: \"cliclick\": executable file not found") || (lower.includes("cliclick") && lower.includes("executable file not found"))) {
+    return "cliclick";
+  }
+  if (lower.includes("exec: \"xdotool\": executable file not found") || (lower.includes("xdotool") && lower.includes("executable file not found"))) {
+    return "xdotool";
+  }
+  if (lower.includes("exec: \"powershell\": executable file not found") || (lower.includes("powershell") && lower.includes("executable file not found"))) {
+    return "powershell";
+  }
+  return "";
+}
+
 export class Sikuli {
   private readonly client: grpc.Client & Record<string, unknown>;
   private readonly address: string;
@@ -224,6 +300,9 @@ export class Sikuli {
     const traceId = traceValues.length > 0 ? String(traceValues[0]) : undefined;
     const code = err.code ?? grpc.status.UNKNOWN;
     let details = err.details || err.message;
+    const captureFailure = isLikelyCaptureFailure(methodName, code, details);
+    const isScreenMethod = SCREEN_SEARCH_METHODS.has(methodName);
+    const missingDep = missingInputDependency(details);
     if (
       code === grpc.status.UNIMPLEMENTED &&
       typeof details === "string" &&
@@ -237,8 +316,24 @@ export class Sikuli {
     if (code === grpc.status.DEADLINE_EXCEEDED) {
       details +=
         `; client deadline=${timeoutMs}ms. ` +
-        "Set SIKULI_DEBUG=1 to log RPC and launcher details. " +
-        "If this is ClickOnScreen/FindOnScreen on macOS, verify Screen Recording permission for your terminal/IDE.";
+        "Set SIKULI_DEBUG=1 to log RPC and launcher details.";
+      if (isScreenMethod) {
+        if (captureFailure) {
+          details += " Screen capture failed; verify Screen Recording permission for your terminal/IDE on macOS.";
+        } else {
+          details +=
+            " Capture appears server-side; check server logs for find_on_screen.match.start/progress to confirm matcher timing.";
+        }
+      }
+    } else if (isScreenMethod && captureFailure) {
+      details += " Screen capture failed; verify Screen Recording permission for your terminal/IDE on macOS.";
+    }
+    if (missingDep === "cliclick") {
+      details += ' Missing macOS input dependency "cliclick". Install with: brew install cliclick.';
+    } else if (missingDep === "xdotool") {
+      details += ' Missing Linux input dependency "xdotool". Install with your distro package manager.';
+    } else if (missingDep === "powershell") {
+      details += ' Missing Windows input dependency "powershell".';
     }
     return new SikuliError(code, details, traceId);
   }
@@ -255,11 +350,13 @@ export class Sikuli {
     const matcherEngine = normalizeMatcherEngine(opts.matcherEngine ?? this.matcherEngine);
     const metadata = this.buildMetadata(opts.metadata);
     const wireRequest = withMatcherEngine(methodName, request, matcherEngine);
+    const screenFields = screenRequestDebugFields(methodName, wireRequest);
     this.debugLog("rpc.start", {
       method: methodName,
       address: this.address,
       timeout_ms: timeoutMs,
-      matcher_engine: matcherEngine
+      matcher_engine: matcherEngine,
+      ...screenFields
     });
 
     return new Promise((resolve, reject) => {
@@ -270,6 +367,10 @@ export class Sikuli {
         { deadline },
         (err: grpc.ServiceError | null, response: RpcMessage) => {
           if (err) {
+            const traceValues = err.metadata?.get(TRACE_HEADER) ?? [];
+            const traceId = traceValues.length > 0 ? String(traceValues[0]) : "";
+            const details = err.details || err.message;
+            const captureFailure = isLikelyCaptureFailure(methodName, err.code ?? grpc.status.UNKNOWN, details);
             this.debugLog("rpc.error", {
               method: methodName,
               address: this.address,
@@ -277,18 +378,35 @@ export class Sikuli {
               duration_ms: Date.now() - startedAt,
               matcher_engine: matcherEngine,
               grpc_code: err.code,
-              details: err.details || err.message
+              trace_id: traceId || undefined,
+              capture_stage: captureFailure ? "failed" : "unknown_or_ok",
+              details
             });
+            if (SCREEN_SEARCH_METHODS.has(methodName)) {
+              if (captureFailure) {
+                this.debugLog("rpc.screen_capture.note", {
+                  method: methodName,
+                  hint: "capture likely failed (check find_on_screen.capture.error / capture_screen.* logs)"
+                });
+              } else {
+                this.debugLog("rpc.matcher.note", {
+                  method: methodName,
+                  hint: "capture likely succeeded; inspect find_on_screen.match.start/progress logs for matcher slowdown"
+                });
+              }
+            }
             reject(this.clientError(methodName, err, timeoutMs));
             return;
           }
-            this.debugLog("rpc.ok", {
-              method: methodName,
-              address: this.address,
-              duration_ms: Date.now() - startedAt,
-              matcher_engine: matcherEngine
-            });
-            resolve(response);
+          const screenResponseFields = screenResponseDebugFields(methodName, response);
+          this.debugLog("rpc.ok", {
+            method: methodName,
+            address: this.address,
+            duration_ms: Date.now() - startedAt,
+            matcher_engine: matcherEngine,
+            ...screenResponseFields
+          });
+          resolve(response);
         }
       );
     });

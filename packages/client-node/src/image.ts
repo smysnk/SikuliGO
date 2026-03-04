@@ -10,6 +10,11 @@ export type GrayImage = {
   pix: Buffer;
 };
 
+export type PatternImage = {
+  image: GrayImage;
+  mask?: GrayImage;
+};
+
 export type ImageFormat = "png";
 
 export type ImageInput =
@@ -55,7 +60,7 @@ function bytesPerPixel(colorType: number): number {
   }
 }
 
-function decodePNGToGray(data: Buffer, name: string): GrayImage {
+function decodePNGToGrayAndMask(data: Buffer, name: string): PatternImage {
   const sig = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
   if (!data.subarray(0, 8).equals(sig)) {
     throw new Error(`Not a PNG image: ${name}`);
@@ -146,9 +151,12 @@ function decodePNGToGray(data: Buffer, name: string): GrayImage {
   }
 
   const pix = Buffer.alloc(width * height);
+  const alphaMask = colorType === 4 || colorType === 6 ? Buffer.alloc(width * height) : undefined;
+  let hasTransparency = false;
   for (let i = 0; i < width * height; i++) {
     const p = i * bpp;
     let gray = 0;
+    let alpha = 255;
     if (colorType === 0) {
       gray = raw[p];
     } else if (colorType === 2) {
@@ -158,19 +166,38 @@ function decodePNGToGray(data: Buffer, name: string): GrayImage {
       gray = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
     } else if (colorType === 4) {
       const g = raw[p];
-      const a = raw[p + 1] / 255;
+      alpha = raw[p + 1];
+      const a = alpha / 255;
       gray = Math.round(g * a + 255 * (1 - a));
     } else {
       const r = raw[p];
       const g = raw[p + 1];
       const b = raw[p + 2];
-      const a = raw[p + 3] / 255;
+      alpha = raw[p + 3];
+      const a = alpha / 255;
       gray = Math.round((0.299 * r + 0.587 * g + 0.114 * b) * a + 255 * (1 - a));
     }
     pix[i] = gray;
+    if (alphaMask) {
+      alphaMask[i] = alpha;
+      if (alpha < 255) {
+        hasTransparency = true;
+      }
+    }
   }
 
-  return { name, width, height, pix };
+  const out: PatternImage = {
+    image: { name, width, height, pix }
+  };
+  if (alphaMask && hasTransparency) {
+    out.mask = {
+      name: `${name}.mask`,
+      width,
+      height,
+      pix: alphaMask
+    };
+  }
+  return out;
 }
 
 function isSdkInternalFrame(filePath: string): boolean {
@@ -251,13 +278,22 @@ function inputToBytes(input: ImageInput): { bytes: Buffer; name: string; format:
   return { bytes, name, format };
 }
 
-export function loadGrayImage(input: ImageInput | Image): GrayImage {
+/**
+ * Load an image and derive `{image, mask}` for pattern matching.
+ * For transparent PNGs, alpha is exported as mask so transparent areas are ignored by matchers.
+ */
+export function loadPatternImage(input: ImageInput | Image): PatternImage {
   const normalized = input instanceof Image ? input.input : input;
   const { bytes, name, format } = inputToBytes(normalized);
   if (format !== "png") {
     throw new Error(`Unsupported image format: ${format} (currently only png is supported)`);
   }
-  return decodePNGToGray(bytes, name);
+  return decodePNGToGrayAndMask(bytes, name);
+}
+
+/** Load an image as grayscale pixels suitable for direct RPC GrayImage fields. */
+export function loadGrayImage(input: ImageInput | Image): GrayImage {
+ return loadPatternImage(input).image;
 }
 
 export function cropGrayImage(img: GrayImage, x: number, y: number, w: number, h: number): GrayImage {

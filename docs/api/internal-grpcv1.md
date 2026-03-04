@@ -22,6 +22,7 @@ Package: `package grpcv1 // import "github.com/smysnk/sikuligo/internal/grpcv1"`
 - <span class="api-type">[`MetricsSnapshot`](#type-metricssnapshot)</span>
 - <span class="api-type">[`MetricsSnapshotProvider`](#type-metricssnapshotprovider)</span>
 - <span class="api-type">[`Server`](#type-server)</span>
+- <span class="api-type">[`ServerOption`](#type-serveroption)</span>
 - <span class="api-type">[`SessionTracker`](#type-sessiontracker)</span>
 - <span class="api-type">[`StoreMetricsProvider`](#type-storemetricsprovider)</span>
 
@@ -32,6 +33,10 @@ Package: `package grpcv1 // import "github.com/smysnk/sikuligo/internal/grpcv1"`
 - <span class="api-func">[`UnaryInterceptors`](#func-unaryinterceptors)</span>
 - <span class="api-func">[`NewMetricsRegistry`](#func-newmetricsregistry)</span>
 - <span class="api-func">[`NewServer`](#func-newserver)</span>
+- <span class="api-func">[`WithCaptureScreen`](#func-withcapturescreen)</span>
+- <span class="api-func">[`WithClickOnScreen`](#func-withclickonscreen)</span>
+- <span class="api-func">[`WithFinderFactory`](#func-withfinderfactory)</span>
+- <span class="api-func">[`WithFinderWithEngineFactory`](#func-withfinderwithenginefactory)</span>
 - <span class="api-func">[`NewSessionTracker`](#func-newsessiontracker)</span>
 - <span class="api-func">[`NewStoreMetricsProvider`](#func-newstoremetricsprovider)</span>
 
@@ -93,6 +98,11 @@ Package: `package grpcv1 // import "github.com/smysnk/sikuligo/internal/grpcv1"`
 
 - Signature: <span class="api-signature">`type Server struct {`</span>
 
+#### <a id="type-serveroption"></a><span class="api-type">Type</span> `ServerOption`
+
+- Signature: <span class="api-signature">`type ServerOption func(*Server)`</span>
+- Uses: [`Server`](#type-server)
+
 #### <a id="type-sessiontracker"></a><span class="api-type">Type</span> `SessionTracker`
 
 - Signature: <span class="api-signature">`type SessionTracker struct {`</span>
@@ -125,8 +135,28 @@ Package: `package grpcv1 // import "github.com/smysnk/sikuligo/internal/grpcv1"`
 
 #### <a id="func-newserver"></a><span class="api-func">Function</span> `NewServer`
 
-- Signature: <span class="api-signature">`func NewServer() *Server`</span>
-- Uses: [`Server`](#type-server)
+- Signature: <span class="api-signature">`func NewServer(opts ...ServerOption) *Server`</span>
+- Uses: [`ServerOption`](#type-serveroption), [`Server`](#type-server)
+
+#### <a id="func-withcapturescreen"></a><span class="api-func">Function</span> `WithCaptureScreen`
+
+- Signature: <span class="api-signature">`func WithCaptureScreen(fn func(context.Context, string) (*sikuli.Image, error)) ServerOption`</span>
+- Uses: [`ServerOption`](#type-serveroption)
+
+#### <a id="func-withclickonscreen"></a><span class="api-func">Function</span> `WithClickOnScreen`
+
+- Signature: <span class="api-signature">`func WithClickOnScreen(fn func(int, int, sikuli.InputOptions) error) ServerOption`</span>
+- Uses: [`ServerOption`](#type-serveroption)
+
+#### <a id="func-withfinderfactory"></a><span class="api-func">Function</span> `WithFinderFactory`
+
+- Signature: <span class="api-signature">`func WithFinderFactory(fn func(*sikuli.Image) (*sikuli.Finder, error)) ServerOption`</span>
+- Uses: [`ServerOption`](#type-serveroption)
+
+#### <a id="func-withfinderwithenginefactory"></a><span class="api-func">Function</span> `WithFinderWithEngineFactory`
+
+- Signature: <span class="api-signature">`func WithFinderWithEngineFactory(fn func(*sikuli.Image, cv.MatcherEngine) (*sikuli.Finder, error)) ServerOption`</span>
+- Uses: [`ServerOption`](#type-serveroption)
 
 #### <a id="func-newsessiontracker"></a><span class="api-func">Function</span> `NewSessionTracker`
 
@@ -326,9 +356,11 @@ type MetricsSnapshotProvider interface {
 
 type Server struct {
 	pb.UnimplementedSikuliServiceServer
+
+	// Has unexported fields.
 }
 
-func NewServer() *Server
+func NewServer(opts ...ServerOption) *Server
 
 func (s *Server) Click(_ context.Context, req *pb.ClickRequest) (*pb.ActionResponse, error)
 
@@ -369,6 +401,16 @@ func (s *Server) ReadText(_ context.Context, req *pb.ReadTextRequest) (*pb.ReadT
 func (s *Server) TypeText(_ context.Context, req *pb.TypeTextRequest) (*pb.ActionResponse, error)
 
 func (s *Server) WaitOnScreen(ctx context.Context, req *pb.WaitOnScreenRequest) (*pb.FindResponse, error)
+
+type ServerOption func(*Server)
+
+func WithCaptureScreen(fn func(context.Context, string) (*sikuli.Image, error)) ServerOption
+
+func WithClickOnScreen(fn func(int, int, sikuli.InputOptions) error) ServerOption
+
+func WithFinderFactory(fn func(*sikuli.Image) (*sikuli.Finder, error)) ServerOption
+
+func WithFinderWithEngineFactory(fn func(*sikuli.Image, cv.MatcherEngine) (*sikuli.Finder, error)) ServerOption
 
 type SessionTracker struct {
 	// Has unexported fields.

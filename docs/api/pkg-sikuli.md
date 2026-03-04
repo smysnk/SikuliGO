@@ -326,6 +326,7 @@ Package: `package sikuli // import "github.com/smysnk/sikuligo/pkg/sikuli"`
 
 - Signature: <span class="api-signature">`func NewFinder(source *Image) (*Finder, error)`</span>
 - Uses: [`Image`](#type-image), [`Finder`](#type-finder)
+- Notes: NewFinder creates a search/OCR helper bound to a source image.
 
 #### <a id="func-newimagefromany"></a><span class="api-func">Function</span> `NewImageFromAny`
 
@@ -381,6 +382,7 @@ Package: `package sikuli // import "github.com/smysnk/sikuligo/pkg/sikuli"`
 
 - Signature: <span class="api-signature">`func NewPattern(img *Image) (*Pattern, error)`</span>
 - Uses: [`Image`](#type-image), [`Pattern`](#type-pattern)
+- Notes: NewPattern creates a match pattern from an image with default similarity settings.
 
 #### <a id="func-newpoint"></a><span class="api-func">Function</span> `NewPoint`
 
@@ -396,6 +398,7 @@ Package: `package sikuli // import "github.com/smysnk/sikuligo/pkg/sikuli"`
 
 - Signature: <span class="api-signature">`func NewRegion(x, y, w, h int) Region`</span>
 - Uses: [`Region`](#type-region)
+- Notes: NewRegion constructs a rectangular search area with default timing settings.
 
 #### <a id="func-getsettings"></a><span class="api-func">Function</span> `GetSettings`
 
@@ -416,6 +419,7 @@ Package: `package sikuli // import "github.com/smysnk/sikuligo/pkg/sikuli"`
 
 - Signature: <span class="api-signature">`func NewScreen(id int, bounds Rect) Screen`</span>
 - Uses: [`Rect`](#type-rect), [`Screen`](#type-screen)
+- Notes: NewScreen constructs a logical screen descriptor.
 
 ### Methods
 
@@ -464,16 +468,19 @@ Package: `package sikuli // import "github.com/smysnk/sikuligo/pkg/sikuli"`
 
 - Signature: <span class="api-signature">`func (f *Finder) Find(pattern *Pattern) (Match, error)`</span>
 - Uses: [`Pattern`](#type-pattern), [`Match`](#type-match)
+- Notes: Find returns the best match for the pattern.
 
 #### <a id="method-finder-findall"></a><span class="api-method">Method</span> `Finder.FindAll`
 
 - Signature: <span class="api-signature">`func (f *Finder) FindAll(pattern *Pattern) ([]Match, error)`</span>
 - Uses: [`Pattern`](#type-pattern), [`Match`](#type-match)
+- Notes: FindAll returns all candidate matches for the pattern.
 
 #### <a id="method-finder-findallbycolumn"></a><span class="api-method">Method</span> `Finder.FindAllByColumn`
 
 - Signature: <span class="api-signature">`func (f *Finder) FindAllByColumn(pattern *Pattern) ([]Match, error)`</span>
 - Uses: [`Pattern`](#type-pattern), [`Match`](#type-match)
+- Notes: FindAllByColumn returns all matches sorted left-to-right then top-to-bottom.
 
 #### <a id="method-finder-findallbyrow"></a><span class="api-method">Method</span> `Finder.FindAllByRow`
 
@@ -484,6 +491,7 @@ Package: `package sikuli // import "github.com/smysnk/sikuligo/pkg/sikuli"`
 
 - Signature: <span class="api-signature">`func (f *Finder) FindText(query string, params OCRParams) ([]TextMatch, error)`</span>
 - Uses: [`OCRParams`](#type-ocrparams), [`TextMatch`](#type-textmatch)
+- Notes: FindText runs OCR and returns word-level matches for the query string.
 
 #### <a id="method-finder-has"></a><span class="api-method">Method</span> `Finder.Has`
 
@@ -495,19 +503,23 @@ Package: `package sikuli // import "github.com/smysnk/sikuligo/pkg/sikuli"`
 
 - Signature: <span class="api-signature">`func (f *Finder) LastMatches() []Match`</span>
 - Uses: [`Match`](#type-match)
+- Notes: LastMatches returns a copy of the most recent match set.
 
 #### <a id="method-finder-readtext"></a><span class="api-method">Method</span> `Finder.ReadText`
 
 - Signature: <span class="api-signature">`func (f *Finder) ReadText(params OCRParams) (string, error)`</span>
 - Uses: [`OCRParams`](#type-ocrparams)
+- Notes: ReadText runs OCR and returns normalized text.
 
 #### <a id="method-finder-setmatcher"></a><span class="api-method">Method</span> `Finder.SetMatcher`
 
 - Signature: <span class="api-signature">`func (f *Finder) SetMatcher(m core.Matcher)`</span>
+- Notes: SetMatcher overrides the matcher backend used by this finder.
 
 #### <a id="method-finder-setocrbackend"></a><span class="api-method">Method</span> `Finder.SetOCRBackend`
 
 - Signature: <span class="api-signature">`func (f *Finder) SetOCRBackend(ocr core.OCR)`</span>
+- Notes: SetOCRBackend overrides the OCR backend used by this finder.
 
 #### <a id="method-finder-wait"></a><span class="api-method">Method</span> `Finder.Wait`
 
@@ -518,6 +530,7 @@ Package: `package sikuli // import "github.com/smysnk/sikuligo/pkg/sikuli"`
 
 - Signature: <span class="api-signature">`func (f *Finder) WaitVanish(pattern *Pattern, timeout time.Duration) (bool, error)`</span>
 - Uses: [`Pattern`](#type-pattern)
+- Notes: WaitVanish blocks until the pattern disappears or timeout expires.
 
 #### <a id="method-image-clone"></a><span class="api-method">Method</span> `Image.Clone`
 
@@ -667,48 +680,59 @@ Package: `package sikuli // import "github.com/smysnk/sikuligo/pkg/sikuli"`
 #### <a id="method-pattern-exact"></a><span class="api-method">Method</span> `Pattern.Exact`
 
 - Signature: <span class="api-signature">`func (p *Pattern) Exact() *Pattern`</span>
+- Notes: Exact is a convenience for Similar(1.0).
 
 #### <a id="method-pattern-image"></a><span class="api-method">Method</span> `Pattern.Image`
 
 - Signature: <span class="api-signature">`func (p *Pattern) Image() *Image`</span>
 - Uses: [`Image`](#type-image)
+- Notes: Image returns the underlying pattern image.
 
 #### <a id="method-pattern-mask"></a><span class="api-method">Method</span> `Pattern.Mask`
 
 - Signature: <span class="api-signature">`func (p *Pattern) Mask() *image.Gray`</span>
+- Notes: Mask returns the currently configured mask.
 
 #### <a id="method-pattern-offset"></a><span class="api-method">Method</span> `Pattern.Offset`
 
 - Signature: <span class="api-signature">`func (p *Pattern) Offset() Point`</span>
 - Uses: [`Point`](#type-point), [`Offset`](#type-offset)
+- Notes: Offset returns the configured click anchor offset.
 
 #### <a id="method-pattern-resize"></a><span class="api-method">Method</span> `Pattern.Resize`
 
 - Signature: <span class="api-signature">`func (p *Pattern) Resize(factor float64) *Pattern`</span>
+- Notes: Resize scales the pattern before matching.
 
 #### <a id="method-pattern-resizefactor"></a><span class="api-method">Method</span> `Pattern.ResizeFactor`
 
 - Signature: <span class="api-signature">`func (p *Pattern) ResizeFactor() float64`</span>
+- Notes: ResizeFactor returns the currently configured resize factor.
 
 #### <a id="method-pattern-similar"></a><span class="api-method">Method</span> `Pattern.Similar`
 
 - Signature: <span class="api-signature">`func (p *Pattern) Similar(sim float64) *Pattern`</span>
+- Notes: Similar sets the acceptance threshold in the [0,1] range. Higher values require a closer match.
 
 #### <a id="method-pattern-similarity"></a><span class="api-method">Method</span> `Pattern.Similarity`
 
 - Signature: <span class="api-signature">`func (p *Pattern) Similarity() float64`</span>
+- Notes: Similarity returns the current acceptance threshold.
 
 #### <a id="method-pattern-targetoffset"></a><span class="api-method">Method</span> `Pattern.TargetOffset`
 
 - Signature: <span class="api-signature">`func (p *Pattern) TargetOffset(dx, dy int) *Pattern`</span>
+- Notes: TargetOffset sets the click anchor relative to the matched rectangle.
 
 #### <a id="method-pattern-withmask"></a><span class="api-method">Method</span> `Pattern.WithMask`
 
 - Signature: <span class="api-signature">`func (p *Pattern) WithMask(mask *image.Gray) (*Pattern, error)`</span>
+- Notes: WithMask sets an optional per-pixel mask where 0 excludes and >0 includes pixels.
 
 #### <a id="method-pattern-withmaskmatrix"></a><span class="api-method">Method</span> `Pattern.WithMaskMatrix`
 
 - Signature: <span class="api-signature">`func (p *Pattern) WithMaskMatrix(rows [][]uint8) (*Pattern, error)`</span>
+- Notes: WithMaskMatrix sets an optional binary mask from matrix rows.
 
 #### <a id="method-point-tolocation"></a><span class="api-method">Method</span> `Point.ToLocation`
 
@@ -739,11 +763,13 @@ Package: `package sikuli // import "github.com/smysnk/sikuligo/pkg/sikuli"`
 
 - Signature: <span class="api-signature">`func (r Region) Center() Point`</span>
 - Uses: [`Point`](#type-point)
+- Notes: Center returns the midpoint of the region.
 
 #### <a id="method-region-contains"></a><span class="api-method">Method</span> `Region.Contains`
 
 - Signature: <span class="api-signature">`func (r Region) Contains(p Point) bool`</span>
 - Uses: [`Point`](#type-point)
+- Notes: Contains reports whether a point lies within the region.
 
 #### <a id="method-region-containslocation"></a><span class="api-method">Method</span> `Region.ContainsLocation`
 
@@ -765,6 +791,7 @@ Package: `package sikuli // import "github.com/smysnk/sikuligo/pkg/sikuli"`
 
 - Signature: <span class="api-signature">`func (r Region) Exists(source *Image, pattern *Pattern, timeout time.Duration) (Match, bool, error)`</span>
 - Uses: [`Image`](#type-image), [`Pattern`](#type-pattern), [`Match`](#type-match)
+- Notes: Exists checks for pattern presence within timeout and returns first match when found.
 
 #### <a id="method-region-find"></a><span class="api-method">Method</span> `Region.Find`
 
@@ -775,6 +802,7 @@ Package: `package sikuli // import "github.com/smysnk/sikuligo/pkg/sikuli"`
 
 - Signature: <span class="api-signature">`func (r Region) FindAll(source *Image, pattern *Pattern) ([]Match, error)`</span>
 - Uses: [`Image`](#type-image), [`Pattern`](#type-pattern), [`Match`](#type-match)
+- Notes: FindAll returns all matches in this region.
 
 #### <a id="method-region-findallbycolumn"></a><span class="api-method">Method</span> `Region.FindAllByColumn`
 
@@ -790,10 +818,12 @@ Package: `package sikuli // import "github.com/smysnk/sikuligo/pkg/sikuli"`
 
 - Signature: <span class="api-signature">`func (r Region) FindText(source *Image, query string, params OCRParams) ([]TextMatch, error)`</span>
 - Uses: [`OCRParams`](#type-ocrparams), [`Image`](#type-image), [`TextMatch`](#type-textmatch)
+- Notes: FindText runs OCR in region and returns matches for the query.
 
 #### <a id="method-region-grow"></a><span class="api-method">Method</span> `Region.Grow`
 
 - Signature: <span class="api-signature">`func (r Region) Grow(dx, dy int) Region`</span>
+- Notes: Grow expands the region outward in both directions.
 
 #### <a id="method-region-has"></a><span class="api-method">Method</span> `Region.Has`
 
@@ -803,6 +833,7 @@ Package: `package sikuli // import "github.com/smysnk/sikuligo/pkg/sikuli"`
 #### <a id="method-region-intersection"></a><span class="api-method">Method</span> `Region.Intersection`
 
 - Signature: <span class="api-signature">`func (r Region) Intersection(other Region) Region`</span>
+- Notes: Intersection returns the overlap between this region and another.
 
 #### <a id="method-region-moveto"></a><span class="api-method">Method</span> `Region.MoveTo`
 
@@ -818,6 +849,7 @@ Package: `package sikuli // import "github.com/smysnk/sikuligo/pkg/sikuli"`
 
 - Signature: <span class="api-signature">`func (r Region) Offset(dx, dy int) Region`</span>
 - Uses: [`Offset`](#type-offset)
+- Notes: Offset translates the region by dx and dy.
 
 #### <a id="method-region-offsetby"></a><span class="api-method">Method</span> `Region.OffsetBy`
 
@@ -845,6 +877,7 @@ Package: `package sikuli // import "github.com/smysnk/sikuligo/pkg/sikuli"`
 #### <a id="method-region-setsize"></a><span class="api-method">Method</span> `Region.SetSize`
 
 - Signature: <span class="api-signature">`func (r Region) SetSize(w, h int) Region`</span>
+- Notes: SetSize updates width and height while clamping negatives to zero.
 
 #### <a id="method-region-setthrowexception"></a><span class="api-method">Method</span> `Region.SetThrowException`
 
@@ -857,6 +890,7 @@ Package: `package sikuli // import "github.com/smysnk/sikuligo/pkg/sikuli"`
 #### <a id="method-region-union"></a><span class="api-method">Method</span> `Region.Union`
 
 - Signature: <span class="api-signature">`func (r Region) Union(other Region) Region`</span>
+- Notes: Union returns the smallest region containing both regions.
 
 #### <a id="method-region-wait"></a><span class="api-method">Method</span> `Region.Wait`
 
@@ -867,12 +901,26 @@ Package: `package sikuli // import "github.com/smysnk/sikuligo/pkg/sikuli"`
 
 - Signature: <span class="api-signature">`func (r Region) WaitVanish(source *Image, pattern *Pattern, timeout time.Duration) (bool, error)`</span>
 - Uses: [`Image`](#type-image), [`Pattern`](#type-pattern)
+- Notes: WaitVanish waits until pattern disappears or timeout expires.
 
 ## Raw Package Doc
 
 ```text
 package sikuli // import "github.com/smysnk/sikuligo/pkg/sikuli"
 
+Package sikuli provides the compatibility-facing automation API used by
+SikuliGO.
+
+The surface is intentionally aligned with common SikuliX concepts so existing
+script flows can migrate with minimal rewriting:
+  - Pattern and similarity tuning
+  - Region scoped search and wait semantics
+  - Screen level orchestration
+  - Input control (click, type, hotkey)
+  - OCR and observe events
+
+Java SikuliX and SikuliGO are not byte-for-byte identical, but the exported
+contracts in this package are designed to preserve the same mental model.
 
 CONSTANTS
 
@@ -922,6 +970,7 @@ type AppAPI interface {
 	IsRunning(name string, opts AppOptions) (bool, error)
 	ListWindows(name string, opts AppOptions) ([]Window, error)
 }
+    AppAPI exposes lightweight app lifecycle helpers used by script flows.
 
 type AppController struct {
 	// Has unexported fields.
@@ -950,6 +999,7 @@ type Finder struct {
 }
 
 func NewFinder(source *Image) (*Finder, error)
+    NewFinder creates a search/OCR helper bound to a source image.
 
 func (f *Finder) Count(pattern *Pattern) (int, error)
     Count returns the number of matches for the given pattern.
@@ -959,29 +1009,38 @@ func (f *Finder) Exists(pattern *Pattern) (Match, bool, error)
     (Match{}, false, nil).
 
 func (f *Finder) Find(pattern *Pattern) (Match, error)
+    Find returns the best match for the pattern.
 
 func (f *Finder) FindAll(pattern *Pattern) ([]Match, error)
+    FindAll returns all candidate matches for the pattern.
 
 func (f *Finder) FindAllByColumn(pattern *Pattern) ([]Match, error)
+    FindAllByColumn returns all matches sorted left-to-right then top-to-bottom.
 
 func (f *Finder) FindAllByRow(pattern *Pattern) ([]Match, error)
 
 func (f *Finder) FindText(query string, params OCRParams) ([]TextMatch, error)
+    FindText runs OCR and returns word-level matches for the query string.
 
 func (f *Finder) Has(pattern *Pattern) (bool, error)
     Has reports whether the target exists and bubbles non-find errors.
 
 func (f *Finder) LastMatches() []Match
+    LastMatches returns a copy of the most recent match set.
 
 func (f *Finder) ReadText(params OCRParams) (string, error)
+    ReadText runs OCR and returns normalized text.
 
 func (f *Finder) SetMatcher(m core.Matcher)
+    SetMatcher overrides the matcher backend used by this finder.
 
 func (f *Finder) SetOCRBackend(ocr core.OCR)
+    SetOCRBackend overrides the OCR backend used by this finder.
 
 func (f *Finder) Wait(pattern *Pattern, timeout time.Duration) (Match, error)
 
 func (f *Finder) WaitVanish(pattern *Pattern, timeout time.Duration) (bool, error)
+    WaitVanish blocks until the pattern disappears or timeout expires.
 
 type FinderAPI interface {
 	Find(pattern *Pattern) (Match, error)
@@ -996,6 +1055,8 @@ type FinderAPI interface {
 	FindText(query string, params OCRParams) ([]TextMatch, error)
 	LastMatches() []Match
 }
+    FinderAPI performs match/OCR operations against a source image. Semantics
+    follow SikuliX Finder style calls for find/findAll/exists/wait flows.
 
 type Image struct {
 	// Has unexported fields.
@@ -1027,6 +1088,8 @@ type ImageAPI interface {
 	Clone() *Image
 	Crop(rect Rect) (*Image, error)
 }
+    ImageAPI describes immutable image primitives used by matching and OCR. This
+    aligns with the SikuliX notion of image snapshots used by Region/Finder.
 
 type InputAPI interface {
 	MoveMouse(x, y int, opts InputOptions) error
@@ -1034,6 +1097,8 @@ type InputAPI interface {
 	TypeText(text string, opts InputOptions) error
 	Hotkey(keys ...string) error
 }
+    InputAPI exposes desktop input actions. This is the compatibility layer for
+    click/type/hotkey style operations.
 
 type InputController struct {
 	// Has unexported fields.
@@ -1100,6 +1165,7 @@ type ObserveAPI interface {
 	ObserveVanish(source *Image, region Region, pattern *Pattern, opts ObserveOptions) ([]ObserveEvent, error)
 	ObserveChange(source *Image, region Region, opts ObserveOptions) ([]ObserveEvent, error)
 }
+    ObserveAPI exposes appear/vanish/change polling contracts for a region.
 
 type ObserveEvent struct {
 	Type      ObserveEventType
@@ -1183,28 +1249,43 @@ type Pattern struct {
 }
 
 func NewPattern(img *Image) (*Pattern, error)
+    NewPattern creates a match pattern from an image with default similarity
+    settings.
 
 func (p *Pattern) Exact() *Pattern
+    Exact is a convenience for Similar(1.0).
 
 func (p *Pattern) Image() *Image
+    Image returns the underlying pattern image.
 
 func (p *Pattern) Mask() *image.Gray
+    Mask returns the currently configured mask.
 
 func (p *Pattern) Offset() Point
+    Offset returns the configured click anchor offset.
 
 func (p *Pattern) Resize(factor float64) *Pattern
+    Resize scales the pattern before matching.
 
 func (p *Pattern) ResizeFactor() float64
+    ResizeFactor returns the currently configured resize factor.
 
 func (p *Pattern) Similar(sim float64) *Pattern
+    Similar sets the acceptance threshold in the [0,1] range. Higher values
+    require a closer match.
 
 func (p *Pattern) Similarity() float64
+    Similarity returns the current acceptance threshold.
 
 func (p *Pattern) TargetOffset(dx, dy int) *Pattern
+    TargetOffset sets the click anchor relative to the matched rectangle.
 
 func (p *Pattern) WithMask(mask *image.Gray) (*Pattern, error)
+    WithMask sets an optional per-pixel mask where 0 excludes and >0 includes
+    pixels.
 
 func (p *Pattern) WithMaskMatrix(rows [][]uint8) (*Pattern, error)
+    WithMaskMatrix sets an optional binary mask from matrix rows.
 
 type PatternAPI interface {
 	Image() *Image
@@ -1217,6 +1298,9 @@ type PatternAPI interface {
 	ResizeFactor() float64
 	Mask() *image.Gray
 }
+    PatternAPI configures how a target image should be matched on screen.
+    It mirrors SikuliX Pattern behavior such as similar(), exact(), and
+    targetOffset().
 
 type Point struct {
 	X int
@@ -1255,10 +1339,13 @@ type Region struct {
 }
 
 func NewRegion(x, y, w, h int) Region
+    NewRegion constructs a rectangular search area with default timing settings.
 
 func (r Region) Center() Point
+    Center returns the midpoint of the region.
 
 func (r Region) Contains(p Point) bool
+    Contains reports whether a point lies within the region.
 
 func (r Region) ContainsLocation(loc Location) bool
     ContainsLocation reports whether this region contains the given location.
@@ -1269,22 +1356,28 @@ func (r Region) Count(source *Image, pattern *Pattern) (int, error)
     Count returns the number of matches found in this region.
 
 func (r Region) Exists(source *Image, pattern *Pattern, timeout time.Duration) (Match, bool, error)
+    Exists checks for pattern presence within timeout and returns first match
+    when found.
 
 func (r Region) Find(source *Image, pattern *Pattern) (Match, error)
 
 func (r Region) FindAll(source *Image, pattern *Pattern) ([]Match, error)
+    FindAll returns all matches in this region.
 
 func (r Region) FindAllByColumn(source *Image, pattern *Pattern) ([]Match, error)
 
 func (r Region) FindAllByRow(source *Image, pattern *Pattern) ([]Match, error)
 
 func (r Region) FindText(source *Image, query string, params OCRParams) ([]TextMatch, error)
+    FindText runs OCR in region and returns matches for the query.
 
 func (r Region) Grow(dx, dy int) Region
+    Grow expands the region outward in both directions.
 
 func (r Region) Has(source *Image, pattern *Pattern, timeout time.Duration) (bool, error)
 
 func (r Region) Intersection(other Region) Region
+    Intersection returns the overlap between this region and another.
 
 func (r Region) MoveTo(x, y int) Region
 
@@ -1292,6 +1385,7 @@ func (r Region) MoveToLocation(loc Location) Region
     MoveToLocation moves this region using a Location alias.
 
 func (r Region) Offset(dx, dy int) Region
+    Offset translates the region by dx and dy.
 
 func (r Region) OffsetBy(off Offset) Region
     OffsetBy applies an Offset alias to this region position.
@@ -1305,16 +1399,19 @@ func (r *Region) SetAutoWaitTimeout(sec float64)
 func (r *Region) SetObserveScanRate(rate float64)
 
 func (r Region) SetSize(w, h int) Region
+    SetSize updates width and height while clamping negatives to zero.
 
 func (r *Region) SetThrowException(flag bool)
 
 func (r *Region) SetWaitScanRate(rate float64)
 
 func (r Region) Union(other Region) Region
+    Union returns the smallest region containing both regions.
 
 func (r Region) Wait(source *Image, pattern *Pattern, timeout time.Duration) (Match, error)
 
 func (r Region) WaitVanish(source *Image, pattern *Pattern, timeout time.Duration) (bool, error)
+    WaitVanish waits until pattern disappears or timeout expires.
 
 type RegionAPI interface {
 	Center() Point
@@ -1337,6 +1434,9 @@ type RegionAPI interface {
 	ReadText(source *Image, params OCRParams) (string, error)
 	FindText(source *Image, query string, params OCRParams) ([]TextMatch, error)
 }
+    RegionAPI defines region geometry and region-scoped automation operations.
+    It maps to familiar SikuliX Region methods (find, exists, wait, findAll,
+    readText).
 
 type RuntimeSettings struct {
 	ImageCache       int
@@ -1360,6 +1460,7 @@ type Screen struct {
 }
 
 func NewScreen(id int, bounds Rect) Screen
+    NewScreen constructs a logical screen descriptor.
 
 type TextMatch struct {
 	Rect

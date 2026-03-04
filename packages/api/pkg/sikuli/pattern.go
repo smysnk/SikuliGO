@@ -14,6 +14,7 @@ type Pattern struct {
 	mask         *image.Gray
 }
 
+// NewPattern creates a match pattern from an image with default similarity settings.
 func NewPattern(img *Image) (*Pattern, error) {
 	if img == nil || img.Gray() == nil {
 		return nil, fmt.Errorf("%w: pattern image is nil", ErrInvalidTarget)
@@ -26,10 +27,13 @@ func NewPattern(img *Image) (*Pattern, error) {
 	}, nil
 }
 
+// Image returns the underlying pattern image.
 func (p *Pattern) Image() *Image {
 	return p.image
 }
 
+// Similar sets the acceptance threshold in the [0,1] range.
+// Higher values require a closer match.
 func (p *Pattern) Similar(sim float64) *Pattern {
 	if sim < 0 {
 		sim = 0
@@ -41,24 +45,29 @@ func (p *Pattern) Similar(sim float64) *Pattern {
 	return p
 }
 
+// Similarity returns the current acceptance threshold.
 func (p *Pattern) Similarity() float64 {
 	return p.similarity
 }
 
+// Exact is a convenience for Similar(1.0).
 func (p *Pattern) Exact() *Pattern {
 	p.similarity = ExactSimilarity
 	return p
 }
 
+// TargetOffset sets the click anchor relative to the matched rectangle.
 func (p *Pattern) TargetOffset(dx, dy int) *Pattern {
 	p.targetOffset = Point{X: dx, Y: dy}
 	return p
 }
 
+// Offset returns the configured click anchor offset.
 func (p *Pattern) Offset() Point {
 	return p.targetOffset
 }
 
+// Resize scales the pattern before matching.
 func (p *Pattern) Resize(factor float64) *Pattern {
 	if factor <= 0 {
 		factor = 1.0
@@ -67,10 +76,12 @@ func (p *Pattern) Resize(factor float64) *Pattern {
 	return p
 }
 
+// ResizeFactor returns the currently configured resize factor.
 func (p *Pattern) ResizeFactor() float64 {
 	return p.resizeFactor
 }
 
+// WithMask sets an optional per-pixel mask where 0 excludes and >0 includes pixels.
 func (p *Pattern) WithMask(mask *image.Gray) (*Pattern, error) {
 	if mask == nil {
 		p.mask = nil
@@ -86,6 +97,7 @@ func (p *Pattern) WithMask(mask *image.Gray) (*Pattern, error) {
 	return p, nil
 }
 
+// WithMaskMatrix sets an optional binary mask from matrix rows.
 func (p *Pattern) WithMaskMatrix(rows [][]uint8) (*Pattern, error) {
 	if len(rows) == 0 {
 		p.mask = nil
@@ -116,7 +128,7 @@ func (p *Pattern) WithMaskMatrix(rows [][]uint8) (*Pattern, error) {
 	return p, nil
 }
 
+// Mask returns the currently configured mask.
 func (p *Pattern) Mask() *image.Gray {
 	return p.mask
 }
-

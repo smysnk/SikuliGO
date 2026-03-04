@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/smysnk/sikuligo/internal/cv"
 	"github.com/smysnk/sikuligo/internal/grpcv1"
 	pb "github.com/smysnk/sikuligo/internal/grpcv1/pb"
 	"github.com/smysnk/sikuligo/internal/sessionstore"
@@ -20,6 +21,11 @@ import (
 )
 
 func main() {
+	if !cv.OpenCVEnabled() {
+		log.Fatal("sikuligo requires OpenCV-enabled builds; rebuild with -tags \"gosseract opencv gocv_specific_modules gocv_features2d gocv_calib3d\"")
+	}
+	runStartupChecks(os.Stderr)
+
 	handled, err := maybeRunUtilityCommands(os.Args[1:])
 	if err != nil {
 		log.Fatalf("command failed: %v", err)
@@ -81,12 +87,13 @@ func main() {
 	grpcErrCh := make(chan error, 1)
 	go func() {
 		logger.Printf(
-			"sikuligo listening grpc=%s auth=%t reflection=%t sqlite=%s api_session_id=%d",
+			"sikuligo listening grpc=%s auth=%t reflection=%t sqlite=%s api_session_id=%d opencv=%t",
 			*listenAddr,
 			*authToken != "",
 			*enableReflection,
 			*sqlitePath,
 			apiSession.ID,
+			cv.OpenCVEnabled(),
 		)
 		if err := srv.Serve(lis); err != nil {
 			grpcErrCh <- fmt.Errorf("grpc serve: %w", err)

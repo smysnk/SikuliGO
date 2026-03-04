@@ -11,18 +11,6 @@ This API reference is generated from package comments and exported symbols using
 
 Legend: <span class="api-type">Type</span>, <span class="api-func">Function</span>, <span class="api-method">Method</span>
 
-## Client Guides
-
-- Node.js package guide: [Node Package User Flow](../node-package-user-flow.md)
-- Cross-language planning: [Client Strategy](../client-strategy.md)
-- OCR integration details: [OCR Integration](../ocr-integration.md)
-- OpenCV integration details: [OpenCV Integration](../opencv-integration.md)
-
-## Architecture
-
-- Port architecture and parity plan: [Port Strategy](../port-strategy.md)
-- API protocol and service architecture: [gRPC Strategy](../grpc-strategy.md)
-
 ## Packages
 
 - [`internal/app`](./internal-app)

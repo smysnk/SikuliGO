@@ -27,9 +27,7 @@
   "type": "commonjs",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
-  "bin": {
-    "sikuligo": "dist/src/cli.js"
-  },
+  "bin": "dist/src/cli.js",
   "files": [
     "dist",
     "generated",
@@ -43,6 +41,74 @@
       "import": "./dist/src/index.js",
       "require": "./dist/src/index.js",
       "default": "./dist/src/index.js"
+    },
+    "./binary": {
+      "types": "./dist/src/binary.d.ts",
+      "import": "./dist/src/binary.js",
+      "require": "./dist/src/binary.js",
+      "default": "./dist/src/binary.js"
+    },
+    "./client": {
+      "types": "./dist/src/client.d.ts",
+      "import": "./dist/src/client.js",
+      "require": "./dist/src/client.js",
+      "default": "./dist/src/client.js"
+    },
+    "./doctor": {
+      "types": "./dist/src/doctor.d.ts",
+      "import": "./dist/src/doctor.js",
+      "require": "./dist/src/doctor.js",
+      "default": "./dist/src/doctor.js"
+    },
+    "./image": {
+      "types": "./dist/src/image.d.ts",
+      "import": "./dist/src/image.js",
+      "require": "./dist/src/image.js",
+      "default": "./dist/src/image.js"
+    },
+    "./launcher": {
+      "types": "./dist/src/launcher.d.ts",
+      "import": "./dist/src/launcher.js",
+      "require": "./dist/src/launcher.js",
+      "default": "./dist/src/launcher.js"
+    },
+    "./sikuli": {
+      "types": "./dist/src/sikuli.d.ts",
+      "import": "./dist/src/sikuli.js",
+      "require": "./dist/src/sikuli.js",
+      "default": "./dist/src/sikuli.js"
+    },
+    "./sikulix": {
+      "types": "./dist/src/sikulix.d.ts",
+      "import": "./dist/src/sikulix.js",
+      "require": "./dist/src/sikulix.js",
+      "default": "./dist/src/sikulix.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "binary": [
+        "dist/src/binary.d.ts"
+      ],
+      "client": [
+        "dist/src/client.d.ts"
+      ],
+      "doctor": [
+        "dist/src/doctor.d.ts"
+      ],
+      "image": [
+        "dist/src/image.d.ts"
+      ],
+      "launcher": [
+        "dist/src/launcher.d.ts"
+      ],
+      "sikuli": [
+        "dist/src/sikuli.d.ts"
+      ],
+      "sikulix": [
+        "dist/src/sikulix.d.ts"
+      ]
     }
   },
   "publishConfig": {

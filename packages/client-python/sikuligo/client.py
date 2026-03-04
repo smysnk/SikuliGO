@@ -359,7 +359,7 @@ def _bytes_per_pixel(color_type: int) -> int:
     raise ValueError(f"unsupported PNG color type: {color_type}")
 
 
-def _decode_png_to_gray(data: bytes, name: str) -> pb.GrayImage:
+def _decode_png_to_gray_and_mask(data: bytes, name: str) -> tuple[pb.GrayImage, pb.GrayImage | None]:
     if not data.startswith(PNG_SIGNATURE):
         raise ValueError(f"not a PNG image: {name}")
 
@@ -433,8 +433,11 @@ def _decode_png_to_gray(data: bytes, name: str) -> pb.GrayImage:
             raw[row_start + x] = out
 
     pix = bytearray(width * height)
+    alpha_mask = bytearray(width * height) if color_type in (4, 6) else None
+    has_transparency = False
     for i in range(width * height):
         p = i * bpp
+        alpha = 255
         if color_type == 0:
             gray = raw[p]
         elif color_type == 2:
@@ -442,15 +445,40 @@ def _decode_png_to_gray(data: bytes, name: str) -> pb.GrayImage:
             gray = round(0.299 * r + 0.587 * g + 0.114 * b)
         elif color_type == 4:
             g = raw[p]
-            a = raw[p + 1] / 255.0
+            alpha = raw[p + 1]
+            a = alpha / 255.0
             gray = round(g * a + 255 * (1 - a))
         else:
             r, g, b = raw[p], raw[p + 1], raw[p + 2]
-            a = raw[p + 3] / 255.0
+            alpha = raw[p + 3]
+            a = alpha / 255.0
             gray = round((0.299 * r + 0.587 * g + 0.114 * b) * a + 255 * (1 - a))
         pix[i] = int(gray) & 0xFF
+        if alpha_mask is not None:
+            alpha_mask[i] = alpha & 0xFF
+            if alpha < 255:
+                has_transparency = True
 
-    return pb.GrayImage(name=name, width=width, height=height, pix=bytes(pix))
+    image = pb.GrayImage(name=name, width=width, height=height, pix=bytes(pix))
+    if alpha_mask is not None and has_transparency:
+        mask = pb.GrayImage(name=f"{name}.mask", width=width, height=height, pix=bytes(alpha_mask))
+        return image, mask
+    return image, None
+
+
+def _pattern_image_from_png(image: ImageInput, *, name: str | None = None) -> tuple[pb.GrayImage, pb.GrayImage | None]:
+    if isinstance(image, str):
+        resolved = _resolve_image_path(image)
+        with open(resolved, "rb") as handle:
+            data = handle.read()
+        image_name = name or resolved.name or "pattern.png"
+        return _decode_png_to_gray_and_mask(data, image_name)
+    if isinstance(image, memoryview):
+        payload = image.tobytes()
+        return _decode_png_to_gray_and_mask(payload, name or "pattern.png")
+    if isinstance(image, (bytes, bytearray)):
+        return _decode_png_to_gray_and_mask(bytes(image), name or "pattern.png")
+    raise TypeError("image must be a local path or PNG bytes")
 
 
 def _resolve_image_path(image: str) -> Path:
@@ -472,18 +500,8 @@ def _resolve_image_path(image: str) -> Path:
 
 
 def gray_image_from_png(image: ImageInput, *, name: str | None = None) -> pb.GrayImage:
-    if isinstance(image, str):
-        resolved = _resolve_image_path(image)
-        with open(resolved, "rb") as handle:
-            data = handle.read()
-        image_name = name or resolved.name or "pattern.png"
-        return _decode_png_to_gray(data, image_name)
-    if isinstance(image, memoryview):
-        payload = image.tobytes()
-        return _decode_png_to_gray(payload, name or "pattern.png")
-    if isinstance(image, (bytes, bytearray)):
-        return _decode_png_to_gray(bytes(image), name or "pattern.png")
-    raise TypeError("image must be a local path or PNG bytes")
+    gray, _ = _pattern_image_from_png(image, name=name)
+    return gray
 
 
 def pattern_from_png(
@@ -495,7 +513,10 @@ def pattern_from_png(
     resize_factor: float | None = None,
     target_offset: PointInput | None = None,
 ) -> pb.Pattern:
-    pattern = pb.Pattern(image=gray_image_from_png(image, name=name))
+    gray, mask = _pattern_image_from_png(image, name=name)
+    pattern = pb.Pattern(image=gray)
+    if mask is not None:
+        pattern.mask.CopyFrom(mask)
     if exact:
         pattern.exact = True
     elif similarity is not None:
