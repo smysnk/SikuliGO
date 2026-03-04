@@ -9,6 +9,7 @@ on:
       - "packages/api/pkg/**"
       - "packages/api/internal/**"
       - "scripts/generate-api-docs.sh"
+      - "scripts/generate-parity-docs.sh"
       - "packages/api/go.mod"
       - "packages/api/go.sum"
       - "README.md"
@@ -39,6 +40,9 @@ jobs:
 
       - name: Generate API docs
         run: ./scripts/generate-api-docs.sh
+
+      - name: Generate parity docs
+        run: ./scripts/generate-parity-docs.sh
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

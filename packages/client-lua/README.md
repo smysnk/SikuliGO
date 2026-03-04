@@ -13,7 +13,7 @@ This directory provides a Lua gRPC method client using `grpcurl` as transport.
 
 For source build details, see:
 
-- [Build From Source](../../docs/build-from-source.md)
+- [Build From Source](../../docs/guides/build-from-source.md)
 
 ## Environment
 

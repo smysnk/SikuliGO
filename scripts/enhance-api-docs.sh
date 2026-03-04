@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-API_DIR="$ROOT_DIR/docs/api"
+API_DIR="$ROOT_DIR/docs/reference/api"
 AWK_RENDERER="$ROOT_DIR/scripts/render-api-doc.awk"
 
 if [[ ! -f "$AWK_RENDERER" ]]; then

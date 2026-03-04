@@ -285,11 +285,11 @@ Status (Concrete backend): ✅ Completed (`darwin` + `linux` + `windows` backend
 Each existing object/interface/protocol is considered feature-complete when:
 
 1. It has signature coverage in the generated API docs and compatibility interfaces.
-2. It has default/behavior semantics in `docs/default-behavior-table.md`.
+2. It has default/behavior semantics in `docs/guides/default-behavior-table.md`.
 3. Its package boundary and role are defined in this strategy document.
 4. It is covered by unit or parity tests where behavior is non-trivial.
 
 ## Related Documents
 
-- `docs/default-behavior-table.md`
-- `docs/backend-capability-matrix.md`
+- `docs/guides/default-behavior-table.md`
+- `docs/guides/backend-capability-matrix.md`

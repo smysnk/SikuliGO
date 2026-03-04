@@ -109,21 +109,24 @@ If PATH is updated, reload with `source ~/.zshrc` or `source ~/.bash_profile`.
 - [Docs Home](https://smysnk.github.io/SikuliGO/)
 
 ## Strategy
-- [Port](https://smysnk.github.io/SikuliGO/port-strategy)
-- [gRPC](https://smysnk.github.io/SikuliGO/grpc-strategy)
-- [Client](https://smysnk.github.io/SikuliGO/client-strategy)
-- [ORB Search Delivery](https://smysnk.github.io/SikuliGO/orb-search-delivery)
+- [Mission](https://smysnk.github.io/SikuliGO/strategy/mission)
+- [Port](https://smysnk.github.io/SikuliGO/strategy/port-strategy)
+- [gRPC](https://smysnk.github.io/SikuliGO/strategy/grpc-strategy)
+- [Client](https://smysnk.github.io/SikuliGO/strategy/client-strategy)
+- [ORB Search Delivery](https://smysnk.github.io/SikuliGO/strategy/orb-search-delivery)
 
 ## Integration & Implementation
-- [API Reference](https://smysnk.github.io/SikuliGO/api/)
-- [OCR](https://smysnk.github.io/SikuliGO/ocr-integration)
-- [OpenCV](https://smysnk.github.io/SikuliGO/opencv-integration)
-- [Input Automation](https://smysnk.github.io/SikuliGO/input-automation)
-- [Observe Events](https://smysnk.github.io/SikuliGO/observe-events)
-- [App Control](https://smysnk.github.io/SikuliGO/app-control)
-- [Defaults Table](https://smysnk.github.io/SikuliGO/default-behavior-table)
-- [Backend Capability Matrix](https://smysnk.github.io/SikuliGO/backend-capability-matrix)
-- [Node Package User Flow](https://smysnk.github.io/SikuliGO/node-package-user-flow)
+- [API Reference](https://smysnk.github.io/SikuliGO/reference/api/)
+- [OCR](https://smysnk.github.io/SikuliGO/guides/ocr-integration)
+- [OpenCV](https://smysnk.github.io/SikuliGO/guides/opencv-integration)
+- [Input Automation](https://smysnk.github.io/SikuliGO/guides/input-automation)
+- [Observe Events](https://smysnk.github.io/SikuliGO/guides/observe-events)
+- [App Control](https://smysnk.github.io/SikuliGO/guides/app-control)
+- [Defaults Table](https://smysnk.github.io/SikuliGO/guides/default-behavior-table)
+- [Backend Capability Matrix](https://smysnk.github.io/SikuliGO/guides/backend-capability-matrix)
+- [Node Package User Flow](https://smysnk.github.io/SikuliGO/guides/node-package-user-flow)
+- [Java to Go API Mapping](https://smysnk.github.io/SikuliGO/reference/parity/java-to-go-mapping)
+- [Parity Test Matrix](https://smysnk.github.io/SikuliGO/reference/parity/parity-test-matrix)
 
 ## Repository Layout
 
@@ -139,7 +142,7 @@ If PATH is updated, reload with `source ~/.zshrc` or `source ~/.bash_profile`.
 
 Build from source:
 
-- [Build From Source](docs/build-from-source.md)
+- [Build From Source](docs/guides/build-from-source.md)
 
 ## Project History and Credits
 
@@ -159,7 +162,7 @@ The GoLang port in this repository began in **2026**. It stands on the work of t
 <!-- BEGIN: FIND_ON_SCREEN_BENCH_AUTOGEN -->
 ## FindOnScreen Benchmark Test Results
 
-Generated: `2026-03-04T04:38:28.587408+00:00`
+Generated: `2026-03-04T08:47:04.585152+00:00`
 
 ### Reports
 
@@ -179,13 +182,13 @@ Generated: `2026-03-04T04:38:28.587408+00:00`
 
 | Engine | Cases | OK | Partial | Not Found | Unsupported | Error | Overlap Miss | Avg ms/op | Median ms/op |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| akaze | 4 | 1 | 0 | 3 | 0 | 0 | 0 | 114.554 | 96.795 |
-| brisk | 4 | 0 | 0 | 4 | 0 | 0 | 0 | 70.137 | 67.852 |
-| hybrid | 4 | 4 | 0 | 0 | 0 | 0 | 0 | 87.512 | 71.370 |
-| kaze | 4 | 2 | 0 | 0 | 0 | 0 | 2 | 465.050 | 373.112 |
-| orb | 4 | 0 | 0 | 4 | 0 | 0 | 0 | 21.716 | 19.190 |
-| sift | 4 | 4 | 0 | 0 | 0 | 0 | 0 | 169.555 | 142.072 |
-| template | 4 | 4 | 0 | 0 | 0 | 0 | 0 | 86.397 | 68.461 |
+| akaze | 4 | 1 | 0 | 3 | 0 | 0 | 0 | 109.348 | 88.370 |
+| brisk | 4 | 0 | 0 | 4 | 0 | 0 | 0 | 70.323 | 66.291 |
+| hybrid | 4 | 4 | 0 | 0 | 0 | 0 | 0 | 85.527 | 69.467 |
+| kaze | 4 | 2 | 0 | 0 | 0 | 0 | 2 | 464.642 | 374.102 |
+| orb | 4 | 0 | 0 | 4 | 0 | 0 | 0 | 21.309 | 18.552 |
+| sift | 4 | 4 | 0 | 0 | 0 | 0 | 0 | 165.972 | 138.164 |
+| template | 4 | 4 | 0 | 0 | 0 | 0 | 0 | 86.545 | 68.910 |
 
 ### Run Mega Summary
 

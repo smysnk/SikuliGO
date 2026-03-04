@@ -1,0 +1,27 @@
+# java_symbol	go_surface	grpc_rpc	node_api	python_api	status	notes
+Pattern.similar(double)	(*Pattern).Similar(sim float64)	Find, FindOnScreen	Pattern().similar()	Pattern().similar()	parity-ready	Similarity threshold semantics aligned.
+Pattern.exact()	(*Pattern).Exact()	Find, FindOnScreen	Pattern().exact()	Pattern().exact()	parity-ready	Exact matching path preserved.
+Pattern.targetOffset(dx,dy)	(*Pattern).TargetOffset(dx,dy)	Find, FindOnScreen	Pattern().targetOffset(dx,dy)	Pattern().target_offset(dx,dy)	parity-ready	Target-point offset supported.
+Pattern.resize(factor)	(*Pattern).Resize(factor)	Find, FindOnScreen	Pattern().resize(factor)	Pattern().resize(factor)	parity-ready	Scale intent mapped into matcher request.
+Finder.find(Pattern)	(*Finder).Find(pattern)	Find	Finder.find(...) via Region/Screen	Region.find(...)	parity-ready	Primary single-target matching flow.
+Finder.findAll(Pattern)	(*Finder).FindAll(pattern)	FindAll	Region.findAll(...)	Region.find_all(...)	parity-ready	Deterministic ordering documented.
+Finder.exists(Pattern, timeout)	(*Finder).Exists(pattern,timeout)	ExistsOnScreen	Region.exists(...)	Region.exists(...)	parity-ready	Timeout polling semantics aligned.
+Finder.wait(Pattern, timeout)	(*Finder).Wait(pattern,timeout)	WaitOnScreen	Region.wait(...)	Region.wait(...)	parity-ready	Wait semantics exposed across clients.
+Finder.waitVanish(Pattern, timeout)	(*Finder).WaitVanish(pattern,timeout)	WaitOnScreen + negative check	Region.waitVanish(...)	Region.wait_vanish(...)	partial	Client-side vanish wrappers depend on repeated polling behavior.
+Region.find(Pattern)	(*Region).Find(source,pattern)	FindOnScreen	Region.find(pattern)	Region.find(pattern)	parity-ready	Region-oriented search contract preserved.
+Region.click(Pattern)	Region + InputController	ClickOnScreen	Region.click(pattern)	Region.click(pattern)	parity-ready	Server-side capture + click orchestration.
+Region.hover(Pattern)	Region + InputController.MoveMouse	FindOnScreen + MoveMouse	Region.hover(pattern)	Region.hover(pattern)	parity-ready	Hover implemented as find target + move.
+Region.type(text)	InputController.TypeText	TypeText	Region.type(text)	Region.type_text(text)	parity-ready	Text input mapped to backend input protocol.
+Region.readText()	(*Region).ReadText(source,params)	ReadText	Region.readText(...)	Region.read_text(...)	parity-ready	OCR read flow supported.
+Region.findText(query)	(*Region).FindText(source,query,params)	FindText	Region.findText(...)	Region.find_text(...)	parity-ready	OCR search flow supported.
+Screen.start()/connect()	Sikuli auto/connect constructors	Channel + client bootstrap	Screen()/Screen.start()/Screen.connect()	Screen()/Screen.start()/Screen.connect()	parity-ready	Client constructor patterns standardized.
+App.open(name,args)	(*AppController).Open(...)	OpenApp	Sikuli.openApp(...)	Sikuli.open_app(...)	parity-ready	App lifecycle support mapped.
+App.focus(name)	(*AppController).Focus(...)	FocusApp	Sikuli.focusApp(...)	Sikuli.focus_app(...)	parity-ready	Foreground focus support mapped.
+App.close(name)	(*AppController).Close(...)	CloseApp	Sikuli.closeApp(...)	Sikuli.close_app(...)	parity-ready	Close app support mapped.
+App.isRunning(name)	(*AppController).IsRunning(...)	IsAppRunning	Sikuli.isAppRunning(...)	Sikuli.is_app_running(...)	parity-ready	Running-state query mapped.
+App.window()	(*AppController).ListWindows(...)	ListWindows	Sikuli.listWindows(...)	Sikuli.list_windows(...)	partial	Window metadata fields not fully equivalent to Java window model.
+Observe.onAppear	(*ObserverController).ObserveAppear(...)	ObserveAppear	Sikuli.observeAppear(...)	Sikuli.observe_appear(...)	parity-ready	Polling observer path implemented.
+Observe.onVanish	(*ObserverController).ObserveVanish(...)	ObserveVanish	Sikuli.observeVanish(...)	Sikuli.observe_vanish(...)	parity-ready	Vanish observer path implemented.
+Observe.onChange	(*ObserverController).ObserveChange(...)	ObserveChange	Sikuli.observeChange(...)	Sikuli.observe_change(...)	parity-ready	Change observer path implemented.
+Region.keyDown()/keyUp()	InputController.Hotkey(keys...)	Hotkey	Sikuli.hotkey(keys)	Sikuli.hotkey(keys)	gap	Modifier key stateful keyDown/keyUp model not yet split as dedicated API.
+Vision API features	internal/cv engine selections	Find + matcher_engine	engine option	engine option	partial	Multiple OpenCV engines available; full SikuliX vision extensions not 1:1.

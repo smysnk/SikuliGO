@@ -73,7 +73,7 @@ Repository scaffolding:
 - installs to predictable path resolved by `sikuligo` at runtime.
 
 4. Runtime resolution in `sikuligo`:
-- see Binary Resolution details in `docs/client-strategy.md` (Node.js section).
+- see Binary Resolution details in `docs/strategy/client-strategy.md` (Node.js section).
 
 ## Release and Build Requirements
 

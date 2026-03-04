@@ -5,9 +5,9 @@ This directory contains the Python client for SikuliGO with Sikuli-style `Screen
 ## Links
 
 - Main repository: [github.com/smysnk/SikuliGO](https://github.com/smysnk/SikuliGO)
-- API reference: [smysnk.github.io/SikuliGO/api](https://smysnk.github.io/SikuliGO/api/)
-- Client strategy: [smysnk.github.io/SikuliGO/client-strategy](https://smysnk.github.io/SikuliGO/client-strategy)
-- Architecture docs: [Port Strategy](https://smysnk.github.io/SikuliGO/port-strategy), [gRPC Strategy](https://smysnk.github.io/SikuliGO/grpc-strategy)
+- API reference: [smysnk.github.io/SikuliGO/reference/api](https://smysnk.github.io/SikuliGO/reference/api/)
+- Client strategy: [smysnk.github.io/SikuliGO/strategy/client-strategy](https://smysnk.github.io/SikuliGO/strategy/client-strategy)
+- Architecture docs: [Port Strategy](https://smysnk.github.io/SikuliGO/strategy/port-strategy), [gRPC Strategy](https://smysnk.github.io/SikuliGO/strategy/grpc-strategy), [Java Parity Map](https://smysnk.github.io/SikuliGO/reference/parity/java-to-go-mapping)
 
 ## Quickstart
 
@@ -60,7 +60,7 @@ source ~/.bash_profile
 <!-- BEGIN: FIND_ON_SCREEN_BENCH_AUTOGEN -->
 ## FindOnScreen Benchmark Test Results
 
-Generated: `2026-03-04T04:38:28.587408+00:00`
+Generated: `2026-03-04T08:47:04.585152+00:00`
 
 ### Reports
 
@@ -80,13 +80,13 @@ Generated: `2026-03-04T04:38:28.587408+00:00`
 
 | Engine | Cases | OK | Partial | Not Found | Unsupported | Error | Overlap Miss | Avg ms/op | Median ms/op |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| akaze | 4 | 1 | 0 | 3 | 0 | 0 | 0 | 114.554 | 96.795 |
-| brisk | 4 | 0 | 0 | 4 | 0 | 0 | 0 | 70.137 | 67.852 |
-| hybrid | 4 | 4 | 0 | 0 | 0 | 0 | 0 | 87.512 | 71.370 |
-| kaze | 4 | 2 | 0 | 0 | 0 | 0 | 2 | 465.050 | 373.112 |
-| orb | 4 | 0 | 0 | 4 | 0 | 0 | 0 | 21.716 | 19.190 |
-| sift | 4 | 4 | 0 | 0 | 0 | 0 | 0 | 169.555 | 142.072 |
-| template | 4 | 4 | 0 | 0 | 0 | 0 | 0 | 86.397 | 68.461 |
+| akaze | 4 | 1 | 0 | 3 | 0 | 0 | 0 | 109.348 | 88.370 |
+| brisk | 4 | 0 | 0 | 4 | 0 | 0 | 0 | 70.323 | 66.291 |
+| hybrid | 4 | 4 | 0 | 0 | 0 | 0 | 0 | 85.527 | 69.467 |
+| kaze | 4 | 2 | 0 | 0 | 0 | 0 | 2 | 464.642 | 374.102 |
+| orb | 4 | 0 | 0 | 4 | 0 | 0 | 0 | 21.309 | 18.552 |
+| sift | 4 | 4 | 0 | 0 | 0 | 0 | 0 | 165.972 | 138.164 |
+| template | 4 | 4 | 0 | 0 | 0 | 0 | 0 | 86.545 | 68.910 |
 
 ### Run Mega Summary
 

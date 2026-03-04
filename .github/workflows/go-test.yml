@@ -117,6 +117,9 @@ jobs:
       - name: Verify API docs
         run: ./scripts/check-api-docs.sh
 
+      - name: Verify parity docs
+        run: ./scripts/check-parity-docs.sh
+
       - name: Verify gRPC stubs
         run: ./scripts/check-grpc-stubs.sh
 

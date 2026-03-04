@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-API_DIR="$ROOT_DIR/docs/api"
+API_DIR="$ROOT_DIR/docs/reference/api"
 REGENERATE=1
 
 if [[ "${1:-}" == "--skip-regenerate" ]] || [[ "${SKIP_REGENERATE:-0}" == "1" ]]; then
