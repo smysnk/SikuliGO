@@ -12,7 +12,12 @@ fi
 cd "$ROOT_DIR"
 "$GEN_SCRIPT"
 
-if ! git diff --quiet -- packages/api/internal/grpcv1/pb/sikuli.pb.go packages/api/internal/grpcv1/pb/sikuli_grpc.pb.go; then
+if ! git diff --quiet \
+  -I '^[[:space:]]*//[[:space:]]*protoc[[:space:]]+v[0-9.]+' \
+  -I '^[[:space:]]*//[[:space:]]*-[[:space:]]*protoc[[:space:]]+v[0-9.]+' \
+  -- \
+  packages/api/internal/grpcv1/pb/sikuli.pb.go \
+  packages/api/internal/grpcv1/pb/sikuli_grpc.pb.go; then
   echo "gRPC stubs are out of date. Run ./scripts/generate-grpc-stubs.sh and commit changes." >&2
   exit 1
 fi

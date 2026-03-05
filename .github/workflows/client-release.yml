@@ -85,7 +85,7 @@ jobs:
       - name: Setup protoc
         uses: arduino/setup-protoc@v3
         with:
-          version: "27.x"
+          version: "29.3"
 
       - name: Verify release flows (no publish)
         env:
@@ -116,7 +116,7 @@ jobs:
       - name: Setup protoc
         uses: arduino/setup-protoc@v3
         with:
-          version: "27.x"
+          version: "29.3"
 
       - name: Set client version from build number
         env:
@@ -198,7 +198,7 @@ jobs:
       - name: Setup protoc
         uses: arduino/setup-protoc@v3
         with:
-          version: "27.x"
+          version: "29.3"
 
       - name: Set client version from build number
         env:

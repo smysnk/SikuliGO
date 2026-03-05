@@ -63,17 +63,17 @@ Generated: `2026-03-05T04:26:02.429969+00:00`
 
 ### Reports
 
-- [Markdown Summary](../../docs/bench/reports/find-on-screen-e2e.md)
-- [JSON Report](../../docs/bench/reports/find-on-screen-e2e.json)
-- [Raw go test Output](../../docs/bench/reports/find-on-screen-e2e.txt)
-- [Performance SVG](../../docs/bench/reports/find-on-screen-performance.svg)
-- [Accuracy SVG](../../docs/bench/reports/find-on-screen-accuracy.svg)
-- [Scenario Kind Match Time SVG](../../docs/bench/reports/find-on-screen-kind-time.svg)
-- [Scenario Kind Success SVG](../../docs/bench/reports/find-on-screen-kind-success.svg)
-- [Resolution Match Time SVG](../../docs/bench/reports/find-on-screen-resolution-time.svg)
-- [Resolution Matches SVG](../../docs/bench/reports/find-on-screen-resolution-matches.svg)
-- [Resolution Misses SVG](../../docs/bench/reports/find-on-screen-resolution-misses.svg)
-- [Resolution False Positives SVG](../../docs/bench/reports/find-on-screen-resolution-false-positives.svg)
+- [Markdown Summary](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-e2e.md)
+- [JSON Report](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-e2e.json)
+- [Raw go test Output](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-e2e.txt)
+- [Performance SVG](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-performance.svg)
+- [Accuracy SVG](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-accuracy.svg)
+- [Scenario Kind Match Time SVG](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-kind-time.svg)
+- [Scenario Kind Success SVG](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-kind-success.svg)
+- [Resolution Match Time SVG](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-resolution-time.svg)
+- [Resolution Matches SVG](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-resolution-matches.svg)
+- [Resolution Misses SVG](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-resolution-misses.svg)
+- [Resolution False Positives SVG](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-resolution-false-positives.svg)
 
 ### Engine Summary
 
@@ -91,91 +91,91 @@ _Cases/OK metrics are query-level counts (regions x scenarios x resolutions), no
 
 ### Run Mega Summary
 
-![Run Mega Summary](../../docs/bench/reports/visuals/summaries/summary-run-mega.jpg)
+![Run Mega Summary](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-run-mega.jpg)
 
-- [Open run mega summary image](../../docs/bench/reports/visuals/summaries/summary-run-mega.jpg)
+- [Open run mega summary image](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-run-mega.jpg)
 
 ### Benchmark Graphs
 
-![Performance Graph](../../docs/bench/reports/find-on-screen-performance.svg)
+![Performance Graph](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-performance.svg)
 
-- [Open performance graph](../../docs/bench/reports/find-on-screen-performance.svg)
+- [Open performance graph](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-performance.svg)
 
-![Accuracy Graph](../../docs/bench/reports/find-on-screen-accuracy.svg)
+![Accuracy Graph](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-accuracy.svg)
 
-- [Open accuracy graph](../../docs/bench/reports/find-on-screen-accuracy.svg)
+- [Open accuracy graph](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-accuracy.svg)
 
 ### Scenario Kind Graphs
 
-![Scenario Kind Match Time](../../docs/bench/reports/find-on-screen-kind-time.svg)
+![Scenario Kind Match Time](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-kind-time.svg)
 
-- [Open scenario kind match time graph](../../docs/bench/reports/find-on-screen-kind-time.svg)
+- [Open scenario kind match time graph](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-kind-time.svg)
 
-![Scenario Kind Success](../../docs/bench/reports/find-on-screen-kind-success.svg)
+![Scenario Kind Success](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-kind-success.svg)
 
-- [Open scenario kind success graph](../../docs/bench/reports/find-on-screen-kind-success.svg)
+- [Open scenario kind success graph](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-kind-success.svg)
 
 ### Resolution Group Graphs
 
-![Resolution Match Time](../../docs/bench/reports/find-on-screen-resolution-time.svg)
+![Resolution Match Time](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-resolution-time.svg)
 
-- [Open resolution match time graph](../../docs/bench/reports/find-on-screen-resolution-time.svg)
+- [Open resolution match time graph](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-resolution-time.svg)
 
-![Resolution Matches](../../docs/bench/reports/find-on-screen-resolution-matches.svg)
+![Resolution Matches](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-resolution-matches.svg)
 
-- [Open resolution matches graph](../../docs/bench/reports/find-on-screen-resolution-matches.svg)
+- [Open resolution matches graph](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-resolution-matches.svg)
 
-![Resolution Misses](../../docs/bench/reports/find-on-screen-resolution-misses.svg)
+![Resolution Misses](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-resolution-misses.svg)
 
-- [Open resolution misses graph](../../docs/bench/reports/find-on-screen-resolution-misses.svg)
+- [Open resolution misses graph](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-resolution-misses.svg)
 
-![Resolution False Positives](../../docs/bench/reports/find-on-screen-resolution-false-positives.svg)
+![Resolution False Positives](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-resolution-false-positives.svg)
 
-- [Open resolution false positives graph](../../docs/bench/reports/find-on-screen-resolution-false-positives.svg)
+- [Open resolution false positives graph](https://smysnk.github.io/SikuliGO/bench/reports/find-on-screen-resolution-false-positives.svg)
 
 ### Artifact Directories
 
-- [Visual Root Directory](../../docs/bench/reports/visuals)
-- [Scenario Summaries Directory](../../docs/bench/reports/visuals/summaries)
-- [Attempt Images Directory](../../docs/bench/reports/visuals/attempts)
+- [Visual Root Directory](https://smysnk.github.io/SikuliGO/bench/reports/visuals)
+- [Scenario Summaries Directory](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries)
+- [Attempt Images Directory](https://smysnk.github.io/SikuliGO/bench/reports/visuals/attempts)
 
 ### Scenario Summary Images (40)
 
 #### `hybrid_gate_conflicts_1024x768_i09`
 
-![hybrid_gate_conflicts_1024x768_i09](../../docs/bench/reports/visuals/summaries/summary-hybrid_gate_conflicts_1024x768_i09.png)
+![hybrid_gate_conflicts_1024x768_i09](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-hybrid_gate_conflicts_1024x768_i09.png)
 
-- [Open `hybrid_gate_conflicts_1024x768_i09` image](../../docs/bench/reports/visuals/summaries/summary-hybrid_gate_conflicts_1024x768_i09.png)
+- [Open `hybrid_gate_conflicts_1024x768_i09` image](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-hybrid_gate_conflicts_1024x768_i09.png)
 
 #### `hybrid_gate_conflicts_1280x720_i09`
 
-![hybrid_gate_conflicts_1280x720_i09](../../docs/bench/reports/visuals/summaries/summary-hybrid_gate_conflicts_1280x720_i09.png)
+![hybrid_gate_conflicts_1280x720_i09](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-hybrid_gate_conflicts_1280x720_i09.png)
 
-- [Open `hybrid_gate_conflicts_1280x720_i09` image](../../docs/bench/reports/visuals/summaries/summary-hybrid_gate_conflicts_1280x720_i09.png)
+- [Open `hybrid_gate_conflicts_1280x720_i09` image](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-hybrid_gate_conflicts_1280x720_i09.png)
 
 #### `hybrid_gate_conflicts_1920x1080_i09`
 
-![hybrid_gate_conflicts_1920x1080_i09](../../docs/bench/reports/visuals/summaries/summary-hybrid_gate_conflicts_1920x1080_i09.png)
+![hybrid_gate_conflicts_1920x1080_i09](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-hybrid_gate_conflicts_1920x1080_i09.png)
 
-- [Open `hybrid_gate_conflicts_1920x1080_i09` image](../../docs/bench/reports/visuals/summaries/summary-hybrid_gate_conflicts_1920x1080_i09.png)
+- [Open `hybrid_gate_conflicts_1920x1080_i09` image](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-hybrid_gate_conflicts_1920x1080_i09.png)
 
 #### `hybrid_gate_conflicts_800x600_i09`
 
-![hybrid_gate_conflicts_800x600_i09](../../docs/bench/reports/visuals/summaries/summary-hybrid_gate_conflicts_800x600_i09.png)
+![hybrid_gate_conflicts_800x600_i09](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-hybrid_gate_conflicts_800x600_i09.png)
 
-- [Open `hybrid_gate_conflicts_800x600_i09` image](../../docs/bench/reports/visuals/summaries/summary-hybrid_gate_conflicts_800x600_i09.png)
+- [Open `hybrid_gate_conflicts_800x600_i09` image](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-hybrid_gate_conflicts_800x600_i09.png)
 
 #### `multi_monitor_dpi_shift_1024x768_i10`
 
-![multi_monitor_dpi_shift_1024x768_i10](../../docs/bench/reports/visuals/summaries/summary-multi_monitor_dpi_shift_1024x768_i10.png)
+![multi_monitor_dpi_shift_1024x768_i10](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-multi_monitor_dpi_shift_1024x768_i10.png)
 
-- [Open `multi_monitor_dpi_shift_1024x768_i10` image](../../docs/bench/reports/visuals/summaries/summary-multi_monitor_dpi_shift_1024x768_i10.png)
+- [Open `multi_monitor_dpi_shift_1024x768_i10` image](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-multi_monitor_dpi_shift_1024x768_i10.png)
 
 #### `multi_monitor_dpi_shift_1280x720_i10`
 
-![multi_monitor_dpi_shift_1280x720_i10](../../docs/bench/reports/visuals/summaries/summary-multi_monitor_dpi_shift_1280x720_i10.png)
+![multi_monitor_dpi_shift_1280x720_i10](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-multi_monitor_dpi_shift_1280x720_i10.png)
 
-- [Open `multi_monitor_dpi_shift_1280x720_i10` image](../../docs/bench/reports/visuals/summaries/summary-multi_monitor_dpi_shift_1280x720_i10.png)
+- [Open `multi_monitor_dpi_shift_1280x720_i10` image](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-multi_monitor_dpi_shift_1280x720_i10.png)
 
 - 34 additional scenario images available in the summaries directory.
 

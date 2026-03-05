@@ -51,6 +51,8 @@ PATCH_READMES="1"
 README_PATHS="${FIND_BENCH_README_PATHS:-${ROOT_DIR}/README.md,${ROOT_DIR}/packages/client-node/README.md,${ROOT_DIR}/packages/client-python/README.md}"
 README_SECTION_TITLE="${FIND_BENCH_README_SECTION_TITLE:-FindOnScreen Benchmark Test Results}"
 README_INLINE_IMAGES="${FIND_BENCH_README_INLINE_IMAGES:-6}"
+README_LINK_MODE="${FIND_BENCH_README_LINK_MODE:-pages}"
+README_BASE_URL="${FIND_BENCH_README_BASE_URL:-https://smysnk.github.io/SikuliGO}"
 STRATEGY_BASENAME="find-on-screen-scenario-strategy"
 if [[ -n "${BENCH_SEED}" && "${OUTPUT_BY_SEED}" =~ ^(1|true|yes|on)$ ]]; then
   STRATEGY_BASENAME="${STRATEGY_BASENAME}-seed${BENCH_SEED}"
@@ -98,6 +100,7 @@ echo "[find-bench] resolution_misses_svg=${RESOLUTION_MISSES_SVG_OUT}"
 echo "[find-bench] resolution_false_pos_svg=${RESOLUTION_FALSE_POS_SVG_OUT}"
 echo "[find-bench] visuals=${VISUAL_ENABLE} dir=${VISUAL_DIR} max_attempts=${VISUAL_MAX_ATTEMPTS} timeout=${VISUAL_TIMEOUT}"
 echo "[find-bench] patch_readmes=${PATCH_READMES} readmes=${README_PATHS} inline_images=${README_INLINE_IMAGES}"
+echo "[find-bench] readme_link_mode=${README_LINK_MODE} readme_base_url=${README_BASE_URL}"
 echo "[find-bench] strategy_json=${STRATEGY_JSON_OUT}"
 echo "[find-bench] strategy_md=${STRATEGY_MD_OUT}"
 echo "[find-bench] publish_docs=${DOCS_PUBLISH} docs_dir=${DOCS_REPORT_DIR}"
@@ -180,6 +183,8 @@ PATCH_READMES="${PATCH_READMES}" \
 README_PATHS="${README_PATHS}" \
 README_SECTION_TITLE="${README_SECTION_TITLE}" \
 README_INLINE_IMAGES="${README_INLINE_IMAGES}" \
+README_LINK_MODE="${README_LINK_MODE}" \
+README_BASE_URL="${README_BASE_URL}" \
 TEXT_OUT="${TEXT_OUT}" \
 JSON_OUT="${JSON_OUT}" \
 MD_OUT="${MD_OUT}" \
@@ -237,10 +242,13 @@ patch_readmes = os.environ.get("PATCH_READMES", "")
 readme_paths = os.environ.get("README_PATHS", "")
 readme_section_title = os.environ.get("README_SECTION_TITLE", "FindOnScreen Benchmark Test Results")
 readme_inline_images = int(os.environ.get("README_INLINE_IMAGES", "6"))
+readme_link_mode = os.environ.get("README_LINK_MODE", "pages").strip().lower()
+readme_base_url = os.environ.get("README_BASE_URL", "https://smysnk.github.io/SikuliGO").strip().rstrip("/")
 root_dir = Path(os.environ.get("PROJECT_ROOT", "")).resolve()
 report_dir = Path(os.environ.get("REPORT_DIR", "")).resolve()
 docs_report_dir_raw = os.environ.get("DOCS_REPORT_DIR", "").strip()
 docs_publish = os.environ.get("DOCS_PUBLISH", "").strip().lower() in {"1", "true", "yes", "on"}
+docs_root = (root_dir / "docs").resolve()
 
 content = text_path.read_text(encoding="utf-8", errors="replace").splitlines()
 
@@ -1269,6 +1277,15 @@ def to_rel_link(base_dir: Path, target: Path) -> str:
         rel = str(target)
     return rel.replace(os.sep, "/")
 
+def to_readme_link(base_dir: Path, target: Path) -> str:
+    if readme_link_mode == "pages" and readme_base_url:
+        try:
+            rel = target.resolve().relative_to(docs_root)
+            return f"{readme_base_url}/{rel.as_posix()}"
+        except Exception:
+            pass
+    return to_rel_link(base_dir, target)
+
 def patch_readme(path: Path, block_lines: list[str]) -> None:
     begin = "<!-- BEGIN: FIND_ON_SCREEN_BENCH_AUTOGEN -->"
     end = "<!-- END: FIND_ON_SCREEN_BENCH_AUTOGEN -->"
@@ -1341,25 +1358,25 @@ if env_true(patch_readmes):
         section.append("")
         section.append("### Reports")
         section.append("")
-        section.append(f"- [Markdown Summary]({to_rel_link(readme.parent, report_md_path)})")
-        section.append(f"- [JSON Report]({to_rel_link(readme.parent, report_json_path)})")
-        section.append(f"- [Raw go test Output]({to_rel_link(readme.parent, report_text_path)})")
+        section.append(f"- [Markdown Summary]({to_readme_link(readme.parent, report_md_path)})")
+        section.append(f"- [JSON Report]({to_readme_link(readme.parent, report_json_path)})")
+        section.append(f"- [Raw go test Output]({to_readme_link(readme.parent, report_text_path)})")
         if report_perf_svg_path.exists():
-            section.append(f"- [Performance SVG]({to_rel_link(readme.parent, report_perf_svg_path)})")
+            section.append(f"- [Performance SVG]({to_readme_link(readme.parent, report_perf_svg_path)})")
         if report_accuracy_svg_path.exists():
-            section.append(f"- [Accuracy SVG]({to_rel_link(readme.parent, report_accuracy_svg_path)})")
+            section.append(f"- [Accuracy SVG]({to_readme_link(readme.parent, report_accuracy_svg_path)})")
         if report_kind_time_svg_path.exists():
-            section.append(f"- [Scenario Kind Match Time SVG]({to_rel_link(readme.parent, report_kind_time_svg_path)})")
+            section.append(f"- [Scenario Kind Match Time SVG]({to_readme_link(readme.parent, report_kind_time_svg_path)})")
         if report_kind_success_svg_path.exists():
-            section.append(f"- [Scenario Kind Success SVG]({to_rel_link(readme.parent, report_kind_success_svg_path)})")
+            section.append(f"- [Scenario Kind Success SVG]({to_readme_link(readme.parent, report_kind_success_svg_path)})")
         if report_resolution_time_svg_path.exists():
-            section.append(f"- [Resolution Match Time SVG]({to_rel_link(readme.parent, report_resolution_time_svg_path)})")
+            section.append(f"- [Resolution Match Time SVG]({to_readme_link(readme.parent, report_resolution_time_svg_path)})")
         if report_resolution_matches_svg_path.exists():
-            section.append(f"- [Resolution Matches SVG]({to_rel_link(readme.parent, report_resolution_matches_svg_path)})")
+            section.append(f"- [Resolution Matches SVG]({to_readme_link(readme.parent, report_resolution_matches_svg_path)})")
         if report_resolution_misses_svg_path.exists():
-            section.append(f"- [Resolution Misses SVG]({to_rel_link(readme.parent, report_resolution_misses_svg_path)})")
+            section.append(f"- [Resolution Misses SVG]({to_readme_link(readme.parent, report_resolution_misses_svg_path)})")
         if report_resolution_false_pos_svg_path.exists():
-            section.append(f"- [Resolution False Positives SVG]({to_rel_link(readme.parent, report_resolution_false_pos_svg_path)})")
+            section.append(f"- [Resolution False Positives SVG]({to_readme_link(readme.parent, report_resolution_false_pos_svg_path)})")
         section.append("")
         section.append("### Engine Summary")
         section.append("")
@@ -1387,21 +1404,21 @@ if env_true(patch_readmes):
             section.append("")
             section.append("### Run Mega Summary")
             section.append("")
-            section.append(f"![Run Mega Summary]({to_rel_link(readme.parent, mega_summary)})")
+            section.append(f"![Run Mega Summary]({to_readme_link(readme.parent, mega_summary)})")
             section.append("")
-            section.append(f"- [Open run mega summary image]({to_rel_link(readme.parent, mega_summary)})")
+            section.append(f"- [Open run mega summary image]({to_readme_link(readme.parent, mega_summary)})")
 
         if report_perf_svg_path.exists() or report_accuracy_svg_path.exists():
             section.append("")
             section.append("### Benchmark Graphs")
             section.append("")
             if report_perf_svg_path.exists():
-                rel_perf = to_rel_link(readme.parent, report_perf_svg_path)
+                rel_perf = to_readme_link(readme.parent, report_perf_svg_path)
                 section.append(f"![Performance Graph]({rel_perf})")
                 section.append("")
                 section.append(f"- [Open performance graph]({rel_perf})")
             if report_accuracy_svg_path.exists():
-                rel_acc = to_rel_link(readme.parent, report_accuracy_svg_path)
+                rel_acc = to_readme_link(readme.parent, report_accuracy_svg_path)
                 section.append("")
                 section.append(f"![Accuracy Graph]({rel_acc})")
                 section.append("")
@@ -1412,13 +1429,13 @@ if env_true(patch_readmes):
             section.append("### Scenario Kind Graphs")
             section.append("")
             if report_kind_time_svg_path.exists():
-                rel = to_rel_link(readme.parent, report_kind_time_svg_path)
+                rel = to_readme_link(readme.parent, report_kind_time_svg_path)
                 section.append(f"![Scenario Kind Match Time]({rel})")
                 section.append("")
                 section.append(f"- [Open scenario kind match time graph]({rel})")
                 section.append("")
             if report_kind_success_svg_path.exists():
-                rel = to_rel_link(readme.parent, report_kind_success_svg_path)
+                rel = to_readme_link(readme.parent, report_kind_success_svg_path)
                 section.append(f"![Scenario Kind Success]({rel})")
                 section.append("")
                 section.append(f"- [Open scenario kind success graph]({rel})")
@@ -1428,25 +1445,25 @@ if env_true(patch_readmes):
             section.append("### Resolution Group Graphs")
             section.append("")
             if report_resolution_time_svg_path.exists():
-                rel = to_rel_link(readme.parent, report_resolution_time_svg_path)
+                rel = to_readme_link(readme.parent, report_resolution_time_svg_path)
                 section.append(f"![Resolution Match Time]({rel})")
                 section.append("")
                 section.append(f"- [Open resolution match time graph]({rel})")
                 section.append("")
             if report_resolution_matches_svg_path.exists():
-                rel = to_rel_link(readme.parent, report_resolution_matches_svg_path)
+                rel = to_readme_link(readme.parent, report_resolution_matches_svg_path)
                 section.append(f"![Resolution Matches]({rel})")
                 section.append("")
                 section.append(f"- [Open resolution matches graph]({rel})")
                 section.append("")
             if report_resolution_misses_svg_path.exists():
-                rel = to_rel_link(readme.parent, report_resolution_misses_svg_path)
+                rel = to_readme_link(readme.parent, report_resolution_misses_svg_path)
                 section.append(f"![Resolution Misses]({rel})")
                 section.append("")
                 section.append(f"- [Open resolution misses graph]({rel})")
                 section.append("")
             if report_resolution_false_pos_svg_path.exists():
-                rel = to_rel_link(readme.parent, report_resolution_false_pos_svg_path)
+                rel = to_readme_link(readme.parent, report_resolution_false_pos_svg_path)
                 section.append(f"![Resolution False Positives]({rel})")
                 section.append("")
                 section.append(f"- [Open resolution false positives graph]({rel})")
@@ -1455,9 +1472,9 @@ if env_true(patch_readmes):
             section.append("")
             section.append("### Artifact Directories")
             section.append("")
-            section.append(f"- [Visual Root Directory]({to_rel_link(readme.parent, root_visual)})")
-            section.append(f"- [Scenario Summaries Directory]({to_rel_link(readme.parent, root_visual / 'summaries')})")
-            section.append(f"- [Attempt Images Directory]({to_rel_link(readme.parent, root_visual / 'attempts')})")
+            section.append(f"- [Visual Root Directory]({to_readme_link(readme.parent, root_visual)})")
+            section.append(f"- [Scenario Summaries Directory]({to_readme_link(readme.parent, root_visual / 'summaries')})")
+            section.append(f"- [Attempt Images Directory]({to_readme_link(readme.parent, root_visual / 'attempts')})")
 
         if scenario_summaries:
             inline_n = max(0, readme_inline_images)
@@ -1466,7 +1483,7 @@ if env_true(patch_readmes):
             section.append("")
             for img in scenario_summaries[:inline_n]:
                 name = img.stem.replace("summary-", "")
-                rel = to_rel_link(readme.parent, img)
+                rel = to_readme_link(readme.parent, img)
                 section.append(f"#### `{name}`")
                 section.append("")
                 section.append(f"![{name}]({rel})")
