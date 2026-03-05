@@ -1286,6 +1286,201 @@ def to_readme_link(base_dir: Path, target: Path) -> str:
             pass
     return to_rel_link(base_dir, target)
 
+IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg", ".bmp", ".avif"}
+
+def write_gallery_index_js(target_dir: Path, title: str, recursive: bool) -> None:
+    target_dir.mkdir(parents=True, exist_ok=True)
+    index_js = target_dir / "index.js"
+    index_html = target_dir / "index.html"
+
+    def is_gallery_support_file(p: Path) -> bool:
+        return p.name in {"index.js", "index.html"}
+
+    def to_href(base: Path, p: Path) -> str:
+        return os.path.relpath(p, base).replace(os.sep, "/")
+
+    files: list[Path] = []
+    if recursive:
+        files = sorted(p for p in target_dir.rglob("*") if p.is_file() and not is_gallery_support_file(p))
+    else:
+        files = sorted(p for p in target_dir.glob("*") if p.is_file() and not is_gallery_support_file(p))
+
+    entries: list[dict[str, object]] = []
+    for p in files:
+        ext = p.suffix.lower()
+        href = to_href(target_dir, p)
+        name = href
+        is_image = ext in IMAGE_EXTS
+        entries.append({
+            "name": name,
+            "href": href,
+            "isImage": is_image,
+        })
+
+    index_js.write_text(
+        "\n".join(
+            [
+                f"const GALLERY_TITLE = {json.dumps(title)};",
+                f"const GALLERY_ENTRIES = {json.dumps(entries, ensure_ascii=True)};",
+                "",
+                "const app = document.getElementById('app');",
+                "const titleEl = document.getElementById('title');",
+                "if (titleEl) titleEl.textContent = GALLERY_TITLE;",
+                "",
+                "if (!GALLERY_ENTRIES.length) {",
+                "  const empty = document.createElement('p');",
+                "  empty.className = 'empty';",
+                "  empty.textContent = 'No files found in this directory.';",
+                "  app.appendChild(empty);",
+                "} else {",
+                "  for (const entry of GALLERY_ENTRIES) {",
+                "    const card = document.createElement('article');",
+                "    card.className = 'card';",
+                "    const label = document.createElement('div');",
+                "    label.className = 'label';",
+                "    label.textContent = entry.name;",
+                "    const link = document.createElement('a');",
+                "    link.href = entry.href;",
+                "    link.target = '_blank';",
+                "    link.rel = 'noopener noreferrer';",
+                "    link.className = 'open';",
+                "    link.textContent = 'Open file';",
+                "    card.appendChild(label);",
+                "    if (entry.isImage) {",
+                "      const img = document.createElement('img');",
+                "      img.src = entry.href;",
+                "      img.alt = entry.name;",
+                "      img.loading = 'lazy';",
+                "      img.className = 'preview';",
+                "      card.appendChild(img);",
+                "    } else {",
+                "      const meta = document.createElement('div');",
+                "      meta.className = 'meta';",
+                "      meta.textContent = 'Non-image file';",
+                "      card.appendChild(meta);",
+                "    }",
+                "    card.appendChild(link);",
+                "    app.appendChild(card);",
+                "  }",
+                "}",
+                "",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    index_html.write_text(
+        """<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Benchmark Visual Gallery</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: #0b1220;
+      color: #e5e7eb;
+    }
+    h1 {
+      margin: 0 0 14px;
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .hint {
+      margin: 0 0 18px;
+      color: #94a3b8;
+      font-size: 14px;
+    }
+    #app {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(520px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: #111827;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 140px;
+    }
+    .label {
+      font-size: 13px;
+      color: #93c5fd;
+      word-break: break-all;
+    }
+    .preview {
+      width: 100%;
+      min-height: 240px;
+      max-height: 700px;
+      object-fit: contain;
+      background: #0f172a;
+      border-radius: 8px;
+      border: 1px solid #334155;
+    }
+    .meta {
+      color: #94a3b8;
+      font-size: 14px;
+      padding: 12px;
+      border: 1px dashed #334155;
+      border-radius: 8px;
+      background: #0f172a;
+    }
+    .open {
+      color: #22c55e;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .open:hover { text-decoration: underline; }
+    .empty {
+      color: #94a3b8;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="title">Benchmark Visual Gallery</h1>
+  <p class="hint">Large previews for files in this directory.</p>
+  <section id="app"></section>
+  <script src="./index.js"></script>
+</body>
+</html>
+""",
+        encoding="utf-8",
+    )
+
+def select_top_resolution_summary_per_scenario(images: list[Path]) -> list[Path]:
+    # Filename shape: summary-<scenario>_<width>x<height>_iNN[...].png
+    summary_re = re.compile(r"^summary-(.+)_(\d+)x(\d+)_i\d+(?:_.+)?\.png$")
+    best: dict[str, tuple[int, int, int, Path]] = {}
+    for img in images:
+        name = img.name
+        m = summary_re.match(name)
+        if m:
+            scenario_key = m.group(1)
+            width = int(m.group(2))
+            height = int(m.group(3))
+        else:
+            scenario_key = img.stem.replace("summary-", "")
+            width = 0
+            height = 0
+        area = width * height
+        current = best.get(scenario_key)
+        candidate = (area, width, height, img)
+        if current is None or candidate[:3] > current[:3] or (
+            candidate[:3] == current[:3] and img.name < current[3].name
+        ):
+            best[scenario_key] = candidate
+    return [best[key][3] for key in sorted(best.keys())]
+
 def patch_readme(path: Path, block_lines: list[str]) -> None:
     begin = "<!-- BEGIN: FIND_ON_SCREEN_BENCH_AUTOGEN -->"
     end = "<!-- END: FIND_ON_SCREEN_BENCH_AUTOGEN -->"
@@ -1336,7 +1531,11 @@ if env_true(patch_readmes):
             p for p in (root_visual / "summaries").glob("summary-*.png")
             if p.name != "summary-run-mega.png" and p.name != "summary-run-mega.jpg"
         )
+        scenario_summaries = select_top_resolution_summary_per_scenario(scenario_summaries)
         attempt_images = sorted((root_visual / "attempts").glob("**/*.png"))
+        write_gallery_index_js(root_visual, "FindOnScreen Visual Root", recursive=False)
+        write_gallery_index_js(root_visual / "summaries", "FindOnScreen Scenario Summaries", recursive=False)
+        write_gallery_index_js(root_visual / "attempts", "FindOnScreen Attempt Images", recursive=True)
 
     readmes: list[Path] = []
     for raw_path in readme_paths.split(","):
@@ -1472,16 +1671,15 @@ if env_true(patch_readmes):
             section.append("")
             section.append("### Artifact Directories")
             section.append("")
-            section.append(f"- [Visual Root Directory]({to_readme_link(readme.parent, root_visual)})")
-            section.append(f"- [Scenario Summaries Directory]({to_readme_link(readme.parent, root_visual / 'summaries')})")
-            section.append(f"- [Attempt Images Directory]({to_readme_link(readme.parent, root_visual / 'attempts')})")
+            section.append(f"- [Visual Root]({to_readme_link(readme.parent, root_visual / 'index.html')})")
+            section.append(f"- [Scenario Summaries]({to_readme_link(readme.parent, root_visual / 'summaries' / 'index.html')})")
+            section.append(f"- [Attempt Images]({to_readme_link(readme.parent, root_visual / 'attempts' / 'index.html')})")
 
         if scenario_summaries:
-            inline_n = max(0, readme_inline_images)
             section.append("")
             section.append(f"### Scenario Summary Images ({len(scenario_summaries)})")
             section.append("")
-            for img in scenario_summaries[:inline_n]:
+            for img in scenario_summaries:
                 name = img.stem.replace("summary-", "")
                 rel = to_readme_link(readme.parent, img)
                 section.append(f"#### `{name}`")
@@ -1489,9 +1687,6 @@ if env_true(patch_readmes):
                 section.append(f"![{name}]({rel})")
                 section.append("")
                 section.append(f"- [Open `{name}` image]({rel})")
-                section.append("")
-            if len(scenario_summaries) > inline_n:
-                section.append(f"- {len(scenario_summaries) - inline_n} additional scenario images available in the summaries directory.")
                 section.append("")
 
         patch_readme(readme, section)

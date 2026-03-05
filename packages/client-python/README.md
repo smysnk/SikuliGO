@@ -60,7 +60,7 @@ source ~/.bash_profile
 <!-- BEGIN: FIND_ON_SCREEN_BENCH_AUTOGEN -->
 ## FindOnScreen Benchmark Test Results
 
-Generated: `2026-03-05T04:26:02.429969+00:00`
+Generated: `2026-03-05T08:22:57.768853+00:00`
 
 ### Reports
 
@@ -82,13 +82,13 @@ _Cases/OK metrics are query-level counts (regions x scenarios x resolutions), no
 
 | Engine | Cases | OK | Partial | Not Found | Unsupported | Error | Overlap Miss | Avg ms/op | Median ms/op |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| akaze | 120 | 60 | 0 | 59 | 0 | 0 | 1 | 155.526 | 129.394 |
-| brisk | 120 | 65 | 0 | 47 | 0 | 0 | 8 | 328.511 | 108.479 |
-| hybrid | 120 | 90 | 0 | 29 | 0 | 0 | 1 | 130.107 | 88.616 |
-| kaze | 120 | 75 | 0 | 38 | 0 | 0 | 7 | 726.687 | 557.288 |
-| orb | 120 | 37 | 0 | 73 | 0 | 0 | 10 | 51.102 | 37.761 |
-| sift | 120 | 75 | 0 | 43 | 0 | 0 | 2 | 233.382 | 191.003 |
-| template | 120 | 72 | 0 | 48 | 0 | 0 | 0 | 121.025 | 86.137 |
+| akaze | 120 | 60 | 0 | 59 | 0 | 0 | 1 | 165.912 | 131.406 |
+| brisk | 120 | 65 | 0 | 47 | 0 | 0 | 8 | 332.711 | 110.722 |
+| hybrid | 120 | 90 | 0 | 29 | 0 | 0 | 1 | 130.882 | 90.178 |
+| kaze | 120 | 75 | 0 | 38 | 0 | 0 | 7 | 815.619 | 593.095 |
+| orb | 120 | 37 | 0 | 73 | 0 | 0 | 10 | 49.749 | 36.442 |
+| sift | 120 | 75 | 0 | 43 | 0 | 0 | 2 | 237.084 | 190.234 |
+| template | 120 | 72 | 0 | 48 | 0 | 0 | 0 | 123.207 | 90.252 |
 
 ### Run Mega Summary
 
@@ -136,23 +136,11 @@ _Cases/OK metrics are query-level counts (regions x scenarios x resolutions), no
 
 ### Artifact Directories
 
-- [Visual Root Directory](https://smysnk.github.io/SikuliGO/bench/reports/visuals)
-- [Scenario Summaries Directory](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries)
-- [Attempt Images Directory](https://smysnk.github.io/SikuliGO/bench/reports/visuals/attempts)
+- [Visual Root](https://smysnk.github.io/SikuliGO/bench/reports/visuals/index.html)
+- [Scenario Summaries](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/index.html)
+- [Attempt Images](https://smysnk.github.io/SikuliGO/bench/reports/visuals/attempts/index.html)
 
-### Scenario Summary Images (40)
-
-#### `hybrid_gate_conflicts_1024x768_i09`
-
-![hybrid_gate_conflicts_1024x768_i09](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-hybrid_gate_conflicts_1024x768_i09.png)
-
-- [Open `hybrid_gate_conflicts_1024x768_i09` image](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-hybrid_gate_conflicts_1024x768_i09.png)
-
-#### `hybrid_gate_conflicts_1280x720_i09`
-
-![hybrid_gate_conflicts_1280x720_i09](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-hybrid_gate_conflicts_1280x720_i09.png)
-
-- [Open `hybrid_gate_conflicts_1280x720_i09` image](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-hybrid_gate_conflicts_1280x720_i09.png)
+### Scenario Summary Images (10)
 
 #### `hybrid_gate_conflicts_1920x1080_i09`
 
@@ -160,24 +148,58 @@ _Cases/OK metrics are query-level counts (regions x scenarios x resolutions), no
 
 - [Open `hybrid_gate_conflicts_1920x1080_i09` image](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-hybrid_gate_conflicts_1920x1080_i09.png)
 
-#### `hybrid_gate_conflicts_800x600_i09`
+#### `multi_monitor_dpi_shift_1920x1080_i10`
 
-![hybrid_gate_conflicts_800x600_i09](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-hybrid_gate_conflicts_800x600_i09.png)
+![multi_monitor_dpi_shift_1920x1080_i10](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-multi_monitor_dpi_shift_1920x1080_i10.png)
 
-- [Open `hybrid_gate_conflicts_800x600_i09` image](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-hybrid_gate_conflicts_800x600_i09.png)
+- [Open `multi_monitor_dpi_shift_1920x1080_i10` image](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-multi_monitor_dpi_shift_1920x1080_i10.png)
 
-#### `multi_monitor_dpi_shift_1024x768_i10`
+#### `noise_stress_random_1920x1080_i04`
 
-![multi_monitor_dpi_shift_1024x768_i10](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-multi_monitor_dpi_shift_1024x768_i10.png)
+![noise_stress_random_1920x1080_i04](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-noise_stress_random_1920x1080_i04.png)
 
-- [Open `multi_monitor_dpi_shift_1024x768_i10` image](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-multi_monitor_dpi_shift_1024x768_i10.png)
+- [Open `noise_stress_random_1920x1080_i04` image](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-noise_stress_random_1920x1080_i04.png)
 
-#### `multi_monitor_dpi_shift_1280x720_i10`
+#### `orb_feature_rich_1920x1080_i07`
 
-![multi_monitor_dpi_shift_1280x720_i10](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-multi_monitor_dpi_shift_1280x720_i10.png)
+![orb_feature_rich_1920x1080_i07](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-orb_feature_rich_1920x1080_i07.png)
 
-- [Open `multi_monitor_dpi_shift_1280x720_i10` image](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-multi_monitor_dpi_shift_1280x720_i10.png)
+- [Open `orb_feature_rich_1920x1080_i07` image](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-orb_feature_rich_1920x1080_i07.png)
 
-- 34 additional scenario images available in the summaries directory.
+#### `perspective_skew_sweep_1920x1080_i06`
+
+![perspective_skew_sweep_1920x1080_i06](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-perspective_skew_sweep_1920x1080_i06.png)
+
+- [Open `perspective_skew_sweep_1920x1080_i06` image](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-perspective_skew_sweep_1920x1080_i06.png)
+
+#### `photo_clutter_1920x1080_i02`
+
+![photo_clutter_1920x1080_i02](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-photo_clutter_1920x1080_i02.png)
+
+- [Open `photo_clutter_1920x1080_i02` image](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-photo_clutter_1920x1080_i02.png)
+
+#### `repetitive_grid_camouflage_1920x1080_i03`
+
+![repetitive_grid_camouflage_1920x1080_i03](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-repetitive_grid_camouflage_1920x1080_i03.png)
+
+- [Open `repetitive_grid_camouflage_1920x1080_i03` image](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-repetitive_grid_camouflage_1920x1080_i03.png)
+
+#### `scale_rotate_sweep_1920x1080_i05`
+
+![scale_rotate_sweep_1920x1080_i05](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-scale_rotate_sweep_1920x1080_i05.png)
+
+- [Open `scale_rotate_sweep_1920x1080_i05` image](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-scale_rotate_sweep_1920x1080_i05.png)
+
+#### `template_control_exact_1920x1080_i08`
+
+![template_control_exact_1920x1080_i08](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-template_control_exact_1920x1080_i08.png)
+
+- [Open `template_control_exact_1920x1080_i08` image](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-template_control_exact_1920x1080_i08.png)
+
+#### `vector_ui_baseline_1920x1080_i01`
+
+![vector_ui_baseline_1920x1080_i01](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-vector_ui_baseline_1920x1080_i01.png)
+
+- [Open `vector_ui_baseline_1920x1080_i01` image](https://smysnk.github.io/SikuliGO/bench/reports/visuals/summaries/summary-vector_ui_baseline_1920x1080_i01.png)
 
 <!-- END: FIND_ON_SCREEN_BENCH_AUTOGEN -->

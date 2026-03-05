@@ -8,6 +8,7 @@ PACKAGES_DIR="$NODE_BIN_PACKAGES_DIR"
 NODE_CLIENT_PKG="$NODE_PACKAGE_JSON"
 GO_CACHE_DIR="${GOCACHE:-$ROOT_DIR/.test-results/go-build}"
 GO_MOD_CACHE_DIR="${GOMODCACHE:-$ROOT_DIR/.test-results/go-mod}"
+GO_BUILD_TAGS="${GO_BUILD_TAGS:-$SIKULIGO_GO_BUILD_TAGS}"
 TARGETS=(
   "darwin arm64 bin-darwin-arm64"
   "darwin amd64 bin-darwin-x64"
@@ -90,8 +91,8 @@ for target in "${TARGETS[@]}"; do
     cd "$API_DIR"
     export GOCACHE="$GO_CACHE_DIR"
     export GOMODCACHE="$GO_MOD_CACHE_DIR"
-    CGO_ENABLED=0 GOOS="$goos" GOARCH="$goarch" \
-      go build -trimpath -ldflags="-s -w" -o "$out" ./cmd/sikuligrpc
+    GOOS="$goos" GOARCH="$goarch" \
+      go build -tags "$GO_BUILD_TAGS" -trimpath -ldflags="-s -w" -o "$out" ./cmd/sikuligrpc
   )
 
   if [[ "$goos" != "windows" ]]; then

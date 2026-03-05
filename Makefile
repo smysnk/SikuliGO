@@ -96,7 +96,7 @@ build-go-monitor:
 
 build-go-benchmark-helper:
 	cd "$(API_DIR)" && \
-	$(GO) build -trimpath -ldflags="-s -w" -o "$(ROOT_DIR)/benchmark-helper" ./cmd/benchmark-helper
+	$(GO) build -tags "$(GO_OPENCV_TAGS)" -trimpath -ldflags="-s -w" -o "$(ROOT_DIR)/benchmark-helper" ./cmd/benchmark-helper
 
 benchmark-helper:
 	cd "$(API_DIR)" && \
