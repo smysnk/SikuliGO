@@ -11,6 +11,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -45,6 +46,12 @@ type findBenchScenarioSummaryImage struct {
 	ScenarioName string
 	Path         string
 }
+
+var (
+	scenarioResolutionPattern = regexp.MustCompile(`^(.*)_([0-9]+x[0-9]+)_.+$`)
+	scenarioStablePathPattern = regexp.MustCompile(`^(.+_[0-9]+x[0-9]+_i[0-9]+)(?:_[a-z0-9]+)?$`)
+	scenarioSeedSuffixPattern = regexp.MustCompile(`_(?:s)?[0-9a-fA-F]{8,}$`)
+)
 
 type findBenchVisualQuery struct {
 	Request  *pb.FindOnScreenRequest
@@ -94,10 +101,18 @@ func newFindBenchVisualCollectorFromEnv(t testing.TB) *findBenchVisualCollector 
 	summaryNative := envFlagTrue(os.Getenv("FIND_BENCH_VISUAL_SUMMARY_NATIVE"))
 	summaryShowPattern := envFlagTrue(os.Getenv("FIND_BENCH_VISUAL_SUMMARY_SHOW_PATTERN"))
 
-	if err := os.MkdirAll(filepath.Join(outDir, "attempts"), 0o755); err != nil {
+	attemptsDir := filepath.Join(outDir, "attempts")
+	summariesDir := filepath.Join(outDir, "summaries")
+	if err := os.RemoveAll(attemptsDir); err != nil {
+		t.Fatalf("reset benchmark visual attempts directory: %v", err)
+	}
+	if err := os.RemoveAll(summariesDir); err != nil {
+		t.Fatalf("reset benchmark visual summary directory: %v", err)
+	}
+	if err := os.MkdirAll(attemptsDir, 0o755); err != nil {
 		t.Fatalf("create benchmark visual attempts directory: %v", err)
 	}
-	if err := os.MkdirAll(filepath.Join(outDir, "summaries"), 0o755); err != nil {
+	if err := os.MkdirAll(summariesDir, 0o755); err != nil {
 		t.Fatalf("create benchmark visual summary directory: %v", err)
 	}
 	t.Logf("benchmark visuals enabled: dir=%s max_attempts=%d timeout=%s attempt_overlay=%v summary_native=%v show_pattern=%v", outDir, maxAttempts, rpcTimeout, attemptOverlay, summaryNative, summaryShowPattern)
@@ -248,7 +263,15 @@ func (c *findBenchVisualCollector) WriteScenarioSummaries() error {
 			Path:         c.scenarioSummaryPath(scenario.scenario.name),
 		})
 	}
-	if err := c.writeRunMegaSummary(summaryImages); err != nil {
+	preferredMegaResolution := strings.TrimSpace(os.Getenv("FIND_BENCH_VISUAL_MEGA_RES"))
+	if preferredMegaResolution == "" {
+		preferredMegaResolution = "1280x720"
+	}
+	selected := selectMegaSummaryImages(summaryImages, preferredMegaResolution)
+	if len(selected) > 0 {
+		summaryImages = selected
+	}
+	if err := c.writeRunMegaSummary(summaryImages, preferredMegaResolution); err != nil {
 		return err
 	}
 	return nil
@@ -300,11 +323,11 @@ func (c *findBenchVisualCollector) writeAttemptImage(source *image.Gray, scenari
 		_ = drawTinyText(canvas, 8, y, line4, color.RGBA{R: 250, G: 189, B: 189, A: 255}, textScale)
 	}
 
-	scenarioDir := filepath.Join(c.outDir, "attempts", sanitizeFileToken(scenario.name))
+	scenarioDir := filepath.Join(c.outDir, "attempts", stableScenarioImageToken(scenario.name))
 	if err := os.MkdirAll(scenarioDir, 0o755); err != nil {
 		return "", err
 	}
-	filename := fmt.Sprintf("engine-%s-attempt-%d-%s.png", sanitizeFileToken(engine.name), rec.Attempt, sanitizeFileToken(rec.Status))
+	filename := fmt.Sprintf("engine-%s-attempt-%d.png", sanitizeFileToken(engine.name), rec.Attempt)
 	path := filepath.Join(scenarioDir, filename)
 	if err := writePNG(path, canvas); err != nil {
 		return "", err
@@ -431,10 +454,10 @@ func (c *findBenchVisualCollector) writeScenarioSummary(scenario *findBenchScena
 }
 
 func (c *findBenchVisualCollector) scenarioSummaryPath(scenarioName string) string {
-	return filepath.Join(c.outDir, "summaries", fmt.Sprintf("summary-%s.png", sanitizeFileToken(scenarioName)))
+	return filepath.Join(c.outDir, "summaries", fmt.Sprintf("summary-%s.png", stableScenarioImageToken(scenarioName)))
 }
 
-func (c *findBenchVisualCollector) writeRunMegaSummary(images []findBenchScenarioSummaryImage) error {
+func (c *findBenchVisualCollector) writeRunMegaSummary(images []findBenchScenarioSummaryImage, preferredResolution string) error {
 	if len(images) == 0 {
 		return nil
 	}
@@ -463,7 +486,11 @@ func (c *findBenchVisualCollector) writeRunMegaSummary(images []findBenchScenari
 	draw.Draw(canvas, image.Rect(0, 0, width, headerH), &image.Uniform{C: color.RGBA{R: 14, G: 24, B: 39, A: 255}}, image.Point{}, draw.Src)
 
 	title := "RUN-LEVEL MEGA SUMMARY   FINDONSCREEN BENCHMARK"
-	meta := fmt.Sprintf("SCENARIOS %d   GRID %dX%d   GENERATED %s", len(images), cols, rows, time.Now().UTC().Format("2006-01-02T15:04:05Z"))
+	resolutionLabel := strings.TrimSpace(preferredResolution)
+	if resolutionLabel == "" {
+		resolutionLabel = "auto"
+	}
+	meta := fmt.Sprintf("SCENARIOS %d   RES %s   GRID %dX%d   GENERATED %s", len(images), resolutionLabel, cols, rows, time.Now().UTC().Format("2006-01-02T15:04:05Z"))
 	drawTinyText(canvas, 10*megaScale, 12*megaScale, title, color.RGBA{R: 255, G: 255, B: 255, A: 255}, 2*megaScale)
 	drawTinyText(canvas, 10*megaScale, 46*megaScale, truncateUpper(meta, 120), color.RGBA{R: 184, G: 202, B: 232, A: 255}, 2*megaScale)
 
@@ -498,6 +525,62 @@ func (c *findBenchVisualCollector) writeRunMegaSummary(images []findBenchScenari
 	}
 
 	return writeJPEG(filepath.Join(c.outDir, "summaries", "summary-run-mega.jpg"), canvas, 80)
+}
+
+func selectMegaSummaryImages(images []findBenchScenarioSummaryImage, preferredResolution string) []findBenchScenarioSummaryImage {
+	if len(images) == 0 {
+		return nil
+	}
+	type keyed struct {
+		family     string
+		resolution string
+		entry      findBenchScenarioSummaryImage
+	}
+	byFamily := map[string][]keyed{}
+	for _, img := range images {
+		family, resolution := splitScenarioFamilyAndResolution(img.ScenarioName)
+		if family == "" {
+			family = img.ScenarioName
+		}
+		byFamily[family] = append(byFamily[family], keyed{
+			family:     family,
+			resolution: resolution,
+			entry:      img,
+		})
+	}
+
+	families := make([]string, 0, len(byFamily))
+	for family := range byFamily {
+		families = append(families, family)
+	}
+	sort.Strings(families)
+
+	out := make([]findBenchScenarioSummaryImage, 0, len(families))
+	for _, family := range families {
+		rows := byFamily[family]
+		sort.Slice(rows, func(i, j int) bool {
+			return rows[i].entry.ScenarioName < rows[j].entry.ScenarioName
+		})
+		chosen := rows[0]
+		if preferredResolution != "" {
+			for _, row := range rows {
+				if row.resolution == preferredResolution {
+					chosen = row
+					break
+				}
+			}
+		}
+		out = append(out, chosen.entry)
+	}
+	return out
+}
+
+func splitScenarioFamilyAndResolution(name string) (family string, resolution string) {
+	m := scenarioResolutionPattern.FindStringSubmatch(strings.TrimSpace(name))
+	if len(m) != 3 {
+		return strings.TrimSpace(name), ""
+	}
+	return strings.TrimSpace(m[1]), strings.TrimSpace(m[2])
 }
 
 func writePNG(path string, in image.Image) error {
@@ -841,6 +924,18 @@ func sanitizeFileToken(in string) string {
 		return "untitled"
 	}
 	return out
+}
+
+func stableScenarioImageToken(in string) string {
+	name := strings.TrimSpace(in)
+	if name == "" {
+		return "scenario"
+	}
+	name = scenarioSeedSuffixPattern.ReplaceAllString(name, "")
+	if m := scenarioStablePathPattern.FindStringSubmatch(name); len(m) == 2 {
+		return sanitizeFileToken(strings.TrimSpace(m[1]))
+	}
+	return sanitizeFileToken(name)
 }
 
 func truncateUpper(in string, maxLen int) string {

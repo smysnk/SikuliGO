@@ -1235,9 +1235,18 @@
       "r1920x1080"
     ],
     "scenario_type_ids": [
-      "vector_ui_baseline"
+      "vector_ui_baseline",
+      "photo_clutter",
+      "repetitive_grid_camouflage",
+      "noise_stress_random",
+      "scale_rotate_sweep",
+      "perspective_skew_sweep",
+      "orb_feature_rich",
+      "template_control_exact",
+      "hybrid_gate_conflicts",
+      "multi_monitor_dpi_shift"
     ],
-    "scenarios_per_resolution": 1,
+    "scenarios_per_resolution": 10,
     "enforce_equal_scenario_count": true,
     "include_negative_controls": false,
     "per_resolution_overrides": {}

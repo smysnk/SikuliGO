@@ -25,6 +25,8 @@ DETERMINISTIC_REPORT="${FIND_BENCH_DETERMINISTIC_REPORT:-1}"
 OUTPUT_BY_SEED="${FIND_BENCH_OUTPUT_BY_SEED:-0}"
 GO_TEST_ARGS="${FIND_BENCH_GO_TEST_ARGS:-}"
 REPORT_DIR="${FIND_BENCH_REPORT_DIR:-${ROOT_DIR}/.test-results/bench}"
+DOCS_REPORT_DIR="${FIND_BENCH_DOCS_REPORT_DIR:-${ROOT_DIR}/docs/bench/reports}"
+DOCS_PUBLISH="${FIND_BENCH_PUBLISH_DOCS:-1}"
 BENCH_BASENAME="find-on-screen-e2e"
 if [[ -n "${BENCH_SEED}" && "${OUTPUT_BY_SEED}" =~ ^(1|true|yes|on)$ ]]; then
   BENCH_BASENAME="${BENCH_BASENAME}-seed${BENCH_SEED}"
@@ -32,16 +34,16 @@ fi
 TEXT_OUT="${FIND_BENCH_TEXT_OUT:-${REPORT_DIR}/${BENCH_BASENAME}.txt}"
 JSON_OUT="${FIND_BENCH_JSON_OUT:-${REPORT_DIR}/${BENCH_BASENAME}.json}"
 MD_OUT="${FIND_BENCH_MD_OUT:-${REPORT_DIR}/${BENCH_BASENAME}.md}"
-PERF_SVG_OUT="${FIND_BENCH_PERF_SVG_OUT:-${REPORT_DIR}/find-on-screen-performance${BENCH_SEED:+-seed${BENCH_SEED}}.svg}"
-ACCURACY_SVG_OUT="${FIND_BENCH_ACCURACY_SVG_OUT:-${REPORT_DIR}/find-on-screen-accuracy${BENCH_SEED:+-seed${BENCH_SEED}}.svg}"
-KIND_TIME_SVG_OUT="${FIND_BENCH_KIND_TIME_SVG_OUT:-${REPORT_DIR}/find-on-screen-kind-time${BENCH_SEED:+-seed${BENCH_SEED}}.svg}"
-KIND_SUCCESS_SVG_OUT="${FIND_BENCH_KIND_SUCCESS_SVG_OUT:-${REPORT_DIR}/find-on-screen-kind-success${BENCH_SEED:+-seed${BENCH_SEED}}.svg}"
-RESOLUTION_TIME_SVG_OUT="${FIND_BENCH_RESOLUTION_TIME_SVG_OUT:-${REPORT_DIR}/find-on-screen-resolution-time${BENCH_SEED:+-seed${BENCH_SEED}}.svg}"
-RESOLUTION_MATCHES_SVG_OUT="${FIND_BENCH_RESOLUTION_MATCHES_SVG_OUT:-${REPORT_DIR}/find-on-screen-resolution-matches${BENCH_SEED:+-seed${BENCH_SEED}}.svg}"
-RESOLUTION_MISSES_SVG_OUT="${FIND_BENCH_RESOLUTION_MISSES_SVG_OUT:-${REPORT_DIR}/find-on-screen-resolution-misses${BENCH_SEED:+-seed${BENCH_SEED}}.svg}"
-RESOLUTION_FALSE_POS_SVG_OUT="${FIND_BENCH_RESOLUTION_FALSE_POS_SVG_OUT:-${REPORT_DIR}/find-on-screen-resolution-false-positives${BENCH_SEED:+-seed${BENCH_SEED}}.svg}"
+PERF_SVG_OUT="${FIND_BENCH_PERF_SVG_OUT:-${REPORT_DIR}/find-on-screen-performance.svg}"
+ACCURACY_SVG_OUT="${FIND_BENCH_ACCURACY_SVG_OUT:-${REPORT_DIR}/find-on-screen-accuracy.svg}"
+KIND_TIME_SVG_OUT="${FIND_BENCH_KIND_TIME_SVG_OUT:-${REPORT_DIR}/find-on-screen-kind-time.svg}"
+KIND_SUCCESS_SVG_OUT="${FIND_BENCH_KIND_SUCCESS_SVG_OUT:-${REPORT_DIR}/find-on-screen-kind-success.svg}"
+RESOLUTION_TIME_SVG_OUT="${FIND_BENCH_RESOLUTION_TIME_SVG_OUT:-${REPORT_DIR}/find-on-screen-resolution-time.svg}"
+RESOLUTION_MATCHES_SVG_OUT="${FIND_BENCH_RESOLUTION_MATCHES_SVG_OUT:-${REPORT_DIR}/find-on-screen-resolution-matches.svg}"
+RESOLUTION_MISSES_SVG_OUT="${FIND_BENCH_RESOLUTION_MISSES_SVG_OUT:-${REPORT_DIR}/find-on-screen-resolution-misses.svg}"
+RESOLUTION_FALSE_POS_SVG_OUT="${FIND_BENCH_RESOLUTION_FALSE_POS_SVG_OUT:-${REPORT_DIR}/find-on-screen-resolution-false-positives.svg}"
 VISUAL_ENABLE="1"
-VISUAL_DIR="${FIND_BENCH_VISUAL_DIR:-${REPORT_DIR}/visuals${BENCH_SEED:+-seed${BENCH_SEED}}}"
+VISUAL_DIR="${FIND_BENCH_VISUAL_DIR:-${REPORT_DIR}/visuals}"
 VISUAL_MAX_ATTEMPTS="${FIND_BENCH_VISUAL_MAX_ATTEMPTS:-2}"
 VISUAL_TIMEOUT="${FIND_BENCH_VISUAL_TIMEOUT:-5s}"
 PATCH_READMES="1"
@@ -96,6 +98,7 @@ echo "[find-bench] visuals=${VISUAL_ENABLE} dir=${VISUAL_DIR} max_attempts=${VIS
 echo "[find-bench] patch_readmes=${PATCH_READMES} readmes=${README_PATHS} inline_images=${README_INLINE_IMAGES}"
 echo "[find-bench] strategy_json=${STRATEGY_JSON_OUT}"
 echo "[find-bench] strategy_md=${STRATEGY_MD_OUT}"
+echo "[find-bench] publish_docs=${DOCS_PUBLISH} docs_dir=${DOCS_REPORT_DIR}"
 
 cd "${API_DIR}"
 
@@ -159,6 +162,9 @@ DETERMINISTIC_REPORT="${DETERMINISTIC_REPORT}" \
 BENCH_MANIFEST="${BENCH_MANIFEST}" \
 BENCH_SCHEMA="${BENCH_SCHEMA}" \
 BENCH_REGION_SPEC="${BENCH_REGION_SPEC}" \
+REPORT_DIR="${REPORT_DIR}" \
+DOCS_REPORT_DIR="${DOCS_REPORT_DIR}" \
+DOCS_PUBLISH="${DOCS_PUBLISH}" \
 PROJECT_ROOT="${ROOT_DIR}" \
 VISUAL_ENABLE="${VISUAL_ENABLE}" \
 VISUAL_DIR="${VISUAL_DIR}" \
@@ -185,6 +191,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -225,6 +232,9 @@ readme_paths = os.environ.get("README_PATHS", "")
 readme_section_title = os.environ.get("README_SECTION_TITLE", "FindOnScreen Benchmark Test Results")
 readme_inline_images = int(os.environ.get("README_INLINE_IMAGES", "6"))
 root_dir = Path(os.environ.get("PROJECT_ROOT", "")).resolve()
+report_dir = Path(os.environ.get("REPORT_DIR", "")).resolve()
+docs_report_dir_raw = os.environ.get("DOCS_REPORT_DIR", "").strip()
+docs_publish = os.environ.get("DOCS_PUBLISH", "").strip().lower() in {"1", "true", "yes", "on"}
 
 content = text_path.read_text(encoding="utf-8", errors="replace").splitlines()
 
@@ -599,13 +609,53 @@ for engine, rows in sorted(engines.items()):
     best = min(rows, key=lambda r: float(r["ms_per_op"]))
     worst = max(rows, key=lambda r: float(r["ms_per_op"]))
     status_counts: dict[str, int] = defaultdict(int)
+    query_cases = 0.0
+    query_ok = 0.0
+    query_not_found = 0.0
+    query_unsupported = 0.0
+    query_error = 0.0
+    query_overlap_miss = 0.0
     for row in rows:
         status_counts[str(row["status"])] += 1
+        metrics = row.get("metrics", {})
+        q_total = float(metrics.get("query_total/op", 0.0))
+        if q_total <= 0.0:
+            q_total = 1.0
+        query_cases += q_total
+        if "query_ok/op" in metrics:
+            query_ok += float(metrics.get("query_ok/op", 0.0))
+            query_not_found += float(metrics.get("query_not_found/op", 0.0))
+            query_unsupported += float(metrics.get("query_unsupported/op", 0.0))
+            query_error += float(metrics.get("query_error/op", 0.0))
+            query_overlap_miss += float(metrics.get("query_overlap_miss/op", 0.0))
+            continue
+
+        # Backward-compatible fallback for older benchmark outputs without query_* metrics.
+        st = str(row.get("status", "error"))
+        if st == "ok":
+            query_ok += q_total
+        elif st == "not_found":
+            query_not_found += q_total
+        elif st == "unsupported":
+            query_unsupported += q_total
+        elif st == "overlap_miss":
+            query_overlap_miss += q_total
+        elif st == "error":
+            query_error += q_total
+
+    query_partial = max(0.0, query_cases - query_ok - query_not_found - query_unsupported - query_error - query_overlap_miss)
     summary_rows.append(
         {
             "engine": engine,
-            "cases": len(rows),
+            "cases": query_cases,
             "status_counts": dict(status_counts),
+            "query_ok": query_ok,
+            "query_partial": query_partial,
+            "query_not_found": query_not_found,
+            "query_unsupported": query_unsupported,
+            "query_error": query_error,
+            "query_overlap_miss": query_overlap_miss,
+            "row_count": len(rows),
             "avg_ms_per_op": sum(ms_values) / len(ms_values),
             "median_ms_per_op": float(median(ms_values)),
             "best_scenario": str(best["scenario"]),
@@ -617,16 +667,39 @@ for engine, rows in sorted(engines.items()):
 
 metrics_chart_rows: list[dict[str, object]] = []
 for engine, rows in sorted(engines.items()):
-    success_vals = [float(r.get("metrics", {}).get("success/op", 1.0)) for r in rows]
-    false_positive_vals = [float(r.get("metrics", {}).get("overlap_miss/op", 0.0)) for r in rows]
-    not_found_vals = [float(r.get("metrics", {}).get("not_found/op", 0.0)) for r in rows]
-    unsupported_vals = [float(r.get("metrics", {}).get("unsupported/op", 0.0)) for r in rows]
-    error_vals = [float(r.get("metrics", {}).get("error/op", 0.0)) for r in rows]
+    success_vals: list[float] = []
+    false_positive_vals: list[float] = []
+    not_found_vals: list[float] = []
+    unsupported_vals: list[float] = []
+    error_vals: list[float] = []
+    query_cases = 0.0
+    query_rows = 0
+    for r in rows:
+        metrics = r.get("metrics", {})
+        q_total = float(metrics.get("query_total/op", 0.0))
+        if q_total > 0:
+            query_rows += 1
+            query_cases += q_total
+            denom = max(1.0, q_total)
+            success_vals.append((float(metrics.get("query_ok/op", 0.0)) / denom))
+            false_positive_vals.append((float(metrics.get("query_overlap_miss/op", 0.0)) / denom))
+            not_found_vals.append((float(metrics.get("query_not_found/op", 0.0)) / denom))
+            unsupported_vals.append((float(metrics.get("query_unsupported/op", 0.0)) / denom))
+            error_vals.append((float(metrics.get("query_error/op", 0.0)) / denom))
+        else:
+            success_vals.append(float(metrics.get("success/op", 1.0)))
+            false_positive_vals.append(float(metrics.get("overlap_miss/op", 0.0)))
+            not_found_vals.append(float(metrics.get("not_found/op", 0.0)))
+            unsupported_vals.append(float(metrics.get("unsupported/op", 0.0)))
+            error_vals.append(float(metrics.get("error/op", 0.0)))
+            query_cases += 1.0
     ms_vals = [float(r["ms_per_op"]) for r in rows]
     metrics_chart_rows.append(
         {
             "engine": engine,
-            "cases": len(rows),
+            "cases": query_cases,
+            "rows": len(rows),
+            "query_rows": query_rows,
             "avg_ms_per_op": sum(ms_vals) / len(ms_vals),
             "median_ms_per_op": float(median(ms_vals)),
             "success_rate_pct": (sum(success_vals) / len(success_vals)) * 100.0,
@@ -650,9 +723,15 @@ for row in results:
     engine = str(row.get("engine", "unknown"))
     res_group = scenario_resolution(scenario)
     metrics = row.get("metrics", {})
-    success = float(metrics.get("success/op", 1.0))
-    miss = float(metrics.get("not_found/op", 0.0))
-    false_pos = float(metrics.get("overlap_miss/op", 0.0))
+    query_total = float(metrics.get("query_total/op", 0.0))
+    if query_total > 0:
+        success = float(metrics.get("query_ok/op", 0.0))
+        miss = float(metrics.get("query_not_found/op", 0.0))
+        false_pos = float(metrics.get("query_overlap_miss/op", 0.0))
+    else:
+        success = float(metrics.get("success/op", 1.0))
+        miss = float(metrics.get("not_found/op", 0.0))
+        false_pos = float(metrics.get("overlap_miss/op", 0.0))
     bucket = resolution_buckets[res_group][engine]
     bucket["ms_sum"] += float(row.get("ms_per_op", 0.0))
     bucket["n"] += 1.0
@@ -706,9 +785,16 @@ for row in results:
     kind = scenario_kind(scenario)
     res = scenario_resolution(scenario)
     metrics = row.get("metrics", {})
-    success = float(metrics.get("success/op", 1.0))
-    not_found = float(metrics.get("not_found/op", 0.0))
-    false_pos = float(metrics.get("overlap_miss/op", 0.0))
+    query_total = float(metrics.get("query_total/op", 0.0))
+    if query_total > 0:
+        denom = max(1.0, query_total)
+        success = float(metrics.get("query_ok/op", 0.0)) / denom
+        not_found = float(metrics.get("query_not_found/op", 0.0)) / denom
+        false_pos = float(metrics.get("query_overlap_miss/op", 0.0)) / denom
+    else:
+        success = float(metrics.get("success/op", 1.0))
+        not_found = float(metrics.get("not_found/op", 0.0))
+        false_pos = float(metrics.get("overlap_miss/op", 0.0))
     ms = float(row.get("ms_per_op", 0.0))
 
     kb = kind_buckets[kind][engine]
@@ -838,20 +924,21 @@ if visual_enable.lower() in {"1", "true", "yes", "on"} and visual_dir:
 
 lines.append("## Engine Summary")
 lines.append("")
+lines.append("_Cases/OK metrics are query-level counts (regions x scenarios x resolutions), not just benchmark row count._")
+lines.append("")
 lines.append("| Engine | Cases | OK | Partial | Not Found | Unsupported | Error | Overlap Miss | Avg ms/op | Median ms/op | Best Scenario | Best ms/op | Worst Scenario | Worst ms/op |")
 lines.append("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---|---:|")
 for row in summary_rows:
-    counts = row["status_counts"]
     lines.append(
-        "| {engine} | {cases} | {ok} | {partial} | {not_found} | {unsupported} | {error} | {overlap_miss} | {avg:.3f} | {med:.3f} | `{best_s}` | {best:.3f} | `{worst_s}` | {worst:.3f} |".format(
+        "| {engine} | {cases:.0f} | {ok:.0f} | {partial:.0f} | {not_found:.0f} | {unsupported:.0f} | {error:.0f} | {overlap_miss:.0f} | {avg:.3f} | {med:.3f} | `{best_s}` | {best:.3f} | `{worst_s}` | {worst:.3f} |".format(
             engine=row["engine"],
             cases=row["cases"],
-            ok=counts.get("ok", 0),
-            partial=counts.get("partial", 0),
-            not_found=counts.get("not_found", 0),
-            unsupported=counts.get("unsupported", 0),
-            error=counts.get("error", 0),
-            overlap_miss=counts.get("overlap_miss", 0),
+            ok=row.get("query_ok", 0.0),
+            partial=row.get("query_partial", 0.0),
+            not_found=row.get("query_not_found", 0.0),
+            unsupported=row.get("query_unsupported", 0.0),
+            error=row.get("query_error", 0.0),
+            overlap_miss=row.get("query_overlap_miss", 0.0),
             avg=row["avg_ms_per_op"],
             med=row["median_ms_per_op"],
             best_s=row["best_scenario"],
@@ -864,13 +951,14 @@ for row in summary_rows:
 lines.append("")
 lines.append("## Summary Metrics Chart")
 lines.append("")
-lines.append("| Engine | Cases | Avg ms/op | Median ms/op | Success % | False Positive % | No Match % | Unsupported % | Error % |")
-lines.append("|---|---:|---:|---:|---:|---:|---:|---:|---:|")
+lines.append("| Engine | Cases | Benchmark Rows | Avg ms/op | Median ms/op | Success % | False Positive % | No Match % | Unsupported % | Error % |")
+lines.append("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|")
 for row in metrics_chart_rows:
     lines.append(
-        "| {engine} | {cases} | {avg:.3f} | {med:.3f} | {success:.1f} | {fp:.1f} | {nf:.1f} | {unsup:.1f} | {err:.1f} |".format(
+        "| {engine} | {cases:.0f} | {rows} | {avg:.3f} | {med:.3f} | {success:.1f} | {fp:.1f} | {nf:.1f} | {unsup:.1f} | {err:.1f} |".format(
             engine=row["engine"],
             cases=row["cases"],
+            rows=row.get("rows", 0),
             avg=row["avg_ms_per_op"],
             med=row["median_ms_per_op"],
             success=row["success_rate_pct"],
@@ -1106,11 +1194,20 @@ for engine in sorted(engines.keys()):
         bytes_per_op = row.get("bytes_per_op")
         allocs_per_op = row.get("allocs_per_op")
         metrics = row.get("metrics", {})
-        success_rate = float(metrics.get("success/op", 1.0)) * 100.0
-        not_found_rate = float(metrics.get("not_found/op", 0.0)) * 100.0
-        unsupported_rate = float(metrics.get("unsupported/op", 0.0)) * 100.0
-        error_rate = float(metrics.get("error/op", 0.0)) * 100.0
-        overlap_miss_rate = float(metrics.get("overlap_miss/op", 0.0)) * 100.0
+        query_total = float(metrics.get("query_total/op", 0.0))
+        if query_total > 0:
+            denom = max(1.0, query_total)
+            success_rate = (float(metrics.get("query_ok/op", 0.0)) / denom) * 100.0
+            not_found_rate = (float(metrics.get("query_not_found/op", 0.0)) / denom) * 100.0
+            unsupported_rate = (float(metrics.get("query_unsupported/op", 0.0)) / denom) * 100.0
+            error_rate = (float(metrics.get("query_error/op", 0.0)) / denom) * 100.0
+            overlap_miss_rate = (float(metrics.get("query_overlap_miss/op", 0.0)) / denom) * 100.0
+        else:
+            success_rate = float(metrics.get("success/op", 1.0)) * 100.0
+            not_found_rate = float(metrics.get("not_found/op", 0.0)) * 100.0
+            unsupported_rate = float(metrics.get("unsupported/op", 0.0)) * 100.0
+            error_rate = float(metrics.get("error/op", 0.0)) * 100.0
+            overlap_miss_rate = float(metrics.get("overlap_miss/op", 0.0)) * 100.0
         kb = ""
         if isinstance(bytes_per_op, (int, float)):
             kb = f"{float(bytes_per_op)/1024.0:.2f}"
@@ -1138,6 +1235,26 @@ md_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 def env_true(raw: str) -> bool:
     return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+published_report_dir = report_dir
+if docs_publish and docs_report_dir_raw and report_dir.exists():
+    docs_report_dir = Path(docs_report_dir_raw)
+    if not docs_report_dir.is_absolute():
+        docs_report_dir = (root_dir / docs_report_dir).resolve()
+    if docs_report_dir != report_dir:
+        if docs_report_dir.exists():
+            shutil.rmtree(docs_report_dir)
+        docs_report_dir.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(report_dir, docs_report_dir)
+    published_report_dir = docs_report_dir
+    print(f"[find-bench] published docs report dir: {published_report_dir}")
+
+def published_path(path: Path) -> Path:
+    try:
+        rel = path.resolve().relative_to(report_dir)
+    except Exception:
+        return path
+    return published_report_dir / rel
 
 def to_rel_link(base_dir: Path, target: Path) -> str:
     try:
@@ -1168,7 +1285,21 @@ def patch_readme(path: Path, block_lines: list[str]) -> None:
     path.write_text(updated, encoding="utf-8")
 
 if env_true(patch_readmes):
+    report_text_path = published_path(text_path)
+    report_json_path = published_path(json_path)
+    report_md_path = published_path(md_path)
+    report_perf_svg_path = published_path(perf_svg_path)
+    report_accuracy_svg_path = published_path(accuracy_svg_path)
+    report_kind_time_svg_path = published_path(kind_time_svg_path)
+    report_kind_success_svg_path = published_path(kind_success_svg_path)
+    report_resolution_time_svg_path = published_path(resolution_time_svg_path)
+    report_resolution_matches_svg_path = published_path(resolution_matches_svg_path)
+    report_resolution_misses_svg_path = published_path(resolution_misses_svg_path)
+    report_resolution_false_pos_svg_path = published_path(resolution_false_pos_svg_path)
+
     root_visual = Path(visual_dir) if visual_dir else None
+    if root_visual is not None:
+        root_visual = published_path(root_visual)
     mega_summary = None
     scenario_summaries: list[Path] = []
     attempt_images: list[Path] = []
@@ -1204,42 +1335,43 @@ if env_true(patch_readmes):
         section.append("")
         section.append("### Reports")
         section.append("")
-        section.append(f"- [Markdown Summary]({to_rel_link(readme.parent, md_path)})")
-        section.append(f"- [JSON Report]({to_rel_link(readme.parent, json_path)})")
-        section.append(f"- [Raw go test Output]({to_rel_link(readme.parent, text_path)})")
-        if perf_svg_path.exists():
-            section.append(f"- [Performance SVG]({to_rel_link(readme.parent, perf_svg_path)})")
-        if accuracy_svg_path.exists():
-            section.append(f"- [Accuracy SVG]({to_rel_link(readme.parent, accuracy_svg_path)})")
-        if kind_time_svg_path.exists():
-            section.append(f"- [Scenario Kind Match Time SVG]({to_rel_link(readme.parent, kind_time_svg_path)})")
-        if kind_success_svg_path.exists():
-            section.append(f"- [Scenario Kind Success SVG]({to_rel_link(readme.parent, kind_success_svg_path)})")
-        if resolution_time_svg_path.exists():
-            section.append(f"- [Resolution Match Time SVG]({to_rel_link(readme.parent, resolution_time_svg_path)})")
-        if resolution_matches_svg_path.exists():
-            section.append(f"- [Resolution Matches SVG]({to_rel_link(readme.parent, resolution_matches_svg_path)})")
-        if resolution_misses_svg_path.exists():
-            section.append(f"- [Resolution Misses SVG]({to_rel_link(readme.parent, resolution_misses_svg_path)})")
-        if resolution_false_pos_svg_path.exists():
-            section.append(f"- [Resolution False Positives SVG]({to_rel_link(readme.parent, resolution_false_pos_svg_path)})")
+        section.append(f"- [Markdown Summary]({to_rel_link(readme.parent, report_md_path)})")
+        section.append(f"- [JSON Report]({to_rel_link(readme.parent, report_json_path)})")
+        section.append(f"- [Raw go test Output]({to_rel_link(readme.parent, report_text_path)})")
+        if report_perf_svg_path.exists():
+            section.append(f"- [Performance SVG]({to_rel_link(readme.parent, report_perf_svg_path)})")
+        if report_accuracy_svg_path.exists():
+            section.append(f"- [Accuracy SVG]({to_rel_link(readme.parent, report_accuracy_svg_path)})")
+        if report_kind_time_svg_path.exists():
+            section.append(f"- [Scenario Kind Match Time SVG]({to_rel_link(readme.parent, report_kind_time_svg_path)})")
+        if report_kind_success_svg_path.exists():
+            section.append(f"- [Scenario Kind Success SVG]({to_rel_link(readme.parent, report_kind_success_svg_path)})")
+        if report_resolution_time_svg_path.exists():
+            section.append(f"- [Resolution Match Time SVG]({to_rel_link(readme.parent, report_resolution_time_svg_path)})")
+        if report_resolution_matches_svg_path.exists():
+            section.append(f"- [Resolution Matches SVG]({to_rel_link(readme.parent, report_resolution_matches_svg_path)})")
+        if report_resolution_misses_svg_path.exists():
+            section.append(f"- [Resolution Misses SVG]({to_rel_link(readme.parent, report_resolution_misses_svg_path)})")
+        if report_resolution_false_pos_svg_path.exists():
+            section.append(f"- [Resolution False Positives SVG]({to_rel_link(readme.parent, report_resolution_false_pos_svg_path)})")
         section.append("")
         section.append("### Engine Summary")
+        section.append("")
+        section.append("_Cases/OK metrics are query-level counts (regions x scenarios x resolutions), not just benchmark row count._")
         section.append("")
         section.append("| Engine | Cases | OK | Partial | Not Found | Unsupported | Error | Overlap Miss | Avg ms/op | Median ms/op |")
         section.append("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|")
         for row in summary_rows:
-            counts = row["status_counts"]
             section.append(
-                "| {engine} | {cases} | {ok} | {partial} | {not_found} | {unsupported} | {error} | {overlap_miss} | {avg:.3f} | {med:.3f} |".format(
+                "| {engine} | {cases:.0f} | {ok:.0f} | {partial:.0f} | {not_found:.0f} | {unsupported:.0f} | {error:.0f} | {overlap_miss:.0f} | {avg:.3f} | {med:.3f} |".format(
                     engine=row["engine"],
                     cases=row["cases"],
-                    ok=counts.get("ok", 0),
-                    partial=counts.get("partial", 0),
-                    not_found=counts.get("not_found", 0),
-                    unsupported=counts.get("unsupported", 0),
-                    error=counts.get("error", 0),
-                    overlap_miss=counts.get("overlap_miss", 0),
+                    ok=row.get("query_ok", 0.0),
+                    partial=row.get("query_partial", 0.0),
+                    not_found=row.get("query_not_found", 0.0),
+                    unsupported=row.get("query_unsupported", 0.0),
+                    error=row.get("query_error", 0.0),
+                    overlap_miss=row.get("query_overlap_miss", 0.0),
                     avg=row["avg_ms_per_op"],
                     med=row["median_ms_per_op"],
                 )
@@ -1253,62 +1385,62 @@ if env_true(patch_readmes):
             section.append("")
             section.append(f"- [Open run mega summary image]({to_rel_link(readme.parent, mega_summary)})")
 
-        if perf_svg_path.exists() or accuracy_svg_path.exists():
+        if report_perf_svg_path.exists() or report_accuracy_svg_path.exists():
             section.append("")
             section.append("### Benchmark Graphs")
             section.append("")
-            if perf_svg_path.exists():
-                rel_perf = to_rel_link(readme.parent, perf_svg_path)
+            if report_perf_svg_path.exists():
+                rel_perf = to_rel_link(readme.parent, report_perf_svg_path)
                 section.append(f"![Performance Graph]({rel_perf})")
                 section.append("")
                 section.append(f"- [Open performance graph]({rel_perf})")
-            if accuracy_svg_path.exists():
-                rel_acc = to_rel_link(readme.parent, accuracy_svg_path)
+            if report_accuracy_svg_path.exists():
+                rel_acc = to_rel_link(readme.parent, report_accuracy_svg_path)
                 section.append("")
                 section.append(f"![Accuracy Graph]({rel_acc})")
                 section.append("")
                 section.append(f"- [Open accuracy graph]({rel_acc})")
 
-        if kind_time_svg_path.exists() or kind_success_svg_path.exists():
+        if report_kind_time_svg_path.exists() or report_kind_success_svg_path.exists():
             section.append("")
             section.append("### Scenario Kind Graphs")
             section.append("")
-            if kind_time_svg_path.exists():
-                rel = to_rel_link(readme.parent, kind_time_svg_path)
+            if report_kind_time_svg_path.exists():
+                rel = to_rel_link(readme.parent, report_kind_time_svg_path)
                 section.append(f"![Scenario Kind Match Time]({rel})")
                 section.append("")
                 section.append(f"- [Open scenario kind match time graph]({rel})")
                 section.append("")
-            if kind_success_svg_path.exists():
-                rel = to_rel_link(readme.parent, kind_success_svg_path)
+            if report_kind_success_svg_path.exists():
+                rel = to_rel_link(readme.parent, report_kind_success_svg_path)
                 section.append(f"![Scenario Kind Success]({rel})")
                 section.append("")
                 section.append(f"- [Open scenario kind success graph]({rel})")
 
-        if resolution_time_svg_path.exists() or resolution_matches_svg_path.exists() or resolution_misses_svg_path.exists() or resolution_false_pos_svg_path.exists():
+        if report_resolution_time_svg_path.exists() or report_resolution_matches_svg_path.exists() or report_resolution_misses_svg_path.exists() or report_resolution_false_pos_svg_path.exists():
             section.append("")
             section.append("### Resolution Group Graphs")
             section.append("")
-            if resolution_time_svg_path.exists():
-                rel = to_rel_link(readme.parent, resolution_time_svg_path)
+            if report_resolution_time_svg_path.exists():
+                rel = to_rel_link(readme.parent, report_resolution_time_svg_path)
                 section.append(f"![Resolution Match Time]({rel})")
                 section.append("")
                 section.append(f"- [Open resolution match time graph]({rel})")
                 section.append("")
-            if resolution_matches_svg_path.exists():
-                rel = to_rel_link(readme.parent, resolution_matches_svg_path)
+            if report_resolution_matches_svg_path.exists():
+                rel = to_rel_link(readme.parent, report_resolution_matches_svg_path)
                 section.append(f"![Resolution Matches]({rel})")
                 section.append("")
                 section.append(f"- [Open resolution matches graph]({rel})")
                 section.append("")
-            if resolution_misses_svg_path.exists():
-                rel = to_rel_link(readme.parent, resolution_misses_svg_path)
+            if report_resolution_misses_svg_path.exists():
+                rel = to_rel_link(readme.parent, report_resolution_misses_svg_path)
                 section.append(f"![Resolution Misses]({rel})")
                 section.append("")
                 section.append(f"- [Open resolution misses graph]({rel})")
                 section.append("")
-            if resolution_false_pos_svg_path.exists():
-                rel = to_rel_link(readme.parent, resolution_false_pos_svg_path)
+            if report_resolution_false_pos_svg_path.exists():
+                rel = to_rel_link(readme.parent, report_resolution_false_pos_svg_path)
                 section.append(f"![Resolution False Positives]({rel})")
                 section.append("")
                 section.append(f"- [Open resolution false positives graph]({rel})")

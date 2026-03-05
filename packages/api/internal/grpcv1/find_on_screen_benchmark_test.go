@@ -379,6 +379,12 @@ func runFindOnScreenScenarioBenchmark(b *testing.B, engine findBenchEngine, scen
 	unsupportedCount := 0
 	errorCount := 0
 	overlapMissCount := 0
+	queryTotalCount := 0
+	queryOKCount := 0
+	queryNotFoundCount := 0
+	queryUnsupportedCount := 0
+	queryErrorCount := 0
+	queryOverlapMissCount := 0
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -386,24 +392,32 @@ func runFindOnScreenScenarioBenchmark(b *testing.B, engine findBenchEngine, scen
 
 		if !scenario.expectedPositive {
 			for _, request := range requests {
+				queryTotalCount++
 				_, err := benchFindOnScreenCall(client, request, scenario)
 				if err == nil {
-					overlapMissCount++
+					queryOverlapMissCount++
+					if iterationOK {
+						overlapMissCount++
+					}
 					iterationOK = false
-					break
+					continue
 				}
 				switch status.Code(err) {
 				case codes.NotFound:
+					queryOKCount++
 					// expected for negative scenarios.
 				case codes.Unimplemented:
-					unsupportedCount++
+					queryUnsupportedCount++
+					if iterationOK {
+						unsupportedCount++
+					}
 					iterationOK = false
 				default:
-					errorCount++
+					queryErrorCount++
+					if iterationOK {
+						errorCount++
+					}
 					iterationOK = false
-				}
-				if !iterationOK {
-					break
 				}
 			}
 			if iterationOK {
@@ -413,38 +427,59 @@ func runFindOnScreenScenarioBenchmark(b *testing.B, engine findBenchEngine, scen
 		}
 
 		for queryIdx, request := range requests {
+			queryTotalCount++
 			res, err := benchFindOnScreenCall(client, request, scenario)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.NotFound:
-					notFoundCount++
+					queryNotFoundCount++
+					if iterationOK {
+						notFoundCount++
+					}
 				case codes.Unimplemented:
-					unsupportedCount++
+					queryUnsupportedCount++
+					if iterationOK {
+						unsupportedCount++
+					}
 				default:
+					queryErrorCount++
+					if iterationOK {
+						errorCount++
+					}
+				}
+				iterationOK = false
+				continue
+			}
+			if res.GetMatch() == nil || res.GetMatch().GetRect() == nil {
+				queryErrorCount++
+				if iterationOK {
 					errorCount++
 				}
 				iterationOK = false
-				break
-			}
-			if res.GetMatch() == nil || res.GetMatch().GetRect() == nil {
-				errorCount++
-				iterationOK = false
-				break
+				continue
 			}
 			expectedRect := queries[queryIdx].Expected
 			if expectedRect == nil {
-				errorCount++
+				queryErrorCount++
+				if iterationOK {
+					errorCount++
+				}
 				iterationOK = false
-				break
+				continue
 			}
 			if !rectMatchSatisfies(res.GetMatch().GetRect(), expectedRect, scenario.tolerance, scenario.maxAreaRatio) {
 				if scenario.allowPartial && rectMatchSatisfies(res.GetMatch().GetRect(), expectedRect, scenario.tolerance*0.60, scenario.maxAreaRatio*1.20) {
+					queryOKCount++
 					continue
 				}
-				overlapMissCount++
+				queryOverlapMissCount++
+				if iterationOK {
+					overlapMissCount++
+				}
 				iterationOK = false
-				break
+				continue
 			}
+			queryOKCount++
 		}
 		if iterationOK {
 			successCount++
@@ -457,6 +492,12 @@ func runFindOnScreenScenarioBenchmark(b *testing.B, engine findBenchEngine, scen
 		b.ReportMetric(float64(unsupportedCount)/denom, "unsupported/op")
 		b.ReportMetric(float64(errorCount)/denom, "error/op")
 		b.ReportMetric(float64(overlapMissCount)/denom, "overlap_miss/op")
+		b.ReportMetric(float64(queryTotalCount)/denom, "query_total/op")
+		b.ReportMetric(float64(queryOKCount)/denom, "query_ok/op")
+		b.ReportMetric(float64(queryNotFoundCount)/denom, "query_not_found/op")
+		b.ReportMetric(float64(queryUnsupportedCount)/denom, "query_unsupported/op")
+		b.ReportMetric(float64(queryErrorCount)/denom, "query_error/op")
+		b.ReportMetric(float64(queryOverlapMissCount)/denom, "query_overlap_miss/op")
 	}
 }
 

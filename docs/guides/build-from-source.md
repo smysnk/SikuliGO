@@ -66,12 +66,29 @@ SKIP_INSTALL=1 ./scripts/clients/release-python-client.sh
 make
 ```
 
+## Publish GitHub Docs
+
+Build docs locally and publish the generated site to the `gh-pages` branch:
+
+```bash
+make gh-publish
+```
+
+Options:
+
+- `GH_PAGES_BRANCH=gh-pages` target branch
+- `GH_PAGES_REMOTE=origin` target remote
+- `GH_PAGES_INCLUDE_BENCH=1` include local benchmark screenshots from `.test-results/bench`
+- `GH_PAGES_FORCE_PUSH=1` force-push the publish branch
+- `GH_PAGES_CNAME=docs.example.com` include a CNAME file in published output
+- `GH_PAGES_CONFIGURE_SOURCE=1` configure repository Pages source to `gh-pages` using `gh api`
+
 ## Local End-to-End Verification
 
 Run the local verifier:
 
 ```bash
-make local-verify
+make test-publish
 ```
 
 What it checks:
@@ -87,16 +104,16 @@ What it checks:
 Optional: verify using packed tarball install flow (closest to published package install):
 
 ```bash
-VERIFY_PACKED_INSTALL=1 make local-verify
+VERIFY_PACKED_INSTALL=1 make test-publish
 ```
 
 Run the full local integration suite:
 
 ```bash
-make integration-verify
+make test-integration
 ```
 
-What `integration-verify` adds on top of `local-verify`:
+What `test-integration` adds on top of `test-publish`:
 
 - gRPC RPC-surface integration coverage for all service methods
 - gRPC image/OCR E2E verification (`FindOnScreen`, `ReadText`, `FindText`)
@@ -108,13 +125,13 @@ What `integration-verify` adds on top of `local-verify`:
 Run optional real-desktop E2E directly:
 
 ```bash
-REAL_DESKTOP_E2E=1 make real-desktop-e2e
+REAL_DESKTOP_E2E=1 make test-e2e
 ```
 
 Select a specific monitor/display for capture (useful on multi-monitor setups):
 
 ```bash
-REAL_DESKTOP_E2E=1 REAL_DESKTOP_E2E_DISPLAY=2 make real-desktop-e2e
+REAL_DESKTOP_E2E=1 REAL_DESKTOP_E2E_DISPLAY=2 make test-e2e
 ```
 
 Notes:
@@ -138,7 +155,7 @@ Benchmark `FindOnScreen` across matcher implementations (`template`, `orb`, `hyb
 Run:
 
 ```bash
-make benchmark-find-on-screen-e2e
+make benchmark
 ```
 
 Output artifacts (default):
@@ -158,16 +175,16 @@ Output artifacts (default):
 Useful options:
 
 ```bash
-FIND_BENCH_TIME=500ms FIND_BENCH_COUNT=3 make benchmark-find-on-screen-e2e
-FIND_BENCH_TAGS="opencv gocv_specific_modules gocv_features2d gocv_calib3d" make benchmark-find-on-screen-e2e
-FIND_BENCH_TAGS="" make benchmark-find-on-screen-e2e
-FIND_BENCH_REPORT_DIR=.test-results/custom make benchmark-find-on-screen-e2e
-FIND_BENCH_VISUAL=1 FIND_BENCH_VISUAL_MAX_ATTEMPTS=2 make benchmark-find-on-screen-e2e
-FIND_BENCH_VISUAL_DIR=.test-results/bench/custom-visuals FIND_BENCH_VISUAL_TIMEOUT=8s make benchmark-find-on-screen-e2e
-make benchmark-find-on-screen-e2e
-FIND_BENCH_PATCH_READMES=1 FIND_BENCH_README_PATHS="$PWD/README.md,$PWD/packages/client-node/README.md,$PWD/packages/client-python/README.md" make benchmark-find-on-screen-e2e
-FIND_BENCH_PATCH_READMES=1 FIND_BENCH_README_INLINE_IMAGES=4 FIND_BENCH_README_SECTION_TITLE="Latest Benchmark Evidence" make benchmark-find-on-screen-e2e
-FIND_BENCH_PATCH_READMES=0 make benchmark-find-on-screen-e2e
+FIND_BENCH_TIME=500ms FIND_BENCH_COUNT=3 make benchmark
+FIND_BENCH_TAGS="opencv gocv_specific_modules gocv_features2d gocv_calib3d" make benchmark
+FIND_BENCH_TAGS="" make benchmark
+FIND_BENCH_REPORT_DIR=.test-results/custom make benchmark
+FIND_BENCH_VISUAL=1 FIND_BENCH_VISUAL_MAX_ATTEMPTS=2 make benchmark
+FIND_BENCH_VISUAL_DIR=.test-results/bench/custom-visuals FIND_BENCH_VISUAL_TIMEOUT=8s make benchmark
+make benchmark
+FIND_BENCH_PATCH_READMES=1 FIND_BENCH_README_PATHS="$PWD/README.md,$PWD/packages/client-node/README.md,$PWD/packages/client-python/README.md" make benchmark
+FIND_BENCH_PATCH_READMES=1 FIND_BENCH_README_INLINE_IMAGES=4 FIND_BENCH_README_SECTION_TITLE="Latest Benchmark Evidence" make benchmark
+FIND_BENCH_PATCH_READMES=0 make benchmark
 ```
 
 By default, the benchmark runs with OpenCV-related tags enabled so `orb` and `hybrid` implementations can be compared.

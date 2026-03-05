@@ -7,7 +7,7 @@ source "${THIS_DIR}/paths.sh"
 # Safety gate so this cannot accidentally run in CI/headless flows.
 if [[ "${REAL_DESKTOP_E2E:-0}" != "1" ]]; then
   echo "[real-desktop-e2e] skipped (set REAL_DESKTOP_E2E=1 to run)"
-  echo "[real-desktop-e2e] example: REAL_DESKTOP_E2E=1 make real-desktop-e2e"
+  echo "[real-desktop-e2e] example: REAL_DESKTOP_E2E=1 make test-e2e"
   exit 0
 fi
 

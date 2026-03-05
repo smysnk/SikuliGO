@@ -1,19 +1,6 @@
 name: Publish Docs
 
 on:
-  push:
-    branches:
-      - master
-    paths:
-      - "docs/**"
-      - "packages/api/pkg/**"
-      - "packages/api/internal/**"
-      - "scripts/generate-api-docs.sh"
-      - "scripts/generate-parity-docs.sh"
-      - "packages/api/go.mod"
-      - "packages/api/go.sum"
-      - "README.md"
-      - ".github/workflows/docs-pages.yml"
   workflow_dispatch:
 
 permissions:

@@ -29,8 +29,8 @@ func TestLoadFindBenchScenariosFromManifestExample(t *testing.T) {
 		t.Fatalf("expected materialized scenarios")
 	}
 
-	// Example manifest runs 1 scenario across 4 resolutions.
-	if got, want := len(scenarios), 4; got != want {
+	// Example manifest runs 10 scenarios across 4 resolutions.
+	if got, want := len(scenarios), 40; got != want {
 		t.Fatalf("scenario count mismatch: got=%d want=%d", got, want)
 	}
 
