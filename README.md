@@ -162,7 +162,7 @@ The GoLang port in this repository began in **2026**. It stands on the work of t
 <!-- BEGIN: FIND_ON_SCREEN_BENCH_AUTOGEN -->
 ## FindOnScreen Benchmark Test Results
 
-Generated: `2026-03-05T02:07:33.586150+00:00`
+Generated: `2026-03-05T04:26:02.429969+00:00`
 
 ### Reports
 
@@ -184,13 +184,13 @@ _Cases/OK metrics are query-level counts (regions x scenarios x resolutions), no
 
 | Engine | Cases | OK | Partial | Not Found | Unsupported | Error | Overlap Miss | Avg ms/op | Median ms/op |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| akaze | 120 | 60 | 0 | 59 | 0 | 0 | 1 | 156.363 | 129.667 |
-| brisk | 120 | 65 | 0 | 47 | 0 | 0 | 8 | 324.128 | 108.255 |
-| hybrid | 120 | 90 | 0 | 29 | 0 | 0 | 1 | 138.714 | 89.644 |
-| kaze | 120 | 75 | 0 | 38 | 0 | 0 | 7 | 734.329 | 574.720 |
-| orb | 120 | 37 | 0 | 73 | 0 | 0 | 10 | 47.998 | 35.355 |
-| sift | 120 | 75 | 0 | 43 | 0 | 0 | 2 | 234.052 | 186.955 |
-| template | 120 | 72 | 0 | 48 | 0 | 0 | 0 | 119.155 | 84.458 |
+| akaze | 120 | 60 | 0 | 59 | 0 | 0 | 1 | 155.526 | 129.394 |
+| brisk | 120 | 65 | 0 | 47 | 0 | 0 | 8 | 328.511 | 108.479 |
+| hybrid | 120 | 90 | 0 | 29 | 0 | 0 | 1 | 130.107 | 88.616 |
+| kaze | 120 | 75 | 0 | 38 | 0 | 0 | 7 | 726.687 | 557.288 |
+| orb | 120 | 37 | 0 | 73 | 0 | 0 | 10 | 51.102 | 37.761 |
+| sift | 120 | 75 | 0 | 43 | 0 | 0 | 2 | 233.382 | 191.003 |
+| template | 120 | 72 | 0 | 48 | 0 | 0 | 0 | 121.025 | 86.137 |
 
 ### Run Mega Summary
 

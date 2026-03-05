@@ -104,9 +104,17 @@ jobs:
           go-version-file: packages/api/go.mod
           cache: true
 
+      - name: Setup protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          version: "27.x"
+
       - name: Install test tooling
         run: |
           go install gotest.tools/gotestsum@v1.12.0
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
       - name: Tidy module
         run: cd packages/api && go mod tidy
