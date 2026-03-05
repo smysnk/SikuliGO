@@ -5,6 +5,7 @@ THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${THIS_DIR}/../.." && pwd)"
 
 REMOTE="${GH_PAGES_REMOTE:-origin}"
+REMOTE_URL_OVERRIDE="${GH_PAGES_REMOTE_URL:-}"
 BRANCH="${GH_PAGES_BRANCH:-gh-pages}"
 BUILD_SITE="${GH_PAGES_BUILD:-1}"
 FORCE_PUSH="${GH_PAGES_FORCE_PUSH:-1}"
@@ -54,6 +55,14 @@ fi
 REMOTE_URL="$(git -C "${ROOT_DIR}" remote get-url "${REMOTE}" 2>/dev/null || true)"
 [[ -n "${REMOTE_URL}" ]] || fail "remote not found: ${REMOTE}"
 
+PUSH_URL="${REMOTE_URL_OVERRIDE}"
+if [[ -z "${PUSH_URL}" && -n "${GITHUB_TOKEN:-}" && -n "${GITHUB_REPOSITORY:-}" ]]; then
+  PUSH_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+fi
+if [[ -z "${PUSH_URL}" ]]; then
+  PUSH_URL="${REMOTE_URL}"
+fi
+
 TMP_DIR="$(mktemp -d /tmp/sikuligo-gh-pages.XXXXXX)"
 cleanup() {
   rm -rf "${TMP_DIR}"
@@ -76,7 +85,7 @@ git -C "${TMP_DIR}" config user.email "${GIT_AUTHOR_EMAIL:-sikuligo-pages@users.
 git -C "${TMP_DIR}" checkout -B "${BRANCH}" >/dev/null
 git -C "${TMP_DIR}" add -A
 git -C "${TMP_DIR}" commit -m "${COMMIT_MESSAGE}" >/dev/null
-git -C "${TMP_DIR}" remote add "${REMOTE}" "${REMOTE_URL}"
+git -C "${TMP_DIR}" remote add "${REMOTE}" "${PUSH_URL}"
 
 step "Push branch ${BRANCH} to ${REMOTE}"
 if is_true "${FORCE_PUSH}"; then
@@ -99,4 +108,3 @@ fi
 
 step "Done"
 echo "[gh-pages] published branch=${BRANCH} remote=${REMOTE} site_dir=${SITE_DIR}"
-

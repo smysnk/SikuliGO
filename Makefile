@@ -14,6 +14,7 @@ BENCH_HELPER_SPEC ?= packages/api/internal/grpcv1/testdata/find-bench-assets/reg
 BENCH_HELPER_MANIFEST ?= docs/bench/find-on-screen-scenarios.example.json
 BENCH_HELPER_OPEN_BROWSER ?= 1
 GH_PAGES_REMOTE ?= origin
+GH_PAGES_REMOTE_URL ?=
 GH_PAGES_BRANCH ?= gh-pages
 GH_PAGES_BUILD ?= 1
 GH_PAGES_FORCE_PUSH ?= 1
@@ -66,6 +67,7 @@ help:
 	@echo "  DOCS_LOCAL_BUILD_MODE=auto     build-docs build mode: auto|docker|native|copy"
 	@echo "  DOCS_LOCAL_INCLUDE_BENCH=1     include .test-results/bench in local docs under bench/reports"
 	@echo "  GH_PAGES_REMOTE=origin            gh-publish target remote"
+	@echo "  GH_PAGES_REMOTE_URL=<url>         gh-publish explicit remote URL (overrides remote lookup)"
 	@echo "  GH_PAGES_BRANCH=gh-pages          gh-publish target branch"
 	@echo "  GH_PAGES_BUILD=1                  rebuild site before publish (set 0 to reuse staged site)"
 	@echo "  GH_PAGES_FORCE_PUSH=1             force-push gh-pages branch"
@@ -170,6 +172,7 @@ build-docs:
 
 gh-publish:
 	@GH_PAGES_REMOTE="$(GH_PAGES_REMOTE)" \
+	GH_PAGES_REMOTE_URL="$(GH_PAGES_REMOTE_URL)" \
 	GH_PAGES_BRANCH="$(GH_PAGES_BRANCH)" \
 	GH_PAGES_BUILD="$(GH_PAGES_BUILD)" \
 	GH_PAGES_FORCE_PUSH="$(GH_PAGES_FORCE_PUSH)" \

@@ -82,6 +82,11 @@ Options:
 - `GH_PAGES_FORCE_PUSH=1` force-push the publish branch
 - `GH_PAGES_CNAME=docs.example.com` include a CNAME file in published output
 - `GH_PAGES_CONFIGURE_SOURCE=1` configure repository Pages source to `gh-pages` using `gh api`
+- `GH_PAGES_REMOTE_URL=https://<token>@github.com/<owner>/<repo>.git` explicit authenticated remote URL for non-interactive CI pushes
+
+CI automation:
+
+- `.github/workflows/docs-pages.yml` runs benchmark + publish on pushes to `main` (and `master` compatibility) and on manual dispatch.
 
 ## Local End-to-End Verification
 
