@@ -326,25 +326,3 @@ jobs:
           go test -run '^$' -tags "gosseract opencv gocv_specific_modules gocv_features2d gocv_calib3d" ./...
           cd ../..
           make build-go
-
-  tagged-backend-build-macos:
-    name: Tagged Backend Build macOS (gosseract+opencv)
-    runs-on: macos-14
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Set up GoLang
-        uses: actions/setup-go@v6
-        with:
-          go-version-file: packages/api/go.mod
-          cache: true
-
-      - name: Install OCR/OpenCV native dependencies (macOS)
-        run: |
-          bash ./scripts/ci/setup-macos-ocr-opencv.sh
-
-      - name: Compile with OCR + OpenCV tags (macOS)
-        run: |
-          cd packages/api
-          go test -run '^$' -tags "gosseract opencv gocv_specific_modules gocv_features2d gocv_calib3d" ./...

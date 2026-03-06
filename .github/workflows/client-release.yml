@@ -21,11 +21,6 @@ on:
         required: false
         default: false
         type: boolean
-      publish_homebrew:
-        description: "Publish Homebrew formula/artifacts"
-        required: false
-        default: false
-        type: boolean
 
 permissions:
   contents: write
@@ -160,10 +155,6 @@ jobs:
         include:
           - runner: ubuntu-latest
             node_bin_target: bin-linux-x64
-          - runner: macos-14
-            node_bin_target: bin-darwin-arm64
-          - runner: macos-13
-            node_bin_target: bin-darwin-x64
     runs-on: ${{ matrix.runner }}
     steps:
       - name: Checkout
@@ -192,11 +183,6 @@ jobs:
             libtesseract-dev \
             libleptonica-dev \
             tesseract-ocr-eng
-
-      - name: Install OCR/OpenCV native dependencies (macOS)
-        if: runner.os == 'macOS'
-        run: |
-          bash ./scripts/ci/setup-macos-ocr-opencv.sh
 
       - name: Set client version from build number
         env:
@@ -256,38 +242,3 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_PUBLISH: ${{ ((github.event_name == 'push' && github.ref_name == 'release') || inputs.publish_node || inputs.publish_node_binaries) && '1' || '0' }}
         run: ./scripts/clients/release-node-client.sh
-
-  homebrew:
-    needs: client-release-smoke
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup Go
-        uses: actions/setup-go@v6
-        with:
-          go-version-file: packages/api/go.mod
-          cache: true
-
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: "20"
-
-      - name: Set client version from build number
-        env:
-          BUILD_NUMBER: ${{ github.run_number }}
-          VERSION_MAJOR: ${{ vars.CLIENT_VERSION_MAJOR }}
-          VERSION_MINOR: ${{ vars.CLIENT_VERSION_MINOR }}
-          PATCH_MODE: ${{ vars.CLIENT_VERSION_PATCH_MODE }}
-          PATCH_FIXED: ${{ vars.CLIENT_VERSION_PATCH_FIXED }}
-        run: ./scripts/clients/set-version-from-build.sh
-
-      - name: Build and optionally publish Homebrew formula
-        env:
-          GH_TOKEN: ${{ github.token }}
-          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
-          HOMEBREW_TAP_REPO: ${{ vars.HOMEBREW_TAP_REPO }}
-          HOMEBREW_PUBLISH: ${{ ((github.event_name == 'push' && github.ref_name == 'release') || inputs.publish_homebrew) && '1' || '0' }}
-        run: bash ./scripts/clients/release-homebrew.sh
