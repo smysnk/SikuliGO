@@ -195,7 +195,7 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_PUBLISH: ${{ ((github.event_name == 'push' && github.ref_name == 'release') || inputs.publish_node || inputs.publish_node_binaries) && '1' || '0' }}
-          NODE_BIN_TARGETS: bin-linux-x64
+          NODE_BIN_TARGETS: bin-darwin-arm64,bin-darwin-x64,bin-linux-x64,bin-win32-x64
         run: ./scripts/clients/release-node-binaries.sh
 
       - name: Upload Node binary checksums
