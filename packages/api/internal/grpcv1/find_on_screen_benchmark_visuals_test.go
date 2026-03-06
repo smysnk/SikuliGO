@@ -39,7 +39,12 @@ type findBenchVisualCollector struct {
 type findBenchScenarioVisual struct {
 	scenario findBenchScenario
 	engines  map[string][]findBenchAttemptVisual
-	pattern  *image.Gray
+	patterns []findBenchPatternVisual
+}
+
+type findBenchPatternVisual struct {
+	Label string
+	Image *image.Gray
 }
 
 type findBenchScenarioSummaryImage struct {
@@ -54,21 +59,23 @@ var (
 )
 
 type findBenchVisualQuery struct {
-	Request  *pb.FindOnScreenRequest
-	Expected *pb.Rect
-	Label    string
+	Request    *pb.FindOnScreenRequest
+	Expected   *pb.Rect
+	Alternates []*pb.Rect
+	Label      string
 }
 
 type findBenchAttemptQueryVisual struct {
-	Label     string
-	Status    string
-	Error     string
-	Explain   string
-	Overlap   float64
-	AreaRatio float64
-	Expected  *pb.Rect
-	Found     *pb.Rect
-	Template  *image.Gray
+	Label      string
+	Status     string
+	Error      string
+	Explain    string
+	Overlap    float64
+	AreaRatio  float64
+	Expected   *pb.Rect
+	Alternates []*pb.Rect
+	Found      *pb.Rect
+	Template   *image.Gray
 }
 
 type findBenchAttemptVisual struct {
@@ -142,12 +149,12 @@ func (c *findBenchVisualCollector) CaptureAttempts(
 	if c == nil || client == nil || source == nil || len(queries) == 0 {
 		return
 	}
-	pattern := patternGrayFromRequest(queries[0].Request)
+	patternSet := collectFindBenchPatterns(queries)
 
 	attempts := make([]findBenchAttemptVisual, 0, c.maxAttempts)
 	expectedRects := make([]*pb.Rect, 0, len(queries))
 	for _, query := range queries {
-		expectedRects = append(expectedRects, cloneRect(query.Expected))
+		expectedRects = appendExpectedCandidates(expectedRects, query.Expected, query.Alternates)
 	}
 	for attempt := 1; attempt <= c.maxAttempts; attempt++ {
 		rec := findBenchAttemptVisual{
@@ -164,10 +171,11 @@ func (c *findBenchVisualCollector) CaptureAttempts(
 				queryTemplate = cloneGray(qimg)
 			}
 			qrec := findBenchAttemptQueryVisual{
-				Label:    strings.TrimSpace(query.Label),
-				Status:   "error",
-				Expected: cloneRect(query.Expected),
-				Template: queryTemplate,
+				Label:      strings.TrimSpace(query.Label),
+				Status:     "error",
+				Expected:   cloneRect(query.Expected),
+				Alternates: cloneRectSlice(query.Alternates),
+				Template:   queryTemplate,
 			}
 			if qrec.Label == "" {
 				qrec.Label = fmt.Sprintf("target-%02d", queryIdx+1)
@@ -199,6 +207,7 @@ func (c *findBenchVisualCollector) CaptureAttempts(
 					matchClass := classifyFindBenchPositiveMatch(
 						rect,
 						query.Expected,
+						query.Alternates,
 						expectedRects,
 						pattern,
 						scenario.tolerance,
@@ -217,6 +226,7 @@ func (c *findBenchVisualCollector) CaptureAttempts(
 						matchClass,
 						rect,
 						query.Expected,
+						query.Alternates,
 						pattern,
 						scenario.tolerance,
 						scenario.maxAreaRatio,
@@ -250,19 +260,15 @@ func (c *findBenchVisualCollector) CaptureAttempts(
 	defer c.mu.Unlock()
 	entry, ok := c.scenarios[scenario.name]
 	if !ok {
-		var patternCopy *image.Gray
-		if pattern != nil {
-			patternCopy = cloneGray(pattern)
-		}
 		entry = &findBenchScenarioVisual{
 			scenario: scenario,
 			engines:  map[string][]findBenchAttemptVisual{},
-			pattern:  patternCopy,
+			patterns: cloneFindBenchPatternSet(patternSet),
 		}
 		c.scenarios[scenario.name] = entry
 	}
-	if entry.pattern == nil && pattern != nil {
-		entry.pattern = cloneGray(pattern)
+	if len(entry.patterns) == 0 && len(patternSet) > 0 {
+		entry.patterns = cloneFindBenchPatternSet(patternSet)
 	}
 	entry.engines[engine.name] = append([]findBenchAttemptVisual(nil), attempts...)
 }
@@ -278,8 +284,8 @@ func (c *findBenchVisualCollector) WriteScenarioSummaries() error {
 			scenario: v.scenario,
 			engines:  map[string][]findBenchAttemptVisual{},
 		}
-		if v.pattern != nil {
-			cp.pattern = cloneGray(v.pattern)
+		if len(v.patterns) > 0 {
+			cp.patterns = cloneFindBenchPatternSet(v.patterns)
 		}
 		for engine, rows := range v.engines {
 			cp.engines[engine] = append([]findBenchAttemptVisual(nil), rows...)
@@ -411,7 +417,7 @@ func (c *findBenchVisualCollector) writeScenarioSummary(scenario *findBenchScena
 	rowLabelH := 22 * summaryScale
 	patternGap := 8 * summaryScale
 	patternPanelW := 0
-	if c.summaryShowPattern && scenario.pattern != nil {
+	if c.summaryShowPattern && len(scenario.patterns) > 0 {
 		if c.summaryNative {
 			patternPanelW = maxInt(96, minInt(180, screenW/8))
 		} else {
@@ -470,16 +476,8 @@ func (c *findBenchVisualCollector) writeScenarioSummary(scenario *findBenchScena
 			if patternPanelW > 0 {
 				patternRect := image.Rect(x, bodyY, x+patternPanelW, bodyY+screenH)
 				draw.Draw(canvas, patternRect, &image.Uniform{C: color.RGBA{R: 228, G: 234, B: 243, A: 255}}, image.Point{}, draw.Src)
-				if scenario.pattern != nil {
-					pw, ph := fitWithinNoUpscale(patternRect.Dx()-8, patternRect.Dy()-24, scenario.pattern.Bounds().Dx(), scenario.pattern.Bounds().Dy())
-					if pw > 0 && ph > 0 {
-						px := patternRect.Min.X + (patternRect.Dx()-pw)/2
-						py := patternRect.Min.Y + 18 + (patternRect.Dy()-18-ph)/2
-						patternImg := resizeNearest(grayToRGBA(scenario.pattern), pw, ph)
-						draw.Draw(canvas, image.Rect(px, py, px+pw, py+ph), patternImg, image.Point{}, draw.Src)
-					}
-				}
-				drawTinyText(canvas, x+4, y+4, "PATTERN", color.RGBA{R: 35, G: 46, B: 64, A: 255}, summaryScale)
+				drawPatternStackPanel(canvas, patternRect, scenario.patterns, summaryScale)
+				drawTinyText(canvas, x+4, y+4, "PATTERNS", color.RGBA{R: 35, G: 46, B: 64, A: 255}, summaryScale)
 				drawRectOutline(canvas, &pb.Rect{X: int32(patternRect.Min.X), Y: int32(patternRect.Min.Y), W: int32(patternRect.Dx()), H: int32(patternRect.Dy())}, color.RGBA{R: 104, G: 116, B: 137, A: 255}, maxInt(1, summaryScale))
 			}
 
@@ -490,6 +488,99 @@ func (c *findBenchVisualCollector) writeScenarioSummary(scenario *findBenchScena
 
 	path := c.scenarioSummaryPath(scenario.scenario.name)
 	return writePNG(path, canvas)
+}
+
+func collectFindBenchPatterns(queries []findBenchVisualQuery) []findBenchPatternVisual {
+	out := make([]findBenchPatternVisual, 0, len(queries))
+	for idx, query := range queries {
+		img := patternGrayFromRequest(query.Request)
+		if img == nil {
+			continue
+		}
+		label := strings.TrimSpace(query.Label)
+		if label == "" {
+			label = fmt.Sprintf("target-%02d", idx+1)
+		}
+		out = append(out, findBenchPatternVisual{
+			Label: label,
+			Image: cloneGray(img),
+		})
+	}
+	return out
+}
+
+func cloneFindBenchPatternSet(in []findBenchPatternVisual) []findBenchPatternVisual {
+	if len(in) == 0 {
+		return nil
+	}
+	out := make([]findBenchPatternVisual, 0, len(in))
+	for _, item := range in {
+		if item.Image == nil {
+			continue
+		}
+		out = append(out, findBenchPatternVisual{
+			Label: item.Label,
+			Image: cloneGray(item.Image),
+		})
+	}
+	return out
+}
+
+func drawPatternStackPanel(canvas *image.RGBA, panel image.Rectangle, patterns []findBenchPatternVisual, summaryScale int) {
+	if canvas == nil || panel.Empty() || len(patterns) == 0 {
+		return
+	}
+	inner := panel.Inset(maxInt(2, summaryScale))
+	if inner.Empty() {
+		return
+	}
+
+	slotGap := maxInt(2, summaryScale)
+	slotCount := len(patterns)
+	totalGap := slotGap * (slotCount - 1)
+	slotH := (inner.Dy() - totalGap) / maxInt(1, slotCount)
+	if slotH < 16 {
+		slotH = 16
+	}
+
+	for idx, pattern := range patterns {
+		slotY := inner.Min.Y + idx*(slotH+slotGap)
+		if slotY >= inner.Max.Y {
+			break
+		}
+		slotRect := image.Rect(inner.Min.X, slotY, inner.Max.X, minInt(slotY+slotH, inner.Max.Y))
+		if slotRect.Dy() < 8 {
+			continue
+		}
+		draw.Draw(canvas, slotRect, &image.Uniform{C: color.RGBA{R: 214, G: 223, B: 236, A: 255}}, image.Point{}, draw.Src)
+		drawRectOutline(
+			canvas,
+			&pb.Rect{X: int32(slotRect.Min.X), Y: int32(slotRect.Min.Y), W: int32(slotRect.Dx()), H: int32(slotRect.Dy())},
+			color.RGBA{R: 135, G: 149, B: 170, A: 255},
+			maxInt(1, summaryScale),
+		)
+
+		if pattern.Image == nil {
+			continue
+		}
+		label := strings.TrimSpace(pattern.Label)
+		if label == "" {
+			label = fmt.Sprintf("target-%02d", idx+1)
+		}
+		drawTinyText(canvas, slotRect.Min.X+2, slotRect.Min.Y+2, truncateUpper(label, 16), color.RGBA{R: 35, G: 46, B: 64, A: 255}, summaryScale)
+
+		topPad := 12 * summaryScale
+		availW := maxInt(1, slotRect.Dx()-6)
+		availH := maxInt(1, slotRect.Dy()-topPad-3)
+		pw, ph := fitWithinNoUpscale(availW, availH, pattern.Image.Bounds().Dx(), pattern.Image.Bounds().Dy())
+		if pw < 1 || ph < 1 {
+			continue
+		}
+		px := slotRect.Min.X + (slotRect.Dx()-pw)/2
+		py := slotRect.Min.Y + topPad + (availH-ph)/2
+		patternImg := resizeNearest(grayToRGBA(pattern.Image), pw, ph)
+		draw.Draw(canvas, image.Rect(px, py, px+pw, py+ph), patternImg, image.Point{}, draw.Src)
+	}
 }
 
 func (c *findBenchVisualCollector) scenarioSummaryPath(scenarioName string) string {
@@ -904,6 +995,7 @@ func explainFindBenchMatchOutcome(
 	matchClass findBenchMatchClass,
 	found *pb.Rect,
 	expected *pb.Rect,
+	expectedAlternates []*pb.Rect,
 	pattern *pb.GrayImage,
 	tolerance float64,
 	maxAreaRatio float64,
@@ -912,73 +1004,42 @@ func explainFindBenchMatchOutcome(
 	if found == nil || expected == nil {
 		return "missing match or expected rect"
 	}
-
-	zoneMode := regionActsAsZone(expected, pattern)
-	if zoneMode {
-		foundArea := rectAreaFloat(found)
-		zoneOverlap := 0.0
-		if foundArea > 0 {
-			zoneOverlap = rectIntersectionArea(found, expected) / foundArea
+	target := expected
+	dx, dy, dist, limX, limY, _ := centerDeltaMetrics(found, expected, pattern, tolerance, maxAreaRatio, allowPartial)
+	for _, alt := range expectedAlternates {
+		if alt == nil {
+			continue
 		}
-		zoneThreshold := math.Max(0.10, math.Min(0.85, tolerance*0.70))
-		if allowPartial {
-			zoneThreshold *= 0.80
+		adx, ady, adist, alimX, alimY, _ := centerDeltaMetrics(found, alt, pattern, tolerance, maxAreaRatio, allowPartial)
+		if adist < dist {
+			target = alt
+			dx, dy, dist, limX, limY = adx, ady, adist, alimX, alimY
 		}
-		ratioLimit := maxAreaRatio
-		if ratioLimit <= 0 {
-			ratioLimit = 1.50
-		}
-		patternRatio := 0.0
+	}
+	if !areaRatioWithinLimit(found, pattern, maxAreaRatio) {
+		ratio := 0.0
 		if pattern != nil {
 			patternArea := float64(max32(1, pattern.GetWidth()*pattern.GetHeight()))
-			patternRatio = foundArea / patternArea
-			ratioLimit *= 1.30
-		}
-
-		switch matchClass {
-		case findBenchMatchClassOK:
-			return fmt.Sprintf("zone ok ov=%.2f>=%.2f ap=%.2f", zoneOverlap, zoneThreshold, patternRatio)
-		case findBenchMatchClassWrongRegion:
-			return fmt.Sprintf("wrong region zone ov=%.2f ap=%.2f", zoneOverlap, patternRatio)
-		default:
-			if pattern != nil && patternRatio > ratioLimit {
-				return fmt.Sprintf("miss oversized ap=%.2f>%.2f", patternRatio, ratioLimit)
+			if patternArea > 0 {
+				ratio = rectAreaFloat(found) / patternArea
 			}
-			return fmt.Sprintf("miss zone ov=%.2f<%.2f", zoneOverlap, zoneThreshold)
 		}
+		return fmt.Sprintf("area miss ratio=%.2f max=%.2f", ratio, maxAreaRatio)
 	}
-
-	overlap := rectOverlapRatio(found, expected)
-	areaRatio := rectAreaRatio(found, expected)
-	overlapThreshold := math.Max(0.0, math.Min(1.0, tolerance))
-	areaLimit := maxAreaRatio
-	if areaLimit <= 0 {
-		areaLimit = 1.50
-	}
-	partialOverlapThreshold := overlapThreshold * 0.60
-	partialAreaLimit := areaLimit * 1.20
-	strictOK := areaRatio <= areaLimit && overlap >= overlapThreshold
-	partialOK := allowPartial && areaRatio <= partialAreaLimit && overlap >= partialOverlapThreshold
 
 	switch matchClass {
 	case findBenchMatchClassOK:
-		if strictOK {
-			return fmt.Sprintf("strict ok ov=%.2f>=%.2f ar=%.2f", overlap, overlapThreshold, areaRatio)
+		if regionActsAsZone(target, pattern) {
+			return fmt.Sprintf("zone ok dx=%.0f dy=%.0f lim=%.0f,%.0f", dx, dy, limX, limY)
 		}
-		if partialOK {
-			return fmt.Sprintf("partial ok ov=%.2f>=%.2f ar=%.2f", overlap, partialOverlapThreshold, areaRatio)
-		}
-		return fmt.Sprintf("ok ov=%.2f ar=%.2f", overlap, areaRatio)
+		return fmt.Sprintf("center ok dx=%.0f dy=%.0f lim=%.0f,%.0f", dx, dy, limX, limY)
 	case findBenchMatchClassWrongRegion:
-		return fmt.Sprintf("wrong region ov=%.2f ar=%.2f", overlap, areaRatio)
+		return fmt.Sprintf("center in peer d=%.0f dx=%.0f dy=%.0f", dist, dx, dy)
 	default:
-		if areaRatio > areaLimit && (!allowPartial || areaRatio > partialAreaLimit) {
-			return fmt.Sprintf("miss size ar=%.2f>%.2f", areaRatio, areaLimit)
+		if regionActsAsZone(target, pattern) {
+			return fmt.Sprintf("zone miss dx=%.0f dy=%.0f lim=%.0f,%.0f", dx, dy, limX, limY)
 		}
-		if allowPartial {
-			return fmt.Sprintf("miss ov=%.2f<%.2f ar=%.2f", overlap, partialOverlapThreshold, areaRatio)
-		}
-		return fmt.Sprintf("miss ov=%.2f<%.2f ar=%.2f", overlap, overlapThreshold, areaRatio)
+		return fmt.Sprintf("center miss dx=%.0f dy=%.0f lim=%.0f,%.0f", dx, dy, limX, limY)
 	}
 }
 

@@ -15,6 +15,26 @@ TARGETS=(
   "linux amd64 bin-linux-x64"
   "windows amd64 bin-win32-x64"
 )
+built_manifest="$PACKAGES_DIR/.built-packages"
+
+should_build_target() {
+  local goos="$1"
+  local goarch="$2"
+  local pkg="$3"
+  local requested="${NODE_BIN_TARGETS:-}"
+  if [[ -z "${requested//[[:space:]]/}" ]]; then
+    return 0
+  fi
+  requested="${requested//,/ }"
+  local token=""
+  for token in $requested; do
+    token="$(echo "$token" | tr '[:upper:]' '[:lower:]')"
+    if [[ "$token" == "$pkg" || "$token" == "$goos/$goarch" || "$token" == "$goos-$goarch" ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
 
 if ! command -v go >/dev/null 2>&1; then
   echo "Missing go in PATH" >&2
@@ -27,6 +47,7 @@ if ! command -v node >/dev/null 2>&1; then
 fi
 
 mkdir -p "$GO_CACHE_DIR" "$GO_MOD_CACHE_DIR"
+rm -f "$built_manifest"
 
 NODE_VERSION="$(node -e "console.log(require(process.argv[1]).version)" "$NODE_CLIENT_PKG")"
 
@@ -71,8 +92,12 @@ EOF
   fi
 }
 
+built_pkgs=()
 for target in "${TARGETS[@]}"; do
   IFS=' ' read -r goos goarch pkg <<<"$target"
+  if ! should_build_target "$goos" "$goarch" "$pkg"; then
+    continue
+  fi
   pkg_dir="$PACKAGES_DIR/$pkg"
   bin_dir="$pkg_dir/bin"
   ensure_pkg_scaffold "$pkg" "$goos" "$goarch"
@@ -98,20 +123,35 @@ for target in "${TARGETS[@]}"; do
   if [[ "$goos" != "windows" ]]; then
     chmod +x "$out"
   fi
+  built_pkgs+=("$pkg")
 done
+
+if [[ "${#built_pkgs[@]}" -eq 0 ]]; then
+  echo "No Node binary targets selected. Set NODE_BIN_TARGETS to one or more of: ${NODE_BIN_PACKAGES[*]}" >&2
+  exit 1
+fi
+
+printf '%s\n' "${built_pkgs[@]}" > "$built_manifest"
 
 checksum_file="$PACKAGES_DIR/checksums.txt"
 rm -f "$checksum_file"
 if command -v sha256sum >/dev/null 2>&1; then
-  (
-    cd "$PACKAGES_DIR"
-    sha256sum bin-*/bin/sikuligo* > checksums.txt
-  )
+  for pkg in "${built_pkgs[@]}"; do
+    if [[ -f "$PACKAGES_DIR/$pkg/bin/sikuligo" ]]; then
+      sha256sum "$PACKAGES_DIR/$pkg/bin/sikuligo" >> "$checksum_file"
+    elif [[ -f "$PACKAGES_DIR/$pkg/bin/sikuligo.exe" ]]; then
+      sha256sum "$PACKAGES_DIR/$pkg/bin/sikuligo.exe" >> "$checksum_file"
+    fi
+  done
 elif command -v shasum >/dev/null 2>&1; then
-  (
-    cd "$PACKAGES_DIR"
-    shasum -a 256 bin-*/bin/sikuligo* > checksums.txt
-  )
+  for pkg in "${built_pkgs[@]}"; do
+    if [[ -f "$PACKAGES_DIR/$pkg/bin/sikuligo" ]]; then
+      shasum -a 256 "$PACKAGES_DIR/$pkg/bin/sikuligo" >> "$checksum_file"
+    elif [[ -f "$PACKAGES_DIR/$pkg/bin/sikuligo.exe" ]]; then
+      shasum -a 256 "$PACKAGES_DIR/$pkg/bin/sikuligo.exe" >> "$checksum_file"
+    fi
+  done
 fi
 
+echo "Built Node binary packages: ${built_pkgs[*]}"
 echo "Built Node binary package payloads in: $PACKAGES_DIR"

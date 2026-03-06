@@ -21,6 +21,22 @@ else
 fi
 
 if [[ "${RUN_NODE_BINARIES_VERIFY:-1}" == "1" ]]; then
+  if [[ -z "${NODE_BIN_TARGETS:-}" ]]; then
+    host_goos="$(go env GOOS 2>/dev/null || true)"
+    host_goarch="$(go env GOARCH 2>/dev/null || true)"
+    case "${host_goos}/${host_goarch}" in
+      darwin/arm64) export NODE_BIN_TARGETS="bin-darwin-arm64" ;;
+      darwin/amd64) export NODE_BIN_TARGETS="bin-darwin-x64" ;;
+      linux/amd64) export NODE_BIN_TARGETS="bin-linux-x64" ;;
+      windows/amd64) export NODE_BIN_TARGETS="bin-win32-x64" ;;
+      *)
+        echo "Unable to infer host Node binary target for ${host_goos}/${host_goarch}; using all targets."
+        ;;
+    esac
+    if [[ -n "${NODE_BIN_TARGETS:-}" ]]; then
+      echo "Using host Node binary target for verify: ${NODE_BIN_TARGETS} (${host_goos}/${host_goarch})"
+    fi
+  fi
   echo "Verifying Node binary package flow (no publish)..."
   NPM_PUBLISH=0 "${THIS_DIR}/release-node-binaries.sh"
 fi

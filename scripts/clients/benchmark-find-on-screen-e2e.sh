@@ -53,6 +53,9 @@ README_SECTION_TITLE="${FIND_BENCH_README_SECTION_TITLE:-FindOnScreen Benchmark 
 README_INLINE_IMAGES="${FIND_BENCH_README_INLINE_IMAGES:-6}"
 README_LINK_MODE="${FIND_BENCH_README_LINK_MODE:-pages}"
 README_BASE_URL="${FIND_BENCH_README_BASE_URL:-https://smysnk.github.io/SikuliGO}"
+CONSOLE_MODE="${FIND_BENCH_CONSOLE_MODE:-pretty}"
+CONSOLE_HEARTBEAT_SEC="${FIND_BENCH_CONSOLE_HEARTBEAT_SEC:-20}"
+CONSOLE_TAIL_LINES="${FIND_BENCH_CONSOLE_TAIL_LINES:-120}"
 STRATEGY_BASENAME="find-on-screen-scenario-strategy"
 if [[ -n "${BENCH_SEED}" && "${OUTPUT_BY_SEED}" =~ ^(1|true|yes|on)$ ]]; then
   STRATEGY_BASENAME="${STRATEGY_BASENAME}-seed${BENCH_SEED}"
@@ -101,17 +104,12 @@ echo "[find-bench] resolution_false_pos_svg=${RESOLUTION_FALSE_POS_SVG_OUT}"
 echo "[find-bench] visuals=${VISUAL_ENABLE} dir=${VISUAL_DIR} max_attempts=${VISUAL_MAX_ATTEMPTS} timeout=${VISUAL_TIMEOUT}"
 echo "[find-bench] patch_readmes=${PATCH_READMES} readmes=${README_PATHS} inline_images=${README_INLINE_IMAGES}"
 echo "[find-bench] readme_link_mode=${README_LINK_MODE} readme_base_url=${README_BASE_URL}"
+echo "[find-bench] console_mode=${CONSOLE_MODE} heartbeat_sec=${CONSOLE_HEARTBEAT_SEC} tail_lines=${CONSOLE_TAIL_LINES}"
 echo "[find-bench] strategy_json=${STRATEGY_JSON_OUT}"
 echo "[find-bench] strategy_md=${STRATEGY_MD_OUT}"
 echo "[find-bench] publish_docs=${DOCS_PUBLISH} docs_dir=${DOCS_REPORT_DIR}"
 
 cd "${API_DIR}"
-
-FIND_BENCH_SCENARIO_MANIFEST="${BENCH_MANIFEST}" \
-FIND_BENCH_REPORT_DIR="${REPORT_DIR}" \
-FIND_BENCH_STRATEGY_JSON_OUT="${STRATEGY_JSON_OUT}" \
-FIND_BENCH_STRATEGY_MD_OUT="${STRATEGY_MD_OUT}" \
-"${THIS_DIR}/report-find-on-screen-scenario-strategy.sh"
 
 FIND_BENCH_SCENARIO_MANIFEST="${BENCH_MANIFEST}" \
 FIND_BENCH_SCENARIO_SCHEMA="${BENCH_SCHEMA}" \
@@ -144,18 +142,41 @@ if [[ -n "${GO_TEST_ARGS}" ]]; then
   cmd+=( "${extra[@]}" )
 fi
 
-FIND_BENCH_VISUAL="${VISUAL_ENABLE}" \
-FIND_BENCH_VISUAL_DIR="${VISUAL_DIR}" \
-FIND_BENCH_VISUAL_MAX_ATTEMPTS="${VISUAL_MAX_ATTEMPTS}" \
-FIND_BENCH_VISUAL_TIMEOUT="${VISUAL_TIMEOUT}" \
-FIND_BENCH_HIGH_RES="${HIGH_RES}" \
-FIND_BENCH_ULTRA_RES="${ULTRA_RES}" \
-FIND_BENCH_SCENARIO_MANIFEST="${BENCH_MANIFEST}" \
-FIND_BENCH_SCENARIO_SCHEMA="${BENCH_SCHEMA}" \
-FIND_BENCH_REGION_SPEC="${BENCH_REGION_SPEC}" \
-FIND_BENCH_SEED="${BENCH_SEED}" \
-FIND_BENCH_PHOTO_ASSET="${BENCH_PHOTO_ASSET}" \
-"${cmd[@]}" | tee "${TEXT_OUT}"
+bench_env=(
+  "FIND_BENCH_VISUAL=${VISUAL_ENABLE}"
+  "FIND_BENCH_VISUAL_DIR=${VISUAL_DIR}"
+  "FIND_BENCH_VISUAL_MAX_ATTEMPTS=${VISUAL_MAX_ATTEMPTS}"
+  "FIND_BENCH_VISUAL_TIMEOUT=${VISUAL_TIMEOUT}"
+  "FIND_BENCH_HIGH_RES=${HIGH_RES}"
+  "FIND_BENCH_ULTRA_RES=${ULTRA_RES}"
+  "FIND_BENCH_SCENARIO_MANIFEST=${BENCH_MANIFEST}"
+  "FIND_BENCH_SCENARIO_SCHEMA=${BENCH_SCHEMA}"
+  "FIND_BENCH_REGION_SPEC=${BENCH_REGION_SPEC}"
+  "FIND_BENCH_SEED=${BENCH_SEED}"
+  "FIND_BENCH_PHOTO_ASSET=${BENCH_PHOTO_ASSET}"
+)
+
+if [[ "${CONSOLE_MODE}" == "raw" ]]; then
+  env "${bench_env[@]}" "${cmd[@]}" 2>&1 | tee "${TEXT_OUT}"
+else
+  bench_start_epoch="$(date +%s)"
+  env "${bench_env[@]}" "${cmd[@]}" > "${TEXT_OUT}" 2>&1 &
+  bench_pid=$!
+  while kill -0 "${bench_pid}" 2>/dev/null; do
+    sleep "${CONSOLE_HEARTBEAT_SEC}"
+    if kill -0 "${bench_pid}" 2>/dev/null; then
+      now_epoch="$(date +%s)"
+      elapsed="$(( now_epoch - bench_start_epoch ))"
+      echo "[find-bench] running benchmark... ${elapsed}s elapsed (mode=${CONSOLE_MODE})"
+    fi
+  done
+  if ! wait "${bench_pid}"; then
+    echo "[find-bench] benchmark command failed. Showing last ${CONSOLE_TAIL_LINES} lines:"
+    tail -n "${CONSOLE_TAIL_LINES}" "${TEXT_OUT}" || true
+    exit 1
+  fi
+  echo "[find-bench] benchmark command complete (raw output saved to ${TEXT_OUT})"
+fi
 
 BENCH_NAME="${BENCH_NAME}" \
 BENCH_TARGET="${BENCH_TARGET}" \
@@ -185,6 +206,7 @@ README_SECTION_TITLE="${README_SECTION_TITLE}" \
 README_INLINE_IMAGES="${README_INLINE_IMAGES}" \
 README_LINK_MODE="${README_LINK_MODE}" \
 README_BASE_URL="${README_BASE_URL}" \
+CONSOLE_MODE="${CONSOLE_MODE}" \
 TEXT_OUT="${TEXT_OUT}" \
 JSON_OUT="${JSON_OUT}" \
 MD_OUT="${MD_OUT}" \
@@ -229,6 +251,7 @@ bench_tags = os.environ.get("BENCH_TAGS", "")
 high_res = os.environ.get("HIGH_RES", "")
 ultra_res = os.environ.get("ULTRA_RES", "")
 run_mode = os.environ.get("RUN_MODE", "full_range")
+console_mode = os.environ.get("CONSOLE_MODE", "pretty").strip().lower()
 bench_seed = os.environ.get("BENCH_SEED", "").strip()
 deterministic_report = os.environ.get("DETERMINISTIC_REPORT", "").strip().lower() in {"1", "true", "yes", "on"}
 bench_manifest = os.environ.get("BENCH_MANIFEST", "").strip()
@@ -723,6 +746,74 @@ for engine, rows in sorted(engines.items()):
             "error_rate_pct": (sum(error_vals) / len(error_vals)) * 100.0,
         }
     )
+
+def render_console_table(headers: list[str], rows: list[list[str]]) -> list[str]:
+    widths = [len(h) for h in headers]
+    for row in rows:
+        for i, cell in enumerate(row):
+            if i < len(widths):
+                widths[i] = max(widths[i], len(cell))
+    sep = "  "
+    header_line = sep.join(h.ljust(widths[i]) for i, h in enumerate(headers))
+    divider = sep.join("-" * widths[i] for i in range(len(headers)))
+    out = [header_line, divider]
+    for row in rows:
+        out.append(sep.join(row[i].ljust(widths[i]) for i in range(len(headers))))
+    return out
+
+def print_console_summary() -> None:
+    print("[find-bench] benchmark parse complete")
+    print(
+        f"[find-bench] rows={len(results)} engines={len(engines)} "
+        f"platform={meta.get('goos','')}/{meta.get('goarch','')} benchtime={bench_time} count={bench_count}"
+    )
+    print("")
+
+    # Engine rollup table
+    ordered = sorted(summary_rows, key=lambda r: str(r["engine"]))
+    engine_rows: list[list[str]] = []
+    for row in ordered:
+        engine_rows.append(
+            [
+                str(row["engine"]),
+                f"{int(row.get('cases', 0.0))}",
+                f"{int(row.get('query_ok', 0.0))}",
+                f"{int(row.get('query_not_found', 0.0))}",
+                f"{int(row.get('query_overlap_miss', 0.0))}",
+                f"{float(row.get('avg_ms_per_op', 0.0)):.2f}",
+                f"{float(row.get('median_ms_per_op', 0.0)):.2f}",
+            ]
+        )
+    print("[find-bench] Engine Summary")
+    for line in render_console_table(
+        ["Engine", "Cases", "OK", "NotFound", "FalsePos", "Avg ms/op", "Median"],
+        engine_rows,
+    ):
+        print(f"[find-bench] {line}")
+    print("")
+
+    # Global slowest rows table
+    slowest = sorted(results, key=lambda r: float(r["ms_per_op"]), reverse=True)[:12]
+    slow_rows: list[list[str]] = []
+    for row in slowest:
+        slow_rows.append(
+            [
+                str(row["engine"]),
+                str(row["scenario"])[:54],
+                str(row["status"]),
+                f"{float(row['ms_per_op']):.2f}",
+            ]
+        )
+    print("[find-bench] Slowest Scenarios (top 12)")
+    for line in render_console_table(
+        ["Engine", "Scenario", "Status", "ms/op"],
+        slow_rows,
+    ):
+        print(f"[find-bench] {line}")
+    print("")
+
+if console_mode != "raw":
+    print_console_summary()
 
 engine_names = ordered_engines(sorted(engines.keys()))
 resolution_buckets: dict[str, dict[str, dict[str, float]]] = defaultdict(lambda: defaultdict(lambda: {
@@ -1711,3 +1802,10 @@ if resolution_misses_svg_path.exists():
 if resolution_false_pos_svg_path.exists():
     print(f"[find-bench] wrote resolution false positive graph: {resolution_false_pos_svg_path}")
 PY
+
+FIND_BENCH_SCENARIO_MANIFEST="${BENCH_MANIFEST}" \
+FIND_BENCH_REPORT_DIR="${REPORT_DIR}" \
+FIND_BENCH_STRATEGY_JSON_OUT="${STRATEGY_JSON_OUT}" \
+FIND_BENCH_STRATEGY_MD_OUT="${STRATEGY_MD_OUT}" \
+FIND_BENCH_STRATEGY_BENCH_JSON="${JSON_OUT}" \
+"${THIS_DIR}/report-find-on-screen-scenario-strategy.sh"

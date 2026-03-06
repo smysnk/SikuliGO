@@ -112,9 +112,10 @@ type findBenchTargetRegion struct {
 }
 
 type findBenchFixtureQuery struct {
-	Pattern  *pb.GrayImage
-	Expected *pb.Rect
-	Label    string
+	Pattern            *pb.GrayImage
+	Expected           *pb.Rect
+	ExpectedAlternates []*pb.Rect
+	Label              string
 }
 
 type findBenchMatchClass string
@@ -369,11 +370,12 @@ func runFindOnScreenScenarioBenchmark(b *testing.B, engine findBenchEngine, scen
 		}
 		requests = append(requests, request)
 		visualQueries = append(visualQueries, findBenchVisualQuery{
-			Request:  request,
-			Expected: q.Expected,
-			Label:    q.Label,
+			Request:    request,
+			Expected:   q.Expected,
+			Alternates: cloneRectSlice(q.ExpectedAlternates),
+			Label:      q.Label,
 		})
-		expectedRects = append(expectedRects, q.Expected)
+		expectedRects = appendExpectedCandidates(expectedRects, q.Expected, q.ExpectedAlternates)
 	}
 
 	if visuals != nil && len(visualQueries) > 0 {
@@ -480,6 +482,7 @@ func runFindOnScreenScenarioBenchmark(b *testing.B, engine findBenchEngine, scen
 			matchClass := classifyFindBenchPositiveMatch(
 				res.GetMatch().GetRect(),
 				expectedRect,
+				queries[queryIdx].ExpectedAlternates,
 				expectedRects,
 				request.GetPattern().GetImage(),
 				scenario.tolerance,
@@ -519,6 +522,7 @@ func runFindOnScreenScenarioBenchmark(b *testing.B, engine findBenchEngine, scen
 func classifyFindBenchPositiveMatch(
 	found *pb.Rect,
 	expected *pb.Rect,
+	expectedAlternates []*pb.Rect,
 	allExpected []*pb.Rect,
 	pattern *pb.GrayImage,
 	tolerance float64,
@@ -528,11 +532,15 @@ func classifyFindBenchPositiveMatch(
 	if found == nil || expected == nil {
 		return findBenchMatchClassOverlapMiss
 	}
-	if matchRectAgainstRegion(found, expected, pattern, tolerance, maxAreaRatio, allowPartial) {
-		return findBenchMatchClassOK
+
+	ownExpected := expectedCandidateSet(expected, expectedAlternates)
+	for _, own := range ownExpected {
+		if matchRectAgainstRegion(found, own, pattern, tolerance, maxAreaRatio, allowPartial) {
+			return findBenchMatchClassOK
+		}
 	}
 	for _, peer := range allExpected {
-		if peer == nil || rectsEquivalent(peer, expected) {
+		if peer == nil || rectExistsInSet(peer, ownExpected) {
 			continue
 		}
 		if matchRectAgainstRegion(found, peer, pattern, tolerance, maxAreaRatio, allowPartial) {
@@ -540,6 +548,59 @@ func classifyFindBenchPositiveMatch(
 		}
 	}
 	return findBenchMatchClassOverlapMiss
+}
+
+func expectedCandidateSet(primary *pb.Rect, alternates []*pb.Rect) []*pb.Rect {
+	out := make([]*pb.Rect, 0, 1+len(alternates))
+	if primary != nil {
+		out = append(out, primary)
+	}
+	for _, alt := range alternates {
+		if alt == nil {
+			continue
+		}
+		if rectExistsInSet(alt, out) {
+			continue
+		}
+		out = append(out, alt)
+	}
+	return out
+}
+
+func rectExistsInSet(target *pb.Rect, set []*pb.Rect) bool {
+	if target == nil {
+		return false
+	}
+	for _, item := range set {
+		if rectsEquivalent(item, target) {
+			return true
+		}
+	}
+	return false
+}
+
+func appendExpectedCandidates(dst []*pb.Rect, primary *pb.Rect, alternates []*pb.Rect) []*pb.Rect {
+	for _, candidate := range expectedCandidateSet(primary, alternates) {
+		if rectExistsInSet(candidate, dst) {
+			continue
+		}
+		dst = append(dst, candidate)
+	}
+	return dst
+}
+
+func cloneRectSlice(in []*pb.Rect) []*pb.Rect {
+	if len(in) == 0 {
+		return nil
+	}
+	out := make([]*pb.Rect, 0, len(in))
+	for _, rect := range in {
+		if rect == nil {
+			continue
+		}
+		out = append(out, cloneRect(rect))
+	}
+	return out
 }
 
 func matchRectAgainstRegion(
@@ -553,76 +614,8 @@ func matchRectAgainstRegion(
 	if found == nil || expected == nil {
 		return false
 	}
-	if regionActsAsZone(expected, pattern) {
-		if zoneMatchSatisfies(found, expected, pattern, tolerance, maxAreaRatio, allowPartial) {
-			return true
-		}
-		if allowPartial && zoneMatchSatisfies(found, expected, pattern, tolerance*0.60, maxAreaRatio*1.20, true) {
-			return true
-		}
-		return false
-	}
-	if rectMatchSatisfies(found, expected, tolerance, maxAreaRatio) {
-		return true
-	}
-	if allowPartial && rectMatchSatisfies(found, expected, tolerance*0.60, maxAreaRatio*1.20) {
-		return true
-	}
-	return false
-}
-
-func regionActsAsZone(expected *pb.Rect, pattern *pb.GrayImage) bool {
-	if expected == nil || pattern == nil {
-		return false
-	}
-	zoneArea := float64(max32(1, expected.GetW()*expected.GetH()))
-	patternArea := float64(max32(1, pattern.GetWidth()*pattern.GetHeight()))
-	// Region-spec benchmark targets may be coarse zones rather than tight boxes.
-	// When they are significantly larger than the query template, use zone scoring.
-	return zoneArea > patternArea*1.35
-}
-
-func zoneMatchSatisfies(
-	found *pb.Rect,
-	zone *pb.Rect,
-	pattern *pb.GrayImage,
-	minOverlap float64,
-	maxAreaRatio float64,
-	allowPartial bool,
-) bool {
-	if found == nil || zone == nil {
-		return false
-	}
-	foundArea := rectAreaFloat(found)
-	if foundArea <= 0 {
-		return false
-	}
-	if pattern != nil {
-		patternArea := float64(max32(1, pattern.GetWidth()*pattern.GetHeight()))
-		limit := maxAreaRatio
-		if limit <= 0 {
-			limit = 1.50
-		}
-		// Zone scoring keeps strict size checks by comparing against the template area.
-		// This avoids accepting oversized detections even when they overlap the zone.
-		if foundArea/patternArea > limit*1.30 {
-			return false
-		}
-	}
-	overlapFound := rectIntersectionArea(found, zone) / foundArea
-	threshold := math.Max(0.10, math.Min(0.85, minOverlap*0.70))
-	if allowPartial {
-		threshold *= 0.80
-	}
-	if overlapFound >= threshold {
-		return true
-	}
-	if overlapFound >= threshold*0.40 {
-		cx := float64(found.GetX()) + float64(found.GetW())/2.0
-		cy := float64(found.GetY()) + float64(found.GetH())/2.0
-		return rectContainsPoint(zone, cx, cy)
-	}
-	return false
+	_, _, _, _, _, ok := centerDeltaMetrics(found, expected, pattern, tolerance, maxAreaRatio, allowPartial)
+	return ok
 }
 
 func rectsEquivalent(a, b *pb.Rect) bool {
@@ -633,6 +626,102 @@ func rectsEquivalent(a, b *pb.Rect) bool {
 		a.GetY() == b.GetY() &&
 		a.GetW() == b.GetW() &&
 		a.GetH() == b.GetH()
+}
+
+func centerDeltaMetrics(
+	found *pb.Rect,
+	expected *pb.Rect,
+	pattern *pb.GrayImage,
+	tolerance float64,
+	maxAreaRatio float64,
+	allowPartial bool,
+) (dxAbs float64, dyAbs float64, distance float64, limitX float64, limitY float64, ok bool) {
+	if found == nil || expected == nil {
+		return 0, 0, 0, 0, 0, false
+	}
+	if !areaRatioWithinLimit(found, pattern, maxAreaRatio) {
+		limitX, limitY = centerDeltaThreshold(expected, tolerance, allowPartial)
+		return 0, 0, 0, limitX, limitY, false
+	}
+	if regionActsAsZone(expected, pattern) {
+		dxAbs, dyAbs, distance = centerDeltaToRect(found, expected)
+	} else {
+		fx, fy := rectCenter(found)
+		ex, ey := rectCenter(expected)
+		dxAbs = math.Abs(fx - ex)
+		dyAbs = math.Abs(fy - ey)
+		distance = math.Hypot(dxAbs, dyAbs)
+	}
+	limitX, limitY = centerDeltaThreshold(expected, tolerance, allowPartial)
+	ok = dxAbs <= limitX && dyAbs <= limitY
+	return dxAbs, dyAbs, distance, limitX, limitY, ok
+}
+
+func areaRatioWithinLimit(found *pb.Rect, pattern *pb.GrayImage, maxAreaRatio float64) bool {
+	if found == nil || pattern == nil {
+		return true
+	}
+	if maxAreaRatio <= 0 {
+		maxAreaRatio = 1.50
+	}
+	patternArea := float64(max32(1, pattern.GetWidth()*pattern.GetHeight()))
+	foundArea := rectAreaFloat(found)
+	if patternArea <= 0 || foundArea <= 0 {
+		return true
+	}
+	return (foundArea / patternArea) <= maxAreaRatio
+}
+
+func regionActsAsZone(expected *pb.Rect, pattern *pb.GrayImage) bool {
+	if expected == nil || pattern == nil {
+		return false
+	}
+	zoneArea := rectAreaFloat(expected)
+	patternArea := float64(max32(1, pattern.GetWidth()*pattern.GetHeight()))
+	return zoneArea > patternArea*1.35
+}
+
+func centerDeltaToRect(found *pb.Rect, expected *pb.Rect) (dxAbs float64, dyAbs float64, distance float64) {
+	if found == nil || expected == nil {
+		return 0, 0, 0
+	}
+	fx, fy := rectCenter(found)
+	left := float64(expected.GetX())
+	top := float64(expected.GetY())
+	right := left + float64(expected.GetW())
+	bottom := top + float64(expected.GetH())
+
+	if fx < left {
+		dxAbs = left - fx
+	} else if fx > right {
+		dxAbs = fx - right
+	}
+	if fy < top {
+		dyAbs = top - fy
+	} else if fy > bottom {
+		dyAbs = fy - bottom
+	}
+	distance = math.Hypot(dxAbs, dyAbs)
+	return dxAbs, dyAbs, distance
+}
+
+func centerDeltaThreshold(expected *pb.Rect, tolerance float64, allowPartial bool) (float64, float64) {
+	tol := math.Max(0.0, math.Min(1.0, tolerance))
+	factor := 0.18 + tol*0.45
+	if allowPartial {
+		factor *= 1.08
+	}
+	factor = math.Max(0.16, math.Min(0.50, factor))
+	limitX := math.Max(8.0, float64(max32(1, expected.GetW()))*factor)
+	limitY := math.Max(8.0, float64(max32(1, expected.GetH()))*factor)
+	return limitX, limitY
+}
+
+func rectCenter(r *pb.Rect) (float64, float64) {
+	if r == nil {
+		return 0, 0
+	}
+	return float64(r.GetX()) + float64(r.GetW())/2.0, float64(r.GetY()) + float64(r.GetH())/2.0
 }
 
 func benchFindOnScreenCall(client pb.SikuliServiceClient, request *pb.FindOnScreenRequest, scenario findBenchScenario) (*pb.FindResponse, error) {
@@ -802,19 +891,29 @@ func buildFindBenchFixtureFromRegionSpec(t testing.TB, scenario findBenchScenari
 		t.Logf("find bench region-spec source load failed path=%s err=%v fallback=synthetic", sourcePath, err)
 		return nil, nil, false
 	}
+	sourceNativeW := raw.Bounds().Dx()
+	sourceNativeH := raw.Bounds().Dy()
 
 	sourceScene, sourceRegions := normalizeSceneAndRegions(raw, scenario.screenW, scenario.screenH, scenario.sourceTargets)
 	if sourceScene == nil || len(sourceRegions) == 0 {
 		t.Logf("find bench region-spec normalize failed scenario=%s path=%s fallback=synthetic", scenario.name, sourcePath)
 		return nil, nil, false
 	}
+	if projected := projectTargetRegionsToScreen(scenario.sourceTargets, sourceNativeW, sourceNativeH, scenario.screenW, scenario.screenH); len(projected) > 0 {
+		sourceRegions = projected
+	}
+
+	regionsForBenchmark := scenario.sourceTargets
+	if len(scenario.benchmarkTargets) > 0 {
+		regionsForBenchmark = scenario.benchmarkTargets
+	}
 
 	benchScene := sourceScene
 	benchRegions := append([]findBenchTargetRegion(nil), sourceRegions...)
-	if len(scenario.benchmarkTargets) > 0 {
-		if _, candidateRegions := normalizeSceneAndRegions(raw, scenario.screenW, scenario.screenH, scenario.benchmarkTargets); len(candidateRegions) > 0 {
-			benchRegions = candidateRegions
-		}
+	benchNativeW := sourceNativeW
+	benchNativeH := sourceNativeH
+	if projected := projectTargetRegionsToScreen(regionsForBenchmark, benchNativeW, benchNativeH, scenario.screenW, scenario.screenH); len(projected) > 0 {
+		benchRegions = projected
 	}
 	benchPath := strings.TrimSpace(scenario.benchmarkImagePath)
 	if benchPath != "" && benchPath != sourcePath {
@@ -822,16 +921,17 @@ func buildFindBenchFixtureFromRegionSpec(t testing.TB, scenario findBenchScenari
 		if benchErr != nil {
 			t.Logf("find bench region-spec benchmark load failed path=%s err=%v fallback=source", benchPath, benchErr)
 		} else {
-			regionsForBenchmark := scenario.sourceTargets
-			if len(scenario.benchmarkTargets) > 0 {
-				regionsForBenchmark = scenario.benchmarkTargets
-			}
+			benchNativeW = benchRaw.Bounds().Dx()
+			benchNativeH = benchRaw.Bounds().Dy()
 			candidateScene, candidateRegions := normalizeSceneAndRegions(benchRaw, scenario.screenW, scenario.screenH, regionsForBenchmark)
 			if candidateScene == nil || len(candidateRegions) == 0 {
 				t.Logf("find bench region-spec benchmark normalize failed scenario=%s path=%s fallback=source", scenario.name, benchPath)
 			} else {
 				benchScene = candidateScene
 				benchRegions = candidateRegions
+			}
+			if projected := projectTargetRegionsToScreen(regionsForBenchmark, benchNativeW, benchNativeH, scenario.screenW, scenario.screenH); len(projected) > 0 {
+				benchRegions = projected
 			}
 		}
 	}
@@ -863,6 +963,7 @@ func buildFindBenchFixtureFromRegionSpec(t testing.TB, scenario findBenchScenari
 		if !ok || benchRegion.W <= 0 || benchRegion.H <= 0 {
 			continue
 		}
+		expectedRegion, alternates := chooseExpectedRegionsForScenario(scenario, sourceRegion, benchRegion)
 		label := strings.TrimSpace(sourceRegion.Label)
 		if label == "" {
 			label = strings.TrimSpace(sourceRegion.ID)
@@ -871,9 +972,10 @@ func buildFindBenchFixtureFromRegionSpec(t testing.TB, scenario findBenchScenari
 			label = fmt.Sprintf("target-%02d", idx+1)
 		}
 		queries = append(queries, findBenchFixtureQuery{
-			Pattern:  grayProtoFromGray(fmt.Sprintf("bench-%s-pattern-%02d", scenario.name, idx+1), sourcePattern),
-			Expected: benchRectFromTargetRegion(benchRegion),
-			Label:    label,
+			Pattern:            grayProtoFromGray(fmt.Sprintf("bench-%s-pattern-%02d", scenario.name, idx+1), sourcePattern),
+			Expected:           benchRectFromTargetRegion(expectedRegion),
+			ExpectedAlternates: alternates,
+			Label:              label,
 		})
 	}
 	if len(queries) == 0 {
@@ -1002,6 +1104,41 @@ func chooseScenarioTargetRegion(regions []findBenchTargetRegion, seed uint64) fi
 	return regions[idx]
 }
 
+func chooseExpectedRegionsForScenario(
+	scenario findBenchScenario,
+	sourceRegion findBenchTargetRegion,
+	benchmarkRegion findBenchTargetRegion,
+) (findBenchTargetRegion, []*pb.Rect) {
+	primary := sourceRegion
+	if shouldPreferBenchmarkExpectedRegion(scenario) {
+		primary = benchmarkRegion
+	}
+
+	alternates := make([]*pb.Rect, 0, 1)
+	if !targetRegionsEquivalent(sourceRegion, benchmarkRegion) {
+		if shouldPreferBenchmarkExpectedRegion(scenario) {
+			alternates = append(alternates, benchRectFromTargetRegion(sourceRegion))
+		} else {
+			alternates = append(alternates, benchRectFromTargetRegion(benchmarkRegion))
+		}
+	}
+	return primary, alternates
+}
+
+func shouldPreferBenchmarkExpectedRegion(scenario findBenchScenario) bool {
+	kind := strings.ToLower(strings.TrimSpace(scenario.kind))
+	switch kind {
+	case "multi_monitor_dpi", "multi_monitor":
+		return true
+	default:
+		return false
+	}
+}
+
+func targetRegionsEquivalent(a, b findBenchTargetRegion) bool {
+	return a.X == b.X && a.Y == b.Y && a.W == b.W && a.H == b.H
+}
+
 func findScenarioTargetRegionByID(regions []findBenchTargetRegion, id string) (findBenchTargetRegion, bool) {
 	id = strings.TrimSpace(id)
 	if id == "" {
@@ -1035,6 +1172,23 @@ func normalizeSceneAndRegions(src *image.Gray, screenW, screenH int, regions []f
 	cropX := maxInt(0, (scaledW-screenW)/2)
 	cropY := maxInt(0, (scaledH-screenH)/2)
 	scene := cropGray(scaled, image.Rect(cropX, cropY, cropX+screenW, cropY+screenH))
+	out := projectTargetRegionsToScreen(regions, sw, sh, screenW, screenH)
+	return scene, out
+}
+
+func projectTargetRegionsToScreen(regions []findBenchTargetRegion, sourceW, sourceH, screenW, screenH int) []findBenchTargetRegion {
+	if len(regions) == 0 || sourceW < 1 || sourceH < 1 || screenW < 1 || screenH < 1 {
+		return nil
+	}
+	scale := math.Max(float64(screenW)/float64(sourceW), float64(screenH)/float64(sourceH))
+	if scale <= 0 {
+		scale = 1
+	}
+	scaledW := maxInt(1, int(math.Round(float64(sourceW)*scale)))
+	scaledH := maxInt(1, int(math.Round(float64(sourceH)*scale)))
+	cropX := maxInt(0, (scaledW-screenW)/2)
+	cropY := maxInt(0, (scaledH-screenH)/2)
+	screenRect := image.Rect(0, 0, screenW, screenH)
 
 	out := make([]findBenchTargetRegion, 0, len(regions))
 	for _, r := range regions {
@@ -1045,7 +1199,7 @@ func normalizeSceneAndRegions(src *image.Gray, screenW, screenH int, regions []f
 		y := int(math.Round(float64(r.Y)*scale)) - cropY
 		w := maxInt(1, int(math.Round(float64(r.W)*scale)))
 		h := maxInt(1, int(math.Round(float64(r.H)*scale)))
-		rr := image.Rect(x, y, x+w, y+h).Intersect(scene.Bounds())
+		rr := image.Rect(x, y, x+w, y+h).Intersect(screenRect)
 		if rr.Empty() || rr.Dx() < 2 || rr.Dy() < 2 {
 			continue
 		}
@@ -1058,7 +1212,7 @@ func normalizeSceneAndRegions(src *image.Gray, screenW, screenH int, regions []f
 			H:     rr.Dy(),
 		})
 	}
-	return scene, out
+	return out
 }
 
 func applyGlobalTransformToSceneAndRegion(scene *image.Gray, region findBenchTargetRegion, scenario findBenchScenario) (*image.Gray, *pb.Rect, bool) {

@@ -87,6 +87,18 @@ jobs:
         with:
           version: "29.3"
 
+      - name: Install OCR/OpenCV native dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            pkg-config \
+            libopencv-dev \
+            libopencv-contrib-dev \
+            tesseract-ocr \
+            libtesseract-dev \
+            libleptonica-dev \
+            tesseract-ocr-eng
+
       - name: Verify release flows (no publish)
         env:
           BUILD_NUMBER: ${{ github.run_number }}
@@ -94,6 +106,7 @@ jobs:
           VERSION_MINOR: ${{ vars.CLIENT_VERSION_MINOR }}
           PATCH_MODE: ${{ vars.CLIENT_VERSION_PATCH_MODE }}
           PATCH_FIXED: ${{ vars.CLIENT_VERSION_PATCH_FIXED }}
+          NODE_BIN_TARGETS: bin-linux-x64
         run: ./scripts/clients/release-verify.sh
 
   python-client:
@@ -157,6 +170,18 @@ jobs:
           node-version: "20"
           registry-url: "https://registry.npmjs.org"
 
+      - name: Install OCR/OpenCV native dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            pkg-config \
+            libopencv-dev \
+            libopencv-contrib-dev \
+            tesseract-ocr \
+            libtesseract-dev \
+            libleptonica-dev \
+            tesseract-ocr-eng
+
       - name: Set client version from build number
         env:
           BUILD_NUMBER: ${{ github.run_number }}
@@ -170,6 +195,7 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_PUBLISH: ${{ ((github.event_name == 'push' && github.ref_name == 'release') || inputs.publish_node || inputs.publish_node_binaries) && '1' || '0' }}
+          NODE_BIN_TARGETS: bin-linux-x64
         run: ./scripts/clients/release-node-binaries.sh
 
       - name: Upload Node binary checksums

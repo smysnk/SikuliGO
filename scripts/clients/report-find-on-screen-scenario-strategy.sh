@@ -13,6 +13,7 @@ REPORT_DIR="${FIND_BENCH_REPORT_DIR:-${ROOT_DIR}/.test-results/bench}"
 STRATEGY_BASENAME="${FIND_BENCH_STRATEGY_BASENAME:-find-on-screen-scenario-strategy}"
 STRATEGY_JSON_OUT="${FIND_BENCH_STRATEGY_JSON_OUT:-${REPORT_DIR}/${STRATEGY_BASENAME}.json}"
 STRATEGY_MD_OUT="${FIND_BENCH_STRATEGY_MD_OUT:-${REPORT_DIR}/${STRATEGY_BASENAME}.md}"
+STRATEGY_BENCH_JSON="${FIND_BENCH_STRATEGY_BENCH_JSON:-${REPORT_DIR}/find-on-screen-e2e.json}"
 STRATEGY_VISUAL_EXAMPLES="${FIND_BENCH_STRATEGY_VISUAL_EXAMPLES:-1}"
 STRATEGY_VISUAL_RES="${FIND_BENCH_STRATEGY_VISUAL_RES:-1280x720}"
 STRATEGY_VISUAL_ENGINE="${FIND_BENCH_STRATEGY_VISUAL_ENGINE:-hybrid}"
@@ -28,6 +29,7 @@ mkdir -p "${REPORT_DIR}"
 echo "[find-bench-strategy] manifest=${MANIFEST_RAW}"
 echo "[find-bench-strategy] json=${STRATEGY_JSON_OUT}"
 echo "[find-bench-strategy] markdown=${STRATEGY_MD_OUT}"
+echo "[find-bench-strategy] bench_json=${STRATEGY_BENCH_JSON}"
 echo "[find-bench-strategy] visual_examples=${STRATEGY_VISUAL_EXAMPLES} resolution=${STRATEGY_VISUAL_RES} engine=${STRATEGY_VISUAL_ENGINE}"
 echo "[find-bench-strategy] visual_dir=${STRATEGY_VISUAL_DIR} benchtime=${STRATEGY_VISUAL_BENCHTIME} count=${STRATEGY_VISUAL_COUNT}"
 
@@ -35,6 +37,7 @@ PROJECT_ROOT="${ROOT_DIR}" \
 MANIFEST_RAW="${MANIFEST_RAW}" \
 STRATEGY_JSON_OUT="${STRATEGY_JSON_OUT}" \
 STRATEGY_MD_OUT="${STRATEGY_MD_OUT}" \
+STRATEGY_BENCH_JSON="${STRATEGY_BENCH_JSON}" \
 STRATEGY_VISUAL_EXAMPLES="${STRATEGY_VISUAL_EXAMPLES}" \
 STRATEGY_VISUAL_RES="${STRATEGY_VISUAL_RES}" \
 STRATEGY_VISUAL_ENGINE="${STRATEGY_VISUAL_ENGINE}" \
@@ -124,6 +127,124 @@ def scenario_goal_line(s: dict[str, Any]) -> str:
         f"(positive={positive}, iou_min={iou}, area_max={area}, partial={partial}, "
         f"decoys={decoy_place}, occlusion={occ_enabled})"
     )
+
+
+def _float_or_zero(v: Any) -> float:
+    try:
+        return float(v)
+    except Exception:
+        return 0.0
+
+
+def resolve_optional_file(raw: str, root: Path, report_dir: Path) -> Path | None:
+    raw = (raw or "").strip()
+    candidates: list[Path] = []
+    if raw:
+        p = Path(raw)
+        candidates.append(p)
+        if not p.is_absolute():
+            candidates.append(report_dir / p)
+            candidates.append(root / p)
+    else:
+        candidates.append(report_dir / "find-on-screen-e2e.json")
+
+    # fallback: newest seeded/default benchmark json in report dir
+    if report_dir.exists():
+        for p in sorted(report_dir.glob("find-on-screen-e2e*.json"), key=lambda x: x.stat().st_mtime, reverse=True):
+            candidates.append(p)
+
+    seen: set[Path] = set()
+    for c in candidates:
+        c = c.resolve()
+        if c in seen:
+            continue
+        seen.add(c)
+        if c.exists() and c.is_file():
+            return c
+    return None
+
+
+def compute_engine_match_comparison(bench_report_path: Path | None, selected_engine: str) -> dict[str, Any]:
+    out: dict[str, Any] = {
+        "available": False,
+        "engine": selected_engine,
+        "bench_report_path": str(bench_report_path) if bench_report_path else "",
+    }
+    if bench_report_path is None:
+        out["error"] = "benchmark report not found"
+        return out
+
+    try:
+        payload = json.loads(bench_report_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        out["error"] = f"failed to parse benchmark report: {type(exc).__name__}: {exc}"
+        return out
+
+    summary = payload.get("summary") or {}
+    rows = summary.get("by_engine") or payload.get("by_engine") or []
+    if not isinstance(rows, list) or not rows:
+        out["error"] = "benchmark report missing summary.by_engine rows"
+        return out
+
+    parsed: list[dict[str, Any]] = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        engine = str(row.get("engine", "")).strip()
+        if not engine:
+            continue
+        cases = _float_or_zero(row.get("cases", 0))
+        ok = _float_or_zero(row.get("query_ok", 0))
+        match_rate = (ok / cases * 100.0) if cases > 0 else 0.0
+        parsed.append(
+            {
+                "engine": engine,
+                "cases": cases,
+                "query_ok": ok,
+                "match_rate_pct": match_rate,
+            }
+        )
+
+    if not parsed:
+        out["error"] = "benchmark report contains no valid engine rows"
+        return out
+
+    selected_lc = (selected_engine or "").strip().lower()
+    selected = next((r for r in parsed if r["engine"].lower() == selected_lc), None)
+    if selected is None:
+        out["error"] = f"selected engine '{selected_engine}' not present in benchmark report"
+        out["engines_present"] = sorted(r["engine"] for r in parsed)
+        return out
+
+    others = [r for r in parsed if r["engine"].lower() != selected_lc]
+    others_cases = sum(r["cases"] for r in others)
+    others_ok = sum(r["query_ok"] for r in others)
+    others_match_rate = (others_ok / others_cases * 100.0) if others_cases > 0 else 0.0
+
+    ranked = sorted(parsed, key=lambda r: (r["match_rate_pct"], r["query_ok"]), reverse=True)
+    rank = 1
+    for i, row in enumerate(ranked, start=1):
+        if row["engine"].lower() == selected_lc:
+            rank = i
+            break
+
+    out.update(
+        {
+            "available": True,
+            "bench_report_path": str(bench_report_path),
+            "engine": selected["engine"],
+            "engine_match_rate_pct": selected["match_rate_pct"],
+            "engine_cases": selected["cases"],
+            "engine_query_ok": selected["query_ok"],
+            "others_match_rate_pct": others_match_rate,
+            "others_cases": others_cases,
+            "others_query_ok": others_ok,
+            "delta_pct_points": selected["match_rate_pct"] - others_match_rate,
+            "engine_rank": rank,
+            "engine_count": len(parsed),
+        }
+    )
+    return out
 
 
 def truthy(raw: str) -> bool:
@@ -317,6 +438,7 @@ strategy_visual_tags = os.environ.get("STRATEGY_VISUAL_TAGS", "")
 strategy_visual_dir = Path(os.environ.get("STRATEGY_VISUAL_DIR", str(json_out.parent / f"strategy-visuals-{strategy_visual_res}"))).resolve()
 strategy_visual_max_attempts = os.environ.get("STRATEGY_VISUAL_MAX_ATTEMPTS", "2")
 strategy_visual_timeout = os.environ.get("STRATEGY_VISUAL_TIMEOUT", "5s")
+strategy_bench_json = os.environ.get("STRATEGY_BENCH_JSON", "")
 bench_schema = os.environ.get("BENCH_SCHEMA", "")
 bench_photo_asset = os.environ.get("BENCH_PHOTO_ASSET", "")
 
@@ -450,6 +572,8 @@ summary = {
     },
     "transform_coverage": transform_coverage,
 }
+bench_report_path = resolve_optional_file(strategy_bench_json, root, json_out.parent)
+summary["engine_match_comparison"] = compute_engine_match_comparison(bench_report_path, strategy_visual_engine)
 
 visual_examples: dict[str, Any] = {"enabled": strategy_visual_examples}
 if strategy_visual_examples:
@@ -504,6 +628,25 @@ lines.append(f"- Manifest: `{manifest_path}`")
 lines.append(f"- Generated: `{summary['generated_at_utc']}`")
 lines.append(f"- Schema version: `{summary['schema_version']}`")
 lines.append(f"- Engines: `{', '.join(summary['engines'])}`")
+lines.append("")
+
+lines.append("## Strategy Summary Card")
+lines.append("")
+engine_cmp = summary.get("engine_match_comparison") or {}
+if engine_cmp.get("available"):
+    lines.append("| Metric | Value |")
+    lines.append("|---|---|")
+    lines.append(f"| Engine | `{engine_cmp.get('engine')}` |")
+    lines.append(f"| Engine match rate | `{float(engine_cmp.get('engine_match_rate_pct', 0.0)):.1f}%` |")
+    lines.append(f"| Other engines match rate (weighted) | `{float(engine_cmp.get('others_match_rate_pct', 0.0)):.1f}%` |")
+    lines.append(f"| Delta vs others | `{float(engine_cmp.get('delta_pct_points', 0.0)):+.1f} pts` |")
+    lines.append(f"| Engine rank by match rate | `{int(engine_cmp.get('engine_rank', 0))}/{int(engine_cmp.get('engine_count', 0))}` |")
+    lines.append(f"| Benchmark source | `{engine_cmp.get('bench_report_path', '')}` |")
+else:
+    lines.append(f"_Match-rate comparison unavailable: {engine_cmp.get('error', 'no benchmark summary found')}._")
+    if engine_cmp.get("bench_report_path"):
+        lines.append("")
+        lines.append(f"- Expected benchmark report path: `{engine_cmp.get('bench_report_path')}`")
 lines.append("")
 
 if visual_examples.get("enabled"):
