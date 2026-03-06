@@ -155,6 +155,8 @@ jobs:
         include:
           - runner: ubuntu-latest
             node_bin_target: bin-linux-x64
+          - runner: macos-14
+            node_bin_target: bin-darwin-arm64
     runs-on: ${{ matrix.runner }}
     steps:
       - name: Checkout
@@ -183,6 +185,11 @@ jobs:
             libtesseract-dev \
             libleptonica-dev \
             tesseract-ocr-eng
+
+      - name: Install OCR/OpenCV native dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          bash ./scripts/ci/setup-macos-ocr-opencv.sh
 
       - name: Set client version from build number
         env:
