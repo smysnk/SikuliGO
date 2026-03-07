@@ -59,7 +59,7 @@ source ~/.bash_profile
 <!-- BEGIN: FIND_ON_SCREEN_BENCH_AUTOGEN -->
 ## FindOnScreen Benchmark Test Results
 
-Generated: `2026-03-06T04:25:04.057907+00:00`
+Generated: `2026-03-07T08:22:49.092218+00:00`
 
 ### Reports
 
@@ -81,13 +81,13 @@ _Cases/OK metrics are query-level counts (regions x scenarios x resolutions), no
 
 | Engine | Cases | OK | Partial | Not Found | Unsupported | Error | Overlap Miss | Avg ms/op | Median ms/op |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| akaze | 120 | 37 | 0 | 78 | 0 | 0 | 5 | 171.633 | 147.166 |
-| brisk | 120 | 46 | 0 | 63 | 0 | 0 | 11 | 331.753 | 124.238 |
-| hybrid | 120 | 67 | 0 | 45 | 0 | 0 | 8 | 169.878 | 135.325 |
-| kaze | 120 | 62 | 0 | 50 | 0 | 0 | 8 | 796.068 | 680.558 |
-| orb | 120 | 11 | 0 | 96 | 0 | 0 | 13 | 57.007 | 44.181 |
-| sift | 120 | 56 | 0 | 55 | 0 | 0 | 9 | 250.953 | 198.225 |
-| template | 120 | 64 | 0 | 56 | 0 | 0 | 0 | 154.612 | 113.620 |
+| akaze | 120 | 39 | 0 | 78 | 0 | 0 | 3 | 171.032 | 147.060 |
+| brisk | 120 | 47 | 0 | 63 | 0 | 0 | 10 | 331.625 | 123.717 |
+| hybrid | 120 | 69 | 0 | 45 | 0 | 0 | 6 | 171.317 | 135.641 |
+| kaze | 120 | 63 | 0 | 50 | 0 | 0 | 7 | 787.238 | 637.542 |
+| orb | 120 | 13 | 0 | 96 | 0 | 0 | 11 | 55.807 | 43.110 |
+| sift | 120 | 56 | 0 | 55 | 0 | 0 | 9 | 251.719 | 195.118 |
+| template | 120 | 64 | 0 | 56 | 0 | 0 | 0 | 155.890 | 117.008 |
 
 ### Run Mega Summary
 

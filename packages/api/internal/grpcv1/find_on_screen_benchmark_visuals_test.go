@@ -59,6 +59,7 @@ var (
 )
 
 type findBenchVisualQuery struct {
+	ID         string
 	Request    *pb.FindOnScreenRequest
 	Expected   *pb.Rect
 	Alternates []*pb.Rect
@@ -66,6 +67,7 @@ type findBenchVisualQuery struct {
 }
 
 type findBenchAttemptQueryVisual struct {
+	ID         string
 	Label      string
 	Status     string
 	Error      string
@@ -171,6 +173,7 @@ func (c *findBenchVisualCollector) CaptureAttempts(
 				queryTemplate = cloneGray(qimg)
 			}
 			qrec := findBenchAttemptQueryVisual{
+				ID:         strings.TrimSpace(query.ID),
 				Label:      strings.TrimSpace(query.Label),
 				Status:     "error",
 				Expected:   cloneRect(query.Expected),
@@ -323,7 +326,17 @@ func (c *findBenchVisualCollector) WriteScenarioSummaries() error {
 
 func (c *findBenchVisualCollector) writeAttemptImage(source *image.Gray, scenario findBenchScenario, engine findBenchEngine, rec findBenchAttemptVisual) (string, error) {
 	canvas := grayToRGBA(source)
-	for idx, query := range rec.Queries {
+	globalZoneGuideAngle, globalZoneGuideAngleOK := 0.0, false
+	if shouldRotateExpectedGuideZone(scenario) {
+		globalZoneGuideAngle, globalZoneGuideAngleOK = inferGlobalZoneGuideAngle(source, rec.Queries)
+	}
+	for _, query := range rec.Queries {
+		expectedTarget := selectVisualExpectedTarget(query, scenario)
+		expectedGuide := resolveExpectedGuideQuad(source, expectedTarget, query.Template, scenario, query.Found, globalZoneGuideAngle, globalZoneGuideAngleOK)
+		if len(expectedGuide) > 0 {
+			drawDashedQuadOutline(canvas, expectedGuide, color.RGBA{R: 148, G: 158, B: 172, A: 255}, 2, 10, 7)
+			drawQuadCross(canvas, expectedGuide, color.RGBA{R: 148, G: 158, B: 172, A: 26}, 2)
+		}
 		if query.Found == nil {
 			continue
 		}
@@ -331,8 +344,17 @@ func (c *findBenchVisualCollector) writeAttemptImage(source *image.Gray, scenari
 		if query.Status == "ok" {
 			boxColor = color.RGBA{R: 40, G: 210, B: 95, A: 255} // correct match
 		}
+		drawRectCross(canvas, query.Found, colorWithAlpha(boxColor, 26), 2)
+		if expectedTarget != nil {
+			ex, ey := quadCenter(expectedGuide)
+			if len(expectedGuide) == 0 {
+				ex, ey = rectCenter(expectedTarget)
+			}
+			fx, fy := rectCenter(query.Found)
+			drawBidirectionalArrow(canvas, benchPointF{X: ex, Y: ey}, benchPointF{X: fx, Y: fy}, colorWithAlpha(boxColor, 224), 2)
+		}
 		drawRectOutline(canvas, query.Found, boxColor, 3)
-		drawRegionTemplateOverlay(canvas, query, boxColor, idx)
+		drawMatchDetailLabel(canvas, query, scenario, boxColor)
 	}
 
 	if c.attemptOverlay {
@@ -783,6 +805,29 @@ func resizeNearest(src image.Image, dstW, dstH int) *image.RGBA {
 	return dst
 }
 
+func resizeGrayNearest(src *image.Gray, dstW, dstH int) *image.Gray {
+	if src == nil || dstW < 1 || dstH < 1 {
+		return nil
+	}
+	sb := src.Bounds()
+	sw := maxInt(1, sb.Dx())
+	sh := maxInt(1, sb.Dy())
+	dst := image.NewGray(image.Rect(0, 0, dstW, dstH))
+	for y := 0; y < dstH; y++ {
+		sy := sb.Min.Y + (y*sh)/dstH
+		for x := 0; x < dstW; x++ {
+			sx := sb.Min.X + (x*sw)/dstW
+			dst.Pix[dst.PixOffset(x, y)] = src.Pix[src.PixOffset(sx, sy)]
+		}
+	}
+	return dst
+}
+
+func colorWithAlpha(c color.RGBA, a uint8) color.RGBA {
+	c.A = a
+	return c
+}
+
 func drawRectOutline(img *image.RGBA, rect *pb.Rect, c color.RGBA, thickness int) {
 	if img == nil || rect == nil || thickness < 1 {
 		return
@@ -809,6 +854,169 @@ func drawRectOutline(img *image.RGBA, rect *pb.Rect, c color.RGBA, thickness int
 			setRGBAIfInBounds(img, b, xr, y, c)
 		}
 	}
+}
+
+func drawRectCross(img *image.RGBA, rect *pb.Rect, c color.RGBA, thickness int) {
+	if rect == nil {
+		return
+	}
+	drawLineSegment(img, benchPointF{X: float64(rect.GetX()), Y: float64(rect.GetY())}, benchPointF{X: float64(rect.GetX() + rect.GetW()), Y: float64(rect.GetY() + rect.GetH())}, c, thickness, 0, 0, true)
+	drawLineSegment(img, benchPointF{X: float64(rect.GetX() + rect.GetW()), Y: float64(rect.GetY())}, benchPointF{X: float64(rect.GetX()), Y: float64(rect.GetY() + rect.GetH())}, c, thickness, 0, 0, true)
+}
+
+func drawQuadCross(img *image.RGBA, quad []benchPointF, c color.RGBA, thickness int) {
+	if len(quad) != 4 {
+		return
+	}
+	drawLineSegment(img, quad[0], quad[2], c, thickness, 0, 0, true)
+	drawLineSegment(img, quad[1], quad[3], c, thickness, 0, 0, true)
+}
+
+func drawDashedQuadOutline(img *image.RGBA, quad []benchPointF, c color.RGBA, thickness int, dashLen float64, gapLen float64) {
+	if len(quad) != 4 {
+		return
+	}
+	for i := 0; i < 4; i++ {
+		a := quad[i]
+		b := quad[(i+1)%4]
+		drawLineSegment(img, a, b, c, thickness, dashLen, gapLen, false)
+	}
+}
+
+func drawBidirectionalArrow(img *image.RGBA, a benchPointF, b benchPointF, c color.RGBA, thickness int) {
+	drawLineSegment(img, a, b, c, thickness, 0, 0, false)
+	drawArrowHead(img, a, b, c, thickness)
+	drawArrowHead(img, b, a, c, thickness)
+}
+
+func drawArrowHead(img *image.RGBA, tip benchPointF, other benchPointF, c color.RGBA, thickness int) {
+	dx := tip.X - other.X
+	dy := tip.Y - other.Y
+	dist := math.Hypot(dx, dy)
+	if dist < 1 {
+		return
+	}
+	ux := dx / dist
+	uy := dy / dist
+	arrowLen := math.Max(8.0, float64(thickness)*5.0)
+	arrowWidth := arrowLen * 0.45
+	baseX := tip.X - ux*arrowLen
+	baseY := tip.Y - uy*arrowLen
+	px := -uy
+	py := ux
+	left := benchPointF{X: baseX + px*arrowWidth, Y: baseY + py*arrowWidth}
+	right := benchPointF{X: baseX - px*arrowWidth, Y: baseY - py*arrowWidth}
+	drawLineSegment(img, tip, left, c, thickness, 0, 0, false)
+	drawLineSegment(img, tip, right, c, thickness, 0, 0, false)
+}
+
+func drawLineSegment(img *image.RGBA, a benchPointF, b benchPointF, c color.RGBA, thickness int, dashLen float64, gapLen float64, blend bool) {
+	if img == nil || thickness < 1 {
+		return
+	}
+	dx := b.X - a.X
+	dy := b.Y - a.Y
+	dist := math.Hypot(dx, dy)
+	if dist < 0.5 {
+		drawLineBrush(img, int(math.Round(a.X)), int(math.Round(a.Y)), c, thickness, blend)
+		return
+	}
+	steps := int(math.Ceil(dist))
+	if steps < 1 {
+		steps = 1
+	}
+	for step := 0; step <= steps; step++ {
+		t := float64(step) / float64(steps)
+		if dashLen > 0 {
+			mod := math.Mod(t*dist, dashLen+gapLen)
+			if mod > dashLen {
+				continue
+			}
+		}
+		x := a.X + dx*t
+		y := a.Y + dy*t
+		drawLineBrush(img, int(math.Round(x)), int(math.Round(y)), c, thickness, blend)
+	}
+}
+
+func drawLineBrush(img *image.RGBA, x int, y int, c color.RGBA, thickness int, blend bool) {
+	b := img.Bounds()
+	radius := maxInt(0, thickness/2)
+	for yy := y - radius; yy <= y+radius; yy++ {
+		for xx := x - radius; xx <= x+radius; xx++ {
+			if blend {
+				blendRGBAIfInBounds(img, b, xx, yy, c)
+			} else {
+				setRGBAIfInBounds(img, b, xx, yy, c)
+			}
+		}
+	}
+}
+
+func blendRGBAIfInBounds(img *image.RGBA, bounds image.Rectangle, x, y int, c color.RGBA) {
+	if x < bounds.Min.X || y < bounds.Min.Y || x >= bounds.Max.X || y >= bounds.Max.Y {
+		return
+	}
+	if c.A == 255 {
+		img.SetRGBA(x, y, c)
+		return
+	}
+	dst := img.RGBAAt(x, y)
+	alpha := float64(c.A) / 255.0
+	inv := 1.0 - alpha
+	img.SetRGBA(x, y, color.RGBA{
+		R: uint8(math.Round(float64(c.R)*alpha + float64(dst.R)*inv)),
+		G: uint8(math.Round(float64(c.G)*alpha + float64(dst.G)*inv)),
+		B: uint8(math.Round(float64(c.B)*alpha + float64(dst.B)*inv)),
+		A: 255,
+	})
+}
+
+func rectToQuad(rect *pb.Rect) []benchPointF {
+	if rect == nil {
+		return nil
+	}
+	return []benchPointF{
+		{X: float64(rect.GetX()), Y: float64(rect.GetY())},
+		{X: float64(rect.GetX() + rect.GetW()), Y: float64(rect.GetY())},
+		{X: float64(rect.GetX() + rect.GetW()), Y: float64(rect.GetY() + rect.GetH())},
+		{X: float64(rect.GetX()), Y: float64(rect.GetY() + rect.GetH())},
+	}
+}
+
+func quadCenter(quad []benchPointF) (float64, float64) {
+	if len(quad) == 0 {
+		return 0, 0
+	}
+	var sumX float64
+	var sumY float64
+	for _, p := range quad {
+		sumX += p.X
+		sumY += p.Y
+	}
+	return sumX / float64(len(quad)), sumY / float64(len(quad))
+}
+
+func rotatedRectQuad(cx, cy, w, h, angleDeg float64) []benchPointF {
+	hw := w / 2.0
+	hh := h / 2.0
+	theta := angleDeg * math.Pi / 180.0
+	cosT := math.Cos(theta)
+	sinT := math.Sin(theta)
+	points := []benchPointF{
+		{X: -hw, Y: -hh},
+		{X: hw, Y: -hh},
+		{X: hw, Y: hh},
+		{X: -hw, Y: hh},
+	}
+	out := make([]benchPointF, 0, 4)
+	for _, p := range points {
+		out = append(out, benchPointF{
+			X: cx + p.X*cosT - p.Y*sinT,
+			Y: cy + p.X*sinT + p.Y*cosT,
+		})
+	}
+	return out
 }
 
 func setRGBAIfInBounds(img *image.RGBA, bounds image.Rectangle, x, y int, c color.RGBA) {
@@ -991,6 +1199,63 @@ func attemptQueryStatusLine(queries []findBenchAttemptQueryVisual) string {
 	return truncateUpper(fmt.Sprintf("TARGETS %s", strings.Join(parts, " ")), 88)
 }
 
+func grayImageDimensionsProto(img *image.Gray) *pb.GrayImage {
+	if img == nil {
+		return nil
+	}
+	b := img.Bounds()
+	if b.Dx() < 1 || b.Dy() < 1 {
+		return nil
+	}
+	return &pb.GrayImage{Width: int32(b.Dx()), Height: int32(b.Dy())}
+}
+
+func bestExpectedCandidateMetrics(
+	found *pb.Rect,
+	expected *pb.Rect,
+	expectedAlternates []*pb.Rect,
+	pattern *pb.GrayImage,
+	tolerance float64,
+	maxAreaRatio float64,
+	allowPartial bool,
+) (target *pb.Rect, dx float64, dy float64, dist float64, limX float64, limY float64, ok bool) {
+	target = expected
+	if expected == nil {
+		return nil, 0, 0, 0, 0, 0, false
+	}
+	dx, dy, dist, limX, limY, ok = centerDeltaMetrics(found, expected, pattern, tolerance, maxAreaRatio, allowPartial)
+	for _, alt := range expectedAlternates {
+		if alt == nil {
+			continue
+		}
+		adx, ady, adist, alimX, alimY, aok := centerDeltaMetrics(found, alt, pattern, tolerance, maxAreaRatio, allowPartial)
+		if adist < dist {
+			target = alt
+			dx, dy, dist, limX, limY, ok = adx, ady, adist, alimX, alimY, aok
+		}
+	}
+	return target, dx, dy, dist, limX, limY, ok
+}
+
+func selectVisualExpectedTarget(query findBenchAttemptQueryVisual, scenario findBenchScenario) *pb.Rect {
+	if query.Found != nil {
+		templateDims := grayImageDimensionsProto(query.Template)
+		target, _, _, _, _, _, _ := bestExpectedCandidateMetrics(
+			query.Found,
+			query.Expected,
+			query.Alternates,
+			templateDims,
+			scenario.tolerance,
+			scenario.maxAreaRatio,
+			scenario.allowPartial,
+		)
+		if target != nil {
+			return target
+		}
+	}
+	return query.Expected
+}
+
 func explainFindBenchMatchOutcome(
 	matchClass findBenchMatchClass,
 	found *pb.Rect,
@@ -1004,18 +1269,7 @@ func explainFindBenchMatchOutcome(
 	if found == nil || expected == nil {
 		return "missing match or expected rect"
 	}
-	target := expected
-	dx, dy, dist, limX, limY, _ := centerDeltaMetrics(found, expected, pattern, tolerance, maxAreaRatio, allowPartial)
-	for _, alt := range expectedAlternates {
-		if alt == nil {
-			continue
-		}
-		adx, ady, adist, alimX, alimY, _ := centerDeltaMetrics(found, alt, pattern, tolerance, maxAreaRatio, allowPartial)
-		if adist < dist {
-			target = alt
-			dx, dy, dist, limX, limY = adx, ady, adist, alimX, alimY
-		}
-	}
+	target, dx, dy, dist, limX, _, _ := bestExpectedCandidateMetrics(found, expected, expectedAlternates, pattern, tolerance, maxAreaRatio, allowPartial)
 	if !areaRatioWithinLimit(found, pattern, maxAreaRatio) {
 		ratio := 0.0
 		if pattern != nil {
@@ -1030,71 +1284,311 @@ func explainFindBenchMatchOutcome(
 	switch matchClass {
 	case findBenchMatchClassOK:
 		if regionActsAsZone(target, pattern) {
-			return fmt.Sprintf("zone ok dx=%.0f dy=%.0f lim=%.0f,%.0f", dx, dy, limX, limY)
+			return fmt.Sprintf("zone ok d=%.0f dx=%.0f dy=%.0f lim=%.0f", dist, dx, dy, limX)
 		}
-		return fmt.Sprintf("center ok dx=%.0f dy=%.0f lim=%.0f,%.0f", dx, dy, limX, limY)
+		return fmt.Sprintf("center ok d=%.0f dx=%.0f dy=%.0f lim=%.0f", dist, dx, dy, limX)
 	case findBenchMatchClassWrongRegion:
 		return fmt.Sprintf("center in peer d=%.0f dx=%.0f dy=%.0f", dist, dx, dy)
 	default:
 		if regionActsAsZone(target, pattern) {
-			return fmt.Sprintf("zone miss dx=%.0f dy=%.0f lim=%.0f,%.0f", dx, dy, limX, limY)
+			return fmt.Sprintf("zone miss d=%.0f dx=%.0f dy=%.0f lim=%.0f", dist, dx, dy, limX)
 		}
-		return fmt.Sprintf("center miss dx=%.0f dy=%.0f lim=%.0f,%.0f", dx, dy, limX, limY)
+		return fmt.Sprintf("center miss d=%.0f dx=%.0f dy=%.0f lim=%.0f", dist, dx, dy, limX)
 	}
 }
 
-func drawRegionTemplateOverlay(canvas *image.RGBA, query findBenchAttemptQueryVisual, border color.RGBA, slot int) {
-	if canvas == nil || query.Found == nil || query.Template == nil {
+func resolveExpectedGuideQuad(source *image.Gray, expected *pb.Rect, template *image.Gray, scenario findBenchScenario, found *pb.Rect, fallbackAngle float64, fallbackAngleOK bool) []benchPointF {
+	if expected == nil {
+		return nil
+	}
+	base := rectToQuad(expected)
+	if template == nil || source == nil {
+		return base
+	}
+	templateDims := grayImageDimensionsProto(template)
+	if regionActsAsZone(expected, templateDims) {
+		if !shouldRotateExpectedGuideZone(scenario) {
+			return base
+		}
+		angle, ok := 0.0, false
+		if found != nil {
+			angle, _, ok = inferGuideAngleAndScaleFromRect(source, found, template)
+		}
+		if !ok && fallbackAngleOK {
+			angle, ok = fallbackAngle, true
+		}
+		if !ok || math.Abs(angle) < 2.0 {
+			return base
+		}
+		cx, cy := rectCenter(expected)
+		return rotatedRectQuad(cx, cy, float64(expected.GetW()), float64(expected.GetH()), angle)
+	}
+
+	angle, scale, err := estimateGuideAngleAndScale(float64(template.Bounds().Dx()), float64(template.Bounds().Dy()), float64(expected.GetW()), float64(expected.GetH()))
+	if err > math.Max(6.0, 0.12*(float64(expected.GetW())+float64(expected.GetH()))) {
+		angle = expectedGuideAngleHint(scenario)
+		scale = 1.0
+	}
+	if math.Abs(angle) < 0.5 {
+		return base
+	}
+
+	if math.Abs(expectedGuideAngleHint(scenario)) < 0.5 {
+		angle = chooseGuideAngleSign(source, expected, template, scale, angle)
+	} else if expectedGuideAngleHint(scenario) < 0 {
+		angle = -math.Abs(angle)
+	} else {
+		angle = math.Abs(angle)
+	}
+
+	cx, cy := rectCenter(expected)
+	guideW := float64(template.Bounds().Dx()) * scale
+	guideH := float64(template.Bounds().Dy()) * scale
+	if guideW < 2 || guideH < 2 {
+		return base
+	}
+	return rotatedRectQuad(cx, cy, guideW, guideH, angle)
+}
+
+func shouldRotateExpectedGuideZone(scenario findBenchScenario) bool {
+	return strings.EqualFold(strings.TrimSpace(scenario.scenarioTypeID), "scale_rotate_sweep")
+}
+
+func expectedGuideAngleHint(scenario findBenchScenario) float64 {
+	if scenario.transformKind == "rotate" && math.Abs(scenario.transformA) > 0.5 {
+		return scenario.transformA
+	}
+	switch ((scenario.rotation % 360) + 360) % 360 {
+	case 90:
+		return 90
+	case 270:
+		return -90
+	default:
+		return 0
+	}
+}
+
+func estimateGuideAngleAndScale(templateW, templateH, observedW, observedH float64) (angleDeg float64, scale float64, err float64) {
+	if templateW < 1 || templateH < 1 || observedW < 1 || observedH < 1 {
+		return 0, 1, math.MaxFloat64
+	}
+	bestErr := math.MaxFloat64
+	bestAngle := 0.0
+	bestScale := 1.0
+	for angle := 0.0; angle <= 89.5; angle += 0.5 {
+		theta := angle * math.Pi / 180.0
+		cosT := math.Abs(math.Cos(theta))
+		sinT := math.Abs(math.Sin(theta))
+		bboxW := templateW*cosT + templateH*sinT
+		bboxH := templateW*sinT + templateH*cosT
+		if bboxW < 1 || bboxH < 1 {
+			continue
+		}
+		scaleX := observedW / bboxW
+		scaleY := observedH / bboxH
+		candidateScale := (scaleX + scaleY) / 2.0
+		predW := bboxW * candidateScale
+		predH := bboxH * candidateScale
+		candidateErr := math.Abs(predW-observedW) + math.Abs(predH-observedH)
+		if candidateErr < bestErr {
+			bestErr = candidateErr
+			bestAngle = angle
+			bestScale = candidateScale
+		}
+	}
+	return bestAngle, bestScale, bestErr
+}
+
+func chooseGuideAngleSign(source *image.Gray, expected *pb.Rect, template *image.Gray, scale float64, angleMag float64) float64 {
+	if source == nil || expected == nil || template == nil || angleMag < 0.5 {
+		return angleMag
+	}
+	posScore := guideTemplateCropScore(source, expected, template, scale, angleMag)
+	negScore := guideTemplateCropScore(source, expected, template, scale, -angleMag)
+	if negScore < posScore {
+		return -angleMag
+	}
+	return angleMag
+}
+
+func guideTemplateCropScore(source *image.Gray, expected *pb.Rect, template *image.Gray, scale float64, angleDeg float64) float64 {
+	if source == nil || expected == nil || template == nil {
+		return math.MaxFloat64
+	}
+	scaled := scaleGrayNearestBench(template, scale)
+	rotated := rotateGrayBilinearBench(scaled, angleDeg, 128)
+	target := cropGray(source, image.Rect(int(expected.GetX()), int(expected.GetY()), int(expected.GetX()+expected.GetW()), int(expected.GetY()+expected.GetH())))
+	if target.Bounds().Dx() < 1 || target.Bounds().Dy() < 1 {
+		return math.MaxFloat64
+	}
+	candidate := resizeGrayNearest(rotated, target.Bounds().Dx(), target.Bounds().Dy())
+	if candidate == nil {
+		return math.MaxFloat64
+	}
+	var total float64
+	pixels := target.Bounds().Dx() * target.Bounds().Dy()
+	if pixels <= 0 {
+		return math.MaxFloat64
+	}
+	for y := 0; y < target.Bounds().Dy(); y++ {
+		for x := 0; x < target.Bounds().Dx(); x++ {
+			tv := target.Pix[target.PixOffset(x, y)]
+			cv := candidate.Pix[candidate.PixOffset(x, y)]
+			total += math.Abs(float64(tv) - float64(cv))
+		}
+	}
+	return total / float64(pixels)
+}
+
+func inferGlobalZoneGuideAngle(source *image.Gray, queries []findBenchAttemptQueryVisual) (float64, bool) {
+	for _, query := range queries {
+		if query.Template == nil || query.Found == nil {
+			continue
+		}
+		angle, _, ok := inferGuideAngleAndScaleFromRect(source, query.Found, query.Template)
+		if ok {
+			return angle, true
+		}
+	}
+	return 0, false
+}
+
+func inferGuideAngleAndScaleFromRect(source *image.Gray, rect *pb.Rect, template *image.Gray) (float64, float64, bool) {
+	if source == nil || rect == nil || template == nil {
+		return 0, 1, false
+	}
+	target := cropGray(source, image.Rect(int(rect.GetX()), int(rect.GetY()), int(rect.GetX()+rect.GetW()), int(rect.GetY()+rect.GetH())))
+	if target.Bounds().Dx() < 4 || target.Bounds().Dy() < 4 {
+		return 0, 1, false
+	}
+
+	type guideCandidate struct {
+		angle float64
+		scale float64
+		score float64
+	}
+	scoreAt := func(angle float64) guideCandidate {
+		candScale := estimateGuideScaleForAngle(
+			float64(template.Bounds().Dx()),
+			float64(template.Bounds().Dy()),
+			float64(rect.GetW()),
+			float64(rect.GetH()),
+			angle,
+		)
+		return guideCandidate{
+			angle: angle,
+			scale: candScale,
+			score: guideTemplateCropScore(source, rect, template, candScale, angle),
+		}
+	}
+
+	best := scoreAt(0)
+	zero := best
+	for angle := -180.0; angle <= 180.0; angle += 10.0 {
+		candidate := scoreAt(angle)
+		if candidate.score < best.score {
+			best = candidate
+		}
+	}
+	refined := best
+	for angle := best.angle - 10.0; angle <= best.angle+10.0; angle += 1.0 {
+		candidate := scoreAt(angle)
+		if candidate.score < refined.score {
+			refined = candidate
+		}
+	}
+	improvement := 0.0
+	if zero.score > 0 {
+		improvement = (zero.score - refined.score) / zero.score
+	}
+	if math.Abs(refined.angle) < 3.0 || improvement < 0.05 {
+		return 0, 1, false
+	}
+	return normalizeGuideAngle(refined.angle), refined.scale, true
+}
+
+func estimateGuideScaleForAngle(templateW, templateH, observedW, observedH, angleDeg float64) float64 {
+	theta := math.Abs(angleDeg) * math.Pi / 180.0
+	cosT := math.Abs(math.Cos(theta))
+	sinT := math.Abs(math.Sin(theta))
+	bboxW := templateW*cosT + templateH*sinT
+	bboxH := templateW*sinT + templateH*cosT
+	if bboxW < 1 || bboxH < 1 {
+		return 1.0
+	}
+	scaleX := observedW / bboxW
+	scaleY := observedH / bboxH
+	candidateScale := (scaleX + scaleY) / 2.0
+	if candidateScale <= 0 {
+		return 1.0
+	}
+	return candidateScale
+}
+
+func normalizeGuideAngle(angle float64) float64 {
+	for angle <= -180 {
+		angle += 360
+	}
+	for angle > 180 {
+		angle -= 360
+	}
+	if angle > 90 {
+		angle -= 180
+	}
+	if angle <= -90 {
+		angle += 180
+	}
+	return angle
+}
+
+func drawMatchDetailLabel(canvas *image.RGBA, query findBenchAttemptQueryVisual, scenario findBenchScenario, border color.RGBA) {
+	if canvas == nil || query.Found == nil {
 		return
 	}
 	b := canvas.Bounds()
-	maxThumbW := maxInt(48, minInt(180, b.Dx()/6))
-	maxThumbH := maxInt(40, minInt(140, b.Dy()/6))
 	label := strings.ToLower(strings.TrimSpace(query.Label))
 	if label == "" {
 		label = "target"
 	}
-	labelTextBase := fmt.Sprintf("region template: %s", label)
+	templateDims := grayImageDimensionsProto(query.Template)
+	target, dx, dy, _, lim, _, _ := bestExpectedCandidateMetrics(
+		query.Found,
+		query.Expected,
+		query.Alternates,
+		templateDims,
+		scenario.tolerance,
+		scenario.maxAreaRatio,
+		scenario.allowPartial,
+	)
+	matchType := "region"
+	if regionActsAsZone(target, templateDims) {
+		matchType = "zone"
+	}
 	textScale := 1
-	labelH := 10*textScale + 2
+	labelH := 8*textScale + 2
 	pad := 4
 	maxPanelW := maxInt(96, minInt(240, b.Dx()-8))
 	if maxPanelW <= pad*2 {
 		return
 	}
 	maxTextChars := maxInt(10, (maxPanelW-pad*2)/(6*textScale)-1)
-	labelText := truncateUpper(labelTextBase, maxTextChars)
-	reasonText := truncateUpper(strings.TrimSpace(query.Explain), maxTextChars)
-	if reasonText == "" {
-		reasonText = truncateUpper(strings.ReplaceAll(query.Status, "_", " "), maxTextChars)
-	}
-	labelW := maxInt(1, len(strings.ToUpper(labelText))*6*textScale)
-	reasonW := maxInt(1, len(strings.ToUpper(reasonText))*6*textScale)
-	innerW := maxInt(maxThumbW, maxInt(labelW, reasonW))
-	innerW = minInt(innerW, maxPanelW-pad*2)
-
-	srcW := query.Template.Bounds().Dx()
-	srcH := query.Template.Bounds().Dy()
-	tw, th := fitWithinNoUpscale(innerW, maxThumbH, srcW, srcH)
-	if tw < 1 || th < 1 {
-		return
-	}
-
-	panelW := maxInt(tw+pad*2, labelW+pad*2)
-	panelW = maxInt(panelW, reasonW+pad*2)
+	titleText := truncateUpper(fmt.Sprintf("%s %s", label, matchType), maxTextChars)
+	detailText := truncateUpper(fmt.Sprintf("dx=%.0f dy=%.0f lim=%.0f", dx, dy, lim), maxTextChars)
+	panelW := maxInt(len(strings.ToUpper(titleText))*6*textScale, len(strings.ToUpper(detailText))*6*textScale)
+	panelW += pad * 2
 	panelW = minInt(panelW, maxPanelW)
-	panelH := th + (labelH * 2) + pad*3
+	panelH := (labelH * 2) + pad*3
 
-	x := int(query.Found.GetX()+query.Found.GetW()) + 8
-	y := int(query.Found.GetY()) + slot*16
+	x := int(query.Found.GetX())
+	y := int(query.Found.GetY()) - panelH - 6
 	if x+panelW > b.Max.X {
-		x = int(query.Found.GetX()) - panelW - 8
+		x = b.Max.X - panelW
 	}
 	if x < b.Min.X {
 		x = b.Min.X
 	}
-	if y+panelH > b.Max.Y {
-		y = b.Max.Y - panelH
+	if y < b.Min.Y {
+		y = minInt(b.Max.Y-panelH, int(query.Found.GetY()+query.Found.GetH())+6)
 	}
 	if y < b.Min.Y {
 		y = b.Min.Y
@@ -1102,12 +1596,8 @@ func drawRegionTemplateOverlay(canvas *image.RGBA, query findBenchAttemptQueryVi
 	panel := image.Rect(x, y, x+panelW, y+panelH)
 	draw.Draw(canvas, panel, &image.Uniform{C: color.RGBA{R: 12, G: 18, B: 30, A: 224}}, image.Point{}, draw.Over)
 
-	templateImg := resizeNearest(grayToRGBA(query.Template), tw, th)
-	imgRect := image.Rect(x+pad, y+(labelH*2)+pad*2, x+pad+tw, y+(labelH*2)+pad*2+th)
-	draw.Draw(canvas, imgRect, templateImg, image.Point{}, draw.Src)
-
-	drawTinyText(canvas, x+pad, y+pad, labelText, color.RGBA{R: 232, G: 244, B: 255, A: 255}, textScale)
-	drawTinyText(canvas, x+pad, y+pad+labelH, reasonText, color.RGBA{R: 174, G: 219, B: 255, A: 255}, textScale)
+	drawTinyText(canvas, x+pad, y+pad, titleText, color.RGBA{R: 232, G: 244, B: 255, A: 255}, textScale)
+	drawTinyText(canvas, x+pad, y+pad+labelH, detailText, color.RGBA{R: 174, G: 219, B: 255, A: 255}, textScale)
 	drawRectOutline(
 		canvas,
 		&pb.Rect{X: int32(panel.Min.X), Y: int32(panel.Min.Y), W: int32(panel.Dx()), H: int32(panel.Dy())},
@@ -1289,4 +1779,78 @@ var tinyFont5x7 = map[rune][7]uint8{
 	'X': {0x11, 0x11, 0x0A, 0x04, 0x0A, 0x11, 0x11},
 	'Y': {0x11, 0x11, 0x0A, 0x04, 0x04, 0x04, 0x04},
 	'Z': {0x1F, 0x01, 0x02, 0x04, 0x08, 0x10, 0x1F},
+}
+
+func TestSelectVisualExpectedTarget_PrefersPrimaryExpectedRect(t *testing.T) {
+	query := findBenchAttemptQueryVisual{
+		Expected: &pb.Rect{X: 120, Y: 80, W: 92, H: 88},
+		Alternates: []*pb.Rect{
+			{X: 96, Y: 54, W: 228, H: 154},
+		},
+		Found:    &pb.Rect{X: 124, Y: 84, W: 90, H: 86},
+		Template: buildBenchPattern("orbtex", 64),
+	}
+
+	got := selectVisualExpectedTarget(query, findBenchScenario{scenarioTypeID: "orb_feature_rich", tolerance: 0.22, maxAreaRatio: 2.0})
+	if got == nil {
+		t.Fatalf("expected visual target")
+	}
+	if got.GetX() != 120 || got.GetY() != 80 || got.GetW() != 92 || got.GetH() != 88 {
+		t.Fatalf("expected visual target to stay aligned with primary expected rect, got=%+v", got)
+	}
+}
+
+func TestResolveExpectedGuideQuad_ZoneStaysAxisAlignedForOrbFeatureRich(t *testing.T) {
+	template := buildBenchPattern("orbtex", 64)
+	source := image.NewGray(image.Rect(0, 0, 360, 240))
+	setRect(source, 0, 0, 360, 240, 180)
+	blitGray(source, template, 120, 48)
+
+	expected := &pb.Rect{X: 96, Y: 28, W: 228, H: 154}
+	found := &pb.Rect{X: 120, Y: 48, W: int32(template.Bounds().Dx()), H: int32(template.Bounds().Dy())}
+	quad := resolveExpectedGuideQuad(source, expected, template, findBenchScenario{scenarioTypeID: "orb_feature_rich"}, found, 0, false)
+	if len(quad) != 4 {
+		t.Fatalf("expected 4-point guide quad, got=%d", len(quad))
+	}
+	if angle := math.Abs(quadEdgeAngleDegrees(quad)); angle > 1.0 {
+		t.Fatalf("expected orb feature guide to stay axis-aligned, got angle=%.2f", angle)
+	}
+}
+
+func TestResolveExpectedGuideQuad_RotatesZoneForScaleRotateSweep(t *testing.T) {
+	template := buildBenchPattern("photo", 56)
+	rotated := rotateGrayBilinearBench(template, 28, 128)
+	source := image.NewGray(image.Rect(0, 0, 420, 300))
+	setRect(source, 0, 0, 420, 300, 200)
+	blitGray(source, rotated, 126, 84)
+
+	found := &pb.Rect{
+		X: 126,
+		Y: 84,
+		W: int32(rotated.Bounds().Dx()),
+		H: int32(rotated.Bounds().Dy()),
+	}
+	expected := &pb.Rect{X: 102, Y: 60, W: int32(rotated.Bounds().Dx() + 72), H: int32(rotated.Bounds().Dy() + 56)}
+	quad := resolveExpectedGuideQuad(source, expected, template, findBenchScenario{scenarioTypeID: "scale_rotate_sweep"}, found, 0, false)
+	if len(quad) != 4 {
+		t.Fatalf("expected 4-point guide quad, got=%d", len(quad))
+	}
+	angle := math.Abs(quadEdgeAngleDegrees(quad))
+	if angle < 8.0 {
+		t.Fatalf("expected rotated guide for scale_rotate_sweep zone, got angle=%.2f", angle)
+	}
+}
+
+func quadEdgeAngleDegrees(quad []benchPointF) float64 {
+	if len(quad) < 2 {
+		return 0
+	}
+	angle := math.Atan2(quad[1].Y-quad[0].Y, quad[1].X-quad[0].X) * 180 / math.Pi
+	for angle <= -90 {
+		angle += 180
+	}
+	for angle > 90 {
+		angle -= 180
+	}
+	return angle
 }

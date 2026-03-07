@@ -2,6 +2,7 @@ package grpcv1
 
 import (
 	"fmt"
+	"image"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -200,7 +201,7 @@ func TestBuildFindBenchFixtureFromRegionSpec_PrefersSourceExpectedForNonMultiMon
 	}
 }
 
-func TestBuildFindBenchFixtureFromRegionSpec_PrefersBenchmarkExpectedForMultiMonitor(t *testing.T) {
+func TestBuildFindBenchFixtureFromRegionSpec_PrefersPreciseBenchmarkExpectedForMultiMonitor(t *testing.T) {
 	root := findBenchRepoRoot(".")
 	if root == "" {
 		root = filepath.Clean(filepath.Join("..", "..", ".."))
@@ -246,13 +247,304 @@ func TestBuildFindBenchFixtureFromRegionSpec_PrefersBenchmarkExpectedForMultiMon
 	if primary.Expected == nil {
 		t.Fatalf("primary expected is nil")
 	}
-	// Multi-monitor benchmark target for primary projects near x=94 at 1280x720.
-	// Source target projects near x=729 and should be alternate.
-	if primary.Expected.GetX() > 200 {
-		t.Fatalf("expected benchmark-aligned primary region for multi-monitor, got x=%d", primary.Expected.GetX())
+
+	sourceRaw, err := loadGrayFromFile(selected.sourceImagePath)
+	if err != nil {
+		t.Fatalf("load source image: %v", err)
 	}
-	if len(primary.ExpectedAlternates) == 0 {
-		t.Fatalf("expected alternate source region for multi-monitor primary")
+	broadProjected := projectTargetRegionsToScreen(
+		selected.benchmarkTargets,
+		sourceRaw.Bounds().Dx(),
+		sourceRaw.Bounds().Dy(),
+		selected.screenW,
+		selected.screenH,
+	)
+	broadPrimary, ok := findScenarioTargetRegionByID(broadProjected, "target-01")
+	if !ok {
+		t.Fatalf("missing projected broad benchmark primary region")
+	}
+	candidates := findBenchPreciseMultiMonitorBenchmarkCandidates(*selected, sourceRaw.Bounds().Dx(), sourceRaw.Bounds().Dy())
+	precisePrimary, ok := choosePreciseMultiMonitorExpectedRegion(
+		findBenchTargetRegion{ID: "target-01", Label: "primary"},
+		broadPrimary,
+		candidates,
+	)
+	if !ok {
+		t.Fatalf("missing precise benchmark candidate for primary")
+	}
+
+	if got, want := rectKey(primary.Expected), rectKey(benchRectFromTargetRegion(precisePrimary)); got != want {
+		t.Fatalf("expected primary rect to prefer precise benchmark target, got=%s want=%s", got, want)
+	}
+	if len(primary.ExpectedAlternates) != 0 {
+		t.Fatalf("expected no alternates for multi-monitor primary, got=%d", len(primary.ExpectedAlternates))
+	}
+}
+
+func TestMultiMonitorRegionSpecBenchmarkTargetsMatchComposedGeometry(t *testing.T) {
+	root := findBenchRepoRoot(".")
+	if root == "" {
+		root = filepath.Clean(filepath.Join("..", "..", ".."))
+	}
+	specPath := filepath.Join(root, "packages", "api", "internal", "grpcv1", "testdata", "find-bench-assets", "regions.json")
+	doc, resolvedSpecPath, err := loadFindBenchRegionSpec(specPath, filepath.Dir(specPath))
+	if err != nil {
+		t.Fatalf("load region spec: %v", err)
+	}
+	assignments, err := buildFindBenchRegionAssignments(doc, filepath.Dir(resolvedSpecPath))
+	if err != nil {
+		t.Fatalf("build region assignments: %v", err)
+	}
+	selected, ok := assignments["multi_monitor_dpi_shift"]
+	if !ok {
+		t.Fatalf("missing multi_monitor_dpi_shift assignment")
+	}
+
+	gotByID := map[string]findBenchTargetRegion{}
+	for _, region := range selected.BenchmarkTargets {
+		gotByID[strings.TrimSpace(region.ID)] = region
+	}
+
+	benchmarkRaw, err := loadGrayFromFile(selected.BenchmarkImagePath)
+	if err != nil {
+		t.Fatalf("load benchmark image: %v", err)
+	}
+	benchmarkNativeW := benchmarkRaw.Bounds().Dx()
+	benchmarkNativeH := benchmarkRaw.Bounds().Dy()
+	panelW := int(float64(benchmarkNativeW) * 0.68)
+	panelH := int(float64(benchmarkNativeH) * 0.86)
+	panelX := (benchmarkNativeW - panelW) / 2
+	panelY := (benchmarkNativeH - panelH) / 2
+	gap := maxInt(8, benchmarkNativeW/120)
+	leftW := (benchmarkNativeW - gap) / 2
+	rightW := benchmarkNativeW - gap - leftW
+	leftRect := image.Rect(0, 0, leftW, benchmarkNativeH)
+	rightRect := image.Rect(leftW+gap, 0, leftW+gap+rightW, benchmarkNativeH)
+
+	leftMapped := mapRegionsWithPanelGeometryBench(selected.Targets, panelX, panelY, panelW, panelH, leftRect, 0.98)
+	rightMapped := mapRegionsWithPanelGeometryBench(selected.Targets, panelX, panelY, panelW, panelH, rightRect, 1.22)
+
+	want := map[string]findBenchTargetRegion{
+		"target-01": leftMapped[0],
+		"target-02": rightMapped[1],
+		"target-03": rightMapped[2],
+	}
+	for id, expected := range want {
+		got, ok := gotByID[id]
+		if !ok {
+			t.Fatalf("missing benchmark target %s", id)
+		}
+		if got != expected {
+			t.Fatalf("benchmark target %s mismatch got=%+v want=%+v", id, got, expected)
+		}
+	}
+}
+
+func TestBuildFindBenchFixtureFromRegionSpec_UsesTransformedExpectedForScaleRotateSweep(t *testing.T) {
+	root := findBenchRepoRoot(".")
+	if root == "" {
+		root = filepath.Clean(filepath.Join("..", "..", ".."))
+	}
+	manifestPath := filepath.Join(root, "docs", "bench", "find-on-screen-scenarios.example.json")
+	t.Setenv("FIND_BENCH_SCENARIO_MANIFEST", manifestPath)
+
+	scenarios, _, err := loadFindBenchScenariosFromManifest(true, true)
+	if err != nil {
+		t.Fatalf("load manifest scenarios: %v", err)
+	}
+
+	var selected *findBenchScenario
+	for i := range scenarios {
+		s := scenarios[i]
+		if strings.TrimSpace(s.scenarioTypeID) == "scale_rotate_sweep" && s.screenW == 1280 && s.screenH == 720 {
+			selected = &s
+			break
+		}
+	}
+	if selected == nil {
+		t.Fatalf("missing scale_rotate_sweep 1280x720 scenario in manifest materialization")
+	}
+
+	_, queries, ok := buildFindBenchFixtureFromRegionSpec(t, *selected)
+	if !ok {
+		t.Fatalf("expected region-spec fixture to be available")
+	}
+	if len(queries) == 0 {
+		t.Fatalf("expected at least one query")
+	}
+
+	var tertiary *findBenchFixtureQuery
+	for i := range queries {
+		if strings.EqualFold(strings.TrimSpace(queries[i].Label), "tertiary") {
+			tertiary = &queries[i]
+			break
+		}
+	}
+	if tertiary == nil {
+		t.Fatalf("missing tertiary query")
+	}
+	if tertiary.Expected == nil {
+		t.Fatalf("tertiary expected is nil")
+	}
+	if len(tertiary.ExpectedAlternates) == 0 {
+		t.Fatalf("expected alternate source region for scale_rotate_sweep tertiary")
+	}
+
+	sourceRaw, err := loadGrayFromFile(selected.sourceImagePath)
+	if err != nil {
+		t.Fatalf("load source image: %v", err)
+	}
+	sourceScene, sourceProjected := normalizeSceneAndRegions(sourceRaw, selected.screenW, selected.screenH, selected.sourceTargets)
+	if sourceScene == nil || len(sourceProjected) == 0 {
+		t.Fatalf("normalize source scene failed")
+	}
+	if projected := projectTargetRegionsToScreen(
+		selected.sourceTargets,
+		sourceRaw.Bounds().Dx(),
+		sourceRaw.Bounds().Dy(),
+		selected.screenW,
+		selected.screenH,
+	); len(projected) > 0 {
+		sourceProjected = projected
+	}
+	sourceRegion, ok := findScenarioTargetRegionByID(sourceProjected, "target-03")
+	if !ok {
+		t.Fatalf("missing projected source tertiary region")
+	}
+	derivedRegion, ok := deriveBenchmarkExpectedRegionFromTransform(sourceScene, sourceRegion, *selected)
+	if !ok {
+		t.Fatalf("missing transformed tertiary region")
+	}
+
+	if got, want := rectKey(tertiary.Expected), rectKey(benchRectFromTargetRegion(derivedRegion)); got != want {
+		t.Fatalf("expected tertiary primary rect to prefer transformed benchmark target, got=%s want=%s", got, want)
+	}
+	if got, want := rectKey(tertiary.ExpectedAlternates[0]), rectKey(benchRectFromTargetRegion(sourceRegion)); got != want {
+		t.Fatalf("expected tertiary alternate rect to preserve source target, got=%s want=%s", got, want)
+	}
+}
+
+func TestBuildFindBenchFixtureFromRegionSpec_UsesTransformedExpectedForOrbFeatureRich(t *testing.T) {
+	root := findBenchRepoRoot(".")
+	if root == "" {
+		root = filepath.Clean(filepath.Join("..", "..", ".."))
+	}
+	manifestPath := filepath.Join(root, "docs", "bench", "find-on-screen-scenarios.example.json")
+	t.Setenv("FIND_BENCH_SCENARIO_MANIFEST", manifestPath)
+
+	scenarios, _, err := loadFindBenchScenariosFromManifest(true, true)
+	if err != nil {
+		t.Fatalf("load manifest scenarios: %v", err)
+	}
+
+	var selected *findBenchScenario
+	for i := range scenarios {
+		s := scenarios[i]
+		if strings.TrimSpace(s.scenarioTypeID) == "orb_feature_rich" && s.screenW == 1280 && s.screenH == 720 {
+			selected = &s
+			break
+		}
+	}
+	if selected == nil {
+		t.Fatalf("missing orb_feature_rich 1280x720 scenario in manifest materialization")
+	}
+
+	_, queries, ok := buildFindBenchFixtureFromRegionSpec(t, *selected)
+	if !ok {
+		t.Fatalf("expected region-spec fixture to be available")
+	}
+	if len(queries) == 0 {
+		t.Fatalf("expected at least one query")
+	}
+
+	var primary *findBenchFixtureQuery
+	for i := range queries {
+		if strings.EqualFold(strings.TrimSpace(queries[i].Label), "primary") {
+			primary = &queries[i]
+			break
+		}
+	}
+	if primary == nil {
+		t.Fatalf("missing primary query")
+	}
+	if primary.Expected == nil {
+		t.Fatalf("primary expected is nil")
+	}
+
+	sourceRaw, err := loadGrayFromFile(selected.sourceImagePath)
+	if err != nil {
+		t.Fatalf("load source image: %v", err)
+	}
+	sourceScene, sourceProjected := normalizeSceneAndRegions(sourceRaw, selected.screenW, selected.screenH, selected.sourceTargets)
+	if sourceScene == nil || len(sourceProjected) == 0 {
+		t.Fatalf("normalize source scene failed")
+	}
+	if projected := projectTargetRegionsToScreen(
+		selected.sourceTargets,
+		sourceRaw.Bounds().Dx(),
+		sourceRaw.Bounds().Dy(),
+		selected.screenW,
+		selected.screenH,
+	); len(projected) > 0 {
+		sourceProjected = projected
+	}
+	sourceRegion, ok := findScenarioTargetRegionByID(sourceProjected, "target-01")
+	if !ok {
+		t.Fatalf("missing projected source primary region")
+	}
+	derivedRegion, ok := deriveBenchmarkExpectedRegionFromTransform(sourceScene, sourceRegion, *selected)
+	if !ok {
+		t.Fatalf("missing transformed primary region")
+	}
+	if got, want := rectKey(primary.Expected), rectKey(benchRectFromTargetRegion(derivedRegion)); got != want {
+		t.Fatalf("expected primary rect to prefer transformed benchmark target, got=%s want=%s", got, want)
+	}
+}
+
+func TestBuildFindBenchFixtureFromRegionSpec_SkipsQueriesWithoutBenchmarkRegionMatch(t *testing.T) {
+	root := findBenchRepoRoot(".")
+	if root == "" {
+		root = filepath.Clean(filepath.Join("..", "..", ".."))
+	}
+	manifestPath := filepath.Join(root, "docs", "bench", "find-on-screen-scenarios.example.json")
+	t.Setenv("FIND_BENCH_SCENARIO_MANIFEST", manifestPath)
+
+	scenarios, _, err := loadFindBenchScenariosFromManifest(true, true)
+	if err != nil {
+		t.Fatalf("load manifest scenarios: %v", err)
+	}
+
+	var selected *findBenchScenario
+	for i := range scenarios {
+		s := scenarios[i]
+		if strings.TrimSpace(s.scenarioTypeID) == "vector_ui_baseline" && s.screenW == 1280 && s.screenH == 720 {
+			selected = &s
+			break
+		}
+	}
+	if selected == nil {
+		t.Fatalf("missing vector_ui_baseline 1280x720 scenario in manifest materialization")
+	}
+
+	mutated := *selected
+	mutated.benchmarkTargets = append([]findBenchTargetRegion(nil), selected.benchmarkTargets...)
+	if len(mutated.benchmarkTargets) < 3 {
+		t.Fatalf("expected at least three benchmark targets")
+	}
+	mutated.benchmarkTargets[0].ID = "non-matching-id"
+	mutated.benchmarkTargets[0].Label = "non-matching-label"
+
+	_, queries, ok := buildFindBenchFixtureFromRegionSpec(t, mutated)
+	if !ok {
+		t.Fatalf("expected region-spec fixture to be available")
+	}
+	if got, want := len(queries), len(selected.sourceTargets)-1; got != want {
+		t.Fatalf("expected one query to be skipped when benchmark target id is missing, got=%d want=%d", got, want)
+	}
+	for _, query := range queries {
+		if strings.TrimSpace(query.ID) == "target-01" {
+			t.Fatalf("expected target-01 query to be skipped when benchmark target mapping is missing")
+		}
 	}
 }
 
@@ -366,6 +658,29 @@ func TestClassifyFindBenchPositiveMatch_AlternateExpected(t *testing.T) {
 		false,
 	); got != findBenchMatchClassOK {
 		t.Fatalf("expected alternate region match to classify as ok, got %q", got)
+	}
+}
+
+func TestCenterDeltaMetrics_UsesRadialDistanceTolerance(t *testing.T) {
+	expected := &pb.Rect{X: 100, Y: 100, W: 100, H: 100}
+	pattern := &pb.GrayImage{Width: 100, Height: 100}
+
+	dx, dy, dist, limX, limY, ok := centerDeltaMetrics(
+		&pb.Rect{X: 135, Y: 135, W: 100, H: 100},
+		expected,
+		pattern,
+		0.22,
+		1.5,
+		false,
+	)
+	if ok {
+		t.Fatalf("expected diagonal center offset to fail radial tolerance, got ok dx=%.2f dy=%.2f dist=%.2f lim=%.2f,%.2f", dx, dy, dist, limX, limY)
+	}
+	if dx <= 0 || dy <= 0 || dist <= 0 {
+		t.Fatalf("expected positive center deltas, got dx=%.2f dy=%.2f dist=%.2f", dx, dy, dist)
+	}
+	if limX != limY {
+		t.Fatalf("expected radial tolerance to use symmetric limit, got lim=%.2f,%.2f", limX, limY)
 	}
 }
 

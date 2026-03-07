@@ -17,11 +17,67 @@ TARGETS=(
 )
 built_manifest="$PACKAGES_DIR/.built-packages"
 
+host_goos() {
+  case "$(uname -s)" in
+    Darwin) echo "darwin" ;;
+    Linux) echo "linux" ;;
+    MINGW*|MSYS*|CYGWIN*|Windows_NT) echo "windows" ;;
+    *) go env GOOS ;;
+  esac
+}
+
+host_goarch() {
+  case "$(uname -m)" in
+    arm64|aarch64) echo "arm64" ;;
+    x86_64|amd64) echo "amd64" ;;
+    *) go env GOARCH ;;
+  esac
+}
+
+configure_macos_ocr_env() {
+  if [[ "$(uname -s)" != "Darwin" ]]; then
+    return 0
+  fi
+  if ! command -v brew >/dev/null 2>&1; then
+    return 0
+  fi
+
+  local homebrew_prefix lept_prefix tess_prefix
+  homebrew_prefix="$(brew --prefix)"
+  lept_prefix="$(brew --prefix leptonica 2>/dev/null || true)"
+  tess_prefix="$(brew --prefix tesseract 2>/dev/null || true)"
+
+  if [[ -n "$homebrew_prefix" ]]; then
+    export PKG_CONFIG_PATH="${homebrew_prefix}/lib/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}"
+    export CGO_CFLAGS="${CGO_CFLAGS:-} -I${homebrew_prefix}/include"
+    export CGO_CPPFLAGS="${CGO_CPPFLAGS:-} -I${homebrew_prefix}/include"
+    export CGO_CXXFLAGS="${CGO_CXXFLAGS:-} -I${homebrew_prefix}/include"
+    export CGO_LDFLAGS="${CGO_LDFLAGS:-} -L${homebrew_prefix}/lib -llept -ltesseract"
+  fi
+  if [[ -n "$lept_prefix" && -n "$tess_prefix" ]]; then
+    export CGO_CFLAGS="${CGO_CFLAGS:-} -I${lept_prefix}/include -I${tess_prefix}/include"
+    export CGO_CPPFLAGS="${CGO_CPPFLAGS:-} -I${lept_prefix}/include -I${tess_prefix}/include"
+    export CGO_CXXFLAGS="${CGO_CXXFLAGS:-} -I${lept_prefix}/include -I${tess_prefix}/include"
+    export CGO_LDFLAGS="${CGO_LDFLAGS:-} -L${lept_prefix}/lib -L${tess_prefix}/lib -llept -ltesseract"
+  fi
+}
+
+normalize_env_flags() {
+  export CGO_CFLAGS="$(echo "${CGO_CFLAGS:-}" | xargs 2>/dev/null || true)"
+  export CGO_CPPFLAGS="$(echo "${CGO_CPPFLAGS:-}" | xargs 2>/dev/null || true)"
+  export CGO_CXXFLAGS="$(echo "${CGO_CXXFLAGS:-}" | xargs 2>/dev/null || true)"
+  export CGO_LDFLAGS="$(echo "${CGO_LDFLAGS:-}" | xargs 2>/dev/null || true)"
+}
+
 should_build_target() {
   local goos="$1"
   local goarch="$2"
   local pkg="$3"
   local requested="${NODE_BIN_TARGETS:-}"
+  if [[ -z "${requested//[[:space:]]/}" && "$(host_goos)" == "darwin" ]]; then
+    [[ "$goos" == "$(host_goos)" && "$goarch" == "$(host_goarch)" ]]
+    return
+  fi
   if [[ -z "${requested//[[:space:]]/}" ]]; then
     return 0
   fi
@@ -45,6 +101,9 @@ if ! command -v node >/dev/null 2>&1; then
   echo "Missing node in PATH" >&2
   exit 1
 fi
+
+configure_macos_ocr_env
+normalize_env_flags
 
 mkdir -p "$GO_CACHE_DIR" "$GO_MOD_CACHE_DIR"
 rm -f "$built_manifest"

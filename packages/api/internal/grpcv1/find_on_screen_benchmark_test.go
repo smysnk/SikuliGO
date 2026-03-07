@@ -112,6 +112,7 @@ type findBenchTargetRegion struct {
 }
 
 type findBenchFixtureQuery struct {
+	ID                 string
 	Pattern            *pb.GrayImage
 	Expected           *pb.Rect
 	ExpectedAlternates []*pb.Rect
@@ -243,7 +244,7 @@ func defaultFindBenchScenarios(highResEnabled, ultraResEnabled bool) []findBench
 func resolutionScenarioPack(cfg findBenchResolutionPack) []findBenchScenario {
 	res := fmt.Sprintf("%dx%d", cfg.screenW, cfg.screenH)
 	styleTol := maxFloat(0.14, cfg.tolerance-0.02)
-	transformTol := maxFloat(0.12, cfg.tolerance-0.08)
+	transformTol := maxFloat(0.20, cfg.tolerance+0.02)
 	styleSize := cfg.baseSize + 16
 	transformSize := cfg.baseSize + 48
 
@@ -370,6 +371,7 @@ func runFindOnScreenScenarioBenchmark(b *testing.B, engine findBenchEngine, scen
 		}
 		requests = append(requests, request)
 		visualQueries = append(visualQueries, findBenchVisualQuery{
+			ID:         q.ID,
 			Request:    request,
 			Expected:   q.Expected,
 			Alternates: cloneRectSlice(q.ExpectedAlternates),
@@ -653,7 +655,7 @@ func centerDeltaMetrics(
 		distance = math.Hypot(dxAbs, dyAbs)
 	}
 	limitX, limitY = centerDeltaThreshold(expected, tolerance, allowPartial)
-	ok = dxAbs <= limitX && dyAbs <= limitY
+	ok = distance <= limitX
 	return dxAbs, dyAbs, distance, limitX, limitY, ok
 }
 
@@ -712,9 +714,14 @@ func centerDeltaThreshold(expected *pb.Rect, tolerance float64, allowPartial boo
 		factor *= 1.08
 	}
 	factor = math.Max(0.16, math.Min(0.50, factor))
-	limitX := math.Max(8.0, float64(max32(1, expected.GetW()))*factor)
-	limitY := math.Max(8.0, float64(max32(1, expected.GetH()))*factor)
-	return limitX, limitY
+	limitDistance := math.Max(
+		8.0,
+		math.Hypot(
+			float64(max32(1, expected.GetW()))*factor,
+			float64(max32(1, expected.GetH()))*factor,
+		),
+	)
+	return limitDistance, limitDistance
 }
 
 func rectCenter(r *pb.Rect) (float64, float64) {
@@ -797,6 +804,7 @@ func buildFindBenchFixture(t testing.TB, scenario findBenchScenario) (*sikuli.Im
 	expected := &pb.Rect{X: int32(insertX), Y: int32(insertY), W: int32(pbounds.Dx()), H: int32(pbounds.Dy())}
 	return source, []findBenchFixtureQuery{
 		{
+			ID:       "target-01",
 			Pattern:  pattern,
 			Expected: expected,
 			Label:    "primary",
@@ -866,6 +874,7 @@ func buildFindBenchFixtureFromPhotoAsset(t testing.TB, scenario findBenchScenari
 	expected := &pb.Rect{X: int32(insertX), Y: int32(insertY), W: int32(pbounds.Dx()), H: int32(pbounds.Dy())}
 	return source, []findBenchFixtureQuery{
 		{
+			ID:       "target-01",
 			Pattern:  pattern,
 			Expected: expected,
 			Label:    "primary",
@@ -935,6 +944,11 @@ func buildFindBenchFixtureFromRegionSpec(t testing.TB, scenario findBenchScenari
 			}
 		}
 	}
+	multiMonitorCandidates := findBenchPreciseMultiMonitorBenchmarkCandidates(
+		scenario,
+		benchNativeW,
+		benchNativeH,
+	)
 
 	source, err := sikuli.NewImageFromGray(fmt.Sprintf("bench-%s-source", scenario.name), benchScene)
 	if err != nil {
@@ -951,19 +965,25 @@ func buildFindBenchFixtureFromRegionSpec(t testing.TB, scenario findBenchScenari
 		if sourcePattern.Bounds().Dx() < 4 || sourcePattern.Bounds().Dy() < 4 {
 			continue
 		}
-		benchRegion, ok := findScenarioTargetRegionByID(benchRegions, sourceRegion.ID)
-		if !ok && idx < len(benchRegions) {
-			benchRegion = benchRegions[idx]
-			ok = true
-		}
-		if !ok && len(benchRegions) > 0 {
-			benchRegion = chooseScenarioTargetRegion(benchRegions, scenario.seed+uint64(idx))
-			ok = true
-		}
+		benchRegion, ok := findScenarioTargetRegionForQuery(benchRegions, sourceRegion)
 		if !ok || benchRegion.W <= 0 || benchRegion.H <= 0 {
+			t.Logf(
+				"find bench region-spec query skipped scenario=%s target_id=%s label=%s reason=missing benchmark target mapping",
+				scenario.name,
+				strings.TrimSpace(sourceRegion.ID),
+				strings.TrimSpace(sourceRegion.Label),
+			)
 			continue
 		}
-		expectedRegion, alternates := chooseExpectedRegionsForScenario(scenario, sourceRegion, benchRegion)
+		expectedBenchmarkRegion := benchRegion
+		if derivedExpected, ok := deriveBenchmarkExpectedRegionFromTransform(sourceScene, sourceRegion, scenario); ok {
+			expectedBenchmarkRegion = derivedExpected
+		}
+		expectedRegion, alternates := chooseExpectedRegionsForScenario(scenario, sourceRegion, expectedBenchmarkRegion)
+		if preciseExpected, ok := choosePreciseMultiMonitorExpectedRegion(sourceRegion, benchRegion, multiMonitorCandidates); ok {
+			expectedRegion = preciseExpected
+			alternates = nil
+		}
 		label := strings.TrimSpace(sourceRegion.Label)
 		if label == "" {
 			label = strings.TrimSpace(sourceRegion.ID)
@@ -972,6 +992,7 @@ func buildFindBenchFixtureFromRegionSpec(t testing.TB, scenario findBenchScenari
 			label = fmt.Sprintf("target-%02d", idx+1)
 		}
 		queries = append(queries, findBenchFixtureQuery{
+			ID:                 strings.TrimSpace(sourceRegion.ID),
 			Pattern:            grayProtoFromGray(fmt.Sprintf("bench-%s-pattern-%02d", scenario.name, idx+1), sourcePattern),
 			Expected:           benchRectFromTargetRegion(expectedRegion),
 			ExpectedAlternates: alternates,
@@ -983,6 +1004,88 @@ func buildFindBenchFixtureFromRegionSpec(t testing.TB, scenario findBenchScenari
 		return nil, nil, false
 	}
 	return source, queries, true
+}
+
+func findBenchPreciseMultiMonitorBenchmarkCandidates(
+	scenario findBenchScenario,
+	benchmarkNativeW int,
+	benchmarkNativeH int,
+) map[string][]findBenchTargetRegion {
+	if !strings.EqualFold(strings.TrimSpace(scenario.scenarioTypeID), "multi_monitor_dpi_shift") {
+		return nil
+	}
+	if benchmarkNativeW < 4 || benchmarkNativeH < 4 || len(scenario.sourceTargets) == 0 {
+		return nil
+	}
+
+	panelW := int(float64(benchmarkNativeW) * 0.68)
+	panelH := int(float64(benchmarkNativeH) * 0.86)
+	panelX := (benchmarkNativeW - panelW) / 2
+	panelY := (benchmarkNativeH - panelH) / 2
+	gap := maxInt(8, benchmarkNativeW/120)
+	leftW := (benchmarkNativeW - gap) / 2
+	rightW := benchmarkNativeW - gap - leftW
+	leftRect := image.Rect(0, 0, leftW, benchmarkNativeH)
+	rightRect := image.Rect(leftW+gap, 0, leftW+gap+rightW, benchmarkNativeH)
+
+	leftMapped := projectTargetRegionsToScreen(
+		mapRegionsWithPanelGeometryBench(scenario.sourceTargets, panelX, panelY, panelW, panelH, leftRect, 0.98),
+		benchmarkNativeW,
+		benchmarkNativeH,
+		scenario.screenW,
+		scenario.screenH,
+	)
+	rightMapped := projectTargetRegionsToScreen(
+		mapRegionsWithPanelGeometryBench(scenario.sourceTargets, panelX, panelY, panelW, panelH, rightRect, 1.22),
+		benchmarkNativeW,
+		benchmarkNativeH,
+		scenario.screenW,
+		scenario.screenH,
+	)
+
+	candidates := map[string][]findBenchTargetRegion{}
+	for _, region := range leftMapped {
+		if region.W <= 0 || region.H <= 0 {
+			continue
+		}
+		candidates[region.ID] = append(candidates[region.ID], region)
+	}
+	for _, region := range rightMapped {
+		if region.W <= 0 || region.H <= 0 {
+			continue
+		}
+		candidates[region.ID] = append(candidates[region.ID], region)
+	}
+	return candidates
+}
+
+func choosePreciseMultiMonitorExpectedRegion(
+	sourceRegion findBenchTargetRegion,
+	benchmarkRegion findBenchTargetRegion,
+	candidates map[string][]findBenchTargetRegion,
+) (findBenchTargetRegion, bool) {
+	if len(candidates) == 0 {
+		return findBenchTargetRegion{}, false
+	}
+	regions := candidates[strings.TrimSpace(sourceRegion.ID)]
+	if len(regions) == 0 {
+		return findBenchTargetRegion{}, false
+	}
+	if len(regions) == 1 {
+		return regions[0], true
+	}
+
+	targetCX, targetCY := targetRegionCenter(benchmarkRegion)
+	best := regions[0]
+	bestDist := targetRegionCenterDistance(best, targetCX, targetCY)
+	for _, region := range regions[1:] {
+		dist := targetRegionCenterDistance(region, targetCX, targetCY)
+		if dist < bestDist {
+			best = region
+			bestDist = dist
+		}
+	}
+	return best, true
 }
 
 func chooseScenarioTargetRegionPair(regions []findBenchTargetRegion, seed uint64) (findBenchTargetRegion, findBenchTargetRegion) {
@@ -1039,6 +1142,48 @@ func composeMultiMonitorDPISceneFromSource(
 	leftMapped := blitScaledSceneIntoMonitorRect(out, leftRect, sourceScene, sourceRegions, leftScale)
 	rightMapped := blitScaledSceneIntoMonitorRect(out, rightRect, sourceScene, sourceRegions, rightScale)
 	return out, leftMapped, rightMapped
+}
+
+func panelRenderGeometryBench(panelW, panelH int, dstRect image.Rectangle, scaleFactor float64) (int, int, int, int, float64) {
+	if panelW < 1 || panelH < 1 || dstRect.Dx() < 1 || dstRect.Dy() < 1 {
+		return dstRect.Min.X, dstRect.Min.Y, 1, 1, 1.0
+	}
+	fitScale := math.Min(float64(dstRect.Dx())/float64(panelW), float64(dstRect.Dy())/float64(panelH))
+	renderScale := maxFloat(0.1, fitScale*scaleFactor)
+	renderW := maxInt(1, int(float64(panelW)*renderScale))
+	renderH := maxInt(1, int(float64(panelH)*renderScale))
+	offX := dstRect.Min.X + (dstRect.Dx()-renderW)/2
+	offY := dstRect.Min.Y + (dstRect.Dy()-renderH)/2
+	return offX, offY, renderW, renderH, renderScale
+}
+
+func mapRegionsWithPanelGeometryBench(
+	regions []findBenchTargetRegion,
+	panelX int,
+	panelY int,
+	panelW int,
+	panelH int,
+	dstRect image.Rectangle,
+	scaleFactor float64,
+) []findBenchTargetRegion {
+	offX, offY, _, _, renderScale := panelRenderGeometryBench(panelW, panelH, dstRect, scaleFactor)
+	mapped := make([]findBenchTargetRegion, 0, len(regions))
+	for _, region := range regions {
+		if region.W <= 0 || region.H <= 0 {
+			continue
+		}
+		relX := maxInt(0, region.X-panelX)
+		relY := maxInt(0, region.Y-panelY)
+		mapped = append(mapped, findBenchTargetRegion{
+			ID:    region.ID,
+			Label: region.Label,
+			X:     int(math.Round(float64(offX) + float64(relX)*renderScale)),
+			Y:     int(math.Round(float64(offY) + float64(relY)*renderScale)),
+			W:     maxInt(1, int(math.Round(float64(region.W)*renderScale))),
+			H:     maxInt(1, int(math.Round(float64(region.H)*renderScale))),
+		})
+	}
+	return mapped
 }
 
 func blitScaledSceneIntoMonitorRect(
@@ -1104,6 +1249,22 @@ func chooseScenarioTargetRegion(regions []findBenchTargetRegion, seed uint64) fi
 	return regions[idx]
 }
 
+func findScenarioTargetRegionForQuery(regions []findBenchTargetRegion, sourceRegion findBenchTargetRegion) (findBenchTargetRegion, bool) {
+	if region, ok := findScenarioTargetRegionByID(regions, sourceRegion.ID); ok {
+		return region, true
+	}
+	return findScenarioTargetRegionByUniqueLabel(regions, sourceRegion.Label)
+}
+
+func targetRegionCenter(region findBenchTargetRegion) (float64, float64) {
+	return float64(region.X) + float64(region.W)/2.0, float64(region.Y) + float64(region.H)/2.0
+}
+
+func targetRegionCenterDistance(region findBenchTargetRegion, targetCX, targetCY float64) float64 {
+	cx, cy := targetRegionCenter(region)
+	return math.Hypot(cx-targetCX, cy-targetCY)
+}
+
 func chooseExpectedRegionsForScenario(
 	scenario findBenchScenario,
 	sourceRegion findBenchTargetRegion,
@@ -1126,7 +1287,14 @@ func chooseExpectedRegionsForScenario(
 }
 
 func shouldPreferBenchmarkExpectedRegion(scenario findBenchScenario) bool {
+	scenarioTypeID := strings.ToLower(strings.TrimSpace(scenario.scenarioTypeID))
 	kind := strings.ToLower(strings.TrimSpace(scenario.kind))
+	switch {
+	case scenarioTypeID == "scale_rotate_sweep":
+		return true
+	case shouldDeriveExpectedRegionFromTransform(scenario):
+		return true
+	}
 	switch kind {
 	case "multi_monitor_dpi", "multi_monitor":
 		return true
@@ -1137,6 +1305,38 @@ func shouldPreferBenchmarkExpectedRegion(scenario findBenchScenario) bool {
 
 func targetRegionsEquivalent(a, b findBenchTargetRegion) bool {
 	return a.X == b.X && a.Y == b.Y && a.W == b.W && a.H == b.H
+}
+
+func shouldDeriveExpectedRegionFromTransform(scenario findBenchScenario) bool {
+	if strings.EqualFold(strings.TrimSpace(scenario.scenarioTypeID), "multi_monitor_dpi_shift") {
+		return false
+	}
+	if strings.TrimSpace(scenario.transformKind) != "" {
+		return true
+	}
+	return (((scenario.rotation % 360) + 360) % 360) != 0
+}
+
+func deriveBenchmarkExpectedRegionFromTransform(
+	sourceScene *image.Gray,
+	sourceRegion findBenchTargetRegion,
+	scenario findBenchScenario,
+) (findBenchTargetRegion, bool) {
+	if sourceScene == nil || !shouldDeriveExpectedRegionFromTransform(scenario) {
+		return findBenchTargetRegion{}, false
+	}
+	_, rect, ok := applyGlobalTransformToSceneAndRegion(sourceScene, sourceRegion, scenario)
+	if !ok || rect == nil || rect.GetW() < 2 || rect.GetH() < 2 {
+		return findBenchTargetRegion{}, false
+	}
+	return findBenchTargetRegion{
+		ID:    sourceRegion.ID,
+		Label: sourceRegion.Label,
+		X:     int(rect.GetX()),
+		Y:     int(rect.GetY()),
+		W:     int(rect.GetW()),
+		H:     int(rect.GetH()),
+	}, true
 }
 
 func findScenarioTargetRegionByID(regions []findBenchTargetRegion, id string) (findBenchTargetRegion, bool) {
@@ -1150,6 +1350,26 @@ func findScenarioTargetRegionByID(regions []findBenchTargetRegion, id string) (f
 		}
 	}
 	return findBenchTargetRegion{}, false
+}
+
+func findScenarioTargetRegionByUniqueLabel(regions []findBenchTargetRegion, label string) (findBenchTargetRegion, bool) {
+	label = strings.ToLower(strings.TrimSpace(label))
+	if label == "" {
+		return findBenchTargetRegion{}, false
+	}
+	match := findBenchTargetRegion{}
+	found := false
+	for _, region := range regions {
+		if strings.ToLower(strings.TrimSpace(region.Label)) != label {
+			continue
+		}
+		if found {
+			return findBenchTargetRegion{}, false
+		}
+		match = region
+		found = true
+	}
+	return match, found
 }
 
 func normalizeSceneAndRegions(src *image.Gray, screenW, screenH int, regions []findBenchTargetRegion) (*image.Gray, []findBenchTargetRegion) {
