@@ -1,7 +1,7 @@
-import { ensureSikuligoOnPath } from "./bootstrap.mjs";
-import { Screen, Pattern } from "@sikuligo/sikuligo";
+import { ensureSikuliGoOnPath } from "./bootstrap.mjs";
+import { Screen, Pattern } from "@sikuligo/sikuli-go";
 
-ensureSikuligoOnPath();
+ensureSikuliGoOnPath();
 
 // Primary constructor: connect first, then spawn fallback.
 const screen = await Screen();

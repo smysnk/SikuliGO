@@ -1,7 +1,7 @@
 {
-  "name": "@sikuligo/sikuligo",
+  "name": "@sikuligo/sikuli-go",
   "version": "0.1.4",
-  "description": "SikuliGO Node.js client",
+  "description": "sikuli-go Node.js client",
   "keywords": [
     "sikuli",
     "sikulix",

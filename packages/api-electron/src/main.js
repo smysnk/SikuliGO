@@ -10,7 +10,7 @@ const DASHBOARD_URL = process.env.SIKULIGO_DASHBOARD_URL || `http://${ADMIN_LIST
 const SESSION_URL = process.env.SIKULIGO_SESSION_VIEW_URL || `${DASHBOARD_URL}?view=session-viewer`;
 const API_BINARY_PATH =
   process.env.SIKULIGO_BINARY_PATH ||
-  path.resolve(__dirname, '../../../sikuligo');
+  path.resolve(__dirname, '../../../sikuli-go');
 const API_AUTO_START = process.env.SIKULIGO_API_AUTO_START !== '0';
 const API_STARTUP_TIMEOUT_MS = Number(process.env.SIKULIGO_API_STARTUP_TIMEOUT_MS || '8000');
 
@@ -56,7 +56,7 @@ async function startApi() {
   });
 
   managedApiProcess.once('exit', (code, signal) => {
-    console.error(`sikuligo exited code=${code} signal=${signal}`);
+    console.error(`sikuli-go exited code=${code} signal=${signal}`);
     managedApiProcess = null;
   });
 

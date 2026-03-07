@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from bootstrap import ensure_sikuligo_on_path
+from bootstrap import ensure_sikuli_go_on_path
 from sikuligo import Pattern, Screen
 
-ensure_sikuligo_on_path()
+ensure_sikuli_go_on_path()
 
-# Connect-only workflow (requires sikuligo already running).
+# Connect-only workflow (requires sikuli-go already running).
 screen = Screen.connect()
 try:
     match = screen.click(Pattern("assets/pattern.png").exact())

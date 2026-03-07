@@ -7,8 +7,8 @@ from pathlib import Path
 from sikuligo.sikulix import _resolve_sikuli_binary
 
 
-def ensure_sikuligo_on_path() -> str:
-    existing = shutil.which("sikuligo")
+def ensure_sikuli_go_on_path() -> str:
+    existing = shutil.which("sikuli-go") or shutil.which("sikuligo")
     if existing:
         os.environ["SIKULIGO_BINARY_PATH"] = existing
         return existing
@@ -16,7 +16,7 @@ def ensure_sikuligo_on_path() -> str:
     source = Path(_resolve_sikuli_binary(None))
     install_dir = Path.cwd() / ".sikuligo" / "bin"
     install_dir.mkdir(parents=True, exist_ok=True)
-    binary_name = "sikuligo.exe" if os.name == "nt" else "sikuligo"
+    binary_name = "sikuli-go.exe" if os.name == "nt" else "sikuli-go"
     installed = install_dir / binary_name
 
     should_copy = True

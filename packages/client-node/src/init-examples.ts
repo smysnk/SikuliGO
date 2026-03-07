@@ -4,7 +4,7 @@ import fs from "fs";
 import path from "path";
 
 function usage(): string {
-  return "Usage: sikuligo init-examples [--dir <targetDir>]";
+  return "Usage: sikuli-go init-examples [--dir <targetDir>]";
 }
 
 function parseArgs(argv: string[]): { targetDir: string; force: boolean } {

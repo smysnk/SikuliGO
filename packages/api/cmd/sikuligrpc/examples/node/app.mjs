@@ -1,7 +1,7 @@
-import { ensureSikuligoOnPath } from "./bootstrap.mjs";
-import { Sikuli } from "@sikuligo/sikuligo";
+import { ensureSikuliGoOnPath } from "./bootstrap.mjs";
+import { Sikuli } from "@sikuligo/sikuli-go";
 
-ensureSikuligoOnPath();
+ensureSikuliGoOnPath();
 
 const client = await Sikuli();
 const appName = process.env.SIKULI_APP_NAME ?? "Calculator";

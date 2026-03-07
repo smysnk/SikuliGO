@@ -17,7 +17,7 @@ function findOnPath(cmd: string): string | undefined {
 function run(): number {
   try {
     const binary = resolveSikuliBinary();
-    console.log("sikuligo doctor: ok");
+    console.log("sikuli-go doctor: ok");
     console.log(`binary: ${binary}`);
     console.log(`platform: ${process.platform}/${process.arch}`);
     if (process.platform === "darwin") {
@@ -32,7 +32,7 @@ function run(): number {
     return 0;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    console.error("sikuligo doctor: failed");
+    console.error("sikuli-go doctor: failed");
     console.error(message);
     return 1;
   }

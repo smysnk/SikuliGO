@@ -1,9 +1,9 @@
-import { ensureSikuligoOnPath } from "./bootstrap.mjs";
-import { Screen, Pattern } from "@sikuligo/sikuligo";
+import { ensureSikuliGoOnPath } from "./bootstrap.mjs";
+import { Screen, Pattern } from "@sikuligo/sikuli-go";
 
-ensureSikuligoOnPath();
+ensureSikuliGoOnPath();
 
-// Connect-only workflow (requires sikuligo already running).
+// Connect-only workflow (requires sikuli-go already running).
 const screen = await Screen.connect();
 try {
   const match = await screen.click(Pattern("assets/pattern.png").exact());

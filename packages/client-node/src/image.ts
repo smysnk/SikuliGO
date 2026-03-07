@@ -205,7 +205,7 @@ function isSdkInternalFrame(filePath: string): boolean {
   const markers = [
     `${path.sep}clients${path.sep}node${path.sep}src${path.sep}`,
     `${path.sep}clients${path.sep}node${path.sep}dist${path.sep}src${path.sep}`,
-    `${path.sep}node_modules${path.sep}@sikuligo${path.sep}sikuligo${path.sep}dist${path.sep}src${path.sep}`
+    `${path.sep}node_modules${path.sep}@sikuligo${path.sep}sikuli-go${path.sep}dist${path.sep}src${path.sep}`
   ];
   return markers.some((marker) => normalized.includes(marker));
 }

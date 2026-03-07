@@ -43,7 +43,7 @@ MACOS_CGO_LDFLAGS := -L/opt/homebrew/Cellar/leptonica/1.87.0/lib -L/opt/homebrew
 help:
 	@echo "Targets:"
 	@echo "  make build            Build all project outputs"
-	@echo "  make build-go         Build sikuligo + sikuligo-monitor + benchmark-helper binaries"
+	@echo "  make build-go         Build sikuli-go + sikuli-go-monitor + benchmark-helper binaries"
 	@echo "  make benchmark-helper Launch benchmark-helper web editor"
 	@echo "  make build-stubs      Generate Go/Node/Python/Lua protocol artifacts"
 	@echo "  make build-node       Build Node SDK + platform binaries"
@@ -87,12 +87,12 @@ build-go: build-go-api build-go-monitor build-go-benchmark-helper
 build-go-api:
 	cd "$(API_DIR)" && \
 	$(if $(filter Darwin,$(OS_NAME)),CGO_CXXFLAGS='$(MACOS_CGO_CXXFLAGS)' CGO_LDFLAGS='$(MACOS_CGO_LDFLAGS)',) \
-	$(GO) build -tags "$(GO_OPENCV_TAGS)" -trimpath -ldflags="-s -w" -o "$(ROOT_DIR)/sikuligo" ./cmd/sikuligrpc
+	$(GO) build -tags "$(GO_OPENCV_TAGS)" -trimpath -ldflags="-s -w" -o "$(ROOT_DIR)/sikuli-go" ./cmd/sikuligrpc
 
 build-go-monitor:
 	cd "$(API_DIR)" && \
 	$(if $(filter Darwin,$(OS_NAME)),CGO_CXXFLAGS='$(MACOS_CGO_CXXFLAGS)' CGO_LDFLAGS='$(MACOS_CGO_LDFLAGS)',) \
-	$(GO) build -tags "$(GO_OPENCV_TAGS)" -trimpath -ldflags="-s -w" -o "$(ROOT_DIR)/sikuligo-monitor" ./cmd/sikuligo-monitor
+	$(GO) build -tags "$(GO_OPENCV_TAGS)" -trimpath -ldflags="-s -w" -o "$(ROOT_DIR)/sikuli-go-monitor" ./cmd/sikuligo-monitor
 
 build-go-benchmark-helper:
 	cd "$(API_DIR)" && \
@@ -146,7 +146,7 @@ build-node-binaries:
 build-node-client:
 	cd "$(ROOT_DIR)" && \
 	if [[ "$(NPM_INSTALL)" == "1" ]]; then $(YARN) install; fi && \
-	$(YARN) workspace @sikuligo/sikuligo build && \
+	$(YARN) workspace @sikuligo/sikuli-go build && \
 	cd "$(ROOT_DIR)/packages/client-node" && \
 	$(NPM) pack --dry-run
 
@@ -190,12 +190,14 @@ clean:
 	benchmark-helper \
 	packages/client-node/dist \
 	packages/client-node/generated \
-	packages/client-node/packages/bin-*/bin/sikuligo \
-	packages/client-node/packages/bin-*/bin/sikuligo.exe \
+	packages/client-node/packages/bin-*/bin/sikuli-go \
+	packages/client-node/packages/bin-*/bin/sikuli-go.exe \
+	packages/client-node/packages/bin-*/bin/sikuli-go-monitor \
+	packages/client-node/packages/bin-*/bin/sikuli-go-monitor.exe \
 	packages/client-node/packages/checksums.txt \
 	packages/client-python/dist \
 	packages/client-python/build \
 	packages/client-python/*.egg-info \
 	packages/api/internal/grpcv1/pb \
-	packages/api/sikuligo \
-	packages/api/sikuligo-monitor
+	packages/api/sikuli-go \
+	packages/api/sikuli-go-monitor

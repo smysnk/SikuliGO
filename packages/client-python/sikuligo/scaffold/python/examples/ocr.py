@@ -4,12 +4,12 @@ from bootstrap_runtime import ensure_project_venv_python
 
 ensure_project_venv_python()
 
-from bootstrap import ensure_sikuligo_on_path
+from bootstrap import ensure_sikuli_go_on_path
 from generated.sikuli.v1 import sikuli_pb2 as pb
 from sikuligo import Screen
 from sikuligo.client import gray_image_from_rows
 
-ensure_sikuligo_on_path()
+ensure_sikuli_go_on_path()
 
 screen = Screen()
 client = screen.client

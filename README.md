@@ -1,4 +1,4 @@
-# SikuliGO [![GoLang Tests](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml/badge.svg)](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml) [![Testing Gate](https://img.shields.io/github/actions/workflow/status/smysnk/SikuliGO/go-test.yml?branch=master&label=testing%20gate)](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml) [![PyPI version](https://img.shields.io/pypi/v/sikuligo)](https://pypi.org/project/sikuligo/) [![npm version](https://img.shields.io/npm/v/%40sikuligo%2Fsikuligo)](https://www.npmjs.com/package/@sikuligo/sikuligo)
+# SikuliGO [![GoLang Tests](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml/badge.svg)](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml) [![Testing Gate](https://img.shields.io/github/actions/workflow/status/smysnk/SikuliGO/go-test.yml?branch=master&label=testing%20gate)](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml) [![PyPI version](https://img.shields.io/pypi/v/sikuli-go)](https://pypi.org/project/sikuli-go/) [![npm version](https://img.shields.io/npm/v/%40sikuligo%2Fsikuli-go)](https://www.npmjs.com/package/@sikuligo/sikuli-go)
 
 ![SikuliX Logo](docs/images/logo.png)
 
@@ -18,14 +18,14 @@ Sikuli is an open-source tool for automating anything visible on a computer scre
 Scaffold and run Node.js examples:
 
 ```bash
-yarn dlx @sikuligo/sikuligo init:js-examples
-cd sikuligo-demo
+yarn dlx @sikuligo/sikuli-go init:js-examples
+cd sikuli-go-demo
 yarn node examples/click.mjs
 ```
-`init:js-examples` prompts for a target directory, scaffolds a `package.json` with the latest `@sikuligo/sikuligo` dependency, runs `yarn install`, and copies `.mjs` examples into `examples/`.
+`init:js-examples` prompts for a target directory, scaffolds a `package.json` with the latest `@sikuligo/sikuli-go` dependency, runs `yarn install`, and copies `.mjs` examples into `examples/`.
 
 ```js
-import { Screen, Pattern } from "@sikuligo/sikuligo";
+import { Screen, Pattern } from "@sikuligo/sikuli-go";
 
 const screen = await Screen();
 try {
@@ -41,12 +41,13 @@ try {
 Scaffold and run Python examples:
 
 ```bash
-pipx run sikuligo init:py-examples
-cd sikuligo-demo
+pipx run sikuli-go init:py-examples
+cd sikuli-go-demo
 python3 examples/click.py
 ```
 
 `init:py-examples` prompts for a target directory, writes `requirements.txt`, creates `.venv`, installs dependencies, and copies Python examples into `examples/`.
+The PyPI package name is `sikuli-go`, while the Python import module remains `sikuligo`.
 
 ```python
 from sikuligo import Pattern, Screen
@@ -61,16 +62,16 @@ finally:
 
 ## API Dashboard
 
-`sikuligo` is the automation runtime. It starts the gRPC API and, when admin endpoints are enabled, serves the live dashboard for the same process.
+`sikuli-go` is the automation runtime. It starts the gRPC API and, when admin endpoints are enabled, serves the live dashboard for the same process.
 Use it when clients need to execute automation, OCR, image matching, clicks, typing, or app control.
 
-`sikuligo-monitor` is the HTTP-only monitor. It reads the shared `sikuligo.db` session store and serves the dashboard/session viewer without starting another automation server.
+`sikuli-go-monitor` is the HTTP-only monitor. It reads the shared `sikuligo.db` session store and serves the dashboard/session viewer without starting another automation server.
 Use it when you only want operational visibility: review API sessions, inspect client interactions, or watch a shared session store from another terminal or machine without binding a second gRPC server.
 
 Launch the API and dashboard locally:
 
 ```bash
-yarn dlx @sikuligo/sikuligo -listen
+yarn dlx @sikuligo/sikuli-go -listen
 ```
 
 `-listen` by itself starts the gRPC API on `:50051` and the admin/dashboard server on `:8080`.
@@ -80,7 +81,7 @@ yarn dlx @sikuligo/sikuligo -listen
 Launch the standalone monitor after installing the binaries on PATH:
 
 ```bash
-sikuligo-monitor
+sikuli-go-monitor
 ```
 
 By default it serves the monitor UI on `:8080` and reads `sikuligo.db` from the current working directory.
@@ -92,24 +93,24 @@ By default it serves the monitor UI on `:8080` and reads `sikuligo.db` from the 
 Install via Yarn (Node ecosystem):
 
 ```bash
-yarn dlx @sikuligo/sikuligo install-binary
+yarn dlx @sikuligo/sikuli-go install-binary
 ```
 
 Install via Python:
 
 ```bash
-pipx run sikuligo install-binary
+pipx run sikuli-go install-binary
 ```
 
-Both commands create `~/.local/bin` if needed, copy all available `sikuli*` runtimes, and can prompt to add PATH to `~/.zshrc` or `~/.bash_profile`.
+Both commands create `~/.local/bin` if needed, copy `sikuli-go` and `sikuli-go-monitor`, and can prompt to add PATH to `~/.zshrc` or `~/.bash_profile`.
 If PATH is updated, reload with `source ~/.zshrc` or `source ~/.bash_profile`.
 
 ## Available Clients
 
 | Client |  | Notes |
 | :---  | --- | :---  |
-| [Python](https://pypi.org/project/sikuligo/)  | ✅ | Implemented |
-| [Node](https://www.npmjs.com/package/@sikuligo/sikuligo)  | ✅ | Implemented |
+| [Python](https://pypi.org/project/sikuli-go/)  | ✅ | Implemented |
+| [Node](https://www.npmjs.com/package/@sikuligo/sikuli-go)  | ✅ | Implemented |
 | Lua  | ✅ | Implemented |
 | Robot Framework | 🟡 | Planned |
 | Web IDE | 🟡 | Planned |
@@ -158,7 +159,9 @@ If PATH is updated, reload with `source ~/.zshrc` or `source ~/.bash_profile`.
 - [`packages/api`](packages/api) : GoLang API module (`cmd`, `internal`, `pkg`, `proto`)
 - [`packages/editor`](packages/editor) : Next.js editor app
 - [`packages/api-electron`](packages/api-electron) : macOS Electron API + dashboard/session viewer app
-- [`clients`](clients) : language client SDKs and packaging artifacts
+- [`packages/client-node`](packages/client-node) : Node.js client SDK and packaging artifacts
+- [`packages/client-python`](packages/client-python) : Python client SDK and packaging artifacts
+- [`packages/client-lua`](packages/client-lua) : Lua client descriptor/runtime artifacts
 - [`docs`](docs) : documentation and assets
 - [`legacy`](legacy) : previous Java-era project directories retained for reference
 
@@ -186,7 +189,7 @@ The GoLang port in this repository began in **2026**. It stands on the work of t
 <!-- BEGIN: FIND_ON_SCREEN_BENCH_AUTOGEN -->
 ## FindOnScreen Benchmark Test Results
 
-Generated: `2026-03-07T08:22:49.092218+00:00`
+Generated: `2026-03-07T21:21:55.208615+00:00`
 
 ### Reports
 
@@ -208,13 +211,13 @@ _Cases/OK metrics are query-level counts (regions x scenarios x resolutions), no
 
 | Engine | Cases | OK | Partial | Not Found | Unsupported | Error | Overlap Miss | Avg ms/op | Median ms/op |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| akaze | 120 | 39 | 0 | 78 | 0 | 0 | 3 | 171.032 | 147.060 |
-| brisk | 120 | 47 | 0 | 63 | 0 | 0 | 10 | 331.625 | 123.717 |
-| hybrid | 120 | 69 | 0 | 45 | 0 | 0 | 6 | 171.317 | 135.641 |
-| kaze | 120 | 63 | 0 | 50 | 0 | 0 | 7 | 787.238 | 637.542 |
-| orb | 120 | 13 | 0 | 96 | 0 | 0 | 11 | 55.807 | 43.110 |
-| sift | 120 | 56 | 0 | 55 | 0 | 0 | 9 | 251.719 | 195.118 |
-| template | 120 | 64 | 0 | 56 | 0 | 0 | 0 | 155.890 | 117.008 |
+| akaze | 120 | 39 | 0 | 78 | 0 | 0 | 3 | 209.021 | 173.061 |
+| brisk | 120 | 47 | 0 | 63 | 0 | 0 | 10 | 326.143 | 119.279 |
+| hybrid | 120 | 69 | 0 | 45 | 0 | 0 | 6 | 167.515 | 134.524 |
+| kaze | 120 | 63 | 0 | 50 | 0 | 0 | 7 | 752.177 | 637.129 |
+| orb | 120 | 13 | 0 | 96 | 0 | 0 | 11 | 68.743 | 47.694 |
+| sift | 120 | 56 | 0 | 55 | 0 | 0 | 9 | 250.684 | 198.269 |
+| template | 120 | 64 | 0 | 56 | 0 | 0 | 0 | 162.561 | 128.652 |
 
 ### Run Mega Summary
 

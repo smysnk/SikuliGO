@@ -13,7 +13,7 @@ function debugLog(message: string, fields: Record<string, unknown> = {}): void {
     .map(([k, v]) => `${k}=${String(v)}`);
   const suffix = parts.length > 0 ? ` ${parts.join(" ")}` : "";
   // eslint-disable-next-line no-console
-  console.error(`[sikuligo-debug] ${message}${suffix}`);
+  console.error(`[sikuli-go-debug] ${message}${suffix}`);
 }
 
 export interface InputOptions {

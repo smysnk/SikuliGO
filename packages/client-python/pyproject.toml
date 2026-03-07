@@ -3,9 +3,9 @@ requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "sikuligo"
+name = "sikuli-go"
 version = "0.1.4"
-description = "SikuliGO gRPC client wrapper and generated stubs for Python"
+description = "sikuli-go gRPC client wrapper and generated stubs for Python"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
@@ -34,7 +34,7 @@ dev = [
 ]
 
 [project.scripts]
-sikuligo = "sikuligo.cli:main"
+"sikuli-go" = "sikuligo.cli:main"
 
 [tool.setuptools]
 include-package-data = true

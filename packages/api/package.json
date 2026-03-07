@@ -5,7 +5,7 @@
   "scripts": {
     "build": "go build ./...",
     "test": "go test ./...",
-    "build:server": "go build -o sikuligo ./cmd/sikuligrpc",
-    "build:monitor": "go build -o sikuligo-monitor ./cmd/sikuligo-monitor"
+    "build:server": "go build -o sikuli-go ./cmd/sikuligrpc",
+    "build:monitor": "go build -o sikuli-go-monitor ./cmd/sikuligo-monitor"
   }
 }

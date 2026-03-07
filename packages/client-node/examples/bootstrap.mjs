@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { resolveSikuliBinary } from "@sikuligo/sikuligo";
+import { resolveSikuliBinary } from "@sikuligo/sikuli-go";
 
 function resolveOnPath(binaryName) {
   const cmd = process.platform === "win32" ? "where" : "which";
@@ -24,8 +24,8 @@ function ensureLocalInstallDirOnPath(installDir) {
   }
 }
 
-export function ensureSikuligoOnPath() {
-  const binaryName = process.platform === "win32" ? "sikuligo.exe" : "sikuligo";
+export function ensureSikuliGoOnPath() {
+  const binaryName = process.platform === "win32" ? "sikuli-go.exe" : "sikuli-go";
   const existing = resolveOnPath(binaryName);
   if (existing) {
     process.env.SIKULIGO_BINARY_PATH = existing;

@@ -37,7 +37,7 @@ cd "$CLIENT_DIR"
 step "3/10 Verify package identity"
 PKG_NAME="$(node -e "console.log(require(process.argv[1]).name)" "$NODE_PACKAGE_JSON")"
 PKG_VERSION="$(node -e "console.log(require(process.argv[1]).version)" "$NODE_PACKAGE_JSON")"
-if [[ "$PKG_NAME" != "@sikuligo/sikuligo" ]]; then
+if [[ "$PKG_NAME" != "@sikuligo/sikuli-go" ]]; then
   echo "Unexpected package name: $PKG_NAME" >&2
   exit 1
 fi
@@ -113,7 +113,7 @@ if [[ "$NODE_PUBLISH_MODE" == "1" ]]; then
     cd "$ROOT_DIR"
     configure_npm_auth_token "${NPM_TOKEN:-}"
     verify_npm_auth
-    check_npm_package_visibility "@sikuligo/sikuligo"
+    check_npm_package_visibility "@sikuligo/sikuli-go"
 
     # Ensure all declared optional binary deps exist at the exact pinned version.
     mapfile -t binary_deps < <(node - <<'JS' "$NODE_PACKAGE_JSON"
@@ -129,13 +129,13 @@ JS
     for spec in "${binary_deps[@]}"; do
       if ! run_npm_no_workspace view "$spec" version >/dev/null 2>&1; then
         echo "Required Node binary package is missing on npm: $spec" >&2
-        echo "Refusing to publish @sikuligo/sikuligo with unresolved binary dependency." >&2
+        echo "Refusing to publish @sikuligo/sikuli-go with unresolved binary dependency." >&2
         exit 1
       fi
     done
   )
 
-  step "10/10 Publish @sikuligo/sikuligo"
+  step "10/10 Publish @sikuligo/sikuli-go"
   (
     cd "$ROOT_DIR"
     run_npm_no_workspace publish --ignore-scripts --access public "$CLIENT_DIR"

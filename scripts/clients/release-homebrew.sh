@@ -7,7 +7,7 @@ source "${THIS_DIR}/paths.sh"
 DIST_DIR="${HOME_BREW_DIST_DIR:-$ROOT_DIR/.test-results/homebrew}"
 OWNER_REPO="${GITHUB_REPOSITORY:-smysnk/SikuliGO}"
 TAP_REPO="${HOMEBREW_TAP_REPO:-sikuligo/homebrew-tap}"
-FORMULA_NAME="sikuligo"
+FORMULA_NAME="sikuli-go"
 FORMULA_PATH="Formula/${FORMULA_NAME}.rb"
 ARM_ARCHIVE="$DIST_DIR/${FORMULA_NAME}-darwin-arm64.tar.gz"
 AMD_ARCHIVE="$DIST_DIR/${FORMULA_NAME}-darwin-amd64.tar.gz"
@@ -48,26 +48,26 @@ build_archive() {
   local arch="$1"
   local archive="$2"
   local stage_dir="$DIST_DIR/stage-${arch}"
-  local files=("sikuligo")
+  local files=("sikuli-go")
 
   rm -rf "$stage_dir"
   mkdir -p "$stage_dir"
 
-  echo "Building sikuligo darwin/${arch}"
+  echo "Building sikuli-go darwin/${arch}"
   (
     cd "$API_DIR"
     GOOS=darwin GOARCH="$arch" \
-      go build -tags "$GO_BUILD_TAGS" -trimpath -ldflags="-s -w" -o "$stage_dir/sikuligo" ./cmd/sikuligrpc
+      go build -tags "$GO_BUILD_TAGS" -trimpath -ldflags="-s -w" -o "$stage_dir/sikuli-go" ./cmd/sikuligrpc
   )
 
   if [[ -d "$API_DIR/cmd/sikuligo-monitor" ]]; then
-    echo "Building sikuligo-monitor darwin/${arch}"
+    echo "Building sikuli-go-monitor darwin/${arch}"
     (
       cd "$API_DIR"
       GOOS=darwin GOARCH="$arch" \
-        go build -tags "$GO_BUILD_TAGS" -trimpath -ldflags="-s -w" -o "$stage_dir/sikuligo-monitor" ./cmd/sikuligo-monitor
+        go build -tags "$GO_BUILD_TAGS" -trimpath -ldflags="-s -w" -o "$stage_dir/sikuli-go-monitor" ./cmd/sikuligo-monitor
     )
-    files+=("sikuligo-monitor")
+    files+=("sikuli-go-monitor")
   fi
 
   tar -C "$stage_dir" -czf "$archive" "${files[@]}"
@@ -95,7 +95,7 @@ AMD_SHA="$(sha256_file "$AMD_ARCHIVE")"
 
 FORMULA_FILE="$DIST_DIR/${FORMULA_NAME}.rb"
 cat >"$FORMULA_FILE" <<EOF
-class Sikuligo < Formula
+class SikuliGo < Formula
   desc "SikuliGO desktop automation API server"
   homepage "https://github.com/${OWNER_REPO}"
   license "MIT"
@@ -112,12 +112,12 @@ class Sikuligo < Formula
   end
 
   def install
-    bin.install "sikuligo"
-    bin.install "sikuligo-monitor" if (buildpath/"sikuligo-monitor").exist?
+    bin.install "sikuli-go"
+    bin.install "sikuli-go-monitor" if (buildpath/"sikuli-go-monitor").exist?
   end
 
   test do
-    assert_predicate bin/"sikuligo", :exist?
+    assert_predicate bin/"sikuli-go", :exist?
   end
 end
 EOF
@@ -172,7 +172,7 @@ git add "$FORMULA_PATH"
 if git diff --cached --quiet; then
   echo "Homebrew formula unchanged"
 else
-  git commit -m "sikuligo ${VERSION}"
+  git commit -m "sikuli-go ${VERSION}"
   git push origin HEAD
 fi
 popd >/dev/null

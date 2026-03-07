@@ -4,8 +4,8 @@ set -euo pipefail
 THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${THIS_DIR}/paths.sh"
 
-TMP_ROOT="$(mktemp -d /tmp/sikuligo-node-e2e.XXXXXX)"
-API_BINARY="${TMP_ROOT}/sikuligo"
+TMP_ROOT="$(mktemp -d /tmp/sikuli-go-node-e2e.XXXXXX)"
+API_BINARY="${TMP_ROOT}/sikuli-go"
 SPAWN_SQLITE="${TMP_ROOT}/node-spawn.db"
 CONNECT_SQLITE="${TMP_ROOT}/node-connect.db"
 KEEP_TMP="${KEEP_TMP:-0}"
@@ -24,7 +24,7 @@ step() {
   echo "[node-e2e] $1"
 }
 
-step "1/3 Build local sikuligo API binary"
+step "1/3 Build local sikuli-go API binary"
 (
   cd "${API_DIR}"
   go build -tags "${GO_BUILD_TAGS}" -o "${API_BINARY}" ./cmd/sikuligrpc

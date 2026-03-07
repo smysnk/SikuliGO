@@ -76,9 +76,9 @@ fs.writeFileSync(filePath, JSON.stringify(pkg, null, 2) + "\n");
 JS
 
 if [[ "$pkg" == "bin-win32-x64" ]]; then
-  test -f "$pkg_dir/bin/sikuligo.exe" || { echo "Missing binary for ${pkg_name} backfill" >&2; exit 1; }
+  test -f "$pkg_dir/bin/sikuli-go.exe" || { echo "Missing binary for ${pkg_name} backfill" >&2; exit 1; }
 else
-  test -f "$pkg_dir/bin/sikuligo" || { echo "Missing binary for ${pkg_name} backfill" >&2; exit 1; }
+  test -f "$pkg_dir/bin/sikuli-go" || { echo "Missing binary for ${pkg_name} backfill" >&2; exit 1; }
 fi
 
 run_npm_no_workspace pack --dry-run --ignore-scripts "$pkg_dir" >/dev/null

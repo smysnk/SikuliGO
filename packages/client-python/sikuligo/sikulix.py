@@ -87,7 +87,14 @@ def _find_open_port() -> int:
 
 
 def _resolve_sikuli_binary(binary_path: str | None = None) -> str:
-    exe_names = ("sikuligo.exe", "sikuligo", "sikuligrpc.exe", "sikuligrpc")
+    exe_names = (
+        "sikuli-go.exe",
+        "sikuli-go",
+        "sikuligo.exe",
+        "sikuligo",
+        "sikuligrpc.exe",
+        "sikuligrpc",
+    )
 
     def resolve_path(candidate_path: str | Path, source: str) -> str:
         candidate = Path(candidate_path).expanduser().resolve()
@@ -130,7 +137,7 @@ def _resolve_sikuli_binary(binary_path: str | None = None) -> str:
             return found
 
     raise FileNotFoundError(
-        "Unable to resolve sikuligo binary. Build it in repo root, install it on PATH, or set SIKULIGO_BINARY_PATH."
+        "Unable to resolve sikuli-go binary. Build it in repo root, install it on PATH, or set SIKULIGO_BINARY_PATH."
     )
 
 
@@ -180,12 +187,12 @@ def _wait_for_startup(session: Sikuli, child: subprocess.Popen, timeout_seconds:
     while True:
         if child.poll() is not None:
             raise RuntimeError(
-                f"sikuligo exited before startup completed (code={child.returncode})"
+                f"sikuli-go exited before startup completed (code={child.returncode})"
             )
         remaining = deadline - time.monotonic()
         if remaining <= 0:
             raise TimeoutError(
-                f"timeout waiting for sikuligo startup on {session.address}"
+                f"timeout waiting for sikuli-go startup on {session.address}"
             )
         try:
             session.wait_for_ready(timeout_seconds=min(0.2, remaining))

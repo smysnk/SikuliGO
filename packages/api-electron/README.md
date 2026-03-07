@@ -10,7 +10,7 @@ yarn workspace @sikuligo/api-electron dev
 
 Environment overrides:
 
-- `SIKULIGO_BINARY_PATH` (default: `../../../sikuligo` relative to this package)
+- `SIKULIGO_BINARY_PATH` (default: `../../../sikuli-go` relative to this package)
 - `SIKULIGO_API_LISTEN` (default: `127.0.0.1:50051`)
 - `SIKULIGO_ADMIN_LISTEN` (default: `127.0.0.1:8080`)
 - `SIKULIGO_API_AUTO_START` (default: `1`; set `0` to disable auto-start)

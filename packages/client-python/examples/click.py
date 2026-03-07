@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from bootstrap import ensure_sikuligo_on_path
+from bootstrap import ensure_sikuli_go_on_path
 from sikuligo import Pattern, Screen
 
-ensure_sikuligo_on_path()
+ensure_sikuli_go_on_path()
 
 screen = Screen()
 try:

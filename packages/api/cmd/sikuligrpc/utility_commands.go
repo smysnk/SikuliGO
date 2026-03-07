@@ -44,11 +44,11 @@ func maybeRunUtilityCommands(args []string) (bool, error) {
 
 func printCommandHelp(w io.Writer) {
 	_, _ = fmt.Fprintln(w, "Usage:")
-	_, _ = fmt.Fprintln(w, "  sikuligo [flags]")
-	_, _ = fmt.Fprintln(w, "  sikuligo init:js-examples [--dir <targetDir>] [--skip-install]")
-	_, _ = fmt.Fprintln(w, "  sikuligo init:py-examples [--dir <targetDir>] [--skip-install]")
-	_, _ = fmt.Fprintln(w, "  sikuligo install-binary [--dir <binDir>] [--yes] [--no-shell-update]")
-	_, _ = fmt.Fprintln(w, "  sikuligo doctor")
+	_, _ = fmt.Fprintln(w, "  sikuli-go [flags]")
+	_, _ = fmt.Fprintln(w, "  sikuli-go init:js-examples [--dir <targetDir>] [--skip-install]")
+	_, _ = fmt.Fprintln(w, "  sikuli-go init:py-examples [--dir <targetDir>] [--skip-install]")
+	_, _ = fmt.Fprintln(w, "  sikuli-go install-binary [--dir <binDir>] [--yes] [--no-shell-update]")
+	_, _ = fmt.Fprintln(w, "  sikuli-go doctor")
 	_, _ = fmt.Fprintln(w, "")
 	_, _ = fmt.Fprintln(w, "Server Flags:")
 	_, _ = fmt.Fprintln(w, "  -listen string")
@@ -80,7 +80,7 @@ func runDoctor(args []string) error {
 	if err != nil {
 		exeReal = exe
 	}
-	fmt.Println("sikuligo doctor: ok")
+	fmt.Println("sikuli-go doctor: ok")
 	fmt.Printf("binary: %s\n", exeReal)
 	fmt.Printf("platform: %s/%s\n", runtime.GOOS, runtime.GOARCH)
 	depsMissing := doctorMissingRuntimeDeps()
@@ -119,7 +119,7 @@ func runInstallBinary(args []string) error {
 	yes := fs.Bool("yes", false, "auto-approve shell profile PATH update prompt")
 	noShellUpdate := fs.Bool("no-shell-update", false, "skip adding target dir to shell profile")
 	fs.Usage = func() {
-		fmt.Fprintf(fs.Output(), "Usage: sikuligo install-binary [--dir <binDir>] [--yes] [--no-shell-update]\n")
+		fmt.Fprintf(fs.Output(), "Usage: sikuli-go install-binary [--dir <binDir>] [--yes] [--no-shell-update]\n")
 	}
 	if err := fs.Parse(args); err != nil {
 		return err
@@ -207,7 +207,7 @@ func runInitJSExamples(args []string) error {
 	targetDir := fs.String("dir", "", "project directory")
 	skipInstall := fs.Bool("skip-install", false, "skip running yarn install")
 	fs.Usage = func() {
-		fmt.Fprintf(fs.Output(), "Usage: sikuligo init:js-examples [--dir <targetDir>] [--skip-install]\n")
+		fmt.Fprintf(fs.Output(), "Usage: sikuli-go init:js-examples [--dir <targetDir>] [--skip-install]\n")
 	}
 	if err := fs.Parse(args); err != nil {
 		return err
@@ -218,7 +218,7 @@ func runInitJSExamples(args []string) error {
 
 	projectDir := strings.TrimSpace(*targetDir)
 	if projectDir == "" {
-		value, err := promptWithDefault("Project directory name", "sikuligo-demo")
+		value, err := promptWithDefault("Project directory name", "sikuli-go-demo")
 		if err != nil {
 			return err
 		}
@@ -256,7 +256,7 @@ func runInitPyExamples(args []string) error {
 	targetDir := fs.String("dir", "", "project directory")
 	skipInstall := fs.Bool("skip-install", false, "skip setting up .venv and pip install")
 	fs.Usage = func() {
-		fmt.Fprintf(fs.Output(), "Usage: sikuligo init:py-examples [--dir <targetDir>] [--skip-install]\n")
+		fmt.Fprintf(fs.Output(), "Usage: sikuli-go init:py-examples [--dir <targetDir>] [--skip-install]\n")
 	}
 	if err := fs.Parse(args); err != nil {
 		return err
@@ -267,7 +267,7 @@ func runInitPyExamples(args []string) error {
 
 	projectDir := strings.TrimSpace(*targetDir)
 	if projectDir == "" {
-		value, err := promptWithDefault("Project directory name", "sikuligo-demo")
+		value, err := promptWithDefault("Project directory name", "sikuli-go-demo")
 		if err != nil {
 			return err
 		}
@@ -376,7 +376,7 @@ func ensureNodePackageJSON(projectDir string) error {
 		"type":    "module",
 	}
 	if strings.TrimSpace(pkg["name"].(string)) == "" {
-		pkg["name"] = "sikuligo-project"
+		pkg["name"] = "sikuli-go-project"
 	}
 	if b, err := os.ReadFile(pkgPath); err == nil {
 		var existing map[string]any
@@ -399,7 +399,7 @@ func ensureNodePackageJSON(projectDir string) error {
 	if version == "" {
 		version = "latest"
 	}
-	deps["@sikuligo/sikuligo"] = version
+	deps["@sikuligo/sikuli-go"] = version
 	pkg["dependencies"] = deps
 	out, err := json.MarshalIndent(pkg, "", "  ")
 	if err != nil {
@@ -415,9 +415,9 @@ func ensureNodePackageJSON(projectDir string) error {
 func ensurePythonRequirements(projectDir string) error {
 	requirementsPath := filepath.Join(projectDir, "requirements.txt")
 	packageVersion := strings.TrimSpace(os.Getenv("SIKULIGO_PY_PACKAGE_VERSION"))
-	requirement := "sikuligo"
+	requirement := "sikuli-go"
 	if packageVersion != "" && packageVersion != "latest" {
-		requirement = fmt.Sprintf("sikuligo==%s", packageVersion)
+		requirement = fmt.Sprintf("sikuli-go==%s", packageVersion)
 	}
 	content := requirement + "\n"
 	if err := os.WriteFile(requirementsPath, []byte(content), 0o644); err != nil {
@@ -527,7 +527,7 @@ func detectShellProfile() (profile string, sourceCmd string, ok bool) {
 
 func ensurePathExport(profilePath, binDir string) (bool, error) {
 	exportLine := fmt.Sprintf("export PATH=\"%s:$PATH\"", binDir)
-	marker := "# Added by sikuligo install-binary"
+	marker := "# Added by sikuli-go install-binary"
 	snippet := marker + "\n" + exportLine + "\n"
 	existing, _ := os.ReadFile(profilePath)
 	content := string(existing)
@@ -569,9 +569,9 @@ func copyFile(src, dst string) error {
 	return out.Sync()
 }
 
-var runtimeNamePattern = regexp.MustCompile(`(?i)^sikul(?:igo|igrpc)(?:-monitor)?(?:-[0-9a-f]{8,})?(\.exe)?$`)
-var runtimeNamePrimaryPattern = regexp.MustCompile(`(?i)^sikul(?:igo|igrpc)(?:-[0-9a-f]{8,})?(\.exe)?$`)
-var runtimeNameMonitorPattern = regexp.MustCompile(`(?i)^sikul(?:igo|igrpc)-monitor(?:-[0-9a-f]{8,})?(\.exe)?$`)
+var runtimeNamePattern = regexp.MustCompile(`(?i)^sikuli(?:-go|go|grpc)(?:-monitor)?(?:-[0-9a-f]{8,})?(\.exe)?$`)
+var runtimeNamePrimaryPattern = regexp.MustCompile(`(?i)^sikuli(?:-go|go|grpc)(?:-[0-9a-f]{8,})?(\.exe)?$`)
+var runtimeNameMonitorPattern = regexp.MustCompile(`(?i)^sikuli(?:-go|go|grpc)-monitor(?:-[0-9a-f]{8,})?(\.exe)?$`)
 
 func discoverRuntimeSources(primary string) map[string]string {
 	candidates := map[string]struct{}{primary: {}}
@@ -613,9 +613,9 @@ func runtimeCanonicalName(name string) (string, bool) {
 	stem := strings.TrimSuffix(strings.ToLower(name), strings.ToLower(ext))
 	switch {
 	case runtimeNameMonitorPattern.MatchString(stem):
-		return "sikuligo-monitor" + ext, true
+		return "sikuli-go-monitor" + ext, true
 	case runtimeNamePrimaryPattern.MatchString(stem):
-		return "sikuligo" + ext, true
+		return "sikuli-go" + ext, true
 	default:
 		return "", false
 	}
@@ -625,16 +625,20 @@ func runtimeSourceRank(name string) int {
 	ext := filepath.Ext(name)
 	stem := strings.TrimSuffix(strings.ToLower(name), strings.ToLower(ext))
 	switch {
-	case stem == "sikuligo", stem == "sikuligo-monitor":
+	case stem == "sikuli-go", stem == "sikuli-go-monitor":
 		return 0
-	case stem == "sikuligrpc", stem == "sikuligrpc-monitor":
+	case stem == "sikuligo", stem == "sikuligo-monitor":
 		return 1
-	case strings.HasPrefix(stem, "sikuligo-monitor-"), strings.HasPrefix(stem, "sikuligo-"):
+	case stem == "sikuligrpc", stem == "sikuligrpc-monitor":
 		return 2
-	case strings.HasPrefix(stem, "sikuligrpc-monitor-"), strings.HasPrefix(stem, "sikuligrpc-"):
+	case strings.HasPrefix(stem, "sikuli-go-monitor-"), strings.HasPrefix(stem, "sikuli-go-"):
 		return 3
-	default:
+	case strings.HasPrefix(stem, "sikuligo-monitor-"), strings.HasPrefix(stem, "sikuligo-"):
 		return 4
+	case strings.HasPrefix(stem, "sikuligrpc-monitor-"), strings.HasPrefix(stem, "sikuligrpc-"):
+		return 5
+	default:
+		return 6
 	}
 }
 

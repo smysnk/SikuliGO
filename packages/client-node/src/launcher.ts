@@ -36,7 +36,7 @@ function debugLog(message: string, fields: Record<string, unknown> = {}): void {
     .map(([k, v]) => `${k}=${String(v)}`);
   const suffix = parts.length > 0 ? ` ${parts.join(" ")}` : "";
   // eslint-disable-next-line no-console
-  console.error(`[sikuligo-debug] ${message}${suffix}`);
+  console.error(`[sikuli-go-debug] ${message}${suffix}`);
 }
 
 function mergeRuntimePath(currentPath: string | undefined): { pathValue: string; added: string[] } {
@@ -196,7 +196,7 @@ async function waitForCliclickGate(child: ChildProcess, pathValue: string, addre
   for (;;) {
     if (child.exitCode !== null) {
       throw new Error(
-        `sikuligo exited while waiting for cliclick dependency gate (code=${child.exitCode ?? "nil"})`
+        `sikuli-go exited while waiting for cliclick dependency gate (code=${child.exitCode ?? "nil"})`
       );
     }
     const binaryPath = resolveCommandFromPath("cliclick", pathValue);
@@ -282,14 +282,14 @@ async function waitForStartup(
         const suffix = detail ? ` stderr_tail=${JSON.stringify(detail)}` : "";
         reject(
           new Error(
-            `sikuligo exited before startup completed (code=${code ?? "nil"} signal=${signal ?? "nil"})${suffix}`
+            `sikuli-go exited before startup completed (code=${code ?? "nil"} signal=${signal ?? "nil"})${suffix}`
           )
         );
       });
     })
   ]);
   if (rejected) {
-    throw new Error("sikuligo exited before ready");
+    throw new Error("sikuli-go exited before ready");
   }
 }
 

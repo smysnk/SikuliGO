@@ -11,13 +11,13 @@ As a Node.js user, I want to install SikuliGO from npm and run desktop automatio
 Install:
 
 ```bash
-npm install @sikuligo/sikuligo
+npm install @sikuligo/sikuli-go
 ```
 
 Use:
 
 ```ts
-import { Sikuli } from "@sikuligo/sikuligo";
+import { Sikuli } from "@sikuligo/sikuli-go";
 
 const bot = await Sikuli.launch();
 await bot.click({ x: 300, y: 220 });
@@ -32,16 +32,16 @@ Implementation status (baseline in repo):
 - `Sikuli.launch()` and `Sikuli.connect()` implemented in `packages/client-node/src/sikuli.ts`.
 - local process launcher implemented in `packages/client-node/src/launcher.ts`.
 - binary resolution implemented in `packages/client-node/src/binary.ts`.
-- diagnostics command available via `sikuligo-doctor` (`packages/client-node/src/doctor.ts`).
+- diagnostics command available via `sikuli-go doctor` (`packages/client-node/src/doctor.ts`).
 
 ## Required Components
 
-1. `sikuligo` npm package (SDK/meta package):
+1. `@sikuligo/sikuli-go` npm package (SDK/meta package):
 - high-level API (`launch`, `find`, `click`, `typeText`, `hotkey`, app control methods).
-- process manager that starts/stops `sikuligo`.
+- process manager that starts/stops `sikuli-go`.
 - gRPC client wrapper with deadlines, auth metadata, and error mapping.
 
-2. `sikuligo` binary:
+2. `sikuli-go` binary:
 - packaged per OS/arch.
 - spawned as a child process by SDK `launch()`.
 - bound to localhost with ephemeral port and startup auth token.
@@ -55,7 +55,7 @@ Implementation status (baseline in repo):
 Recommended packaging model:
 
 1. Publish one JS meta package:
-- `sikuligo`
+- `@sikuligo/sikuli-go`
 
 2. Publish per-platform binary packages as required dependencies:
 - `@sikuligo/bin-darwin-arm64`
@@ -69,10 +69,10 @@ Repository scaffolding:
 - release script: `scripts/clients/release-node-binaries.sh`
 
 3. Each binary package:
-- includes one `sikuligo` executable.
-- installs to predictable path resolved by `sikuligo` at runtime.
+- includes one `sikuli-go` executable.
+- installs to predictable path resolved by `@sikuligo/sikuli-go` at runtime.
 
-4. Runtime resolution in `sikuligo`:
+4. Runtime resolution in `@sikuligo/sikuli-go`:
 - see Binary Resolution details in `docs/strategy/client-strategy.md` (Node.js section).
 
 ## Release and Build Requirements
@@ -98,12 +98,12 @@ Repository scaffolding:
   - unsupported platform
   - startup timeout
 - trace/auth propagation into gRPC calls by default.
-- `doctor` command (`npx sikuligo doctor`) for environment checks.
+- `doctor` command (`npx @sikuligo/sikuli-go doctor`) for environment checks.
 
 ## Implementation Milestones
 
 1. package split:
-- create `sikuligo` meta package and `@sikuligo/bin-*` packages.
+- create `@sikuligo/sikuli-go` meta package and `@sikuligo/bin-*` packages.
 
 2. launch manager:
 - implement child-process lifecycle management and cleanup.

@@ -35,7 +35,7 @@ def _copy_scaffold_examples(target_examples_dir: Path) -> None:
     except ModuleNotFoundError:
         source_root = Path(__file__).resolve().parent / "scaffold" / "python" / "examples"
     if not source_root.is_dir():
-        raise SystemExit("packaged Python examples are missing from the sikuligo distribution")
+        raise SystemExit("packaged Python examples are missing from the sikuli-go distribution")
 
     if target_examples_dir.exists():
         shutil.rmtree(target_examples_dir)
@@ -52,13 +52,13 @@ def _copy_scaffold_examples(target_examples_dir: Path) -> None:
 def _write_requirements(project_dir: Path) -> Path:
     version = _package_version()
     requirements_path = project_dir / "requirements.txt"
-    requirements_path.write_text(f"sikuligo=={version}\n", encoding="utf-8")
+    requirements_path.write_text(f"sikuli-go=={version}\n", encoding="utf-8")
     return requirements_path
 
 
 def _package_version() -> str:
     try:
-        return importlib.metadata.version("sikuligo")
+        return importlib.metadata.version("sikuli-go")
     except importlib.metadata.PackageNotFoundError:
         pyproject = Path(__file__).resolve().parents[1] / "pyproject.toml"
         if pyproject.exists():
@@ -129,7 +129,7 @@ def _prompt_yes_no(question: str) -> bool:
 
 
 def _ensure_path_export(profile: Path, bin_dir: Path) -> bool:
-    marker = "# Added by sikuligo install-binary"
+    marker = "# Added by sikuli-go install-binary"
     export_line = f'export PATH="{bin_dir}:$PATH"'
     existing = profile.read_text(encoding="utf-8") if profile.exists() else ""
     if export_line in existing:
@@ -144,10 +144,10 @@ def _runtime_canonical_name(name: str) -> str | None:
     ext = ".exe" if name.lower().endswith(".exe") else ""
     stem = name[: -len(ext)] if ext else name
     stem = stem.lower()
-    if re.fullmatch(r"sikul(?:igo|igrpc)(?:-[0-9a-f]{8,})?", stem):
-        return f"sikuligo{ext}"
-    if re.fullmatch(r"sikul(?:igo|igrpc)-monitor(?:-[0-9a-f]{8,})?", stem):
-        return f"sikuligo-monitor{ext}"
+    if re.fullmatch(r"sikuli(?:-go|go|grpc)(?:-[0-9a-f]{8,})?", stem):
+        return f"sikuli-go{ext}"
+    if re.fullmatch(r"sikuli(?:-go|go|grpc)-monitor(?:-[0-9a-f]{8,})?", stem):
+        return f"sikuli-go-monitor{ext}"
     return None
 
 
@@ -155,15 +155,19 @@ def _runtime_source_rank(name: str) -> int:
     ext = ".exe" if name.lower().endswith(".exe") else ""
     stem = name[: -len(ext)] if ext else name
     stem = stem.lower()
-    if stem in ("sikuligo", "sikuligo-monitor"):
+    if stem in ("sikuli-go", "sikuli-go-monitor"):
         return 0
-    if stem in ("sikuligrpc", "sikuligrpc-monitor"):
+    if stem in ("sikuligo", "sikuligo-monitor"):
         return 1
-    if stem.startswith("sikuligo-monitor-") or stem.startswith("sikuligo-"):
+    if stem in ("sikuligrpc", "sikuligrpc-monitor"):
         return 2
-    if stem.startswith("sikuligrpc-monitor-") or stem.startswith("sikuligrpc-"):
+    if stem.startswith("sikuli-go-monitor-") or stem.startswith("sikuli-go-"):
         return 3
-    return 4
+    if stem.startswith("sikuligo-monitor-") or stem.startswith("sikuligo-"):
+        return 4
+    if stem.startswith("sikuligrpc-monitor-") or stem.startswith("sikuligrpc-"):
+        return 5
+    return 6
 
 
 def _discover_runtime_sources(primary: Path) -> dict[str, Path]:
@@ -227,7 +231,7 @@ def _run_install_binary(args: argparse.Namespace) -> int:
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="sikuligo", add_help=True)
+    parser = argparse.ArgumentParser(prog="sikuli-go", add_help=True)
     subparsers = parser.add_subparsers(dest="command")
 
     init_py = subparsers.add_parser(
@@ -246,7 +250,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
     install_binary = subparsers.add_parser(
         "install-binary",
-        help="Copy sikuli runtimes to a PATH-ready directory",
+        help="Copy sikuli-go runtimes to a PATH-ready directory",
     )
     install_binary.add_argument("--dir", default=None, help="Target directory (default: ~/.local/bin)")
     install_binary.add_argument("--yes", action="store_true", help="Automatically update shell profile PATH when detected")

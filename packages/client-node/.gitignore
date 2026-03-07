@@ -1,6 +1,14 @@
 node_modules/
 dist/
 *.tgz
+packages/bin-*/bin/sikuli-go
+packages/bin-*/bin/sikuli-go-monitor
+packages/bin-*/bin/sikuli-go.exe
+packages/bin-*/bin/sikuli-go-monitor.exe
 packages/bin-*/bin/sikuligrpc
 packages/bin-*/bin/sikuligrpc.exe
+packages/bin-*/bin/sikuligo
+packages/bin-*/bin/sikuligo-monitor
+packages/bin-*/bin/sikuligo.exe
+packages/bin-*/bin/sikuligo-monitor.exe
 packages/checksums.txt

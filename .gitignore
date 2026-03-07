@@ -25,9 +25,11 @@ native/
 **/packages/bin*
 *.db
 /sikuligo
+/sikuli-go
 !packages/client-python/sikuligo/
 !packages/client-python/sikuligo/**
 /sikuligo-monitor
+/sikuli-go-monitor
 node_modules/
 **/node_modules/
 packages/editor/.next/

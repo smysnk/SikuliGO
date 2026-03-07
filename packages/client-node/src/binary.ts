@@ -4,10 +4,23 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 
-const DEFAULT_BINARY_NAME = process.platform === "win32" ? "sikuligo.exe" : "sikuligo";
-const DEFAULT_MONITOR_BINARY_NAME = process.platform === "win32" ? "sikuligo-monitor.exe" : "sikuligo-monitor";
-const LEGACY_BINARY_NAME = process.platform === "win32" ? "sikuligrpc.exe" : "sikuligrpc";
-const RUNTIME_NAMES = [DEFAULT_BINARY_NAME, DEFAULT_MONITOR_BINARY_NAME, LEGACY_BINARY_NAME];
+const DEFAULT_BINARY_NAME = process.platform === "win32" ? "sikuli-go.exe" : "sikuli-go";
+const DEFAULT_MONITOR_BINARY_NAME =
+  process.platform === "win32" ? "sikuli-go-monitor.exe" : "sikuli-go-monitor";
+const LEGACY_BINARY_NAMES =
+  process.platform === "win32"
+    ? ["sikuligo.exe", "sikuligrpc.exe"]
+    : ["sikuligo", "sikuligrpc"];
+const LEGACY_MONITOR_BINARY_NAMES =
+  process.platform === "win32"
+    ? ["sikuligo-monitor.exe", "sikuligrpc-monitor.exe"]
+    : ["sikuligo-monitor", "sikuligrpc-monitor"];
+const RUNTIME_NAMES = [
+  DEFAULT_BINARY_NAME,
+  DEFAULT_MONITOR_BINARY_NAME,
+  ...LEGACY_BINARY_NAMES,
+  ...LEGACY_MONITOR_BINARY_NAMES
+];
 
 const PLATFORM_BINARY_PACKAGES: Record<string, string[]> = {
   "darwin-arm64": ["@sikuligo/bin-darwin-arm64"],
@@ -37,7 +50,7 @@ function isExecutable(candidatePath: string): boolean {
 }
 
 function candidateBinaryPaths(rootDir: string): string[] {
-  const names = process.platform === "win32" ? [DEFAULT_BINARY_NAME, LEGACY_BINARY_NAME] : [DEFAULT_BINARY_NAME, LEGACY_BINARY_NAME];
+  const names = [DEFAULT_BINARY_NAME, ...LEGACY_BINARY_NAMES];
   return [
     ...names.map((name) => path.join(rootDir, name)),
     ...names.map((name) => path.join(rootDir, "bin", name)),
@@ -71,11 +84,11 @@ function isRuntimeFile(candidatePath: string): boolean {
 function canonicalRuntimeName(name: string): string | undefined {
   const ext = path.extname(name);
   const stem = name.slice(0, name.length - ext.length).toLowerCase();
-  if (/^sikul(?:igo|igrpc)(?:-[0-9a-f]{8,})?$/.test(stem)) {
-    return `${DEFAULT_BINARY_NAME.slice(0, DEFAULT_BINARY_NAME.length - ext.length)}${ext}`;
+  if (/^sikuli(?:-go|go|grpc)(?:-[0-9a-f]{8,})?$/.test(stem)) {
+    return DEFAULT_BINARY_NAME;
   }
-  if (/^sikul(?:igo|igrpc)-monitor(?:-[0-9a-f]{8,})?$/.test(stem)) {
-    return `${DEFAULT_MONITOR_BINARY_NAME.slice(0, DEFAULT_MONITOR_BINARY_NAME.length - ext.length)}${ext}`;
+  if (/^sikuli(?:-go|go|grpc)-monitor(?:-[0-9a-f]{8,})?$/.test(stem)) {
+    return DEFAULT_MONITOR_BINARY_NAME;
   }
   return undefined;
 }
@@ -84,20 +97,26 @@ function runtimeSourceRank(name: string): number {
   const ext = path.extname(name);
   const stem = name.slice(0, name.length - ext.length).toLowerCase();
   switch (stem) {
+    case "sikuli-go":
+    case "sikuli-go-monitor":
+      return 0;
     case "sikuligo":
     case "sikuligo-monitor":
-      return 0;
+      return 1;
     case "sikuligrpc":
     case "sikuligrpc-monitor":
-      return 1;
+      return 2;
     default:
-      if (stem.startsWith("sikuligo-monitor-") || stem.startsWith("sikuligo-")) {
-        return 2;
-      }
-      if (stem.startsWith("sikuligrpc-monitor-") || stem.startsWith("sikuligrpc-")) {
+      if (stem.startsWith("sikuli-go-monitor-") || stem.startsWith("sikuli-go-")) {
         return 3;
       }
-      return 4;
+      if (stem.startsWith("sikuligo-monitor-") || stem.startsWith("sikuligo-")) {
+        return 4;
+      }
+      if (stem.startsWith("sikuligrpc-monitor-") || stem.startsWith("sikuligrpc-")) {
+        return 5;
+      }
+      return 6;
   }
 }
 
@@ -127,7 +146,7 @@ function materializeSpawnableBinary(candidatePath: string): string {
 
   const canonicalBinaryName = canonicalRuntimeName(path.basename(candidatePath)) ?? DEFAULT_BINARY_NAME;
   const key = createHash("sha256").update(candidatePath).digest("hex").slice(0, 16);
-  const cacheDir = path.join(os.tmpdir(), "sikuligo-node-binaries", key);
+  const cacheDir = path.join(os.tmpdir(), "sikuli-go-node-binaries", key);
   fs.mkdirSync(cacheDir, { recursive: true });
 
   for (const [runtimeName, sourcePath] of resolveMaterializedRuntimeSources(candidatePath)) {
@@ -197,15 +216,12 @@ function resolveLocalRepoFallback(): string | undefined {
   const candidates = [
     path.resolve(process.cwd(), DEFAULT_BINARY_NAME),
     path.resolve(process.cwd(), "bin", DEFAULT_BINARY_NAME),
-    path.resolve(__dirname, "..", "..", "..", process.platform === "win32" ? "sikuligo.exe" : "sikuligo"),
+    path.resolve(__dirname, "..", "..", "..", DEFAULT_BINARY_NAME),
     path.resolve(__dirname, "..", "..", "..", "bin", DEFAULT_BINARY_NAME)
   ];
-  if (process.platform === "win32") {
-    candidates.push(path.resolve(__dirname, "..", "..", "..", "sikuligrpc.exe"));
-    candidates.push(path.resolve(process.cwd(), "sikuligrpc.exe"));
-  } else {
-    candidates.push(path.resolve(__dirname, "..", "..", "..", "sikuligrpc"));
-    candidates.push(path.resolve(process.cwd(), "sikuligrpc"));
+  for (const legacyName of LEGACY_BINARY_NAMES) {
+    candidates.push(path.resolve(__dirname, "..", "..", "..", legacyName));
+    candidates.push(path.resolve(process.cwd(), legacyName));
   }
   return candidates.find((candidate) => isExecutable(candidate));
 }
@@ -213,8 +229,8 @@ function resolveLocalRepoFallback(): string | undefined {
 function errorWithResolutionHelp(detail: string): Error {
   return new Error(
     `${detail}\n` +
-      "Install @sikuligo/sikuligo to auto-resolve the packaged platform binary, " +
-      "or set SIKULIGO_BINARY_PATH, or place sikuligo in PATH."
+      "Install @sikuligo/sikuli-go to auto-resolve the packaged platform binary, " +
+      "or set SIKULIGO_BINARY_PATH, or place sikuli-go in PATH."
   );
 }
 
@@ -243,6 +259,6 @@ export function resolveSikuliBinary(explicitPath?: string): string {
   }
 
   throw errorWithResolutionHelp(
-    `Unable to resolve sikuligo binary for platform ${process.platform}/${process.arch}`
+    `Unable to resolve sikuli-go binary for platform ${process.platform}/${process.arch}`
   );
 }

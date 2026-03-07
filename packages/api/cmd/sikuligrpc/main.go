@@ -22,7 +22,7 @@ import (
 
 func main() {
 	if !cv.OpenCVEnabled() {
-		log.Fatal("sikuligo requires OpenCV-enabled builds; rebuild with -tags \"gosseract opencv gocv_specific_modules gocv_features2d gocv_calib3d\"")
+		log.Fatal("sikuli-go requires OpenCV-enabled builds; rebuild with -tags \"gosseract opencv gocv_specific_modules gocv_features2d gocv_calib3d\"")
 	}
 	runStartupChecks(os.Stderr)
 
@@ -91,7 +91,7 @@ func main() {
 	grpcErrCh := make(chan error, 1)
 	go func() {
 		logger.Printf(
-			"sikuligo listening grpc=%s auth=%t reflection=%t sqlite=%s api_session_id=%d opencv=%t",
+			"sikuli-go listening grpc=%s auth=%t reflection=%t sqlite=%s api_session_id=%d opencv=%t",
 			*listenAddr,
 			*authToken != "",
 			*enableReflection,
@@ -113,7 +113,7 @@ func main() {
 			ReadHeaderTimeout: 5 * time.Second,
 		}
 		go func() {
-			logger.Printf("sikuligo admin listening http=%s endpoints=/healthz,/snapshot,/metrics,/dashboard", *adminListenAddr)
+			logger.Printf("sikuli-go admin listening http=%s endpoints=/healthz,/snapshot,/metrics,/dashboard", *adminListenAddr)
 			if err := adminSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 				adminErrCh <- fmt.Errorf("admin serve: %w", err)
 			}

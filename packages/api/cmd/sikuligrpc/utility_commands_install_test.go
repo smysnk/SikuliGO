@@ -12,10 +12,12 @@ func TestDiscoverRuntimeSourcesPrefersCanonicalNames(t *testing.T) {
 
 	dir := t.TempDir()
 	files := []string{
+		"sikuli-go",
+		"sikuli-go-1234abcd1234abcd",
 		"sikuligo",
 		"sikuligrpc",
 		"sikuligo-abcdef0123456789",
-		"sikuligo-monitor",
+		"sikuli-go-monitor",
 		"sikuligo-monitor-deadbeefcafebabe",
 	}
 	for _, name := range files {
@@ -26,8 +28,8 @@ func TestDiscoverRuntimeSourcesPrefersCanonicalNames(t *testing.T) {
 
 	got := discoverRuntimeSources(filepath.Join(dir, "sikuligo-abcdef0123456789"))
 	want := map[string]string{
-		"sikuligo":         filepath.Join(dir, "sikuligo"),
-		"sikuligo-monitor": filepath.Join(dir, "sikuligo-monitor"),
+		"sikuli-go":         filepath.Join(dir, "sikuli-go"),
+		"sikuli-go-monitor": filepath.Join(dir, "sikuli-go-monitor"),
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("discoverRuntimeSources() = %#v, want %#v", got, want)
@@ -38,8 +40,8 @@ func TestCleanupInstalledRuntimeAliasesRemovesNonCanonicalNames(t *testing.T) {
 	t.Parallel()
 
 	dir := t.TempDir()
-	keep := []string{"sikuligo", "sikuligo-monitor", "notes.txt"}
-	remove := []string{"sikuligo-abcdef0123456789", "sikuligrpc", "sikuligo-monitor-deadbeefcafebabe"}
+	keep := []string{"sikuli-go", "sikuli-go-monitor", "notes.txt"}
+	remove := []string{"sikuli-go-deadbeefcafebabe", "sikuligo-abcdef0123456789", "sikuligrpc", "sikuligo-monitor-deadbeefcafebabe"}
 	for _, name := range append(append([]string{}, keep...), remove...) {
 		if err := os.WriteFile(filepath.Join(dir, name), []byte(name), 0o644); err != nil {
 			t.Fatalf("write %s: %v", name, err)

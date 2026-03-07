@@ -28,12 +28,12 @@ func runStartupChecks(stderr io.Writer) {
 	statePath := startupStatePath()
 	state, err := loadStartupState(statePath)
 	if err != nil {
-		fmt.Fprintf(stderr, "sikuligo: warning: could not read startup state %q: %v\n", statePath, err)
+		fmt.Fprintf(stderr, "sikuli-go: warning: could not read startup state %q: %v\n", statePath, err)
 	}
 
 	fmt.Fprintln(
 		stderr,
-		`sikuligo: warning: missing "cliclick" in PATH (required for mouse automation on macOS).`,
+		`sikuli-go: warning: missing "cliclick" in PATH (required for mouse automation on macOS).`,
 	)
 
 	if state.SuppressCliclickPrompt {
@@ -45,24 +45,24 @@ func runStartupChecks(stderr io.Writer) {
 
 	installNow, err := promptInstallCliclick(os.Stdin, stderr)
 	if err != nil {
-		fmt.Fprintf(stderr, "sikuligo: warning: prompt failed: %v\n", err)
+		fmt.Fprintf(stderr, "sikuli-go: warning: prompt failed: %v\n", err)
 		return
 	}
 	if !installNow {
 		state.SuppressCliclickPrompt = true
 		if err := saveStartupState(statePath, state); err != nil {
-			fmt.Fprintf(stderr, "sikuligo: warning: could not persist startup state: %v\n", err)
+			fmt.Fprintf(stderr, "sikuli-go: warning: could not persist startup state: %v\n", err)
 		} else {
-			fmt.Fprintf(stderr, "sikuligo: warning: not prompting again (remove %s to re-enable prompt)\n", statePath)
+			fmt.Fprintf(stderr, "sikuli-go: warning: not prompting again (remove %s to re-enable prompt)\n", statePath)
 		}
 		return
 	}
 
 	if err := installCliclick(stderr); err != nil {
-		fmt.Fprintf(stderr, "sikuligo: warning: %v\n", err)
+		fmt.Fprintf(stderr, "sikuli-go: warning: %v\n", err)
 		return
 	}
-	fmt.Fprintln(stderr, `sikuligo: cliclick install complete.`)
+	fmt.Fprintln(stderr, `sikuli-go: cliclick install complete.`)
 }
 
 func promptInstallCliclick(stdin io.Reader, stderr io.Writer) (bool, error) {
@@ -80,7 +80,7 @@ func promptInstallCliclick(stdin io.Reader, stderr io.Writer) (bool, error) {
 		return false, nil
 	default:
 		// Keep startup non-blocking: unknown input means no install and no persistence.
-		fmt.Fprintln(stderr, `sikuligo: warning: unrecognized answer, skipping install prompt for this run`)
+		fmt.Fprintln(stderr, `sikuli-go: warning: unrecognized answer, skipping install prompt for this run`)
 		return false, nil
 	}
 }

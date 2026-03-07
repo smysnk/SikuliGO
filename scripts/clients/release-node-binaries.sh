@@ -43,11 +43,11 @@ for pkg in "${target_packages[@]}"; do
   fi
 
   if [[ "$pkg" == "bin-win32-x64" ]]; then
-    test -f "$pkg_dir/bin/sikuligo.exe" || { echo "Missing binary for $pkg" >&2; exit 1; }
-    test -f "$pkg_dir/bin/sikuligo-monitor.exe" || { echo "Missing monitor binary for $pkg" >&2; exit 1; }
+    test -f "$pkg_dir/bin/sikuli-go.exe" || { echo "Missing binary for $pkg" >&2; exit 1; }
+    test -f "$pkg_dir/bin/sikuli-go-monitor.exe" || { echo "Missing monitor binary for $pkg" >&2; exit 1; }
   else
-    test -f "$pkg_dir/bin/sikuligo" || { echo "Missing binary for $pkg" >&2; exit 1; }
-    test -f "$pkg_dir/bin/sikuligo-monitor" || { echo "Missing monitor binary for $pkg" >&2; exit 1; }
+    test -f "$pkg_dir/bin/sikuli-go" || { echo "Missing binary for $pkg" >&2; exit 1; }
+    test -f "$pkg_dir/bin/sikuli-go-monitor" || { echo "Missing monitor binary for $pkg" >&2; exit 1; }
   fi
 
   # Pack from explicit directory and disable scripts to avoid workspace/root prepack hooks.

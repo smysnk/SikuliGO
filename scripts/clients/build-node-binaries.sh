@@ -117,11 +117,11 @@ ensure_pkg_scaffold() {
   local pkg_dir="$PACKAGES_DIR/$pkg"
   local readme="$pkg_dir/README.md"
   local manifest="$pkg_dir/package.json"
-  local bin_name="sikuligo"
-  local monitor_name="sikuligo-monitor"
+  local bin_name="sikuli-go"
+  local monitor_name="sikuli-go-monitor"
   if [[ "$goos" == "windows" ]]; then
-    bin_name="sikuligo.exe"
-    monitor_name="sikuligo-monitor.exe"
+    bin_name="sikuli-go.exe"
+    monitor_name="sikuli-go-monitor.exe"
   fi
 
   mkdir -p "$pkg_dir/bin"
@@ -136,7 +136,7 @@ EOF
 {
   "name": "@sikuligo/$pkg",
   "version": "$NODE_VERSION",
-  "description": "sikuligo binary for $goos $goarch",
+  "description": "sikuli-go binary for $goos $goarch",
   "license": "MIT",
   "files": [
     "bin/$bin_name",
@@ -162,13 +162,13 @@ for target in "${TARGETS[@]}"; do
   mkdir -p "$bin_dir"
 
   if [[ "$goos" == "windows" ]]; then
-    out="$bin_dir/sikuligo.exe"
-    out_monitor="$bin_dir/sikuligo-monitor.exe"
-    rm -f "$bin_dir/sikuligrpc" "$bin_dir/sikuligrpc.exe" "$bin_dir/sikuligo" "$bin_dir/sikuligo-monitor"
+    out="$bin_dir/sikuli-go.exe"
+    out_monitor="$bin_dir/sikuli-go-monitor.exe"
+    rm -f "$bin_dir/sikuligrpc" "$bin_dir/sikuligrpc.exe" "$bin_dir/sikuligo" "$bin_dir/sikuligo-monitor" "$bin_dir/sikuli-go" "$bin_dir/sikuli-go-monitor"
   else
-    out="$bin_dir/sikuligo"
-    out_monitor="$bin_dir/sikuligo-monitor"
-    rm -f "$bin_dir/sikuligrpc" "$bin_dir/sikuligrpc.exe" "$bin_dir/sikuligo.exe" "$bin_dir/sikuligo-monitor.exe"
+    out="$bin_dir/sikuli-go"
+    out_monitor="$bin_dir/sikuli-go-monitor"
+    rm -f "$bin_dir/sikuligrpc" "$bin_dir/sikuligrpc.exe" "$bin_dir/sikuligo.exe" "$bin_dir/sikuligo-monitor.exe" "$bin_dir/sikuli-go.exe" "$bin_dir/sikuli-go-monitor.exe"
   fi
 
   echo "Building $pkg ($goos/$goarch)"
@@ -200,22 +200,22 @@ checksum_file="$PACKAGES_DIR/checksums.txt"
 rm -f "$checksum_file"
 if command -v sha256sum >/dev/null 2>&1; then
   for pkg in "${built_pkgs[@]}"; do
-    if [[ -f "$PACKAGES_DIR/$pkg/bin/sikuligo" ]]; then
-      sha256sum "$PACKAGES_DIR/$pkg/bin/sikuligo" >> "$checksum_file"
-      sha256sum "$PACKAGES_DIR/$pkg/bin/sikuligo-monitor" >> "$checksum_file"
-    elif [[ -f "$PACKAGES_DIR/$pkg/bin/sikuligo.exe" ]]; then
-      sha256sum "$PACKAGES_DIR/$pkg/bin/sikuligo.exe" >> "$checksum_file"
-      sha256sum "$PACKAGES_DIR/$pkg/bin/sikuligo-monitor.exe" >> "$checksum_file"
+    if [[ -f "$PACKAGES_DIR/$pkg/bin/sikuli-go" ]]; then
+      sha256sum "$PACKAGES_DIR/$pkg/bin/sikuli-go" >> "$checksum_file"
+      sha256sum "$PACKAGES_DIR/$pkg/bin/sikuli-go-monitor" >> "$checksum_file"
+    elif [[ -f "$PACKAGES_DIR/$pkg/bin/sikuli-go.exe" ]]; then
+      sha256sum "$PACKAGES_DIR/$pkg/bin/sikuli-go.exe" >> "$checksum_file"
+      sha256sum "$PACKAGES_DIR/$pkg/bin/sikuli-go-monitor.exe" >> "$checksum_file"
     fi
   done
 elif command -v shasum >/dev/null 2>&1; then
   for pkg in "${built_pkgs[@]}"; do
-    if [[ -f "$PACKAGES_DIR/$pkg/bin/sikuligo" ]]; then
-      shasum -a 256 "$PACKAGES_DIR/$pkg/bin/sikuligo" >> "$checksum_file"
-      shasum -a 256 "$PACKAGES_DIR/$pkg/bin/sikuligo-monitor" >> "$checksum_file"
-    elif [[ -f "$PACKAGES_DIR/$pkg/bin/sikuligo.exe" ]]; then
-      shasum -a 256 "$PACKAGES_DIR/$pkg/bin/sikuligo.exe" >> "$checksum_file"
-      shasum -a 256 "$PACKAGES_DIR/$pkg/bin/sikuligo-monitor.exe" >> "$checksum_file"
+    if [[ -f "$PACKAGES_DIR/$pkg/bin/sikuli-go" ]]; then
+      shasum -a 256 "$PACKAGES_DIR/$pkg/bin/sikuli-go" >> "$checksum_file"
+      shasum -a 256 "$PACKAGES_DIR/$pkg/bin/sikuli-go-monitor" >> "$checksum_file"
+    elif [[ -f "$PACKAGES_DIR/$pkg/bin/sikuli-go.exe" ]]; then
+      shasum -a 256 "$PACKAGES_DIR/$pkg/bin/sikuli-go.exe" >> "$checksum_file"
+      shasum -a 256 "$PACKAGES_DIR/$pkg/bin/sikuli-go-monitor.exe" >> "$checksum_file"
     fi
   done
 fi

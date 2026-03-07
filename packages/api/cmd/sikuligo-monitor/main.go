@@ -18,11 +18,11 @@ import (
 
 func main() {
 	if !cv.OpenCVEnabled() {
-		log.Fatal("sikuligo-monitor requires OpenCV-enabled builds; rebuild with -tags \"gosseract opencv gocv_specific_modules gocv_features2d gocv_calib3d\"")
+		log.Fatal("sikuli-go-monitor requires OpenCV-enabled builds; rebuild with -tags \"gosseract opencv gocv_specific_modules gocv_features2d gocv_calib3d\"")
 	}
 
 	listenAddr := flag.String("listen", ":8080", "HTTP listen address for monitor dashboard/session viewer")
-	sqlitePath := flag.String("sqlite-path", "sikuligo.db", "sqlite datastore path shared with sikuligo")
+	sqlitePath := flag.String("sqlite-path", "sikuligo.db", "sqlite datastore path shared with sikuli-go")
 	flag.Parse()
 
 	logger := log.Default()
@@ -45,7 +45,7 @@ func main() {
 
 	errCh := make(chan error, 1)
 	go func() {
-		logger.Printf("sikuligo-monitor listening http=%s sqlite=%s endpoints=/dashboard,/sessions,/ws", *listenAddr, *sqlitePath)
+		logger.Printf("sikuli-go-monitor listening http=%s sqlite=%s endpoints=/dashboard,/sessions,/ws", *listenAddr, *sqlitePath)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			errCh <- fmt.Errorf("monitor serve: %w", err)
 		}

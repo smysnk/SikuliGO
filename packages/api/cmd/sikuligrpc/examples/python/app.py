@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import os
 
-from bootstrap import ensure_sikuligo_on_path
+from bootstrap import ensure_sikuli_go_on_path
 from generated.sikuli.v1 import sikuli_pb2 as pb
 from sikuligo import Screen
 
-ensure_sikuligo_on_path()
+ensure_sikuli_go_on_path()
 
 screen = Screen()
 client = screen.client

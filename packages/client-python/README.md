@@ -1,4 +1,4 @@
-# SikuliGO Python Client
+# sikuli-go (Python)
 
 This directory contains the Python client for SikuliGO with Sikuli-style `Screen` + `Pattern` APIs.
 
@@ -12,11 +12,12 @@ This directory contains the Python client for SikuliGO with Sikuli-style `Screen
 ## Quickstart
 
 `init:py-examples` prompts for the target directory, creates `requirements.txt`, installs into `.venv`, and copies examples.
-Each example bootstraps `sikuligo` into `./.sikuligo/bin` and prepends it to PATH for the process.
+Each example bootstraps `sikuli-go` into `./.sikuligo/bin` and prepends it to PATH for the process.
+The published package name is `sikuli-go`; the import module remains `sikuligo`.
 
 ```bash
-pipx run sikuligo init:py-examples
-cd sikuligo-demo
+pipx run sikuli-go init:py-examples
+cd sikuli-go-demo
 python3 examples/click.py
 ```
 
@@ -35,14 +36,14 @@ finally:
 
 ## Web Dashboard
 
-`sikuligo` runs the automation API. Use it when Python code needs to execute automation and you want live admin endpoints from the same process.
+`sikuli-go` runs the automation API. Use it when Python code needs to execute automation and you want live admin endpoints from the same process.
 This is the binary your scripts talk to for screen search, OCR, input, and application control.
 
-`sikuligo-monitor` is the HTTP-only session viewer. Use it to inspect the shared `sikuligo.db` store without starting another gRPC automation server.
+`sikuli-go-monitor` is the HTTP-only session viewer. Use it to inspect the shared `sikuligo.db` store without starting another gRPC automation server.
 It is useful when automation is already running elsewhere and you only want to observe sessions, review interaction history, or leave a lightweight monitor process running beside your Python workflow.
 
 ```bash
-pipx run sikuligo -listen
+pipx run sikuli-go -listen
 ```
 
 Open:
@@ -54,7 +55,7 @@ Open:
 After installing the binaries on PATH, launch the standalone monitor with:
 
 ```bash
-sikuligo-monitor
+sikuli-go-monitor
 ```
 
 By default it serves the monitor UI on `:8080` and reads `sikuligo.db` from the current working directory.
@@ -70,7 +71,7 @@ Additional endpoints:
 Install permanently on PATH:
 
 ```bash
-pipx run sikuligo install-binary
+pipx run sikuli-go install-binary
 source ~/.zshrc
 # or
 source ~/.bash_profile
@@ -79,7 +80,7 @@ source ~/.bash_profile
 <!-- BEGIN: FIND_ON_SCREEN_BENCH_AUTOGEN -->
 ## FindOnScreen Benchmark Test Results
 
-Generated: `2026-03-07T08:22:49.092218+00:00`
+Generated: `2026-03-07T21:21:55.208615+00:00`
 
 ### Reports
 
@@ -101,13 +102,13 @@ _Cases/OK metrics are query-level counts (regions x scenarios x resolutions), no
 
 | Engine | Cases | OK | Partial | Not Found | Unsupported | Error | Overlap Miss | Avg ms/op | Median ms/op |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| akaze | 120 | 39 | 0 | 78 | 0 | 0 | 3 | 171.032 | 147.060 |
-| brisk | 120 | 47 | 0 | 63 | 0 | 0 | 10 | 331.625 | 123.717 |
-| hybrid | 120 | 69 | 0 | 45 | 0 | 0 | 6 | 171.317 | 135.641 |
-| kaze | 120 | 63 | 0 | 50 | 0 | 0 | 7 | 787.238 | 637.542 |
-| orb | 120 | 13 | 0 | 96 | 0 | 0 | 11 | 55.807 | 43.110 |
-| sift | 120 | 56 | 0 | 55 | 0 | 0 | 9 | 251.719 | 195.118 |
-| template | 120 | 64 | 0 | 56 | 0 | 0 | 0 | 155.890 | 117.008 |
+| akaze | 120 | 39 | 0 | 78 | 0 | 0 | 3 | 209.021 | 173.061 |
+| brisk | 120 | 47 | 0 | 63 | 0 | 0 | 10 | 326.143 | 119.279 |
+| hybrid | 120 | 69 | 0 | 45 | 0 | 0 | 6 | 167.515 | 134.524 |
+| kaze | 120 | 63 | 0 | 50 | 0 | 0 | 7 | 752.177 | 637.129 |
+| orb | 120 | 13 | 0 | 96 | 0 | 0 | 11 | 68.743 | 47.694 |
+| sift | 120 | 56 | 0 | 55 | 0 | 0 | 9 | 250.684 | 198.269 |
+| template | 120 | 64 | 0 | 56 | 0 | 0 | 0 | 162.561 | 128.652 |
 
 ### Run Mega Summary
 

@@ -1,7 +1,7 @@
-import { ensureSikuligoOnPath } from "./bootstrap.mjs";
-import { Screen, Pattern } from "@sikuligo/sikuligo";
+import { ensureSikuliGoOnPath } from "./bootstrap.mjs";
+import { Screen, Pattern } from "@sikuligo/sikuli-go";
 
-ensureSikuligoOnPath();
+ensureSikuliGoOnPath();
 
 const screen = await Screen();
 try {

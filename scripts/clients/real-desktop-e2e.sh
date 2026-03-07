@@ -12,7 +12,7 @@ if [[ "${REAL_DESKTOP_E2E:-0}" != "1" ]]; then
 fi
 
 TMP_ROOT="$(mktemp -d /tmp/sikuligo-real-desktop-e2e.XXXXXX)"
-API_BINARY="${TMP_ROOT}/sikuligo"
+API_BINARY="${TMP_ROOT}/sikuli-go"
 SQLITE_PATH="${TMP_ROOT}/sikuligo-real-desktop-e2e.db"
 SNAPSHOT_PATH="${TMP_ROOT}/snapshot.png"
 FIXTURE_HTML="${TMP_ROOT}/fixture.html"
@@ -75,7 +75,7 @@ fi
 [[ -f "${PATTERN_PATH}" ]] || fail "pattern image not found: ${PATTERN_PATH}"
 [[ -f "${FIXTURE_IMAGE_PATH}" ]] || fail "fixture image not found: ${FIXTURE_IMAGE_PATH}"
 
-step "1/7 Build sikuligo with OCR/OpenCV tags"
+step "1/7 Build sikuli-go with OCR/OpenCV tags"
 (
   cd "${API_DIR}"
   go build -tags "${GO_TAGS}" -o "${API_BINARY}" ./cmd/sikuligrpc
@@ -106,7 +106,7 @@ GRPC_ADDR="127.0.0.1:${GRPC_PORT}"
 ADMIN_ADDR="127.0.0.1:${ADMIN_PORT}"
 AUTH_TOKEN="real-desktop-e2e-token"
 
-step "3/7 Launch sikuligo grpc=${GRPC_ADDR} admin=${ADMIN_ADDR}"
+step "3/7 Launch sikuli-go grpc=${GRPC_ADDR} admin=${ADMIN_ADDR}"
 if [[ -n "${DISPLAY_SELECTION}" ]]; then
   echo "[real-desktop-e2e] capture display selector=${DISPLAY_SELECTION}"
 fi

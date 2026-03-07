@@ -19,18 +19,18 @@ yarn install
 
 ## Build Go API Binaries
 
-Build `sikuligo`:
+Build `sikuli-go`:
 
 ```bash
 cd packages/api
-go build -tags "gosseract opencv gocv_specific_modules gocv_features2d gocv_calib3d" -trimpath -ldflags="-s -w" -o ../../sikuligo ./cmd/sikuligrpc
+go build -tags "gosseract opencv gocv_specific_modules gocv_features2d gocv_calib3d" -trimpath -ldflags="-s -w" -o ../../sikuli-go ./cmd/sikuligrpc
 ```
 
-Build `sikuligo-monitor`:
+Build `sikuli-go-monitor`:
 
 ```bash
 cd packages/api
-go build -tags "gosseract opencv gocv_specific_modules gocv_features2d gocv_calib3d" -trimpath -ldflags="-s -w" -o ../../sikuligo-monitor ./cmd/sikuligo-monitor
+go build -tags "gosseract opencv gocv_specific_modules gocv_features2d gocv_calib3d" -trimpath -ldflags="-s -w" -o ../../sikuli-go-monitor ./cmd/sikuligo-monitor
 ```
 
 ## Build Protocol Artifacts
@@ -45,7 +45,7 @@ go build -tags "gosseract opencv gocv_specific_modules gocv_features2d gocv_cali
 ## Build Node Client
 
 ```bash
-yarn workspace @sikuligo/sikuligo build
+yarn workspace @sikuligo/sikuli-go build
 ```
 
 ## Build Python Distributions
@@ -98,7 +98,7 @@ make test-publish
 
 What it checks:
 
-- Builds local `sikuligo` binary and Node client
+- Builds local `sikuli-go` binary and Node client
 - Verifies CLI passthrough help output
 - Verifies `init:js-examples` scaffolds `.mjs`-only examples
 - Verifies `init:py-examples` scaffolds `requirements.txt` + Python examples
@@ -142,7 +142,7 @@ REAL_DESKTOP_E2E=1 REAL_DESKTOP_E2E_DISPLAY=2 make test-e2e
 Notes:
 
 - Intended for local/manual execution on a real desktop session (not CI/headless).
-- Builds `sikuligo` with OCR/OpenCV tags, opens a fixture page, then validates:
+- Builds `sikuli-go` with OCR/OpenCV tags, opens a fixture page, then validates:
   - `FindOnScreen` against a visible image
   - OCR (`ReadText` + `FindText`) from a live `/snapshot`
 - `REAL_DESKTOP_E2E_DISPLAY` maps to `SIKULI_CAPTURE_DISPLAY`/`SIKULIGO_CAPTURE_DISPLAY` for `screencapture -D <display>`.

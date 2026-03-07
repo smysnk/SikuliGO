@@ -246,7 +246,7 @@ export class Sikuli {
       .map(([k, v]) => `${k}=${String(v)}`);
     const suffix = parts.length > 0 ? ` ${parts.join(" ")}` : "";
     // eslint-disable-next-line no-console
-    console.error(`[sikuligo-debug] ${message}${suffix}`);
+    console.error(`[sikuli-go-debug] ${message}${suffix}`);
   }
 
   close(): void {
@@ -310,8 +310,8 @@ export class Sikuli {
     ) {
       details +=
         `; server does not implement ${methodName}. ` +
-        "This usually means the sikuligo binary is older than this client. " +
-        "Build/update sikuligo or set SIKULIGO_BINARY_PATH to a current binary.";
+        "This usually means the sikuli-go binary is older than this client. " +
+        "Build/update sikuli-go or set SIKULIGO_BINARY_PATH to a current binary.";
     }
     if (code === grpc.status.DEADLINE_EXCEEDED) {
       details +=
