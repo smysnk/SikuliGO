@@ -42,6 +42,26 @@ export class SikuliError extends Error {
   }
 }
 
+function startupWaitErrorMessage(timeoutMs: number): string {
+  return (
+    `Failed to connect before the deadline; startup/connect probe timed out after ${timeoutMs}ms. ` +
+    "Set SIKULI_DEBUG=1 to log launcher startup phases, binary resolution, and gRPC readiness timing. " +
+    "Examples should auto-launch sikuli-go when the packaged runtime can start on this machine. " +
+    "If you expect local auto-launch, verify sikuli-go is installed and executable. " +
+    "If you expect to connect to an existing server, verify a sikuli-go process is already listening at the configured address."
+  );
+}
+
+function wrapWaitForReadyError(err: Error, timeoutMs: number): Error {
+  const message = String(err?.message ?? "");
+  if (!message.includes("Failed to connect before the deadline")) {
+    return err;
+  }
+  const wrapped = new Error(startupWaitErrorMessage(timeoutMs));
+  (wrapped as Error & { cause?: unknown }).cause = err;
+  return wrapped;
+}
+
 function normalizeMatcherEngine(raw: string | undefined): MatcherEngine {
   const normalized = String(raw ?? "").trim().toLowerCase();
   if (
@@ -246,7 +266,7 @@ export class Sikuli {
       .map(([k, v]) => `${k}=${String(v)}`);
     const suffix = parts.length > 0 ? ` ${parts.join(" ")}` : "";
     // eslint-disable-next-line no-console
-    console.error(`[sikuli-go-debug] ${message}${suffix}`);
+    console.error(`[debug] ${message}${suffix}`);
   }
 
   close(): void {
@@ -267,7 +287,7 @@ export class Sikuli {
             duration_ms: Date.now() - startedAt,
             error: err.message
           });
-          reject(err);
+          reject(wrapWaitForReadyError(err, timeoutMs));
           return;
         }
         this.debugLog("grpc.wait_for_ready.ok", {

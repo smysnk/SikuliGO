@@ -29,6 +29,11 @@ const PLATFORM_BINARY_PACKAGES: Record<string, string[]> = {
   "win32-x64": ["@sikuligo/bin-win32-x64"]
 };
 
+function platformBinaryPackageDirs(): string[] {
+  const key = `${process.platform}-${process.arch}`;
+  return (PLATFORM_BINARY_PACKAGES[key] ?? []).map((pkgName) => pkgName.split("/").pop() || "");
+}
+
 function isExecutable(candidatePath: string): boolean {
   try {
     if (!candidatePath) {
@@ -196,6 +201,27 @@ function resolvePackagedBinary(): string | undefined {
   return undefined;
 }
 
+function resolveWorkspacePackagedBinary(): string | undefined {
+  const packageDirs = platformBinaryPackageDirs().filter(Boolean);
+  const roots = new Set<string>([
+    process.cwd(),
+    path.resolve(__dirname, ".."),
+    path.resolve(__dirname, "..", ".."),
+    path.resolve(__dirname, "..", "..", "..")
+  ]);
+  for (const root of roots) {
+    for (const pkgDir of packageDirs) {
+      const packageRoot = path.resolve(root, "packages", pkgDir);
+      for (const candidate of candidateBinaryPaths(packageRoot)) {
+        if (isExecutable(candidate)) {
+          return candidate;
+        }
+      }
+    }
+  }
+  return undefined;
+}
+
 function resolveFromPath(): string | undefined {
   const cmd = process.platform === "win32" ? "where" : "which";
   const result = spawnSync(cmd, [DEFAULT_BINARY_NAME], { encoding: "utf8" });
@@ -241,6 +267,11 @@ export function resolveSikuliBinary(explicitPath?: string): string {
       throw errorWithResolutionHelp(`Configured binary path is not executable: ${manual}`);
     }
     return materializeSpawnableBinary(manual);
+  }
+
+  const workspacePackagedBinary = resolveWorkspacePackagedBinary();
+  if (workspacePackagedBinary) {
+    return materializeSpawnableBinary(workspacePackagedBinary);
   }
 
   const localFallback = resolveLocalRepoFallback();

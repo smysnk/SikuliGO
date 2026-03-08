@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import inspect
 import os
+import sys
+import time
 import zlib
 from pathlib import Path
 from typing import Iterable, Literal, Mapping, Sequence
@@ -21,11 +23,46 @@ DEFAULT_ADDR = "127.0.0.1:50051"
 DEFAULT_TIMEOUT_SECONDS = 5.0
 TRACE_HEADER = "x-trace-id"
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
+DEBUG_ENABLED = str(os.getenv("SIKULI_DEBUG", "")).strip().lower() in {"1", "true", "yes", "on"}
 
 ImageInput = str | bytes | bytearray | memoryview
 RegionInput = tuple[int, int, int, int]
 PointInput = tuple[int, int]
 MatcherEngine = Literal["template", "orb", "akaze", "brisk", "kaze", "sift", "hybrid"]
+
+
+def _format_log_suffix(fields: Mapping[str, object]) -> str:
+    parts = [
+        f"{key}={value}"
+        for key, value in fields.items()
+        if key != "address" and value not in (None, "", ())
+    ]
+    return f" {' '.join(parts)}" if parts else ""
+
+
+def _debug_log(message: str, **fields: object) -> None:
+    if not DEBUG_ENABLED:
+        return
+    print(f"[debug] {message}{_format_log_suffix(fields)}", file=sys.stderr)
+
+
+def _info_log(message: str, **fields: object) -> None:
+    print(f"[info] {message}{_format_log_suffix(fields)}", file=sys.stderr)
+
+
+def _error_log(message: str, **fields: object) -> None:
+    print(f"[error] {message}{_format_log_suffix(fields)}", file=sys.stderr)
+
+
+def _startup_wait_error_message(timeout_seconds: float) -> str:
+    timeout_ms = int(round(timeout_seconds * 1000))
+    return (
+        f"Failed to connect before the deadline; startup/connect probe timed out after {timeout_ms}ms. "
+        "Set SIKULI_DEBUG=1 to log launcher startup phases, binary resolution, and gRPC readiness timing. "
+        "Examples should auto-launch sikuli-go when the packaged runtime can start on this machine. "
+        "If you expect local auto-launch, verify sikuli-go is installed and executable. "
+        "If you expect to connect to an existing server, verify a sikuli-go process is already listening at the configured address."
+    )
 
 
 def _normalize_matcher_engine(raw: str | None) -> MatcherEngine:
@@ -93,13 +130,29 @@ class Sikuli:
         return self._auth_token
 
     def close(self) -> None:
+        _debug_log("grpc.close", address=self._address)
         self._channel.close()
 
     def wait_for_ready(self, timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS) -> None:
+        started_at = time.time()
+        timeout_ms = int(round(timeout_seconds * 1000))
+        _debug_log("grpc.wait_for_ready.start", address=self._address, timeout_ms=timeout_ms)
         try:
             grpc.channel_ready_future(self._channel).result(timeout=timeout_seconds)
         except grpc.FutureTimeoutError as exc:
-            raise TimeoutError(f"timeout waiting for Sikuli server at {self._address}") from exc
+            _debug_log(
+                "grpc.wait_for_ready.error",
+                address=self._address,
+                timeout_ms=timeout_ms,
+                duration_ms=int(round((time.time() - started_at) * 1000)),
+                error="Failed to connect before the deadline",
+            )
+            raise TimeoutError(_startup_wait_error_message(timeout_seconds)) from exc
+        _debug_log(
+            "grpc.wait_for_ready.ok",
+            address=self._address,
+            duration_ms=int(round((time.time() - started_at) * 1000)),
+        )
 
     def _metadata(self, extra: Mapping[str, str] | None = None) -> Sequence[tuple[str, str]]:
         out: list[tuple[str, str]] = []

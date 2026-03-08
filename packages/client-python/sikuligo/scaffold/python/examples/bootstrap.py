@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import hashlib
 import shutil
 from pathlib import Path
 
@@ -21,7 +22,7 @@ def ensure_sikuli_go_on_path() -> str:
 
     should_copy = True
     if installed.exists():
-        should_copy = source.stat().st_size != installed.stat().st_size
+        should_copy = _file_digest(source) != _file_digest(installed)
     if should_copy:
         shutil.copy2(source, installed)
         if os.name != "nt":
@@ -34,3 +35,7 @@ def ensure_sikuli_go_on_path() -> str:
 
     os.environ["SIKULI_GO_BINARY_PATH"] = str(installed)
     return str(installed)
+
+
+def _file_digest(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()

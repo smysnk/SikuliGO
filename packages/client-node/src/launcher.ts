@@ -14,6 +14,7 @@ export interface LaunchOptions extends SikuliOptions {
   sqlitePath?: string;
   serverArgs?: string[];
   stdio?: "ignore" | "pipe" | "inherit";
+  addressSourceHint?: "option" | "env" | "generated" | "default" | "auto-probe-default";
 }
 
 export interface LaunchResult {
@@ -27,16 +28,64 @@ export interface LaunchResult {
 const DEFAULT_STARTUP_TIMEOUT_MS = 10_000;
 const DEBUG_ENABLED = /^(1|true|yes|on)$/i.test(process.env.SIKULI_DEBUG ?? "");
 
+function binarySource(opts: LaunchOptions): "option" | "env" | "resolver" {
+  if (opts.binaryPath) {
+    return "option";
+  }
+  if (process.env.SIKULI_GO_BINARY_PATH) {
+    return "env";
+  }
+  return "resolver";
+}
+
+function formatLogSuffix(fields: Record<string, unknown>): string {
+  const parts = Object.entries(fields)
+    .filter(([k, v]) => k !== "address" && v !== undefined && v !== null && v !== "")
+    .map(([k, v]) => `${k}=${String(v)}`);
+  return parts.length > 0 ? ` ${parts.join(" ")}` : "";
+}
+
 function debugLog(message: string, fields: Record<string, unknown> = {}): void {
   if (!DEBUG_ENABLED) {
     return;
   }
-  const parts = Object.entries(fields)
-    .filter(([k, v]) => k !== "address" && v !== undefined && v !== null && v !== "")
-    .map(([k, v]) => `${k}=${String(v)}`);
-  const suffix = parts.length > 0 ? ` ${parts.join(" ")}` : "";
   // eslint-disable-next-line no-console
-  console.error(`[sikuli-go-debug] ${message}${suffix}`);
+  console.error(`[debug] ${message}${formatLogSuffix(fields)}`);
+}
+
+function infoLog(message: string, fields: Record<string, unknown> = {}): void {
+  // eslint-disable-next-line no-console
+  console.info(`[info] ${message}${formatLogSuffix(fields)}`);
+}
+
+function shouldForwardServerLogLine(line: string): boolean {
+  return line.includes("[info]") || line.includes("[error]");
+}
+
+function forwardServerLogBuffer(buffer: string, emit: (line: string) => void): string {
+  let pending = buffer;
+  for (;;) {
+    const newlineIdx = pending.indexOf("\n");
+    if (newlineIdx < 0) {
+      break;
+    }
+    const line = pending.slice(0, newlineIdx).replace(/\r$/, "");
+    pending = pending.slice(newlineIdx + 1);
+    if (line && shouldForwardServerLogLine(line)) {
+      emit(line);
+    }
+  }
+  return pending;
+}
+
+function spawnStdio(mode: "ignore" | "pipe" | "inherit"): ["ignore" | "pipe" | "inherit", "ignore" | "pipe" | "inherit", "ignore" | "pipe" | "inherit"] {
+  if (mode === "inherit") {
+    return ["inherit", "inherit", "inherit"];
+  }
+  if (mode === "pipe") {
+    return ["pipe", "pipe", "pipe"];
+  }
+  return ["ignore", "ignore", "pipe"];
 }
 
 function mergeRuntimePath(currentPath: string | undefined): { pathValue: string; added: string[] } {
@@ -276,6 +325,12 @@ async function waitForStartup(
   await Promise.race([
     client.waitForReady(timeoutMs),
     new Promise<never>((_, reject) => {
+      child.once("error", (err) => {
+        rejected = true;
+        reject(new Error(`sikuli-go failed to spawn: ${err.message}`));
+      });
+    }),
+    new Promise<never>((_, reject) => {
       child.once("exit", (code, signal) => {
         rejected = true;
         const detail = exitDetail ? exitDetail() : "";
@@ -317,11 +372,18 @@ export async function launchSikuli(opts: LaunchOptions = {}): Promise<LaunchResu
   const stdioMode: "ignore" | "pipe" | "inherit" = opts.stdio ?? (DEBUG_ENABLED ? "inherit" : "ignore");
   const startupTimeoutMs = startupTimeoutRequestedMs;
   const explicitAddress = opts.address || process.env.SIKULI_GRPC_ADDR || "";
+  const addressSource =
+    opts.addressSourceHint ?? (opts.address ? "option" : process.env.SIKULI_GRPC_ADDR ? "env" : spawnServer ? "generated" : "default");
+  const userSuppliedAddress = addressSource === "option" || addressSource === "env";
   const address = explicitAddress || (spawnServer ? `127.0.0.1:${await findOpenPort()}` : "127.0.0.1:50051");
   const authToken = opts.authToken || process.env.SIKULI_GRPC_AUTH_TOKEN || "";
   debugLog("launcher.start", {
     mode: spawnServer ? "spawn" : "connect",
-    explicit_address: explicitAddress ? "yes" : "no",
+    user_supplied_address: userSuppliedAddress ? "yes" : "no",
+    address_source: addressSource,
+    address,
+    auth_token: authToken ? "yes" : "no",
+    cwd: process.cwd(),
     startup_timeout_requested_ms: startupTimeoutRequestedMs,
     startup_timeout_ms: startupTimeoutMs
   });
@@ -329,6 +391,8 @@ export async function launchSikuli(opts: LaunchOptions = {}): Promise<LaunchResu
   if (!spawnServer) {
     debugLog("launcher.connect.start", {
       address,
+      address_source: addressSource,
+      auth_token: authToken ? "yes" : "no",
       startup_timeout_ms: startupTimeoutMs
     });
     const client = new SikuliTransport({
@@ -338,7 +402,17 @@ export async function launchSikuli(opts: LaunchOptions = {}): Promise<LaunchResu
       timeoutMs: opts.timeoutMs,
       credentials: opts.credentials
     });
-    await client.waitForReady(startupTimeoutMs);
+    try {
+      await client.waitForReady(startupTimeoutMs);
+    } catch (err) {
+      debugLog("launcher.connect.error", {
+        address_source: addressSource,
+        startup_timeout_ms: startupTimeoutMs,
+        error: (err as Error)?.message ?? "connect failed"
+      });
+      client.close();
+      throw err;
+    }
     debugLog("launcher.connect.ready", { address });
     return {
       address,
@@ -363,11 +437,15 @@ export async function launchSikuli(opts: LaunchOptions = {}): Promise<LaunchResu
     sqlitePath,
     ...(opts.serverArgs ?? [])
   ];
-  debugLog("launcher.spawn.start", {
+  infoLog("launcher.spawn.start", {
     binary: binaryPath,
+    binary_source: binarySource(opts),
     address,
+    address_source: addressSource,
     admin_listen: opts.adminListen ?? "",
     sqlite_path: sqlitePath,
+    auth_token: token ? "yes" : "no",
+    server_args_extra_count: (opts.serverArgs ?? []).length,
     stdio: stdioMode,
     startup_timeout_requested_ms: startupTimeoutRequestedMs,
     startup_timeout_ms: startupTimeoutMs
@@ -377,9 +455,12 @@ export async function launchSikuli(opts: LaunchOptions = {}): Promise<LaunchResu
     path_augmented: mergedPath.added.length > 0 ? "yes" : "no",
     path_added: mergedPath.added.join(",")
   });
+  debugLog("launcher.spawn.args", {
+    args: ["-listen", address, "-admin-listen", opts.adminListen ?? "", "-enable-reflection=false", "-sqlite-path", sqlitePath].join(" ")
+  });
 
   const child = spawn(binaryPath, serverArgs, {
-    stdio: stdioMode,
+    stdio: spawnStdio(stdioMode),
     env: {
       ...process.env,
       PATH: mergedPath.pathValue || process.env.PATH || "",
@@ -387,7 +468,17 @@ export async function launchSikuli(opts: LaunchOptions = {}): Promise<LaunchResu
       ...(DEBUG_ENABLED ? { SIKULI_DEBUG: "1" } : {})
     }
   });
+  debugLog("launcher.spawn.pid", {
+    pid: child.pid ?? "unknown"
+  });
+  child.once("error", (err) => {
+    debugLog("launcher.spawn.child_error", {
+      pid: child.pid ?? "unknown",
+      error: err.message
+    });
+  });
   let stderrTail = "";
+  let stderrForwardPending = "";
   const appendStderr = (chunk: Buffer | string) => {
     const text = typeof chunk === "string" ? chunk : chunk.toString("utf8");
     stderrTail = `${stderrTail}${text}`;
@@ -395,9 +486,25 @@ export async function launchSikuli(opts: LaunchOptions = {}): Promise<LaunchResu
     if (stderrTail.length > max) {
       stderrTail = stderrTail.slice(stderrTail.length - max);
     }
+    if (!DEBUG_ENABLED && stdioMode === "ignore") {
+      stderrForwardPending = forwardServerLogBuffer(`${stderrForwardPending}${text}`, (line) => {
+        // eslint-disable-next-line no-console
+        console.error(line);
+      });
+    }
   };
   if (child.stderr) {
     child.stderr.on("data", appendStderr);
+    child.stderr.on("end", () => {
+      if (!DEBUG_ENABLED && stdioMode === "ignore") {
+        const tail = stderrForwardPending.replace(/\r$/, "").trim();
+        if (tail && shouldForwardServerLogLine(tail)) {
+          // eslint-disable-next-line no-console
+          console.error(tail);
+        }
+        stderrForwardPending = "";
+      }
+    });
   }
   const unwire = wireShutdown(child);
 
@@ -413,15 +520,31 @@ export async function launchSikuli(opts: LaunchOptions = {}): Promise<LaunchResu
     if (process.platform === "darwin" && stdioMode === "inherit" && Boolean(process.stdin.isTTY)) {
       await waitForCliclickGate(child, mergedPath.pathValue, address);
     }
+    debugLog("launcher.spawn.wait.start", {
+      pid: child.pid ?? "unknown",
+      startup_timeout_ms: startupTimeoutMs
+    });
     await waitForStartup(client, child, startupTimeoutMs, () => stderrTail.trim());
-    debugLog("launcher.spawn.ready", {
+    infoLog("launcher.spawn.ready", {
       address,
       pid: child.pid ?? "unknown"
     });
   } catch (err) {
     const canFallbackToConnect = explicitAddress !== "";
+    debugLog("launcher.spawn.error", {
+      pid: child.pid ?? "unknown",
+      startup_timeout_ms: startupTimeoutMs,
+      can_fallback_to_connect: canFallbackToConnect ? "yes" : "no",
+      child_exit_code: child.exitCode ?? "nil",
+      child_running: child.exitCode === null ? "yes" : "no",
+      error: (err as Error)?.message ?? "spawn failed",
+      stderr_tail: stderrTail.trim() || undefined
+    });
     if (canFallbackToConnect) {
       try {
+        debugLog("launcher.spawn.fallback_connect.start", {
+          startup_timeout_ms: Math.max(250, Math.min(startupTimeoutMs, 1_500))
+        });
         await client.waitForReady(Math.max(250, Math.min(startupTimeoutMs, 1_500)));
         debugLog("launcher.spawn.fallback_connect", {
           address,
@@ -434,7 +557,10 @@ export async function launchSikuli(opts: LaunchOptions = {}): Promise<LaunchResu
           client,
           spawnedServer: false
         };
-      } catch {
+      } catch (fallbackErr) {
+        debugLog("launcher.spawn.fallback_connect.error", {
+          error: (fallbackErr as Error)?.message ?? "fallback connect failed"
+        });
         // Fall through to original failure handling.
       }
     }

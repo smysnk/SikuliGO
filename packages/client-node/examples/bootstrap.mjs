@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { resolveSikuliBinary } from "@sikuligo/sikuli-go";
 
 function resolveOnPath(binaryName) {
@@ -39,9 +40,7 @@ export function ensureSikuliGoOnPath() {
 
   let shouldCopy = true;
   if (fs.existsSync(targetBinary)) {
-    const srcStat = fs.statSync(sourceBinary);
-    const dstStat = fs.statSync(targetBinary);
-    shouldCopy = srcStat.size !== dstStat.size;
+    shouldCopy = fileDigest(sourceBinary) !== fileDigest(targetBinary);
   }
   if (shouldCopy) {
     fs.copyFileSync(sourceBinary, targetBinary);
@@ -53,4 +52,10 @@ export function ensureSikuliGoOnPath() {
   ensureLocalInstallDirOnPath(installDir);
   process.env.SIKULI_GO_BINARY_PATH = targetBinary;
   return targetBinary;
+}
+
+function fileDigest(filePath) {
+  const hash = createHash("sha256");
+  hash.update(fs.readFileSync(filePath));
+  return hash.digest("hex");
 }

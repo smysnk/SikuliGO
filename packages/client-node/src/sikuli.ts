@@ -13,7 +13,7 @@ function debugLog(message: string, fields: Record<string, unknown> = {}): void {
     .map(([k, v]) => `${k}=${String(v)}`);
   const suffix = parts.length > 0 ? ` ${parts.join(" ")}` : "";
   // eslint-disable-next-line no-console
-  console.error(`[sikuli-go-debug] ${message}${suffix}`);
+  console.error(`[debug] ${message}${suffix}`);
 }
 
 export interface InputOptions {
@@ -102,6 +102,7 @@ export class Sikuli {
       const connected = await Sikuli.connect({
         ...opts,
         address: probeAddress,
+        addressSourceHint: opts.address ? "option" : process.env.SIKULI_GRPC_ADDR ? "env" : "auto-probe-default",
         startupTimeoutMs: probeTimeoutMs
       });
       debugLog("launcher.auto.probe.connected_existing", {

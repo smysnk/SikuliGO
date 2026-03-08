@@ -42,7 +42,15 @@ func debugLogf(format string, args ...any) {
 	if !debugEnabled {
 		return
 	}
-	log.Printf("[sikuli-go-debug] "+format, args...)
+	log.Printf("[debug] "+format, args...)
+}
+
+func infoLogf(format string, args ...any) {
+	log.Printf("[info] "+format, args...)
+}
+
+func errorLogf(format string, args ...any) {
+	log.Printf("[error] "+format, args...)
 }
 
 var captureScreenFn = captureScreenImage
@@ -247,7 +255,7 @@ func (s *Server) ClickOnScreen(ctx context.Context, req *pb.ClickOnScreenRequest
 	debugLogf("click_on_screen.start")
 	found, err := s.WaitOnScreen(ctx, waitReq)
 	if err != nil {
-		debugLogf("click_on_screen.wait.error err=%v", err)
+		errorLogf("click_on_screen.wait.error err=%v", err)
 		return nil, err
 	}
 	match := found.GetMatch()
@@ -381,7 +389,7 @@ func newFinderWithEngine(source *sikuli.Image, engine cv.MatcherEngine) (*sikuli
 func (s *Server) findOnScreenOnce(ctx context.Context, patternReq *pb.Pattern, optsReq *pb.ScreenQueryOptions, engine cv.MatcherEngine) (sikuli.Match, error) {
 	start := time.Now()
 	traceID := traceIDFromContext(ctx)
-	debugLogf("find_on_screen.start engine=%s opencv=%t trace_id=%s", engine, cv.OpenCVEnabled(), traceID)
+	infoLogf("find_on_screen.start engine=%s opencv=%t trace_id=%s", engine, cv.OpenCVEnabled(), traceID)
 	pattern, err := patternFromProto(patternReq)
 	if err != nil {
 		debugLogf("find_on_screen.pattern.error trace_id=%s err=%v", traceID, err)
@@ -432,7 +440,7 @@ func (s *Server) findOnScreenOnce(ctx context.Context, patternReq *pb.Pattern, o
 		m, err := f.Find(pattern)
 		stopProgress()
 		if err != nil {
-			debugLogf("find_on_screen.match.error trace_id=%s duration=%s total=%s err=%v", traceID, time.Since(matchStart), time.Since(start), err)
+			errorLogf("find_on_screen.match.error trace_id=%s duration=%s total=%s err=%v", traceID, time.Since(matchStart), time.Since(start), err)
 			return sikuli.Match{}, err
 		}
 		debugLogf(

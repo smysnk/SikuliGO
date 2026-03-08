@@ -12,7 +12,16 @@ from typing import Literal, Sequence
 
 from generated.sikuli.v1 import sikuli_pb2 as pb
 
-from .client import DEFAULT_ADDR, DEFAULT_TIMEOUT_SECONDS, ImageInput, PointInput, RegionInput, Sikuli
+from .client import (
+    DEFAULT_ADDR,
+    DEFAULT_TIMEOUT_SECONDS,
+    ImageInput,
+    PointInput,
+    RegionInput,
+    Sikuli,
+    _debug_log,
+    _info_log,
+)
 
 
 DEFAULT_STARTUP_TIMEOUT_SECONDS = 10.0
@@ -361,14 +370,28 @@ class Screen(Region):
         stdio: Literal["ignore", "pipe", "inherit"] = "ignore",
     ) -> Screen:
         resolved_address = address or os.getenv("SIKULI_GRPC_ADDR") or f"127.0.0.1:{_find_open_port()}"
+        address_source = "option" if address else "env" if os.getenv("SIKULI_GRPC_ADDR") else "generated"
         token = auth_token or os.getenv("SIKULI_GRPC_AUTH_TOKEN") or secrets.token_hex(24)
         binary = _resolve_sikuli_binary(binary_path)
+        binary_source = "option" if binary_path else "env" if os.getenv("SIKULI_GO_BINARY_PATH") else "resolver"
         resolved_sqlite_path = (
             sqlite_path
             or os.getenv("SIKULI_GO_SQLITE_PATH", "").strip()
             or "sikuli-go.db"
         )
-        stdout, stderr = _stdio_targets(stdio)
+        effective_stdio = "inherit" if stdio == "ignore" and os.getenv("SIKULI_DEBUG", "").strip().lower() in {"1", "true", "yes", "on"} else stdio
+        stdout, stderr = _stdio_targets(effective_stdio)
+        _debug_log(
+            "launcher.start",
+            mode="spawn",
+            user_supplied_address="yes" if address_source in {"option", "env"} else "no",
+            address_source=address_source,
+            address=resolved_address,
+            auth_token="yes" if token else "no",
+            cwd=Path.cwd(),
+            startup_timeout_requested_ms=int(round(startup_timeout_seconds * 1000)),
+            startup_timeout_ms=int(round(startup_timeout_seconds * 1000)),
+        )
 
         args = [
             binary,
@@ -383,6 +406,34 @@ class Screen(Region):
             resolved_sqlite_path,
             *(server_args or []),
         ]
+        _info_log(
+            "launcher.spawn.start",
+            binary=binary,
+            binary_source=binary_source,
+            address=resolved_address,
+            address_source=address_source,
+            admin_listen=admin_listen,
+            sqlite_path=resolved_sqlite_path,
+            auth_token="yes" if token else "no",
+            server_args_extra_count=len(server_args or ()),
+            stdio=effective_stdio,
+            startup_timeout_requested_ms=int(round(startup_timeout_seconds * 1000)),
+            startup_timeout_ms=int(round(startup_timeout_seconds * 1000)),
+        )
+        _debug_log(
+            "launcher.spawn.args",
+            args=" ".join(
+                [
+                    "-listen",
+                    resolved_address,
+                    "-admin-listen",
+                    admin_listen,
+                    "-enable-reflection=false",
+                    "-sqlite-path",
+                    resolved_sqlite_path,
+                ]
+            ),
+        )
         child = subprocess.Popen(
             args,
             env={
@@ -393,6 +444,7 @@ class Screen(Region):
             stdout=stdout,
             stderr=stderr,
         )
+        _debug_log("launcher.spawn.pid", pid=child.pid or "unknown")
 
         session = Sikuli(
             address=resolved_address,
@@ -403,11 +455,26 @@ class Screen(Region):
             matcher_engine=matcher_engine,
         )
         try:
+            _debug_log(
+                "launcher.spawn.wait.start",
+                pid=child.pid or "unknown",
+                startup_timeout_ms=int(round(startup_timeout_seconds * 1000)),
+            )
             _wait_for_startup(session, child, startup_timeout_seconds)
-        except Exception:
+        except Exception as exc:
+            _debug_log(
+                "launcher.spawn.error",
+                pid=child.pid or "unknown",
+                startup_timeout_ms=int(round(startup_timeout_seconds * 1000)),
+                can_fallback_to_connect="no",
+                child_exit_code=child.poll() if child.poll() is not None else "nil",
+                child_running="yes" if child.poll() is None else "no",
+                error=str(exc),
+            )
             _stop_spawned_process(child)
             session.close()
             raise
+        _info_log("launcher.spawn.ready", address=resolved_address, pid=child.pid or "unknown")
 
         return cls(
             session,
@@ -458,9 +525,29 @@ class Screen(Region):
         secure: bool = False,
         matcher_engine: str | None = None,
         startup_timeout_seconds: float = DEFAULT_STARTUP_TIMEOUT_SECONDS,
+        address_source_hint: str | None = None,
     ) -> Screen:
         resolved_address = address or os.getenv("SIKULI_GRPC_ADDR", DEFAULT_ADDR)
         resolved_auth_token = auth_token if auth_token is not None else os.getenv("SIKULI_GRPC_AUTH_TOKEN", "")
+        address_source = address_source_hint or ("option" if address else "env" if os.getenv("SIKULI_GRPC_ADDR") else "default")
+        _debug_log(
+            "launcher.start",
+            mode="connect",
+            user_supplied_address="yes" if address_source in {"option", "env"} else "no",
+            address_source=address_source,
+            address=resolved_address,
+            auth_token="yes" if resolved_auth_token else "no",
+            cwd=Path.cwd(),
+            startup_timeout_requested_ms=int(round(startup_timeout_seconds * 1000)),
+            startup_timeout_ms=int(round(startup_timeout_seconds * 1000)),
+        )
+        _debug_log(
+            "launcher.connect.start",
+            address=resolved_address,
+            address_source=address_source,
+            auth_token="yes" if resolved_auth_token else "no",
+            startup_timeout_ms=int(round(startup_timeout_seconds * 1000)),
+        )
         session = Sikuli(
             address=resolved_address,
             auth_token=resolved_auth_token,
@@ -469,7 +556,18 @@ class Screen(Region):
             secure=secure,
             matcher_engine=matcher_engine,
         )
-        session.wait_for_ready(timeout_seconds=startup_timeout_seconds)
+        try:
+            session.wait_for_ready(timeout_seconds=startup_timeout_seconds)
+        except Exception as exc:
+            _debug_log(
+                "launcher.connect.error",
+                address_source=address_source,
+                startup_timeout_ms=int(round(startup_timeout_seconds * 1000)),
+                error=str(exc),
+            )
+            session.close()
+            raise
+        _debug_log("launcher.connect.ready", address=resolved_address)
         return cls(
             session,
             child=None,
@@ -494,8 +592,15 @@ class Screen(Region):
         stdio: Literal["ignore", "pipe", "inherit"] = "ignore",
     ) -> Screen:
         probe_address = address or os.getenv("SIKULI_GRPC_ADDR", DEFAULT_ADDR)
+        _debug_log(
+            "launcher.auto.start",
+            probe_timeout_ms=1000,
+            explicit_address="yes" if address else "no",
+            env_address="yes" if os.getenv("SIKULI_GRPC_ADDR") else "no",
+        )
         try:
-            return cls.connect(
+            _debug_log("launcher.auto.probe.connect", probe_timeout_ms=1000)
+            connected = cls.connect(
                 address=probe_address,
                 auth_token=auth_token,
                 trace_id=trace_id,
@@ -503,9 +608,26 @@ class Screen(Region):
                 secure=secure,
                 matcher_engine=matcher_engine,
                 startup_timeout_seconds=1.0,
+                address_source_hint="option" if address else "env" if os.getenv("SIKULI_GRPC_ADDR") else "auto-probe-default",
             )
-        except Exception:
-            return cls.spawn(
+            _debug_log(
+                "launcher.auto.probe.connected_existing",
+                spawn_attempted="no",
+                spawned_server="yes" if connected.meta.spawned_server else "no",
+            )
+            return connected
+        except Exception as exc:
+            _debug_log(
+                "launcher.auto.probe.failed",
+                probe_timeout_ms=1000,
+                reason=str(exc),
+            )
+            _debug_log(
+                "launcher.auto.spawn.start",
+                spawn_attempted="yes",
+                startup_timeout_ms=int(round(startup_timeout_seconds * 1000)),
+            )
+            spawned = cls.spawn(
                 address=address,
                 auth_token=auth_token,
                 trace_id=trace_id,
@@ -519,6 +641,11 @@ class Screen(Region):
                 server_args=server_args,
                 stdio=stdio,
             )
+            _debug_log(
+                "launcher.auto.spawn.ready",
+                spawned_server="yes" if spawned.meta.spawned_server else "no",
+            )
+            return spawned
 
     def region(self, x: int, y: int, w: int, h: int) -> Region:
         return Region(self._session, (int(x), int(y), int(w), int(h)))
