@@ -3,6 +3,7 @@ set -euo pipefail
 
 THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${THIS_DIR}/paths.sh"
+source "${THIS_DIR}/macos-ocr-env.sh"
 
 TMP_ROOT="$(mktemp -d /tmp/sikuli-go-local-verify.XXXXXX)"
 PROJECT_DIR="${TMP_ROOT}/project"
@@ -42,6 +43,7 @@ assert_dir() {
 step "1/8 Build local sikuli-go binary"
 (
   cd "${API_DIR}"
+  configure_macos_ocr_env
   go build -tags "${GO_BUILD_TAGS}" -o "${API_DIR}/sikuli-go" ./cmd/sikuli-go
 )
 assert_file "${API_DIR}/sikuli-go"

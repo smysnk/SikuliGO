@@ -3,6 +3,7 @@ set -euo pipefail
 
 THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${THIS_DIR}/paths.sh"
+source "${THIS_DIR}/macos-ocr-env.sh"
 
 TMP_ROOT="$(mktemp -d /tmp/sikuli-go-python-e2e.XXXXXX)"
 API_BINARY="${TMP_ROOT}/sikuli-go"
@@ -27,6 +28,7 @@ step() {
 step "1/2 Build local sikuli-go API binary"
 (
   cd "${API_DIR}"
+  configure_macos_ocr_env
   go build -tags "${GO_BUILD_TAGS}" -o "${API_BINARY}" ./cmd/sikuli-go
 )
 

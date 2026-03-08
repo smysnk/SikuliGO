@@ -139,8 +139,7 @@ EOF
   "description": "sikuli-go binary for $goos $goarch",
   "license": "MIT",
   "files": [
-    "bin/$bin_name",
-    "bin/$monitor_name",
+    "bin",
     "README.md"
   ],
   "publishConfig": {
@@ -148,6 +147,23 @@ EOF
   }
 }
 EOF
+}
+
+copy_windows_runtime_dlls() {
+  local bin_dir="$1"
+  shift
+  local exe=""
+  local collected
+  collected="$(mktemp)"
+  trap 'rm -f "$collected"' RETURN
+  find "$bin_dir" -maxdepth 1 -type f -name '*.dll' -delete
+  for exe in "$@"; do
+    ldd "$exe" 2>/dev/null | grep -oE '/mingw64/bin/[^ ]+\.dll' >>"$collected" || true
+  done
+  sort -u "$collected" | while IFS= read -r dll; do
+    [[ -n "$dll" && -f "$dll" ]] || continue
+    cp -f "$dll" "$bin_dir/"
+  done
 }
 
 built_pkgs=()
@@ -185,6 +201,8 @@ for target in "${TARGETS[@]}"; do
   if [[ "$goos" != "windows" ]]; then
     chmod +x "$out"
     chmod +x "$out_monitor"
+  else
+    copy_windows_runtime_dlls "$bin_dir" "$out" "$out_monitor"
   fi
   built_pkgs+=("$pkg")
 done

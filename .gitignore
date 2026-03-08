@@ -29,6 +29,7 @@ native/
 /sikuligrpc
 !packages/client-python/sikuligo/
 !packages/client-python/sikuligo/**
+packages/api/sikuli-go
 /sikuli-go-monitor
 /sikuligo-monitor
 /sikuligrpc-monitor

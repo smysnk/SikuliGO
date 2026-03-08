@@ -69,7 +69,7 @@ Repository scaffolding:
 - release script: `scripts/clients/release-node-binaries.sh`
 
 3. Each binary package:
-- includes one `sikuli-go` executable.
+- includes `sikuli-go` and `sikuli-go-monitor`.
 - installs to predictable path resolved by `@sikuligo/sikuli-go` at runtime.
 
 4. Runtime resolution in `@sikuligo/sikuli-go`:

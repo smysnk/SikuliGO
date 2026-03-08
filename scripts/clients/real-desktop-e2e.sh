@@ -3,6 +3,7 @@ set -euo pipefail
 
 THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${THIS_DIR}/paths.sh"
+source "${THIS_DIR}/macos-ocr-env.sh"
 
 # Safety gate so this cannot accidentally run in CI/headless flows.
 if [[ "${REAL_DESKTOP_E2E:-0}" != "1" ]]; then
@@ -76,10 +77,11 @@ fi
 [[ -f "${FIXTURE_IMAGE_PATH}" ]] || fail "fixture image not found: ${FIXTURE_IMAGE_PATH}"
 
 step "1/7 Build sikuli-go with OCR/OpenCV tags"
-(
-  cd "${API_DIR}"
-  go build -tags "${GO_TAGS}" -o "${API_BINARY}" ./cmd/sikuli-go
-)
+  (
+    cd "${API_DIR}"
+    configure_macos_ocr_env
+    go build -tags "${GO_TAGS}" -o "${API_BINARY}" ./cmd/sikuli-go
+  )
 
 step "2/7 Build Node client artifacts"
 (

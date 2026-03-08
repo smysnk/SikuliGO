@@ -157,6 +157,10 @@ jobs:
             node_bin_target: bin-linux-x64
           - runner: macos-14
             node_bin_target: bin-darwin-arm64
+          - runner: macos-15-intel
+            node_bin_target: bin-darwin-x64
+          - runner: windows-latest
+            node_bin_target: bin-win32-x64
     runs-on: ${{ matrix.runner }}
     steps:
       - name: Checkout
@@ -172,6 +176,20 @@ jobs:
         with:
           node-version: "20"
           registry-url: "https://registry.npmjs.org"
+
+      - name: Setup MSYS2 (Windows)
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          path-type: inherit
+          update: true
+          install: >-
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-opencv
+            mingw-w64-x86_64-tesseract-ocr
+            mingw-w64-x86_64-leptonica
+            mingw-w64-x86_64-pkgconf
 
       - name: Install OCR/OpenCV native dependencies (Linux)
         if: runner.os == 'Linux'
@@ -191,7 +209,25 @@ jobs:
         run: |
           bash ./scripts/ci/setup-macos-ocr-opencv.sh
 
+      - name: Install OCR/OpenCV native dependencies (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: |
+          ./scripts/ci/setup-windows-ocr-opencv.sh
+
       - name: Set client version from build number
+        if: runner.os != 'Windows'
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
+          VERSION_MAJOR: ${{ vars.CLIENT_VERSION_MAJOR }}
+          VERSION_MINOR: ${{ vars.CLIENT_VERSION_MINOR }}
+          PATCH_MODE: ${{ vars.CLIENT_VERSION_PATCH_MODE }}
+          PATCH_FIXED: ${{ vars.CLIENT_VERSION_PATCH_FIXED }}
+        run: ./scripts/clients/set-version-from-build.sh
+
+      - name: Set client version from build number (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
         env:
           BUILD_NUMBER: ${{ github.run_number }}
           VERSION_MAJOR: ${{ vars.CLIENT_VERSION_MAJOR }}
@@ -201,6 +237,16 @@ jobs:
         run: ./scripts/clients/set-version-from-build.sh
 
       - name: Build and optionally publish Node binary packages
+        if: runner.os != 'Windows'
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_PUBLISH: ${{ ((github.event_name == 'push' && github.ref_name == 'release') || inputs.publish_node || inputs.publish_node_binaries) && '1' || '0' }}
+          NODE_BIN_TARGETS: ${{ matrix.node_bin_target }}
+        run: ./scripts/clients/release-node-binaries.sh
+
+      - name: Build and optionally publish Node binary packages (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_PUBLISH: ${{ ((github.event_name == 'push' && github.ref_name == 'release') || inputs.publish_node || inputs.publish_node_binaries) && '1' || '0' }}
@@ -213,42 +259,10 @@ jobs:
           name: node-binary-checksums-${{ matrix.node_bin_target }}
           path: packages/client-node/packages/checksums.txt
 
-  node-binaries-backfill:
-    needs: client-release-smoke
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: "20"
-          registry-url: "https://registry.npmjs.org"
-
-      - name: Set client version from build number
-        env:
-          BUILD_NUMBER: ${{ github.run_number }}
-          VERSION_MAJOR: ${{ vars.CLIENT_VERSION_MAJOR }}
-          VERSION_MINOR: ${{ vars.CLIENT_VERSION_MINOR }}
-          PATCH_MODE: ${{ vars.CLIENT_VERSION_PATCH_MODE }}
-          PATCH_FIXED: ${{ vars.CLIENT_VERSION_PATCH_FIXED }}
-          NODE_BIN_TARGETS: bin-darwin-x64,bin-win32-x64
-        run: ./scripts/clients/set-version-from-build.sh
-
-      - name: Backfill and optionally publish Intel macOS / Windows binary packages
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_PUBLISH: ${{ ((github.event_name == 'push' && github.ref_name == 'release') || inputs.publish_node || inputs.publish_node_binaries) && '1' || '0' }}
-        run: |
-          bash ./scripts/clients/backfill-node-binary-package.sh bin-darwin-x64
-          bash ./scripts/clients/backfill-node-binary-package.sh bin-win32-x64
-
   node-client:
     needs:
       - client-release-smoke
       - node-binaries
-      - node-binaries-backfill
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
