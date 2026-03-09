@@ -1,0 +1,59 @@
+primary:
+  - key: downloads
+    title: Downloads
+    url: /downloads/
+    summary: Packages, binaries, and source install paths.
+  - key: getting-started
+    title: Getting Started
+    url: /getting-started/
+    summary: The fastest path from install to a first working script.
+  - key: nodejs-client
+    title: Node.js Client
+    url: /nodejs-client/
+    summary: Runtime model, install flow, and current Node references.
+  - key: python-client
+    title: Python Client
+    url: /python-client/
+    summary: Package flow, runtime model, and current Python references.
+  - key: golang-api
+    title: Golang API
+    url: /golang-api/
+    summary: Base implementation, generated reference, and advanced guides.
+  - key: getting-help
+    title: Getting Help
+    url: /getting-help/
+    summary: Troubleshooting paths, issue reporting, and support inputs.
+  - key: contribution
+    title: Contribution
+    url: /contribution/
+    summary: Docs workflow, local setup, and contributor guidance.
+  - key: license
+    title: License
+    url: /license/
+    summary: License summary and the authoritative license text.
+
+secondary:
+  - key: reference
+    title: Reference
+    url: /reference/
+    summary: Generated API docs and parity-oriented references.
+  - key: guides
+    title: Guides
+    url: /guides/
+    summary: Build, OCR, input, app control, and integration guides.
+  - key: strategy
+    title: Strategy
+    url: /strategy/
+    summary: Architecture plans, docs plans, and source ownership.
+  - key: benchmarks
+    title: Benchmarks
+    url: /bench/
+    summary: Find-on-screen scenario docs and published reports.
+
+project:
+  - title: Repository
+    url: https://github.com/smysnk/SikuliGO
+  - title: npm Package
+    url: https://www.npmjs.com/package/@sikuligo/sikuli-go
+  - title: PyPI Package
+    url: https://pypi.org/project/sikuli-go/

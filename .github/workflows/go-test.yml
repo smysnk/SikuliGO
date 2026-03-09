@@ -125,6 +125,12 @@ jobs:
       - name: Verify API docs
         run: ./scripts/check-api-docs.sh
 
+      - name: Verify docs governance
+        run: ./scripts/check-docs-governance.sh
+
+      - name: Verify docs links
+        run: ./scripts/check-docs-links.sh
+
       - name: Verify parity gates
         run: ./scripts/check-parity-gates.sh
 

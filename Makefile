@@ -38,7 +38,7 @@ MACOS_CGO_LDFLAGS := -L/opt/homebrew/Cellar/leptonica/1.87.0/lib -L/opt/homebrew
 .PHONY: help build build-all build-go build-go-api build-go-monitor build-go-benchmark-helper benchmark-helper build-stubs \
 	build-grpc-stubs build-node-stubs build-python-stubs build-lua-descriptor \
 	build-node build-node-binaries build-node-client build-python test-publish test-integration test-e2e benchmark \
-	build-docs gh-publish clean
+	docs build-docs gh-publish clean
 
 help:
 	@echo "Targets:"
@@ -52,7 +52,8 @@ help:
 	@echo "  make test-integration Run full local integration verification (RPC surface + API flows + Node/Python E2E)"
 	@echo "  make test-e2e         Optional manual real desktop E2E (FindOnScreen + OCR)"
 	@echo "  make benchmark        Benchmark FindOnScreen engines across size/orientation scenarios"
-	@echo "  make build-docs       Build a local GitHub Pages-style docs site in .test-results and serve it"
+	@echo "  make docs             Generate API/parity docs, build the local docs site, serve it, and open a browser"
+	@echo "  make build-docs       Legacy alias for make docs"
 	@echo "  make gh-publish       Publish locally built docs site to the gh-pages branch"
 	@echo "  make clean            Remove build outputs"
 	@echo ""
@@ -167,8 +168,10 @@ test-e2e:
 benchmark:
 	cd "$(ROOT_DIR)" && ./scripts/clients/benchmark-find-on-screen-e2e.sh
 
-build-docs:
-	cd "$(ROOT_DIR)" && ./scripts/docs/publish-pages-local.sh
+docs:
+	cd "$(ROOT_DIR)" && ./scripts/docs/open-local.sh
+
+build-docs: docs
 
 gh-publish:
 	@GH_PAGES_REMOTE="$(GH_PAGES_REMOTE)" \

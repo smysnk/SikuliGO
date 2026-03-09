@@ -1,0 +1,71 @@
+{% assign current_url = page.url | replace: 'index.html', '' %}
+
+<div class="guide-brand">
+  <a class="guide-brand__link" href="{{ '/' | relative_url }}">
+    <img class="guide-brand__logo" src="{{ '/images/logo.png' | relative_url }}" alt="sikuli-go logo">
+    <span class="guide-brand__text">
+      <strong>sikuli-go</strong>
+      <span>Documentation</span>
+    </span>
+  </a>
+  <p class="guide-brand__summary">{{ site.description }}</p>
+</div>
+
+<nav class="guide-nav" aria-label="Documentation navigation">
+  <div class="guide-nav__group">
+    <p class="guide-nav__label">Primary Guide</p>
+    <ul class="guide-nav__list">
+      {% for item in site.data.navigation.primary %}
+        {% assign active = false %}
+        {% if page.nav_key == item.key %}
+          {% assign active = true %}
+        {% elsif item.url == '/' and current_url == '/' %}
+          {% assign active = true %}
+        {% elsif item.url != '/' and current_url == item.url %}
+          {% assign active = true %}
+        {% elsif item.url != '/' and current_url contains item.url %}
+          {% assign active = true %}
+        {% endif %}
+        <li class="guide-nav__item{% if active %} is-active{% endif %}">
+          <a class="guide-nav__link" href="{{ item.url | relative_url }}">
+            <span class="guide-nav__title">{{ item.title }}</span>
+            <span class="guide-nav__summary">{{ item.summary }}</span>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="guide-nav__group">
+    <p class="guide-nav__label">Secondary</p>
+    <ul class="guide-nav__list">
+      {% for item in site.data.navigation.secondary %}
+        {% assign active = false %}
+        {% if page.nav_key == item.key %}
+          {% assign active = true %}
+        {% elsif current_url == item.url %}
+          {% assign active = true %}
+        {% elsif item.url != '/' and current_url contains item.url %}
+          {% assign active = true %}
+        {% endif %}
+        <li class="guide-nav__item{% if active %} is-active{% endif %}">
+          <a class="guide-nav__link" href="{{ item.url | relative_url }}">
+            <span class="guide-nav__title">{{ item.title }}</span>
+            <span class="guide-nav__summary">{{ item.summary }}</span>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="guide-nav__group">
+    <p class="guide-nav__label">Project</p>
+    <ul class="guide-nav__list guide-nav__list--compact">
+      {% for item in site.data.navigation.project %}
+        <li class="guide-nav__item">
+          <a class="guide-nav__link" href="{{ item.url }}">{{ item.title }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</nav>

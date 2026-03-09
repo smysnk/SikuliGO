@@ -1,6 +1,8 @@
 # Build From Source
 
-This is the single source of truth for building sikuli-go from source.
+> Start with [Downloads]({{ '/downloads/' | relative_url }}), [Getting Started: Installation]({{ '/getting-started/installation' | relative_url }}), [Golang API: Installation]({{ '/golang-api/installation' | relative_url }}), or [Contribution: Development Setup]({{ '/contribution/development-setup' | relative_url }}) if you want the task-first entry points. This page remains the deeper build and publish reference.
+
+This is the current build reference for building sikuli-go from source.
 
 ## Prerequisites
 
@@ -13,7 +15,7 @@ This is the single source of truth for building sikuli-go from source.
 ## Install Workspace Dependencies
 
 ```bash
-cd /path/to/SikuliX1
+cd /path/to/sikuli-go
 yarn install
 ```
 

@@ -251,6 +251,23 @@ def truthy(raw: str) -> bool:
     return (raw or "").strip().lower() in {"1", "true", "yes", "on"}
 
 
+def to_docs_site_link(root: Path, target: Path) -> str | None:
+    docs_root = (root / "docs").resolve()
+    try:
+        rel = target.resolve().relative_to(docs_root)
+    except Exception:
+        return None
+    return f"/{rel.as_posix()}"
+
+
+def to_display_path(root: Path, target: Path | str) -> str:
+    path = Path(target).resolve()
+    try:
+        return path.relative_to(root).as_posix()
+    except Exception:
+        return str(target)
+
+
 def parse_resolution(raw: str) -> tuple[int, int]:
     m = re.match(r"^\s*(\d+)\s*[xX]\s*(\d+)\s*$", raw or "")
     if not m:
@@ -624,7 +641,7 @@ def md_dict_rows(title: str, data: dict[str, Any]) -> list[str]:
 lines: list[str] = []
 lines.append("# FindOnScreen Scenario Strategy Report")
 lines.append("")
-lines.append(f"- Manifest: `{manifest_path}`")
+lines.append(f"- Manifest: `{to_display_path(root, manifest_path)}`")
 lines.append(f"- Generated: `{summary['generated_at_utc']}`")
 lines.append(f"- Schema version: `{summary['schema_version']}`")
 lines.append(f"- Engines: `{', '.join(summary['engines'])}`")
@@ -641,7 +658,7 @@ if engine_cmp.get("available"):
     lines.append(f"| Other engines match rate (weighted) | `{float(engine_cmp.get('others_match_rate_pct', 0.0)):.1f}%` |")
     lines.append(f"| Delta vs others | `{float(engine_cmp.get('delta_pct_points', 0.0)):+.1f} pts` |")
     lines.append(f"| Engine rank by match rate | `{int(engine_cmp.get('engine_rank', 0))}/{int(engine_cmp.get('engine_count', 0))}` |")
-    lines.append(f"| Benchmark source | `{engine_cmp.get('bench_report_path', '')}` |")
+    lines.append(f"| Benchmark source | `{to_display_path(root, engine_cmp.get('bench_report_path', ''))}` |")
 else:
     lines.append(f"_Match-rate comparison unavailable: {engine_cmp.get('error', 'no benchmark summary found')}._")
     if engine_cmp.get("bench_report_path"):
@@ -657,7 +674,7 @@ if visual_examples.get("enabled"):
     if visual_examples.get("command"):
         lines.append(f"- Command: `{visual_examples.get('command')}`")
     if visual_examples.get("log_path"):
-        lines.append(f"- Log: `{visual_examples.get('log_path')}`")
+        lines.append(f"- Log: `{to_display_path(root, visual_examples.get('log_path'))}`")
     if visual_examples.get("error"):
         lines.append(f"- Error: `{visual_examples['error']}`")
     lines.append("")
@@ -668,7 +685,7 @@ if visual_examples.get("enabled"):
         for item in summaries:
             sid = item.get("scenario_id") or item.get("scenario_name") or "scenario"
             img_path = Path(item.get("path", ""))
-            rel_img = os.path.relpath(img_path, md_out.parent) if img_path else ""
+            rel_img = to_docs_site_link(root, img_path) or (os.path.relpath(img_path, md_out.parent) if img_path else "")
             lines.append(f"| `{sid}` | ![{sid}]({rel_img}) |")
         lines.append("")
     else:

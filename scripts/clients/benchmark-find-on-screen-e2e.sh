@@ -48,7 +48,7 @@ VISUAL_DIR="${FIND_BENCH_VISUAL_DIR:-${REPORT_DIR}/visuals}"
 VISUAL_MAX_ATTEMPTS="${FIND_BENCH_VISUAL_MAX_ATTEMPTS:-2}"
 VISUAL_TIMEOUT="${FIND_BENCH_VISUAL_TIMEOUT:-5s}"
 PATCH_READMES="1"
-README_PATHS="${FIND_BENCH_README_PATHS:-${ROOT_DIR}/README.md,${ROOT_DIR}/packages/client-node/README.md,${ROOT_DIR}/packages/client-python/README.md}"
+README_PATHS="${FIND_BENCH_README_PATHS:-${ROOT_DIR}/README.md}"
 README_SECTION_TITLE="${FIND_BENCH_README_SECTION_TITLE:-FindOnScreen Benchmark Test Results}"
 README_INLINE_IMAGES="${FIND_BENCH_README_INLINE_IMAGES:-6}"
 README_LINK_MODE="${FIND_BENCH_README_LINK_MODE:-pages}"
@@ -1002,7 +1002,7 @@ lines.append(f"- Ultra Resolution Scenarios: `{ultra_res}`")
 lines.append(f"- Platform: `{meta['goos']}/{meta['goarch']}`")
 lines.append(f"- CPU: `{meta['cpu']}`")
 lines.append(f"- Visuals Enabled: `{visual_enable}`")
-lines.append(f"- Visual Output: `{visual_dir}`")
+lines.append(f"- Visual Output: `{display_path(Path(visual_dir))}`")
 lines.append(f"- Visual Max Attempts: `{visual_max_attempts}`")
 lines.append(f"- Visual Timeout: `{visual_timeout}`")
 lines.append("")
@@ -1121,8 +1121,8 @@ if metrics_chart_rows:
     )
     write_svg(perf_svg_path, perf_svg)
     write_svg(accuracy_svg_path, acc_svg)
-    rel_perf_md = os.path.relpath(perf_svg_path, md_path.parent).replace(os.sep, "/")
-    rel_acc_md = os.path.relpath(accuracy_svg_path, md_path.parent).replace(os.sep, "/")
+    rel_perf_md = to_doc_markdown_link(published_path(md_path), published_path(perf_svg_path))
+    rel_acc_md = to_doc_markdown_link(published_path(md_path), published_path(accuracy_svg_path))
 
     lines.append("")
     lines.append("## Static Graphs (SVG)")
@@ -1196,10 +1196,10 @@ if resolution_rows and engine_names:
         ),
     )
 
-    rel_time_md = os.path.relpath(resolution_time_svg_path, md_path.parent).replace(os.sep, "/")
-    rel_match_md = os.path.relpath(resolution_matches_svg_path, md_path.parent).replace(os.sep, "/")
-    rel_miss_md = os.path.relpath(resolution_misses_svg_path, md_path.parent).replace(os.sep, "/")
-    rel_fp_md = os.path.relpath(resolution_false_pos_svg_path, md_path.parent).replace(os.sep, "/")
+    rel_time_md = to_doc_markdown_link(published_path(md_path), published_path(resolution_time_svg_path))
+    rel_match_md = to_doc_markdown_link(published_path(md_path), published_path(resolution_matches_svg_path))
+    rel_miss_md = to_doc_markdown_link(published_path(md_path), published_path(resolution_misses_svg_path))
+    rel_fp_md = to_doc_markdown_link(published_path(md_path), published_path(resolution_false_pos_svg_path))
 
     lines.append("")
     lines.append("## Resolution Group Graphs (SVG)")
@@ -1251,8 +1251,8 @@ if kind_rows and engine_names:
         ),
     )
 
-    rel_kind_time_md = os.path.relpath(kind_time_svg_path, md_path.parent).replace(os.sep, "/")
-    rel_kind_success_md = os.path.relpath(kind_success_svg_path, md_path.parent).replace(os.sep, "/")
+    rel_kind_time_md = to_doc_markdown_link(published_path(md_path), published_path(kind_time_svg_path))
+    rel_kind_success_md = to_doc_markdown_link(published_path(md_path), published_path(kind_success_svg_path))
 
     lines.append("")
     lines.append("## Scenario Kind Graphs (SVG)")
@@ -1367,6 +1367,25 @@ def to_rel_link(base_dir: Path, target: Path) -> str:
     except ValueError:
         rel = str(target)
     return rel.replace(os.sep, "/")
+
+def to_docs_site_link(target: Path) -> str | None:
+    try:
+        rel = target.resolve().relative_to(docs_root)
+    except Exception:
+        return None
+    return f"/{rel.as_posix()}"
+
+def to_doc_markdown_link(base_doc: Path, target: Path) -> str:
+    docs_link = to_docs_site_link(target)
+    if docs_link is not None:
+        return docs_link
+    return to_rel_link(base_doc.parent, target)
+
+def display_path(target: Path) -> str:
+    try:
+        return target.resolve().relative_to(root_dir).as_posix()
+    except Exception:
+        return str(target)
 
 def to_readme_link(base_dir: Path, target: Path) -> str:
     if readme_link_mode == "pages" and readme_base_url:

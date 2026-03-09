@@ -1,4 +1,8 @@
 # sikuli-go [![GoLang Tests](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml/badge.svg)](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml) [![Testing Gate](https://img.shields.io/github/actions/workflow/status/smysnk/SikuliGO/go-test.yml?branch=master&label=testing%20gate)](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml) [![PyPI version](https://img.shields.io/pypi/v/sikuli-go)](https://pypi.org/project/sikuli-go/) [![npm version](https://img.shields.io/npm/v/%40sikuligo%2Fsikuli-go)](https://www.npmjs.com/package/@sikuligo/sikuli-go)
+<!-- DOCS_CANONICAL_TARGET: docs/downloads/index.md -->
+<!-- DOCS_CANONICAL_TARGET: docs/getting-started/index.md -->
+<!-- DOCS_SOURCE_MAP: docs/strategy/documentation-source-map.md -->
+<!-- DOCS_WORKFLOW: docs/contribution/docs-workflow.md -->
 
 ![SikuliX Logo](docs/images/logo.png)
 

@@ -51,6 +51,9 @@ jobs:
       - name: Generate parity docs
         run: ./scripts/generate-parity-docs.sh
 
+      - name: Verify docs links
+        run: ./scripts/check-docs-links.sh
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 

@@ -1,5 +1,7 @@
 # API Publish and Install (Windows/Linux)
 
+> Start with [Downloads]({{ '/downloads/' | relative_url }}) if you want the primary install chooser. This page remains the lower-level release and manual-install reference.
+
 This document defines practical ways to publish and install the `sikuli-go` API binary for Windows and Linux.
 
 ## Publish Targets
@@ -41,7 +43,7 @@ cd windows-amd64 && zip -q ../sikuli-go-windows-amd64.zip sikuli-go.exe
 ## Publish to GitHub Releases
 
 ```bash
-TAG="v0.1.0"
+TAG="<release-tag>"
 gh release create "$TAG" \
   .release/sikuli-go-linux-amd64.tar.gz \
   .release/sikuli-go-linux-arm64.tar.gz \
@@ -58,7 +60,7 @@ For existing tags, replace `gh release create` with `gh release upload`.
 Install from a release tarball:
 
 ```bash
-VERSION="v0.1.0"
+VERSION="<release-tag>"
 ARCH="amd64" # or arm64
 curl -fL "https://github.com/smysnk/SikuliGO/releases/download/${VERSION}/sikuli-go-linux-${ARCH}.tar.gz" \
   -o /tmp/sikuli-go.tar.gz
@@ -75,7 +77,7 @@ sikuli-go -listen 127.0.0.1:50051 -admin-listen :8080
 ## Install on Windows (PowerShell)
 
 ```powershell
-$Version = "v0.1.0"
+$Version = "<release-tag>"
 $Url = "https://github.com/smysnk/SikuliGO/releases/download/$Version/sikuli-go-windows-amd64.zip"
 $Zip = "$env:TEMP\\sikuli-go.zip"
 $Dest = "$env:LOCALAPPDATA\\Programs\\sikuli-go"

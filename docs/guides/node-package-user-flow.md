@@ -1,5 +1,7 @@
 # Node Package User Flow
 
+> Start with [Node.js Client]({{ '/nodejs-client/' | relative_url }}) if you want the current package guide. This page remains the deeper design and packaging note behind that guide.
+
 This document defines the target user story for a Node.js-first integration where automation can run after `npm install` with minimal code.
 
 ## User Story

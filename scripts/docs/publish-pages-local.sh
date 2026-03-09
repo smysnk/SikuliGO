@@ -73,7 +73,7 @@ PY
 
 build_copy() {
   rsync -a --delete --exclude '.DS_Store' "${SOURCE_DIR}/" "${SITE_DIR}/"
-  echo "[docs-local] build mode=copy (markdown source only)"
+  echo "[docs-local] build mode=copy (markdown served through local preview renderer)"
 }
 
 build_native() {
@@ -145,5 +145,18 @@ if is_true "${OPEN_BROWSER}"; then
 fi
 
 if is_true "${SERVE}"; then
+  if python3 - <<'PY' >/dev/null 2>&1
+import markdown
+import yaml
+PY
+  then
+    exec python3 "${ROOT_DIR}/scripts/docs/serve-local.py" \
+      --host "${HOST}" \
+      --port "${PORT}" \
+      --site-root "${SITE_DIR}" \
+      --source-root "${SOURCE_DIR}"
+  fi
+
+  echo "[docs-local] python markdown/yaml modules not available; falling back to static file server"
   exec python3 -m http.server "${PORT}" --bind "${HOST}" --directory "${SITE_DIR}"
 fi

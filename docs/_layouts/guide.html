@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
+    <meta name="description" content="{% if page.lead %}{{ page.lead | strip_html | escape }}{% else %}{{ site.description | escape }}{% endif %}">
+    <link rel="stylesheet" href="{{ '/assets/guide.css' | relative_url }}">
+  </head>
+  <body>
+    <div class="guide-shell">
+      <aside class="guide-sidebar">
+        {% include sidebar.html %}
+      </aside>
+
+      <main class="guide-main">
+        <header class="guide-page-header">
+          {% if page.kicker %}
+            <p class="guide-kicker">{{ page.kicker }}</p>
+          {% endif %}
+          <h1 class="guide-title">{{ page.title }}</h1>
+          {% if page.lead %}
+            <p class="guide-lead">{{ page.lead }}</p>
+          {% endif %}
+        </header>
+
+        <article class="guide-content">
+          {{ content }}
+        </article>
+      </main>
+    </div>
+  </body>
+</html>
