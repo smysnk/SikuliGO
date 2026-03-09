@@ -8,6 +8,8 @@
 
 Sikuli is an open-source tool for automating anything visible on a computer screen using image recognition. Instead of relying on internal source code or object IDs, it identifies and interacts with graphical user interface (GUI) components (buttons, text boxes, etc.) by using screenshots. **This repo houses a GoLang port of the original concept.**
 
+Docs: [smysnk.github.io/sikuli-go](https://smysnk.github.io/sikuli-go/)
+
 ## Project Intent
 
 - Build a feature-complete GoLang port of the core [Sikuli](https://sikulix.github.io/) concepts.

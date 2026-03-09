@@ -82,6 +82,15 @@ lead: Task-first documentation for downloads, first-run setup, the Node.js clien
   </a>
 </div>
 
+## Historical References
+
+Use these external references for project background and upstream history:
+
+- [SikuliX Official Site](https://sikulix.github.io/)
+- [Wikipedia](https://de.wikipedia.org/wiki/Sikuli_(Software))
+- [Original Sikuli Github](https://github.com/sikuli/sikuli)
+- [Sikuli Framework](https://github.com/smysnk/sikuli-framework)
+
 ## Generated Reference Note
 
 API reference pages are generated from source using `go doc` and validated with `./scripts/check-api-docs.sh`.
