@@ -68,10 +68,28 @@ message AppOptions {
   optional int64 timeout_millis = 1;
 }
 
+message WindowQuery {
+  string id = 1;
+  string title_exact = 2;
+  string title_contains = 3;
+  bool focused_only = 4;
+  optional int32 index = 5;
+}
+
 message Window {
-  string title = 1;
-  Rect bounds = 2;
-  bool focused = 3;
+  string id = 1;
+  string app = 2;
+  int32 pid = 3;
+  string title = 4;
+  Rect bounds = 5;
+  bool focused = 6;
+}
+
+message ScreenDescriptor {
+  int32 id = 1;
+  string name = 2;
+  Rect bounds = 3;
+  bool primary = 4;
 }
 
 message ObserveEvent {
@@ -110,6 +128,29 @@ message ScreenQueryOptions {
   optional int64 timeout_millis = 2;
   optional int64 interval_millis = 3;
   MatcherEngine matcher_engine = 4;
+  optional int32 screen_id = 5;
+}
+
+message ListScreensRequest {}
+
+message ListScreensResponse {
+  repeated ScreenDescriptor screens = 1;
+}
+
+message GetPrimaryScreenRequest {}
+
+message GetPrimaryScreenResponse {
+  ScreenDescriptor screen = 1;
+}
+
+message CaptureScreenRequest {
+  optional int32 screen_id = 1;
+  Rect region = 2;
+}
+
+message CaptureScreenResponse {
+  GrayImage image = 1;
+  ScreenDescriptor screen = 2;
 }
 
 message FindOnScreenRequest {
@@ -178,6 +219,14 @@ message HotkeyRequest {
   repeated string keys = 1;
 }
 
+message ScrollWheelRequest {
+  int32 x = 1;
+  int32 y = 2;
+  string direction = 3;
+  int32 steps = 4;
+  InputOptions opts = 5;
+}
+
 message ActionResponse {}
 
 message ObserveRequest {
@@ -203,8 +252,19 @@ message AppActionRequest {
   AppOptions opts = 3;
 }
 
+message WindowQueryRequest {
+  string name = 1;
+  AppOptions opts = 2;
+  WindowQuery query = 3;
+}
+
 message IsAppRunningResponse {
   bool running = 1;
+}
+
+message GetWindowResponse {
+  bool found = 1;
+  Window window = 2;
 }
 
 message ListWindowsResponse {
@@ -212,6 +272,10 @@ message ListWindowsResponse {
 }
 
 service SikuliService {
+  rpc ListScreens(ListScreensRequest) returns (ListScreensResponse);
+  rpc GetPrimaryScreen(GetPrimaryScreenRequest) returns (GetPrimaryScreenResponse);
+  rpc CaptureScreen(CaptureScreenRequest) returns (CaptureScreenResponse);
+
   rpc Find(FindRequest) returns (FindResponse);
   rpc FindAll(FindRequest) returns (FindAllResponse);
   rpc FindOnScreen(FindOnScreenRequest) returns (FindResponse);
@@ -225,7 +289,13 @@ service SikuliService {
   rpc MoveMouse(MoveMouseRequest) returns (ActionResponse);
   rpc Click(ClickRequest) returns (ActionResponse);
   rpc TypeText(TypeTextRequest) returns (ActionResponse);
+  rpc PasteText(TypeTextRequest) returns (ActionResponse);
   rpc Hotkey(HotkeyRequest) returns (ActionResponse);
+  rpc MouseDown(ClickRequest) returns (ActionResponse);
+  rpc MouseUp(ClickRequest) returns (ActionResponse);
+  rpc KeyDown(HotkeyRequest) returns (ActionResponse);
+  rpc KeyUp(HotkeyRequest) returns (ActionResponse);
+  rpc ScrollWheel(ScrollWheelRequest) returns (ActionResponse);
 
   rpc ObserveAppear(ObserveRequest) returns (ObserveResponse);
   rpc ObserveVanish(ObserveRequest) returns (ObserveResponse);
@@ -236,4 +306,7 @@ service SikuliService {
   rpc CloseApp(AppActionRequest) returns (ActionResponse);
   rpc IsAppRunning(AppActionRequest) returns (IsAppRunningResponse);
   rpc ListWindows(AppActionRequest) returns (ListWindowsResponse);
+  rpc FindWindows(WindowQueryRequest) returns (ListWindowsResponse);
+  rpc GetWindow(WindowQueryRequest) returns (GetWindowResponse);
+  rpc GetFocusedWindow(AppActionRequest) returns (GetWindowResponse);
 }

@@ -26,6 +26,28 @@ function deserialize_sikuli_v1_AppActionRequest(buffer_arg) {
   return sikuli_v1_sikuli_pb.AppActionRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_sikuli_v1_CaptureScreenRequest(arg) {
+  if (!(arg instanceof sikuli_v1_sikuli_pb.CaptureScreenRequest)) {
+    throw new Error('Expected argument of type sikuli.v1.CaptureScreenRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_sikuli_v1_CaptureScreenRequest(buffer_arg) {
+  return sikuli_v1_sikuli_pb.CaptureScreenRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_sikuli_v1_CaptureScreenResponse(arg) {
+  if (!(arg instanceof sikuli_v1_sikuli_pb.CaptureScreenResponse)) {
+    throw new Error('Expected argument of type sikuli.v1.CaptureScreenResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_sikuli_v1_CaptureScreenResponse(buffer_arg) {
+  return sikuli_v1_sikuli_pb.CaptureScreenResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_sikuli_v1_ClickOnScreenRequest(arg) {
   if (!(arg instanceof sikuli_v1_sikuli_pb.ClickOnScreenRequest)) {
     throw new Error('Expected argument of type sikuli.v1.ClickOnScreenRequest');
@@ -136,6 +158,39 @@ function deserialize_sikuli_v1_FindTextResponse(buffer_arg) {
   return sikuli_v1_sikuli_pb.FindTextResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_sikuli_v1_GetPrimaryScreenRequest(arg) {
+  if (!(arg instanceof sikuli_v1_sikuli_pb.GetPrimaryScreenRequest)) {
+    throw new Error('Expected argument of type sikuli.v1.GetPrimaryScreenRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_sikuli_v1_GetPrimaryScreenRequest(buffer_arg) {
+  return sikuli_v1_sikuli_pb.GetPrimaryScreenRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_sikuli_v1_GetPrimaryScreenResponse(arg) {
+  if (!(arg instanceof sikuli_v1_sikuli_pb.GetPrimaryScreenResponse)) {
+    throw new Error('Expected argument of type sikuli.v1.GetPrimaryScreenResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_sikuli_v1_GetPrimaryScreenResponse(buffer_arg) {
+  return sikuli_v1_sikuli_pb.GetPrimaryScreenResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_sikuli_v1_GetWindowResponse(arg) {
+  if (!(arg instanceof sikuli_v1_sikuli_pb.GetWindowResponse)) {
+    throw new Error('Expected argument of type sikuli.v1.GetWindowResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_sikuli_v1_GetWindowResponse(buffer_arg) {
+  return sikuli_v1_sikuli_pb.GetWindowResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_sikuli_v1_HotkeyRequest(arg) {
   if (!(arg instanceof sikuli_v1_sikuli_pb.HotkeyRequest)) {
     throw new Error('Expected argument of type sikuli.v1.HotkeyRequest');
@@ -156,6 +211,28 @@ function serialize_sikuli_v1_IsAppRunningResponse(arg) {
 
 function deserialize_sikuli_v1_IsAppRunningResponse(buffer_arg) {
   return sikuli_v1_sikuli_pb.IsAppRunningResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_sikuli_v1_ListScreensRequest(arg) {
+  if (!(arg instanceof sikuli_v1_sikuli_pb.ListScreensRequest)) {
+    throw new Error('Expected argument of type sikuli.v1.ListScreensRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_sikuli_v1_ListScreensRequest(buffer_arg) {
+  return sikuli_v1_sikuli_pb.ListScreensRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_sikuli_v1_ListScreensResponse(arg) {
+  if (!(arg instanceof sikuli_v1_sikuli_pb.ListScreensResponse)) {
+    throw new Error('Expected argument of type sikuli.v1.ListScreensResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_sikuli_v1_ListScreensResponse(buffer_arg) {
+  return sikuli_v1_sikuli_pb.ListScreensResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_sikuli_v1_ListWindowsResponse(arg) {
@@ -235,6 +312,17 @@ function deserialize_sikuli_v1_ReadTextResponse(buffer_arg) {
   return sikuli_v1_sikuli_pb.ReadTextResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_sikuli_v1_ScrollWheelRequest(arg) {
+  if (!(arg instanceof sikuli_v1_sikuli_pb.ScrollWheelRequest)) {
+    throw new Error('Expected argument of type sikuli.v1.ScrollWheelRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_sikuli_v1_ScrollWheelRequest(buffer_arg) {
+  return sikuli_v1_sikuli_pb.ScrollWheelRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_sikuli_v1_TypeTextRequest(arg) {
   if (!(arg instanceof sikuli_v1_sikuli_pb.TypeTextRequest)) {
     throw new Error('Expected argument of type sikuli.v1.TypeTextRequest');
@@ -257,8 +345,52 @@ function deserialize_sikuli_v1_WaitOnScreenRequest(buffer_arg) {
   return sikuli_v1_sikuli_pb.WaitOnScreenRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_sikuli_v1_WindowQueryRequest(arg) {
+  if (!(arg instanceof sikuli_v1_sikuli_pb.WindowQueryRequest)) {
+    throw new Error('Expected argument of type sikuli.v1.WindowQueryRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_sikuli_v1_WindowQueryRequest(buffer_arg) {
+  return sikuli_v1_sikuli_pb.WindowQueryRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 
 var SikuliServiceService = exports.SikuliServiceService = {
+  listScreens: {
+    path: '/sikuli.v1.SikuliService/ListScreens',
+    requestStream: false,
+    responseStream: false,
+    requestType: sikuli_v1_sikuli_pb.ListScreensRequest,
+    responseType: sikuli_v1_sikuli_pb.ListScreensResponse,
+    requestSerialize: serialize_sikuli_v1_ListScreensRequest,
+    requestDeserialize: deserialize_sikuli_v1_ListScreensRequest,
+    responseSerialize: serialize_sikuli_v1_ListScreensResponse,
+    responseDeserialize: deserialize_sikuli_v1_ListScreensResponse,
+  },
+  getPrimaryScreen: {
+    path: '/sikuli.v1.SikuliService/GetPrimaryScreen',
+    requestStream: false,
+    responseStream: false,
+    requestType: sikuli_v1_sikuli_pb.GetPrimaryScreenRequest,
+    responseType: sikuli_v1_sikuli_pb.GetPrimaryScreenResponse,
+    requestSerialize: serialize_sikuli_v1_GetPrimaryScreenRequest,
+    requestDeserialize: deserialize_sikuli_v1_GetPrimaryScreenRequest,
+    responseSerialize: serialize_sikuli_v1_GetPrimaryScreenResponse,
+    responseDeserialize: deserialize_sikuli_v1_GetPrimaryScreenResponse,
+  },
+  captureScreen: {
+    path: '/sikuli.v1.SikuliService/CaptureScreen',
+    requestStream: false,
+    responseStream: false,
+    requestType: sikuli_v1_sikuli_pb.CaptureScreenRequest,
+    responseType: sikuli_v1_sikuli_pb.CaptureScreenResponse,
+    requestSerialize: serialize_sikuli_v1_CaptureScreenRequest,
+    requestDeserialize: deserialize_sikuli_v1_CaptureScreenRequest,
+    responseSerialize: serialize_sikuli_v1_CaptureScreenResponse,
+    responseDeserialize: deserialize_sikuli_v1_CaptureScreenResponse,
+  },
   find: {
     path: '/sikuli.v1.SikuliService/Find',
     requestStream: false,
@@ -380,6 +512,17 @@ var SikuliServiceService = exports.SikuliServiceService = {
     responseSerialize: serialize_sikuli_v1_ActionResponse,
     responseDeserialize: deserialize_sikuli_v1_ActionResponse,
   },
+  pasteText: {
+    path: '/sikuli.v1.SikuliService/PasteText',
+    requestStream: false,
+    responseStream: false,
+    requestType: sikuli_v1_sikuli_pb.TypeTextRequest,
+    responseType: sikuli_v1_sikuli_pb.ActionResponse,
+    requestSerialize: serialize_sikuli_v1_TypeTextRequest,
+    requestDeserialize: deserialize_sikuli_v1_TypeTextRequest,
+    responseSerialize: serialize_sikuli_v1_ActionResponse,
+    responseDeserialize: deserialize_sikuli_v1_ActionResponse,
+  },
   hotkey: {
     path: '/sikuli.v1.SikuliService/Hotkey',
     requestStream: false,
@@ -388,6 +531,61 @@ var SikuliServiceService = exports.SikuliServiceService = {
     responseType: sikuli_v1_sikuli_pb.ActionResponse,
     requestSerialize: serialize_sikuli_v1_HotkeyRequest,
     requestDeserialize: deserialize_sikuli_v1_HotkeyRequest,
+    responseSerialize: serialize_sikuli_v1_ActionResponse,
+    responseDeserialize: deserialize_sikuli_v1_ActionResponse,
+  },
+  mouseDown: {
+    path: '/sikuli.v1.SikuliService/MouseDown',
+    requestStream: false,
+    responseStream: false,
+    requestType: sikuli_v1_sikuli_pb.ClickRequest,
+    responseType: sikuli_v1_sikuli_pb.ActionResponse,
+    requestSerialize: serialize_sikuli_v1_ClickRequest,
+    requestDeserialize: deserialize_sikuli_v1_ClickRequest,
+    responseSerialize: serialize_sikuli_v1_ActionResponse,
+    responseDeserialize: deserialize_sikuli_v1_ActionResponse,
+  },
+  mouseUp: {
+    path: '/sikuli.v1.SikuliService/MouseUp',
+    requestStream: false,
+    responseStream: false,
+    requestType: sikuli_v1_sikuli_pb.ClickRequest,
+    responseType: sikuli_v1_sikuli_pb.ActionResponse,
+    requestSerialize: serialize_sikuli_v1_ClickRequest,
+    requestDeserialize: deserialize_sikuli_v1_ClickRequest,
+    responseSerialize: serialize_sikuli_v1_ActionResponse,
+    responseDeserialize: deserialize_sikuli_v1_ActionResponse,
+  },
+  keyDown: {
+    path: '/sikuli.v1.SikuliService/KeyDown',
+    requestStream: false,
+    responseStream: false,
+    requestType: sikuli_v1_sikuli_pb.HotkeyRequest,
+    responseType: sikuli_v1_sikuli_pb.ActionResponse,
+    requestSerialize: serialize_sikuli_v1_HotkeyRequest,
+    requestDeserialize: deserialize_sikuli_v1_HotkeyRequest,
+    responseSerialize: serialize_sikuli_v1_ActionResponse,
+    responseDeserialize: deserialize_sikuli_v1_ActionResponse,
+  },
+  keyUp: {
+    path: '/sikuli.v1.SikuliService/KeyUp',
+    requestStream: false,
+    responseStream: false,
+    requestType: sikuli_v1_sikuli_pb.HotkeyRequest,
+    responseType: sikuli_v1_sikuli_pb.ActionResponse,
+    requestSerialize: serialize_sikuli_v1_HotkeyRequest,
+    requestDeserialize: deserialize_sikuli_v1_HotkeyRequest,
+    responseSerialize: serialize_sikuli_v1_ActionResponse,
+    responseDeserialize: deserialize_sikuli_v1_ActionResponse,
+  },
+  scrollWheel: {
+    path: '/sikuli.v1.SikuliService/ScrollWheel',
+    requestStream: false,
+    responseStream: false,
+    requestType: sikuli_v1_sikuli_pb.ScrollWheelRequest,
+    responseType: sikuli_v1_sikuli_pb.ActionResponse,
+    requestSerialize: serialize_sikuli_v1_ScrollWheelRequest,
+    requestDeserialize: deserialize_sikuli_v1_ScrollWheelRequest,
     responseSerialize: serialize_sikuli_v1_ActionResponse,
     responseDeserialize: deserialize_sikuli_v1_ActionResponse,
   },
@@ -478,6 +676,39 @@ var SikuliServiceService = exports.SikuliServiceService = {
     requestDeserialize: deserialize_sikuli_v1_AppActionRequest,
     responseSerialize: serialize_sikuli_v1_ListWindowsResponse,
     responseDeserialize: deserialize_sikuli_v1_ListWindowsResponse,
+  },
+  findWindows: {
+    path: '/sikuli.v1.SikuliService/FindWindows',
+    requestStream: false,
+    responseStream: false,
+    requestType: sikuli_v1_sikuli_pb.WindowQueryRequest,
+    responseType: sikuli_v1_sikuli_pb.ListWindowsResponse,
+    requestSerialize: serialize_sikuli_v1_WindowQueryRequest,
+    requestDeserialize: deserialize_sikuli_v1_WindowQueryRequest,
+    responseSerialize: serialize_sikuli_v1_ListWindowsResponse,
+    responseDeserialize: deserialize_sikuli_v1_ListWindowsResponse,
+  },
+  getWindow: {
+    path: '/sikuli.v1.SikuliService/GetWindow',
+    requestStream: false,
+    responseStream: false,
+    requestType: sikuli_v1_sikuli_pb.WindowQueryRequest,
+    responseType: sikuli_v1_sikuli_pb.GetWindowResponse,
+    requestSerialize: serialize_sikuli_v1_WindowQueryRequest,
+    requestDeserialize: deserialize_sikuli_v1_WindowQueryRequest,
+    responseSerialize: serialize_sikuli_v1_GetWindowResponse,
+    responseDeserialize: deserialize_sikuli_v1_GetWindowResponse,
+  },
+  getFocusedWindow: {
+    path: '/sikuli.v1.SikuliService/GetFocusedWindow',
+    requestStream: false,
+    responseStream: false,
+    requestType: sikuli_v1_sikuli_pb.AppActionRequest,
+    responseType: sikuli_v1_sikuli_pb.GetWindowResponse,
+    requestSerialize: serialize_sikuli_v1_AppActionRequest,
+    requestDeserialize: deserialize_sikuli_v1_AppActionRequest,
+    responseSerialize: serialize_sikuli_v1_GetWindowResponse,
+    responseDeserialize: deserialize_sikuli_v1_GetWindowResponse,
   },
 };
 

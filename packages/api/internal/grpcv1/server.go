@@ -24,6 +24,7 @@ type Server struct {
 	clickOnScreen       func(int, int, sikuli.InputOptions) error
 	newFinder           func(*sikuli.Image) (*sikuli.Finder, error)
 	newFinderWithEngine func(*sikuli.Image, cv.MatcherEngine) (*sikuli.Finder, error)
+	listScreens         func(context.Context) ([]sikuli.Screen, error)
 }
 
 type ServerOption func(*Server)
@@ -125,6 +126,54 @@ func (s *Server) clickAt(x, y int, opts sikuli.InputOptions) error {
 	return clickOnScreenFn(x, y, opts)
 }
 
+func (s *Server) ListScreens(ctx context.Context, _ *pb.ListScreensRequest) (*pb.ListScreensResponse, error) {
+	screens, err := s.screens(ctx)
+	if err != nil {
+		return nil, mapStatusError(err)
+	}
+	out := make([]*pb.ScreenDescriptor, 0, len(screens))
+	for _, screen := range screens {
+		out = append(out, toProtoScreenDescriptor(screen))
+	}
+	return &pb.ListScreensResponse{Screens: out}, nil
+}
+
+func (s *Server) GetPrimaryScreen(ctx context.Context, _ *pb.GetPrimaryScreenRequest) (*pb.GetPrimaryScreenResponse, error) {
+	screen, err := s.primaryScreen(ctx)
+	if err != nil {
+		return nil, mapStatusError(err)
+	}
+	return &pb.GetPrimaryScreenResponse{Screen: toProtoScreenDescriptor(screen)}, nil
+}
+
+func (s *Server) CaptureScreen(ctx context.Context, req *pb.CaptureScreenRequest) (*pb.CaptureScreenResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "request is nil")
+	}
+	full, err := s.capture(ctx, "screen")
+	if err != nil {
+		return nil, mapStatusError(err)
+	}
+	screen, region, hasRegion, err := s.resolveCaptureTarget(ctx, req.ScreenId != nil, int(req.GetScreenId()), req.GetRegion())
+	if err != nil {
+		return nil, mapStatusError(err)
+	}
+	if hasRegion {
+		full, err = full.Crop(region.Rect)
+		if err != nil {
+			return nil, mapStatusError(err)
+		}
+	}
+	var screenProto *pb.ScreenDescriptor
+	if req.ScreenId != nil {
+		screenProto = toProtoScreenDescriptor(screen)
+	}
+	return &pb.CaptureScreenResponse{
+		Image:  toProtoGrayImage(full),
+		Screen: screenProto,
+	}, nil
+}
+
 func (s *Server) Find(ctx context.Context, req *pb.FindRequest) (*pb.FindResponse, error) {
 	source, pattern, err := findRequestParts(req)
 	if err != nil {
@@ -189,31 +238,16 @@ func (s *Server) ExistsOnScreen(ctx context.Context, req *pb.ExistsOnScreenReque
 		return nil, mapStatusError(err)
 	}
 	opts := screenQueryFromProto(req.GetOpts())
-	if opts.Timeout <= 0 {
-		match, err := s.findOnScreenOnce(ctx, req.GetPattern(), req.GetOpts(), engine)
-		if err != nil {
-			if errors.Is(err, sikuli.ErrFindFailed) {
-				return &pb.ExistsOnScreenResponse{Exists: false}, nil
-			}
-			return nil, mapStatusError(err)
-		}
-		return &pb.ExistsOnScreenResponse{Exists: true, Match: toProtoMatch(match)}, nil
+	match, ok, err := sikuli.SearchExists(func() (sikuli.Match, error) {
+		return s.findOnScreenOnce(ctx, req.GetPattern(), req.GetOpts(), engine)
+	}, opts.Timeout, opts.Interval)
+	if err != nil {
+		return nil, mapStatusError(err)
 	}
-
-	deadline := time.Now().Add(opts.Timeout)
-	for {
-		match, err := s.findOnScreenOnce(ctx, req.GetPattern(), req.GetOpts(), engine)
-		if err == nil {
-			return &pb.ExistsOnScreenResponse{Exists: true, Match: toProtoMatch(match)}, nil
-		}
-		if !errors.Is(err, sikuli.ErrFindFailed) {
-			return nil, mapStatusError(err)
-		}
-		if !time.Now().Before(deadline) {
-			return &pb.ExistsOnScreenResponse{Exists: false}, nil
-		}
-		time.Sleep(waitInterval(opts.Interval, deadline))
+	if !ok {
+		return &pb.ExistsOnScreenResponse{Exists: false}, nil
 	}
+	return &pb.ExistsOnScreenResponse{Exists: true, Match: toProtoMatch(match)}, nil
 }
 
 func (s *Server) WaitOnScreen(ctx context.Context, req *pb.WaitOnScreenRequest) (*pb.FindResponse, error) {
@@ -228,20 +262,13 @@ func (s *Server) WaitOnScreen(ctx context.Context, req *pb.WaitOnScreenRequest) 
 	if opts.Timeout <= 0 {
 		opts.Timeout = time.Duration(sikuli.DefaultAutoWaitTimeout * float64(time.Second))
 	}
-	deadline := time.Now().Add(opts.Timeout)
-	for {
-		match, err := s.findOnScreenOnce(ctx, req.GetPattern(), req.GetOpts(), engine)
-		if err == nil {
-			return &pb.FindResponse{Match: toProtoMatch(match)}, nil
-		}
-		if !errors.Is(err, sikuli.ErrFindFailed) {
-			return nil, mapStatusError(err)
-		}
-		if !time.Now().Before(deadline) {
-			return nil, mapStatusError(sikuli.ErrTimeout)
-		}
-		time.Sleep(waitInterval(opts.Interval, deadline))
+	match, err := sikuli.SearchWait(func() (sikuli.Match, error) {
+		return s.findOnScreenOnce(ctx, req.GetPattern(), req.GetOpts(), engine)
+	}, opts.Timeout, opts.Interval)
+	if err != nil {
+		return nil, mapStatusError(err)
 	}
+	return &pb.FindResponse{Match: toProtoMatch(match)}, nil
 }
 
 func (s *Server) ClickOnScreen(ctx context.Context, req *pb.ClickOnScreenRequest) (*pb.FindResponse, error) {
@@ -292,9 +319,11 @@ func (s *Server) ReadText(_ context.Context, req *pb.ReadTextRequest) (*pb.ReadT
 }
 
 type screenQuery struct {
-	Region   sikuli.Region
-	Timeout  time.Duration
-	Interval time.Duration
+	Region      sikuli.Region
+	Timeout     time.Duration
+	Interval    time.Duration
+	ScreenID    int
+	HasScreenID bool
 }
 
 func screenQueryFromProto(in *pb.ScreenQueryOptions) screenQuery {
@@ -319,21 +348,11 @@ func screenQueryFromProto(in *pb.ScreenQueryOptions) screenQuery {
 			out.Interval = time.Millisecond * 100
 		}
 	}
+	if in.ScreenId != nil {
+		out.ScreenID = int(in.GetScreenId())
+		out.HasScreenID = true
+	}
 	return out
-}
-
-func waitInterval(interval time.Duration, deadline time.Time) time.Duration {
-	remaining := time.Until(deadline)
-	if remaining <= 0 {
-		return 0
-	}
-	if interval <= 0 {
-		interval = time.Millisecond * 100
-	}
-	if interval > remaining {
-		return remaining
-	}
-	return interval
 }
 
 func matcherEngineFromFindRequest(req *pb.FindRequest) (cv.MatcherEngine, error) {
@@ -411,6 +430,14 @@ func (s *Server) findOnScreenOnce(ctx context.Context, patternReq *pb.Pattern, o
 	)
 
 	opts := screenQueryFromProto(optsReq)
+	if opts.HasScreenID {
+		resolved, err := s.resolveSearchRegion(ctx, opts)
+		if err != nil {
+			debugLogf("find_on_screen.screen_region.error trace_id=%s err=%v", traceID, err)
+			return sikuli.Match{}, err
+		}
+		opts.Region = resolved
+	}
 	matchStart := time.Now()
 	patternW := pattern.Image().Width()
 	patternH := pattern.Image().Height()
@@ -504,6 +531,54 @@ func (s *Server) findOnScreenOnce(ctx context.Context, patternReq *pb.Pattern, o
 		m.Score,
 	)
 	return m, nil
+}
+
+func (s *Server) resolveSearchRegion(ctx context.Context, opts screenQuery) (sikuli.Region, error) {
+	if !opts.HasScreenID {
+		return opts.Region, nil
+	}
+	screen, err := s.screenByID(ctx, opts.ScreenID)
+	if err != nil {
+		return sikuli.Region{}, err
+	}
+	screenRegion := sikuli.NewRegion(screen.Bounds.X, screen.Bounds.Y, screen.Bounds.W, screen.Bounds.H)
+	if opts.Region.Empty() {
+		return screenRegion, nil
+	}
+	translated := opts.Region.Offset(screen.Bounds.X, screen.Bounds.Y)
+	resolved := screenRegion.Intersection(translated)
+	if resolved.Empty() {
+		return sikuli.Region{}, fmt.Errorf("%w: screen region outside selected screen", sikuli.ErrInvalidTarget)
+	}
+	return resolved, nil
+}
+
+func (s *Server) resolveCaptureTarget(ctx context.Context, hasScreenID bool, screenID int, region *pb.Rect) (sikuli.Screen, sikuli.Region, bool, error) {
+	if hasScreenID {
+		screen, err := s.screenByID(ctx, screenID)
+		if err != nil {
+			return sikuli.Screen{}, sikuli.Region{}, false, err
+		}
+		screenRegion := sikuli.NewRegion(screen.Bounds.X, screen.Bounds.Y, screen.Bounds.W, screen.Bounds.H)
+		if region == nil {
+			return screen, screenRegion, true, nil
+		}
+		local := regionFromProto(region)
+		if local.Empty() {
+			return screen, screenRegion, true, nil
+		}
+		translated := local.Offset(screen.Bounds.X, screen.Bounds.Y)
+		resolved := screenRegion.Intersection(translated)
+		if resolved.Empty() {
+			return sikuli.Screen{}, sikuli.Region{}, false, fmt.Errorf("%w: capture region outside selected screen", sikuli.ErrInvalidTarget)
+		}
+		return screen, resolved, true, nil
+	}
+	global := regionFromProto(region)
+	if global.Empty() {
+		return sikuli.Screen{}, sikuli.Region{}, false, nil
+	}
+	return sikuli.Screen{}, global, true, nil
 }
 
 func searchPositions(sourceW, sourceH, patternW, patternH int) int64 {
@@ -614,6 +689,28 @@ func (s *Server) Click(_ context.Context, req *pb.ClickRequest) (*pb.ActionRespo
 	return &pb.ActionResponse{}, nil
 }
 
+func (s *Server) MouseDown(_ context.Context, req *pb.ClickRequest) (*pb.ActionResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "request is nil")
+	}
+	c := sikuli.NewInputController()
+	if err := c.MouseDown(int(req.GetX()), int(req.GetY()), inputOptionsFromProto(req.GetOpts())); err != nil {
+		return nil, mapStatusError(err)
+	}
+	return &pb.ActionResponse{}, nil
+}
+
+func (s *Server) MouseUp(_ context.Context, req *pb.ClickRequest) (*pb.ActionResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "request is nil")
+	}
+	c := sikuli.NewInputController()
+	if err := c.MouseUp(int(req.GetX()), int(req.GetY()), inputOptionsFromProto(req.GetOpts())); err != nil {
+		return nil, mapStatusError(err)
+	}
+	return &pb.ActionResponse{}, nil
+}
+
 func (s *Server) TypeText(_ context.Context, req *pb.TypeTextRequest) (*pb.ActionResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "request is nil")
@@ -625,12 +722,62 @@ func (s *Server) TypeText(_ context.Context, req *pb.TypeTextRequest) (*pb.Actio
 	return &pb.ActionResponse{}, nil
 }
 
+func (s *Server) PasteText(_ context.Context, req *pb.TypeTextRequest) (*pb.ActionResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "request is nil")
+	}
+	c := sikuli.NewInputController()
+	if err := c.Paste(req.GetText(), inputOptionsFromProto(req.GetOpts())); err != nil {
+		return nil, mapStatusError(err)
+	}
+	return &pb.ActionResponse{}, nil
+}
+
 func (s *Server) Hotkey(_ context.Context, req *pb.HotkeyRequest) (*pb.ActionResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "request is nil")
 	}
 	c := sikuli.NewInputController()
 	if err := c.Hotkey(req.GetKeys()...); err != nil {
+		return nil, mapStatusError(err)
+	}
+	return &pb.ActionResponse{}, nil
+}
+
+func (s *Server) KeyDown(_ context.Context, req *pb.HotkeyRequest) (*pb.ActionResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "request is nil")
+	}
+	c := sikuli.NewInputController()
+	if err := c.KeyDown(req.GetKeys()...); err != nil {
+		return nil, mapStatusError(err)
+	}
+	return &pb.ActionResponse{}, nil
+}
+
+func (s *Server) KeyUp(_ context.Context, req *pb.HotkeyRequest) (*pb.ActionResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "request is nil")
+	}
+	c := sikuli.NewInputController()
+	if err := c.KeyUp(req.GetKeys()...); err != nil {
+		return nil, mapStatusError(err)
+	}
+	return &pb.ActionResponse{}, nil
+}
+
+func (s *Server) ScrollWheel(_ context.Context, req *pb.ScrollWheelRequest) (*pb.ActionResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "request is nil")
+	}
+	c := sikuli.NewInputController()
+	if err := c.Wheel(
+		int(req.GetX()),
+		int(req.GetY()),
+		sikuli.WheelDirection(strings.ToLower(strings.TrimSpace(req.GetDirection()))),
+		int(req.GetSteps()),
+		inputOptionsFromProto(req.GetOpts()),
+	); err != nil {
 		return nil, mapStatusError(err)
 	}
 	return &pb.ActionResponse{}, nil
@@ -735,15 +882,85 @@ func (s *Server) ListWindows(_ context.Context, req *pb.AppActionRequest) (*pb.L
 	if err != nil {
 		return nil, mapStatusError(err)
 	}
-	out := make([]*pb.Window, 0, len(windows))
-	for _, w := range windows {
-		out = append(out, &pb.Window{
-			Title:   w.Title,
-			Bounds:  &pb.Rect{X: int32(w.Bounds.X), Y: int32(w.Bounds.Y), W: int32(w.Bounds.W), H: int32(w.Bounds.H)},
-			Focused: w.Focused,
-		})
+	return &pb.ListWindowsResponse{Windows: windowsToProto(windows)}, nil
+}
+
+func (s *Server) FindWindows(_ context.Context, req *pb.WindowQueryRequest) (*pb.ListWindowsResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "request is nil")
 	}
-	return &pb.ListWindowsResponse{Windows: out}, nil
+	c := sikuli.NewAppController()
+	windows, err := c.FindWindows(req.GetName(), windowQueryFromProto(req.GetQuery()), appOptionsFromProto(req.GetOpts()))
+	if err != nil {
+		return nil, mapStatusError(err)
+	}
+	return &pb.ListWindowsResponse{Windows: windowsToProto(windows)}, nil
+}
+
+func (s *Server) GetWindow(_ context.Context, req *pb.WindowQueryRequest) (*pb.GetWindowResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "request is nil")
+	}
+	c := sikuli.NewAppController()
+	window, found, err := c.GetWindow(req.GetName(), windowQueryFromProto(req.GetQuery()), appOptionsFromProto(req.GetOpts()))
+	if err != nil {
+		return nil, mapStatusError(err)
+	}
+	if !found {
+		return &pb.GetWindowResponse{Found: false}, nil
+	}
+	return &pb.GetWindowResponse{Found: true, Window: windowToProto(window)}, nil
+}
+
+func (s *Server) GetFocusedWindow(_ context.Context, req *pb.AppActionRequest) (*pb.GetWindowResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "request is nil")
+	}
+	c := sikuli.NewAppController()
+	window, found, err := c.FocusedWindow(req.GetName(), appOptionsFromProto(req.GetOpts()))
+	if err != nil {
+		return nil, mapStatusError(err)
+	}
+	if !found {
+		return &pb.GetWindowResponse{Found: false}, nil
+	}
+	return &pb.GetWindowResponse{Found: true, Window: windowToProto(window)}, nil
+}
+
+func windowQueryFromProto(in *pb.WindowQuery) sikuli.WindowQuery {
+	if in == nil {
+		return sikuli.WindowQuery{}
+	}
+	index := 0
+	if in.Index != nil {
+		index = int(in.GetIndex())
+	}
+	return sikuli.WindowQuery{
+		ID:            in.GetId(),
+		TitleExact:    in.GetTitleExact(),
+		TitleContains: in.GetTitleContains(),
+		FocusedOnly:   in.GetFocusedOnly(),
+		Index:         index,
+	}
+}
+
+func windowToProto(in sikuli.Window) *pb.Window {
+	return &pb.Window{
+		Id:      in.ID,
+		App:     in.App,
+		Pid:     int32(in.PID),
+		Title:   in.Title,
+		Bounds:  &pb.Rect{X: int32(in.Bounds.X), Y: int32(in.Bounds.Y), W: int32(in.Bounds.W), H: int32(in.Bounds.H)},
+		Focused: in.Focused,
+	}
+}
+
+func windowsToProto(in []sikuli.Window) []*pb.Window {
+	out := make([]*pb.Window, 0, len(in))
+	for _, window := range in {
+		out = append(out, windowToProto(window))
+	}
+	return out
 }
 
 func findRequestParts(req *pb.FindRequest) (*sikuli.Image, *sikuli.Pattern, error) {
@@ -936,6 +1153,30 @@ func toProtoMatch(in sikuli.Match) *pb.Match {
 			Y: int32(in.Target.Y),
 		},
 		Index: int32(in.Index),
+	}
+}
+
+func toProtoGrayImage(in *sikuli.Image) *pb.GrayImage {
+	if in == nil || in.Gray() == nil {
+		return nil
+	}
+	gray := in.Gray()
+	pix := make([]byte, len(gray.Pix))
+	copy(pix, gray.Pix)
+	return &pb.GrayImage{
+		Name:   in.Name(),
+		Width:  int32(in.Width()),
+		Height: int32(in.Height()),
+		Pix:    pix,
+	}
+}
+
+func toProtoScreenDescriptor(in sikuli.Screen) *pb.ScreenDescriptor {
+	return &pb.ScreenDescriptor{
+		Id:      int32(in.ID),
+		Name:    in.Name,
+		Bounds:  &pb.Rect{X: int32(in.Bounds.X), Y: int32(in.Bounds.Y), W: int32(in.Bounds.W), H: int32(in.Bounds.H)},
+		Primary: in.Primary,
 	}
 }
 

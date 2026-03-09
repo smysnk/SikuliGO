@@ -84,7 +84,8 @@ func (b *linuxBackend) listWindows(ctx context.Context, name string) (core.AppRe
 	if err != nil {
 		return core.AppResult{}, commandError("list-windows", err, out)
 	}
-	windows, parseErr := parseLinuxWindowRows(out, name)
+	activeID, _ := b.activeWindowID(ctx)
+	windows, parseErr := parseLinuxWindowRows(out, name, activeID)
 	if parseErr != nil {
 		return core.AppResult{}, parseErr
 	}
@@ -94,9 +95,18 @@ func (b *linuxBackend) listWindows(ctx context.Context, name string) (core.AppRe
 	}, nil
 }
 
-func parseLinuxWindowRows(out, needle string) ([]core.WindowInfo, error) {
+func (b *linuxBackend) activeWindowID(ctx context.Context) (string, error) {
+	out, err := b.runner.Run(ctx, "xprop", "-root", "_NET_ACTIVE_WINDOW")
+	if err != nil {
+		return "", commandError("active-window", err, out)
+	}
+	return parseLinuxActiveWindowID(out), nil
+}
+
+func parseLinuxWindowRows(out, needle, activeID string) ([]core.WindowInfo, error) {
 	lines := strings.Split(strings.TrimSpace(out), "\n")
 	windows := make([]core.WindowInfo, 0, len(lines))
+	needle = strings.ToLower(strings.TrimSpace(needle))
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		if line == "" {
@@ -122,18 +132,41 @@ func parseLinuxWindowRows(out, needle string) ([]core.WindowInfo, error) {
 		if err != nil {
 			return nil, fmt.Errorf("linux list-windows parse h failed: %w", err)
 		}
+		id := parts[0]
+		appName := parts[7]
 		title := strings.Join(parts[8:], " ")
-		if !strings.Contains(strings.ToLower(title), strings.ToLower(needle)) {
+		if needle != "" &&
+			!strings.Contains(strings.ToLower(title), needle) &&
+			!strings.Contains(strings.ToLower(appName), needle) {
 			continue
 		}
 		windows = append(windows, core.WindowInfo{
+			ID:      id,
+			App:     appName,
 			Title:   title,
 			X:       x,
 			Y:       y,
 			W:       w,
 			H:       h,
-			Focused: false,
+			Focused: strings.EqualFold(id, activeID),
 		})
 	}
 	return windows, nil
+}
+
+func parseLinuxActiveWindowID(out string) string {
+	out = strings.TrimSpace(out)
+	if out == "" {
+		return ""
+	}
+	idx := strings.LastIndex(out, "0x")
+	if idx < 0 {
+		return ""
+	}
+	id := strings.TrimSpace(out[idx:])
+	fields := strings.Fields(id)
+	if len(fields) == 0 {
+		return ""
+	}
+	return fields[0]
 }

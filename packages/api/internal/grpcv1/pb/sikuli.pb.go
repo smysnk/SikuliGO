@@ -717,18 +717,97 @@ func (x *AppOptions) GetTimeoutMillis() int64 {
 	return 0
 }
 
+type WindowQuery struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	TitleExact    string                 `protobuf:"bytes,2,opt,name=title_exact,json=titleExact,proto3" json:"title_exact,omitempty"`
+	TitleContains string                 `protobuf:"bytes,3,opt,name=title_contains,json=titleContains,proto3" json:"title_contains,omitempty"`
+	FocusedOnly   bool                   `protobuf:"varint,4,opt,name=focused_only,json=focusedOnly,proto3" json:"focused_only,omitempty"`
+	Index         *int32                 `protobuf:"varint,5,opt,name=index,proto3,oneof" json:"index,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WindowQuery) Reset() {
+	*x = WindowQuery{}
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindowQuery) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindowQuery) ProtoMessage() {}
+
+func (x *WindowQuery) ProtoReflect() protoreflect.Message {
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindowQuery.ProtoReflect.Descriptor instead.
+func (*WindowQuery) Descriptor() ([]byte, []int) {
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *WindowQuery) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *WindowQuery) GetTitleExact() string {
+	if x != nil {
+		return x.TitleExact
+	}
+	return ""
+}
+
+func (x *WindowQuery) GetTitleContains() string {
+	if x != nil {
+		return x.TitleContains
+	}
+	return ""
+}
+
+func (x *WindowQuery) GetFocusedOnly() bool {
+	if x != nil {
+		return x.FocusedOnly
+	}
+	return false
+}
+
+func (x *WindowQuery) GetIndex() int32 {
+	if x != nil && x.Index != nil {
+		return *x.Index
+	}
+	return 0
+}
+
 type Window struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Title         string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
-	Bounds        *Rect                  `protobuf:"bytes,2,opt,name=bounds,proto3" json:"bounds,omitempty"`
-	Focused       bool                   `protobuf:"varint,3,opt,name=focused,proto3" json:"focused,omitempty"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	App           string                 `protobuf:"bytes,2,opt,name=app,proto3" json:"app,omitempty"`
+	Pid           int32                  `protobuf:"varint,3,opt,name=pid,proto3" json:"pid,omitempty"`
+	Title         string                 `protobuf:"bytes,4,opt,name=title,proto3" json:"title,omitempty"`
+	Bounds        *Rect                  `protobuf:"bytes,5,opt,name=bounds,proto3" json:"bounds,omitempty"`
+	Focused       bool                   `protobuf:"varint,6,opt,name=focused,proto3" json:"focused,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Window) Reset() {
 	*x = Window{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[10]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -740,7 +819,7 @@ func (x *Window) String() string {
 func (*Window) ProtoMessage() {}
 
 func (x *Window) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[10]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -753,7 +832,28 @@ func (x *Window) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Window.ProtoReflect.Descriptor instead.
 func (*Window) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{10}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *Window) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Window) GetApp() string {
+	if x != nil {
+		return x.App
+	}
+	return ""
+}
+
+func (x *Window) GetPid() int32 {
+	if x != nil {
+		return x.Pid
+	}
+	return 0
 }
 
 func (x *Window) GetTitle() string {
@@ -777,6 +877,74 @@ func (x *Window) GetFocused() bool {
 	return false
 }
 
+type ScreenDescriptor struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int32                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Bounds        *Rect                  `protobuf:"bytes,3,opt,name=bounds,proto3" json:"bounds,omitempty"`
+	Primary       bool                   `protobuf:"varint,4,opt,name=primary,proto3" json:"primary,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ScreenDescriptor) Reset() {
+	*x = ScreenDescriptor{}
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ScreenDescriptor) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ScreenDescriptor) ProtoMessage() {}
+
+func (x *ScreenDescriptor) ProtoReflect() protoreflect.Message {
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ScreenDescriptor.ProtoReflect.Descriptor instead.
+func (*ScreenDescriptor) Descriptor() ([]byte, []int) {
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ScreenDescriptor) GetId() int32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *ScreenDescriptor) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ScreenDescriptor) GetBounds() *Rect {
+	if x != nil {
+		return x.Bounds
+	}
+	return nil
+}
+
+func (x *ScreenDescriptor) GetPrimary() bool {
+	if x != nil {
+		return x.Primary
+	}
+	return false
+}
+
 type ObserveEvent struct {
 	state               protoimpl.MessageState `protogen:"open.v1"`
 	Type                string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
@@ -788,7 +956,7 @@ type ObserveEvent struct {
 
 func (x *ObserveEvent) Reset() {
 	*x = ObserveEvent{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[11]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -800,7 +968,7 @@ func (x *ObserveEvent) String() string {
 func (*ObserveEvent) ProtoMessage() {}
 
 func (x *ObserveEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[11]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -813,7 +981,7 @@ func (x *ObserveEvent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ObserveEvent.ProtoReflect.Descriptor instead.
 func (*ObserveEvent) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{11}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ObserveEvent) GetType() string {
@@ -848,7 +1016,7 @@ type FindRequest struct {
 
 func (x *FindRequest) Reset() {
 	*x = FindRequest{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[12]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -860,7 +1028,7 @@ func (x *FindRequest) String() string {
 func (*FindRequest) ProtoMessage() {}
 
 func (x *FindRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[12]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -873,7 +1041,7 @@ func (x *FindRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FindRequest.ProtoReflect.Descriptor instead.
 func (*FindRequest) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{12}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *FindRequest) GetSource() *GrayImage {
@@ -906,7 +1074,7 @@ type FindResponse struct {
 
 func (x *FindResponse) Reset() {
 	*x = FindResponse{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[13]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -918,7 +1086,7 @@ func (x *FindResponse) String() string {
 func (*FindResponse) ProtoMessage() {}
 
 func (x *FindResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[13]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -931,7 +1099,7 @@ func (x *FindResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FindResponse.ProtoReflect.Descriptor instead.
 func (*FindResponse) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{13}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *FindResponse) GetMatch() *Match {
@@ -950,7 +1118,7 @@ type FindAllResponse struct {
 
 func (x *FindAllResponse) Reset() {
 	*x = FindAllResponse{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[14]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -962,7 +1130,7 @@ func (x *FindAllResponse) String() string {
 func (*FindAllResponse) ProtoMessage() {}
 
 func (x *FindAllResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[14]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -975,7 +1143,7 @@ func (x *FindAllResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FindAllResponse.ProtoReflect.Descriptor instead.
 func (*FindAllResponse) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{14}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *FindAllResponse) GetMatches() []*Match {
@@ -991,13 +1159,14 @@ type ScreenQueryOptions struct {
 	TimeoutMillis  *int64                 `protobuf:"varint,2,opt,name=timeout_millis,json=timeoutMillis,proto3,oneof" json:"timeout_millis,omitempty"`
 	IntervalMillis *int64                 `protobuf:"varint,3,opt,name=interval_millis,json=intervalMillis,proto3,oneof" json:"interval_millis,omitempty"`
 	MatcherEngine  MatcherEngine          `protobuf:"varint,4,opt,name=matcher_engine,json=matcherEngine,proto3,enum=sikuli.v1.MatcherEngine" json:"matcher_engine,omitempty"`
+	ScreenId       *int32                 `protobuf:"varint,5,opt,name=screen_id,json=screenId,proto3,oneof" json:"screen_id,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
 
 func (x *ScreenQueryOptions) Reset() {
 	*x = ScreenQueryOptions{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[15]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1009,7 +1178,7 @@ func (x *ScreenQueryOptions) String() string {
 func (*ScreenQueryOptions) ProtoMessage() {}
 
 func (x *ScreenQueryOptions) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[15]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1022,7 +1191,7 @@ func (x *ScreenQueryOptions) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ScreenQueryOptions.ProtoReflect.Descriptor instead.
 func (*ScreenQueryOptions) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{15}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ScreenQueryOptions) GetRegion() *Rect {
@@ -1053,6 +1222,277 @@ func (x *ScreenQueryOptions) GetMatcherEngine() MatcherEngine {
 	return MatcherEngine_MATCHER_ENGINE_UNSPECIFIED
 }
 
+func (x *ScreenQueryOptions) GetScreenId() int32 {
+	if x != nil && x.ScreenId != nil {
+		return *x.ScreenId
+	}
+	return 0
+}
+
+type ListScreensRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListScreensRequest) Reset() {
+	*x = ListScreensRequest{}
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListScreensRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListScreensRequest) ProtoMessage() {}
+
+func (x *ListScreensRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListScreensRequest.ProtoReflect.Descriptor instead.
+func (*ListScreensRequest) Descriptor() ([]byte, []int) {
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{18}
+}
+
+type ListScreensResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Screens       []*ScreenDescriptor    `protobuf:"bytes,1,rep,name=screens,proto3" json:"screens,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListScreensResponse) Reset() {
+	*x = ListScreensResponse{}
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListScreensResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListScreensResponse) ProtoMessage() {}
+
+func (x *ListScreensResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListScreensResponse.ProtoReflect.Descriptor instead.
+func (*ListScreensResponse) Descriptor() ([]byte, []int) {
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *ListScreensResponse) GetScreens() []*ScreenDescriptor {
+	if x != nil {
+		return x.Screens
+	}
+	return nil
+}
+
+type GetPrimaryScreenRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPrimaryScreenRequest) Reset() {
+	*x = GetPrimaryScreenRequest{}
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPrimaryScreenRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPrimaryScreenRequest) ProtoMessage() {}
+
+func (x *GetPrimaryScreenRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPrimaryScreenRequest.ProtoReflect.Descriptor instead.
+func (*GetPrimaryScreenRequest) Descriptor() ([]byte, []int) {
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{20}
+}
+
+type GetPrimaryScreenResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Screen        *ScreenDescriptor      `protobuf:"bytes,1,opt,name=screen,proto3" json:"screen,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPrimaryScreenResponse) Reset() {
+	*x = GetPrimaryScreenResponse{}
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPrimaryScreenResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPrimaryScreenResponse) ProtoMessage() {}
+
+func (x *GetPrimaryScreenResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPrimaryScreenResponse.ProtoReflect.Descriptor instead.
+func (*GetPrimaryScreenResponse) Descriptor() ([]byte, []int) {
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *GetPrimaryScreenResponse) GetScreen() *ScreenDescriptor {
+	if x != nil {
+		return x.Screen
+	}
+	return nil
+}
+
+type CaptureScreenRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ScreenId      *int32                 `protobuf:"varint,1,opt,name=screen_id,json=screenId,proto3,oneof" json:"screen_id,omitempty"`
+	Region        *Rect                  `protobuf:"bytes,2,opt,name=region,proto3" json:"region,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CaptureScreenRequest) Reset() {
+	*x = CaptureScreenRequest{}
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CaptureScreenRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CaptureScreenRequest) ProtoMessage() {}
+
+func (x *CaptureScreenRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CaptureScreenRequest.ProtoReflect.Descriptor instead.
+func (*CaptureScreenRequest) Descriptor() ([]byte, []int) {
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *CaptureScreenRequest) GetScreenId() int32 {
+	if x != nil && x.ScreenId != nil {
+		return *x.ScreenId
+	}
+	return 0
+}
+
+func (x *CaptureScreenRequest) GetRegion() *Rect {
+	if x != nil {
+		return x.Region
+	}
+	return nil
+}
+
+type CaptureScreenResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Image         *GrayImage             `protobuf:"bytes,1,opt,name=image,proto3" json:"image,omitempty"`
+	Screen        *ScreenDescriptor      `protobuf:"bytes,2,opt,name=screen,proto3" json:"screen,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CaptureScreenResponse) Reset() {
+	*x = CaptureScreenResponse{}
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CaptureScreenResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CaptureScreenResponse) ProtoMessage() {}
+
+func (x *CaptureScreenResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CaptureScreenResponse.ProtoReflect.Descriptor instead.
+func (*CaptureScreenResponse) Descriptor() ([]byte, []int) {
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *CaptureScreenResponse) GetImage() *GrayImage {
+	if x != nil {
+		return x.Image
+	}
+	return nil
+}
+
+func (x *CaptureScreenResponse) GetScreen() *ScreenDescriptor {
+	if x != nil {
+		return x.Screen
+	}
+	return nil
+}
+
 type FindOnScreenRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Pattern       *Pattern               `protobuf:"bytes,1,opt,name=pattern,proto3" json:"pattern,omitempty"`
@@ -1063,7 +1503,7 @@ type FindOnScreenRequest struct {
 
 func (x *FindOnScreenRequest) Reset() {
 	*x = FindOnScreenRequest{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[16]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1075,7 +1515,7 @@ func (x *FindOnScreenRequest) String() string {
 func (*FindOnScreenRequest) ProtoMessage() {}
 
 func (x *FindOnScreenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[16]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1088,7 +1528,7 @@ func (x *FindOnScreenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FindOnScreenRequest.ProtoReflect.Descriptor instead.
 func (*FindOnScreenRequest) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{16}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *FindOnScreenRequest) GetPattern() *Pattern {
@@ -1115,7 +1555,7 @@ type ExistsOnScreenRequest struct {
 
 func (x *ExistsOnScreenRequest) Reset() {
 	*x = ExistsOnScreenRequest{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[17]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1127,7 +1567,7 @@ func (x *ExistsOnScreenRequest) String() string {
 func (*ExistsOnScreenRequest) ProtoMessage() {}
 
 func (x *ExistsOnScreenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[17]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1140,7 +1580,7 @@ func (x *ExistsOnScreenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExistsOnScreenRequest.ProtoReflect.Descriptor instead.
 func (*ExistsOnScreenRequest) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{17}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *ExistsOnScreenRequest) GetPattern() *Pattern {
@@ -1167,7 +1607,7 @@ type ExistsOnScreenResponse struct {
 
 func (x *ExistsOnScreenResponse) Reset() {
 	*x = ExistsOnScreenResponse{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[18]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1179,7 +1619,7 @@ func (x *ExistsOnScreenResponse) String() string {
 func (*ExistsOnScreenResponse) ProtoMessage() {}
 
 func (x *ExistsOnScreenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[18]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1192,7 +1632,7 @@ func (x *ExistsOnScreenResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExistsOnScreenResponse.ProtoReflect.Descriptor instead.
 func (*ExistsOnScreenResponse) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{18}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *ExistsOnScreenResponse) GetExists() bool {
@@ -1219,7 +1659,7 @@ type WaitOnScreenRequest struct {
 
 func (x *WaitOnScreenRequest) Reset() {
 	*x = WaitOnScreenRequest{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[19]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1231,7 +1671,7 @@ func (x *WaitOnScreenRequest) String() string {
 func (*WaitOnScreenRequest) ProtoMessage() {}
 
 func (x *WaitOnScreenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[19]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1244,7 +1684,7 @@ func (x *WaitOnScreenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WaitOnScreenRequest.ProtoReflect.Descriptor instead.
 func (*WaitOnScreenRequest) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{19}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *WaitOnScreenRequest) GetPattern() *Pattern {
@@ -1272,7 +1712,7 @@ type ClickOnScreenRequest struct {
 
 func (x *ClickOnScreenRequest) Reset() {
 	*x = ClickOnScreenRequest{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[20]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1284,7 +1724,7 @@ func (x *ClickOnScreenRequest) String() string {
 func (*ClickOnScreenRequest) ProtoMessage() {}
 
 func (x *ClickOnScreenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[20]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1297,7 +1737,7 @@ func (x *ClickOnScreenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClickOnScreenRequest.ProtoReflect.Descriptor instead.
 func (*ClickOnScreenRequest) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{20}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *ClickOnScreenRequest) GetPattern() *Pattern {
@@ -1331,7 +1771,7 @@ type ReadTextRequest struct {
 
 func (x *ReadTextRequest) Reset() {
 	*x = ReadTextRequest{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[21]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1343,7 +1783,7 @@ func (x *ReadTextRequest) String() string {
 func (*ReadTextRequest) ProtoMessage() {}
 
 func (x *ReadTextRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[21]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1356,7 +1796,7 @@ func (x *ReadTextRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadTextRequest.ProtoReflect.Descriptor instead.
 func (*ReadTextRequest) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{21}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *ReadTextRequest) GetSource() *GrayImage {
@@ -1382,7 +1822,7 @@ type ReadTextResponse struct {
 
 func (x *ReadTextResponse) Reset() {
 	*x = ReadTextResponse{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[22]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1394,7 +1834,7 @@ func (x *ReadTextResponse) String() string {
 func (*ReadTextResponse) ProtoMessage() {}
 
 func (x *ReadTextResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[22]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1407,7 +1847,7 @@ func (x *ReadTextResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadTextResponse.ProtoReflect.Descriptor instead.
 func (*ReadTextResponse) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{22}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *ReadTextResponse) GetText() string {
@@ -1428,7 +1868,7 @@ type FindTextRequest struct {
 
 func (x *FindTextRequest) Reset() {
 	*x = FindTextRequest{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[23]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1440,7 +1880,7 @@ func (x *FindTextRequest) String() string {
 func (*FindTextRequest) ProtoMessage() {}
 
 func (x *FindTextRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[23]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1453,7 +1893,7 @@ func (x *FindTextRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FindTextRequest.ProtoReflect.Descriptor instead.
 func (*FindTextRequest) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{23}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *FindTextRequest) GetSource() *GrayImage {
@@ -1486,7 +1926,7 @@ type FindTextResponse struct {
 
 func (x *FindTextResponse) Reset() {
 	*x = FindTextResponse{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[24]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1498,7 +1938,7 @@ func (x *FindTextResponse) String() string {
 func (*FindTextResponse) ProtoMessage() {}
 
 func (x *FindTextResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[24]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1511,7 +1951,7 @@ func (x *FindTextResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FindTextResponse.ProtoReflect.Descriptor instead.
 func (*FindTextResponse) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{24}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *FindTextResponse) GetMatches() []*TextMatch {
@@ -1532,7 +1972,7 @@ type MoveMouseRequest struct {
 
 func (x *MoveMouseRequest) Reset() {
 	*x = MoveMouseRequest{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[25]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1544,7 +1984,7 @@ func (x *MoveMouseRequest) String() string {
 func (*MoveMouseRequest) ProtoMessage() {}
 
 func (x *MoveMouseRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[25]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1557,7 +1997,7 @@ func (x *MoveMouseRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MoveMouseRequest.ProtoReflect.Descriptor instead.
 func (*MoveMouseRequest) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{25}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *MoveMouseRequest) GetX() int32 {
@@ -1592,7 +2032,7 @@ type ClickRequest struct {
 
 func (x *ClickRequest) Reset() {
 	*x = ClickRequest{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[26]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1604,7 +2044,7 @@ func (x *ClickRequest) String() string {
 func (*ClickRequest) ProtoMessage() {}
 
 func (x *ClickRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[26]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1617,7 +2057,7 @@ func (x *ClickRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClickRequest.ProtoReflect.Descriptor instead.
 func (*ClickRequest) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{26}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *ClickRequest) GetX() int32 {
@@ -1651,7 +2091,7 @@ type TypeTextRequest struct {
 
 func (x *TypeTextRequest) Reset() {
 	*x = TypeTextRequest{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[27]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1663,7 +2103,7 @@ func (x *TypeTextRequest) String() string {
 func (*TypeTextRequest) ProtoMessage() {}
 
 func (x *TypeTextRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[27]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1676,7 +2116,7 @@ func (x *TypeTextRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TypeTextRequest.ProtoReflect.Descriptor instead.
 func (*TypeTextRequest) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{27}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *TypeTextRequest) GetText() string {
@@ -1702,7 +2142,7 @@ type HotkeyRequest struct {
 
 func (x *HotkeyRequest) Reset() {
 	*x = HotkeyRequest{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[28]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1714,7 +2154,7 @@ func (x *HotkeyRequest) String() string {
 func (*HotkeyRequest) ProtoMessage() {}
 
 func (x *HotkeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[28]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1727,12 +2167,88 @@ func (x *HotkeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HotkeyRequest.ProtoReflect.Descriptor instead.
 func (*HotkeyRequest) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{28}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *HotkeyRequest) GetKeys() []string {
 	if x != nil {
 		return x.Keys
+	}
+	return nil
+}
+
+type ScrollWheelRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	X             int32                  `protobuf:"varint,1,opt,name=x,proto3" json:"x,omitempty"`
+	Y             int32                  `protobuf:"varint,2,opt,name=y,proto3" json:"y,omitempty"`
+	Direction     string                 `protobuf:"bytes,3,opt,name=direction,proto3" json:"direction,omitempty"`
+	Steps         int32                  `protobuf:"varint,4,opt,name=steps,proto3" json:"steps,omitempty"`
+	Opts          *InputOptions          `protobuf:"bytes,5,opt,name=opts,proto3" json:"opts,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ScrollWheelRequest) Reset() {
+	*x = ScrollWheelRequest{}
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ScrollWheelRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ScrollWheelRequest) ProtoMessage() {}
+
+func (x *ScrollWheelRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ScrollWheelRequest.ProtoReflect.Descriptor instead.
+func (*ScrollWheelRequest) Descriptor() ([]byte, []int) {
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{37}
+}
+
+func (x *ScrollWheelRequest) GetX() int32 {
+	if x != nil {
+		return x.X
+	}
+	return 0
+}
+
+func (x *ScrollWheelRequest) GetY() int32 {
+	if x != nil {
+		return x.Y
+	}
+	return 0
+}
+
+func (x *ScrollWheelRequest) GetDirection() string {
+	if x != nil {
+		return x.Direction
+	}
+	return ""
+}
+
+func (x *ScrollWheelRequest) GetSteps() int32 {
+	if x != nil {
+		return x.Steps
+	}
+	return 0
+}
+
+func (x *ScrollWheelRequest) GetOpts() *InputOptions {
+	if x != nil {
+		return x.Opts
 	}
 	return nil
 }
@@ -1745,7 +2261,7 @@ type ActionResponse struct {
 
 func (x *ActionResponse) Reset() {
 	*x = ActionResponse{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[29]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1757,7 +2273,7 @@ func (x *ActionResponse) String() string {
 func (*ActionResponse) ProtoMessage() {}
 
 func (x *ActionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[29]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1770,7 +2286,7 @@ func (x *ActionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ActionResponse.ProtoReflect.Descriptor instead.
 func (*ActionResponse) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{29}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{38}
 }
 
 type ObserveRequest struct {
@@ -1785,7 +2301,7 @@ type ObserveRequest struct {
 
 func (x *ObserveRequest) Reset() {
 	*x = ObserveRequest{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[30]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1797,7 +2313,7 @@ func (x *ObserveRequest) String() string {
 func (*ObserveRequest) ProtoMessage() {}
 
 func (x *ObserveRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[30]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1810,7 +2326,7 @@ func (x *ObserveRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ObserveRequest.ProtoReflect.Descriptor instead.
 func (*ObserveRequest) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{30}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *ObserveRequest) GetSource() *GrayImage {
@@ -1852,7 +2368,7 @@ type ObserveChangeRequest struct {
 
 func (x *ObserveChangeRequest) Reset() {
 	*x = ObserveChangeRequest{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[31]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1864,7 +2380,7 @@ func (x *ObserveChangeRequest) String() string {
 func (*ObserveChangeRequest) ProtoMessage() {}
 
 func (x *ObserveChangeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[31]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1877,7 +2393,7 @@ func (x *ObserveChangeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ObserveChangeRequest.ProtoReflect.Descriptor instead.
 func (*ObserveChangeRequest) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{31}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *ObserveChangeRequest) GetSource() *GrayImage {
@@ -1910,7 +2426,7 @@ type ObserveResponse struct {
 
 func (x *ObserveResponse) Reset() {
 	*x = ObserveResponse{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[32]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1922,7 +2438,7 @@ func (x *ObserveResponse) String() string {
 func (*ObserveResponse) ProtoMessage() {}
 
 func (x *ObserveResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[32]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1935,7 +2451,7 @@ func (x *ObserveResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ObserveResponse.ProtoReflect.Descriptor instead.
 func (*ObserveResponse) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{32}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *ObserveResponse) GetEvents() []*ObserveEvent {
@@ -1956,7 +2472,7 @@ type AppActionRequest struct {
 
 func (x *AppActionRequest) Reset() {
 	*x = AppActionRequest{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[33]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1968,7 +2484,7 @@ func (x *AppActionRequest) String() string {
 func (*AppActionRequest) ProtoMessage() {}
 
 func (x *AppActionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[33]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1981,7 +2497,7 @@ func (x *AppActionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppActionRequest.ProtoReflect.Descriptor instead.
 func (*AppActionRequest) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{33}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *AppActionRequest) GetName() string {
@@ -2005,6 +2521,66 @@ func (x *AppActionRequest) GetOpts() *AppOptions {
 	return nil
 }
 
+type WindowQueryRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Opts          *AppOptions            `protobuf:"bytes,2,opt,name=opts,proto3" json:"opts,omitempty"`
+	Query         *WindowQuery           `protobuf:"bytes,3,opt,name=query,proto3" json:"query,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WindowQueryRequest) Reset() {
+	*x = WindowQueryRequest{}
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[43]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindowQueryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindowQueryRequest) ProtoMessage() {}
+
+func (x *WindowQueryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[43]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindowQueryRequest.ProtoReflect.Descriptor instead.
+func (*WindowQueryRequest) Descriptor() ([]byte, []int) {
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{43}
+}
+
+func (x *WindowQueryRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *WindowQueryRequest) GetOpts() *AppOptions {
+	if x != nil {
+		return x.Opts
+	}
+	return nil
+}
+
+func (x *WindowQueryRequest) GetQuery() *WindowQuery {
+	if x != nil {
+		return x.Query
+	}
+	return nil
+}
+
 type IsAppRunningResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Running       bool                   `protobuf:"varint,1,opt,name=running,proto3" json:"running,omitempty"`
@@ -2014,7 +2590,7 @@ type IsAppRunningResponse struct {
 
 func (x *IsAppRunningResponse) Reset() {
 	*x = IsAppRunningResponse{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[34]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2026,7 +2602,7 @@ func (x *IsAppRunningResponse) String() string {
 func (*IsAppRunningResponse) ProtoMessage() {}
 
 func (x *IsAppRunningResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[34]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2039,7 +2615,7 @@ func (x *IsAppRunningResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IsAppRunningResponse.ProtoReflect.Descriptor instead.
 func (*IsAppRunningResponse) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{34}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *IsAppRunningResponse) GetRunning() bool {
@@ -2047,6 +2623,58 @@ func (x *IsAppRunningResponse) GetRunning() bool {
 		return x.Running
 	}
 	return false
+}
+
+type GetWindowResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Found         bool                   `protobuf:"varint,1,opt,name=found,proto3" json:"found,omitempty"`
+	Window        *Window                `protobuf:"bytes,2,opt,name=window,proto3" json:"window,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetWindowResponse) Reset() {
+	*x = GetWindowResponse{}
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[45]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetWindowResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetWindowResponse) ProtoMessage() {}
+
+func (x *GetWindowResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[45]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetWindowResponse.ProtoReflect.Descriptor instead.
+func (*GetWindowResponse) Descriptor() ([]byte, []int) {
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{45}
+}
+
+func (x *GetWindowResponse) GetFound() bool {
+	if x != nil {
+		return x.Found
+	}
+	return false
+}
+
+func (x *GetWindowResponse) GetWindow() *Window {
+	if x != nil {
+		return x.Window
+	}
+	return nil
 }
 
 type ListWindowsResponse struct {
@@ -2058,7 +2686,7 @@ type ListWindowsResponse struct {
 
 func (x *ListWindowsResponse) Reset() {
 	*x = ListWindowsResponse{}
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[35]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2070,7 +2698,7 @@ func (x *ListWindowsResponse) String() string {
 func (*ListWindowsResponse) ProtoMessage() {}
 
 func (x *ListWindowsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sikuli_v1_sikuli_proto_msgTypes[35]
+	mi := &file_sikuli_v1_sikuli_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2083,7 +2711,7 @@ func (x *ListWindowsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListWindowsResponse.ProtoReflect.Descriptor instead.
 func (*ListWindowsResponse) Descriptor() ([]byte, []int) {
-	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{35}
+	return file_sikuli_v1_sikuli_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *ListWindowsResponse) GetWindows() []*Window {
@@ -2156,11 +2784,27 @@ const file_sikuli_v1_sikuli_proto_rawDesc = "" +
 	"\n" +
 	"AppOptions\x12*\n" +
 	"\x0etimeout_millis\x18\x01 \x01(\x03H\x00R\rtimeoutMillis\x88\x01\x01B\x11\n" +
-	"\x0f_timeout_millis\"a\n" +
-	"\x06Window\x12\x14\n" +
-	"\x05title\x18\x01 \x01(\tR\x05title\x12'\n" +
-	"\x06bounds\x18\x02 \x01(\v2\x0f.sikuli.v1.RectR\x06bounds\x12\x18\n" +
-	"\afocused\x18\x03 \x01(\bR\afocused\"~\n" +
+	"\x0f_timeout_millis\"\xad\x01\n" +
+	"\vWindowQuery\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1f\n" +
+	"\vtitle_exact\x18\x02 \x01(\tR\n" +
+	"titleExact\x12%\n" +
+	"\x0etitle_contains\x18\x03 \x01(\tR\rtitleContains\x12!\n" +
+	"\ffocused_only\x18\x04 \x01(\bR\vfocusedOnly\x12\x19\n" +
+	"\x05index\x18\x05 \x01(\x05H\x00R\x05index\x88\x01\x01B\b\n" +
+	"\x06_index\"\x95\x01\n" +
+	"\x06Window\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x10\n" +
+	"\x03app\x18\x02 \x01(\tR\x03app\x12\x10\n" +
+	"\x03pid\x18\x03 \x01(\x05R\x03pid\x12\x14\n" +
+	"\x05title\x18\x04 \x01(\tR\x05title\x12'\n" +
+	"\x06bounds\x18\x05 \x01(\v2\x0f.sikuli.v1.RectR\x06bounds\x12\x18\n" +
+	"\afocused\x18\x06 \x01(\bR\afocused\"y\n" +
+	"\x10ScreenDescriptor\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12'\n" +
+	"\x06bounds\x18\x03 \x01(\v2\x0f.sikuli.v1.RectR\x06bounds\x12\x18\n" +
+	"\aprimary\x18\x04 \x01(\bR\aprimary\"~\n" +
 	"\fObserveEvent\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\tR\x04type\x12&\n" +
 	"\x05match\x18\x02 \x01(\v2\x10.sikuli.v1.MatchR\x05match\x122\n" +
@@ -2172,14 +2816,31 @@ const file_sikuli_v1_sikuli_proto_rawDesc = "" +
 	"\fFindResponse\x12&\n" +
 	"\x05match\x18\x01 \x01(\v2\x10.sikuli.v1.MatchR\x05match\"=\n" +
 	"\x0fFindAllResponse\x12*\n" +
-	"\amatches\x18\x01 \x03(\v2\x10.sikuli.v1.MatchR\amatches\"\xff\x01\n" +
+	"\amatches\x18\x01 \x03(\v2\x10.sikuli.v1.MatchR\amatches\"\xaf\x02\n" +
 	"\x12ScreenQueryOptions\x12'\n" +
 	"\x06region\x18\x01 \x01(\v2\x0f.sikuli.v1.RectR\x06region\x12*\n" +
 	"\x0etimeout_millis\x18\x02 \x01(\x03H\x00R\rtimeoutMillis\x88\x01\x01\x12,\n" +
 	"\x0finterval_millis\x18\x03 \x01(\x03H\x01R\x0eintervalMillis\x88\x01\x01\x12?\n" +
-	"\x0ematcher_engine\x18\x04 \x01(\x0e2\x18.sikuli.v1.MatcherEngineR\rmatcherEngineB\x11\n" +
+	"\x0ematcher_engine\x18\x04 \x01(\x0e2\x18.sikuli.v1.MatcherEngineR\rmatcherEngine\x12 \n" +
+	"\tscreen_id\x18\x05 \x01(\x05H\x02R\bscreenId\x88\x01\x01B\x11\n" +
 	"\x0f_timeout_millisB\x12\n" +
-	"\x10_interval_millis\"v\n" +
+	"\x10_interval_millisB\f\n" +
+	"\n" +
+	"_screen_id\"\x14\n" +
+	"\x12ListScreensRequest\"L\n" +
+	"\x13ListScreensResponse\x125\n" +
+	"\ascreens\x18\x01 \x03(\v2\x1b.sikuli.v1.ScreenDescriptorR\ascreens\"\x19\n" +
+	"\x17GetPrimaryScreenRequest\"O\n" +
+	"\x18GetPrimaryScreenResponse\x123\n" +
+	"\x06screen\x18\x01 \x01(\v2\x1b.sikuli.v1.ScreenDescriptorR\x06screen\"o\n" +
+	"\x14CaptureScreenRequest\x12 \n" +
+	"\tscreen_id\x18\x01 \x01(\x05H\x00R\bscreenId\x88\x01\x01\x12'\n" +
+	"\x06region\x18\x02 \x01(\v2\x0f.sikuli.v1.RectR\x06regionB\f\n" +
+	"\n" +
+	"_screen_id\"x\n" +
+	"\x15CaptureScreenResponse\x12*\n" +
+	"\x05image\x18\x01 \x01(\v2\x14.sikuli.v1.GrayImageR\x05image\x123\n" +
+	"\x06screen\x18\x02 \x01(\v2\x1b.sikuli.v1.ScreenDescriptorR\x06screen\"v\n" +
 	"\x13FindOnScreenRequest\x12,\n" +
 	"\apattern\x18\x01 \x01(\v2\x12.sikuli.v1.PatternR\apattern\x121\n" +
 	"\x04opts\x18\x02 \x01(\v2\x1d.sikuli.v1.ScreenQueryOptionsR\x04opts\"x\n" +
@@ -2220,7 +2881,13 @@ const file_sikuli_v1_sikuli_proto_rawDesc = "" +
 	"\x04text\x18\x01 \x01(\tR\x04text\x12+\n" +
 	"\x04opts\x18\x02 \x01(\v2\x17.sikuli.v1.InputOptionsR\x04opts\"#\n" +
 	"\rHotkeyRequest\x12\x12\n" +
-	"\x04keys\x18\x01 \x03(\tR\x04keys\"\x10\n" +
+	"\x04keys\x18\x01 \x03(\tR\x04keys\"\x91\x01\n" +
+	"\x12ScrollWheelRequest\x12\f\n" +
+	"\x01x\x18\x01 \x01(\x05R\x01x\x12\f\n" +
+	"\x01y\x18\x02 \x01(\x05R\x01y\x12\x1c\n" +
+	"\tdirection\x18\x03 \x01(\tR\tdirection\x12\x14\n" +
+	"\x05steps\x18\x04 \x01(\x05R\x05steps\x12+\n" +
+	"\x04opts\x18\x05 \x01(\v2\x17.sikuli.v1.InputOptionsR\x04opts\"\x10\n" +
 	"\x0eActionResponse\"\xc4\x01\n" +
 	"\x0eObserveRequest\x12,\n" +
 	"\x06source\x18\x01 \x01(\v2\x14.sikuli.v1.GrayImageR\x06source\x12'\n" +
@@ -2236,9 +2903,16 @@ const file_sikuli_v1_sikuli_proto_rawDesc = "" +
 	"\x10AppActionRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04args\x18\x02 \x03(\tR\x04args\x12)\n" +
-	"\x04opts\x18\x03 \x01(\v2\x15.sikuli.v1.AppOptionsR\x04opts\"0\n" +
+	"\x04opts\x18\x03 \x01(\v2\x15.sikuli.v1.AppOptionsR\x04opts\"\x81\x01\n" +
+	"\x12WindowQueryRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12)\n" +
+	"\x04opts\x18\x02 \x01(\v2\x15.sikuli.v1.AppOptionsR\x04opts\x12,\n" +
+	"\x05query\x18\x03 \x01(\v2\x16.sikuli.v1.WindowQueryR\x05query\"0\n" +
 	"\x14IsAppRunningResponse\x12\x18\n" +
-	"\arunning\x18\x01 \x01(\bR\arunning\"B\n" +
+	"\arunning\x18\x01 \x01(\bR\arunning\"T\n" +
+	"\x11GetWindowResponse\x12\x14\n" +
+	"\x05found\x18\x01 \x01(\bR\x05found\x12)\n" +
+	"\x06window\x18\x02 \x01(\v2\x11.sikuli.v1.WindowR\x06window\"B\n" +
 	"\x13ListWindowsResponse\x12+\n" +
 	"\awindows\x18\x01 \x03(\v2\x11.sikuli.v1.WindowR\awindows*\xe5\x01\n" +
 	"\rMatcherEngine\x12\x1e\n" +
@@ -2249,8 +2923,11 @@ const file_sikuli_v1_sikuli_proto_rawDesc = "" +
 	"\x14MATCHER_ENGINE_AKAZE\x10\x04\x12\x18\n" +
 	"\x14MATCHER_ENGINE_BRISK\x10\x05\x12\x17\n" +
 	"\x13MATCHER_ENGINE_KAZE\x10\x06\x12\x17\n" +
-	"\x13MATCHER_ENGINE_SIFT\x10\a2\x8c\v\n" +
-	"\rSikuliService\x127\n" +
+	"\x13MATCHER_ENGINE_SIFT\x10\a2\xfd\x11\n" +
+	"\rSikuliService\x12L\n" +
+	"\vListScreens\x12\x1d.sikuli.v1.ListScreensRequest\x1a\x1e.sikuli.v1.ListScreensResponse\x12[\n" +
+	"\x10GetPrimaryScreen\x12\".sikuli.v1.GetPrimaryScreenRequest\x1a#.sikuli.v1.GetPrimaryScreenResponse\x12R\n" +
+	"\rCaptureScreen\x12\x1f.sikuli.v1.CaptureScreenRequest\x1a .sikuli.v1.CaptureScreenResponse\x127\n" +
 	"\x04Find\x12\x16.sikuli.v1.FindRequest\x1a\x17.sikuli.v1.FindResponse\x12=\n" +
 	"\aFindAll\x12\x16.sikuli.v1.FindRequest\x1a\x1a.sikuli.v1.FindAllResponse\x12G\n" +
 	"\fFindOnScreen\x12\x1e.sikuli.v1.FindOnScreenRequest\x1a\x17.sikuli.v1.FindResponse\x12U\n" +
@@ -2261,8 +2938,14 @@ const file_sikuli_v1_sikuli_proto_rawDesc = "" +
 	"\bFindText\x12\x1a.sikuli.v1.FindTextRequest\x1a\x1b.sikuli.v1.FindTextResponse\x12C\n" +
 	"\tMoveMouse\x12\x1b.sikuli.v1.MoveMouseRequest\x1a\x19.sikuli.v1.ActionResponse\x12;\n" +
 	"\x05Click\x12\x17.sikuli.v1.ClickRequest\x1a\x19.sikuli.v1.ActionResponse\x12A\n" +
-	"\bTypeText\x12\x1a.sikuli.v1.TypeTextRequest\x1a\x19.sikuli.v1.ActionResponse\x12=\n" +
-	"\x06Hotkey\x12\x18.sikuli.v1.HotkeyRequest\x1a\x19.sikuli.v1.ActionResponse\x12F\n" +
+	"\bTypeText\x12\x1a.sikuli.v1.TypeTextRequest\x1a\x19.sikuli.v1.ActionResponse\x12B\n" +
+	"\tPasteText\x12\x1a.sikuli.v1.TypeTextRequest\x1a\x19.sikuli.v1.ActionResponse\x12=\n" +
+	"\x06Hotkey\x12\x18.sikuli.v1.HotkeyRequest\x1a\x19.sikuli.v1.ActionResponse\x12?\n" +
+	"\tMouseDown\x12\x17.sikuli.v1.ClickRequest\x1a\x19.sikuli.v1.ActionResponse\x12=\n" +
+	"\aMouseUp\x12\x17.sikuli.v1.ClickRequest\x1a\x19.sikuli.v1.ActionResponse\x12>\n" +
+	"\aKeyDown\x12\x18.sikuli.v1.HotkeyRequest\x1a\x19.sikuli.v1.ActionResponse\x12<\n" +
+	"\x05KeyUp\x12\x18.sikuli.v1.HotkeyRequest\x1a\x19.sikuli.v1.ActionResponse\x12G\n" +
+	"\vScrollWheel\x12\x1d.sikuli.v1.ScrollWheelRequest\x1a\x19.sikuli.v1.ActionResponse\x12F\n" +
 	"\rObserveAppear\x12\x19.sikuli.v1.ObserveRequest\x1a\x1a.sikuli.v1.ObserveResponse\x12F\n" +
 	"\rObserveVanish\x12\x19.sikuli.v1.ObserveRequest\x1a\x1a.sikuli.v1.ObserveResponse\x12L\n" +
 	"\rObserveChange\x12\x1f.sikuli.v1.ObserveChangeRequest\x1a\x1a.sikuli.v1.ObserveResponse\x12A\n" +
@@ -2270,7 +2953,10 @@ const file_sikuli_v1_sikuli_proto_rawDesc = "" +
 	"\bFocusApp\x12\x1b.sikuli.v1.AppActionRequest\x1a\x19.sikuli.v1.ActionResponse\x12B\n" +
 	"\bCloseApp\x12\x1b.sikuli.v1.AppActionRequest\x1a\x19.sikuli.v1.ActionResponse\x12L\n" +
 	"\fIsAppRunning\x12\x1b.sikuli.v1.AppActionRequest\x1a\x1f.sikuli.v1.IsAppRunningResponse\x12J\n" +
-	"\vListWindows\x12\x1b.sikuli.v1.AppActionRequest\x1a\x1e.sikuli.v1.ListWindowsResponseB8Z6github.com/smysnk/sikuligo/internal/grpcv1/pb;sikuliv1b\x06proto3"
+	"\vListWindows\x12\x1b.sikuli.v1.AppActionRequest\x1a\x1e.sikuli.v1.ListWindowsResponse\x12L\n" +
+	"\vFindWindows\x12\x1d.sikuli.v1.WindowQueryRequest\x1a\x1e.sikuli.v1.ListWindowsResponse\x12H\n" +
+	"\tGetWindow\x12\x1d.sikuli.v1.WindowQueryRequest\x1a\x1c.sikuli.v1.GetWindowResponse\x12M\n" +
+	"\x10GetFocusedWindow\x12\x1b.sikuli.v1.AppActionRequest\x1a\x1c.sikuli.v1.GetWindowResponseB8Z6github.com/smysnk/sikuligo/internal/grpcv1/pb;sikuliv1b\x06proto3"
 
 var (
 	file_sikuli_v1_sikuli_proto_rawDescOnce sync.Once
@@ -2285,45 +2971,56 @@ func file_sikuli_v1_sikuli_proto_rawDescGZIP() []byte {
 }
 
 var file_sikuli_v1_sikuli_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_sikuli_v1_sikuli_proto_msgTypes = make([]protoimpl.MessageInfo, 36)
+var file_sikuli_v1_sikuli_proto_msgTypes = make([]protoimpl.MessageInfo, 47)
 var file_sikuli_v1_sikuli_proto_goTypes = []any{
-	(MatcherEngine)(0),             // 0: sikuli.v1.MatcherEngine
-	(*GrayImage)(nil),              // 1: sikuli.v1.GrayImage
-	(*Point)(nil),                  // 2: sikuli.v1.Point
-	(*Rect)(nil),                   // 3: sikuli.v1.Rect
-	(*Pattern)(nil),                // 4: sikuli.v1.Pattern
-	(*Match)(nil),                  // 5: sikuli.v1.Match
-	(*TextMatch)(nil),              // 6: sikuli.v1.TextMatch
-	(*OCRParams)(nil),              // 7: sikuli.v1.OCRParams
-	(*InputOptions)(nil),           // 8: sikuli.v1.InputOptions
-	(*ObserveOptions)(nil),         // 9: sikuli.v1.ObserveOptions
-	(*AppOptions)(nil),             // 10: sikuli.v1.AppOptions
-	(*Window)(nil),                 // 11: sikuli.v1.Window
-	(*ObserveEvent)(nil),           // 12: sikuli.v1.ObserveEvent
-	(*FindRequest)(nil),            // 13: sikuli.v1.FindRequest
-	(*FindResponse)(nil),           // 14: sikuli.v1.FindResponse
-	(*FindAllResponse)(nil),        // 15: sikuli.v1.FindAllResponse
-	(*ScreenQueryOptions)(nil),     // 16: sikuli.v1.ScreenQueryOptions
-	(*FindOnScreenRequest)(nil),    // 17: sikuli.v1.FindOnScreenRequest
-	(*ExistsOnScreenRequest)(nil),  // 18: sikuli.v1.ExistsOnScreenRequest
-	(*ExistsOnScreenResponse)(nil), // 19: sikuli.v1.ExistsOnScreenResponse
-	(*WaitOnScreenRequest)(nil),    // 20: sikuli.v1.WaitOnScreenRequest
-	(*ClickOnScreenRequest)(nil),   // 21: sikuli.v1.ClickOnScreenRequest
-	(*ReadTextRequest)(nil),        // 22: sikuli.v1.ReadTextRequest
-	(*ReadTextResponse)(nil),       // 23: sikuli.v1.ReadTextResponse
-	(*FindTextRequest)(nil),        // 24: sikuli.v1.FindTextRequest
-	(*FindTextResponse)(nil),       // 25: sikuli.v1.FindTextResponse
-	(*MoveMouseRequest)(nil),       // 26: sikuli.v1.MoveMouseRequest
-	(*ClickRequest)(nil),           // 27: sikuli.v1.ClickRequest
-	(*TypeTextRequest)(nil),        // 28: sikuli.v1.TypeTextRequest
-	(*HotkeyRequest)(nil),          // 29: sikuli.v1.HotkeyRequest
-	(*ActionResponse)(nil),         // 30: sikuli.v1.ActionResponse
-	(*ObserveRequest)(nil),         // 31: sikuli.v1.ObserveRequest
-	(*ObserveChangeRequest)(nil),   // 32: sikuli.v1.ObserveChangeRequest
-	(*ObserveResponse)(nil),        // 33: sikuli.v1.ObserveResponse
-	(*AppActionRequest)(nil),       // 34: sikuli.v1.AppActionRequest
-	(*IsAppRunningResponse)(nil),   // 35: sikuli.v1.IsAppRunningResponse
-	(*ListWindowsResponse)(nil),    // 36: sikuli.v1.ListWindowsResponse
+	(MatcherEngine)(0),               // 0: sikuli.v1.MatcherEngine
+	(*GrayImage)(nil),                // 1: sikuli.v1.GrayImage
+	(*Point)(nil),                    // 2: sikuli.v1.Point
+	(*Rect)(nil),                     // 3: sikuli.v1.Rect
+	(*Pattern)(nil),                  // 4: sikuli.v1.Pattern
+	(*Match)(nil),                    // 5: sikuli.v1.Match
+	(*TextMatch)(nil),                // 6: sikuli.v1.TextMatch
+	(*OCRParams)(nil),                // 7: sikuli.v1.OCRParams
+	(*InputOptions)(nil),             // 8: sikuli.v1.InputOptions
+	(*ObserveOptions)(nil),           // 9: sikuli.v1.ObserveOptions
+	(*AppOptions)(nil),               // 10: sikuli.v1.AppOptions
+	(*WindowQuery)(nil),              // 11: sikuli.v1.WindowQuery
+	(*Window)(nil),                   // 12: sikuli.v1.Window
+	(*ScreenDescriptor)(nil),         // 13: sikuli.v1.ScreenDescriptor
+	(*ObserveEvent)(nil),             // 14: sikuli.v1.ObserveEvent
+	(*FindRequest)(nil),              // 15: sikuli.v1.FindRequest
+	(*FindResponse)(nil),             // 16: sikuli.v1.FindResponse
+	(*FindAllResponse)(nil),          // 17: sikuli.v1.FindAllResponse
+	(*ScreenQueryOptions)(nil),       // 18: sikuli.v1.ScreenQueryOptions
+	(*ListScreensRequest)(nil),       // 19: sikuli.v1.ListScreensRequest
+	(*ListScreensResponse)(nil),      // 20: sikuli.v1.ListScreensResponse
+	(*GetPrimaryScreenRequest)(nil),  // 21: sikuli.v1.GetPrimaryScreenRequest
+	(*GetPrimaryScreenResponse)(nil), // 22: sikuli.v1.GetPrimaryScreenResponse
+	(*CaptureScreenRequest)(nil),     // 23: sikuli.v1.CaptureScreenRequest
+	(*CaptureScreenResponse)(nil),    // 24: sikuli.v1.CaptureScreenResponse
+	(*FindOnScreenRequest)(nil),      // 25: sikuli.v1.FindOnScreenRequest
+	(*ExistsOnScreenRequest)(nil),    // 26: sikuli.v1.ExistsOnScreenRequest
+	(*ExistsOnScreenResponse)(nil),   // 27: sikuli.v1.ExistsOnScreenResponse
+	(*WaitOnScreenRequest)(nil),      // 28: sikuli.v1.WaitOnScreenRequest
+	(*ClickOnScreenRequest)(nil),     // 29: sikuli.v1.ClickOnScreenRequest
+	(*ReadTextRequest)(nil),          // 30: sikuli.v1.ReadTextRequest
+	(*ReadTextResponse)(nil),         // 31: sikuli.v1.ReadTextResponse
+	(*FindTextRequest)(nil),          // 32: sikuli.v1.FindTextRequest
+	(*FindTextResponse)(nil),         // 33: sikuli.v1.FindTextResponse
+	(*MoveMouseRequest)(nil),         // 34: sikuli.v1.MoveMouseRequest
+	(*ClickRequest)(nil),             // 35: sikuli.v1.ClickRequest
+	(*TypeTextRequest)(nil),          // 36: sikuli.v1.TypeTextRequest
+	(*HotkeyRequest)(nil),            // 37: sikuli.v1.HotkeyRequest
+	(*ScrollWheelRequest)(nil),       // 38: sikuli.v1.ScrollWheelRequest
+	(*ActionResponse)(nil),           // 39: sikuli.v1.ActionResponse
+	(*ObserveRequest)(nil),           // 40: sikuli.v1.ObserveRequest
+	(*ObserveChangeRequest)(nil),     // 41: sikuli.v1.ObserveChangeRequest
+	(*ObserveResponse)(nil),          // 42: sikuli.v1.ObserveResponse
+	(*AppActionRequest)(nil),         // 43: sikuli.v1.AppActionRequest
+	(*WindowQueryRequest)(nil),       // 44: sikuli.v1.WindowQueryRequest
+	(*IsAppRunningResponse)(nil),     // 45: sikuli.v1.IsAppRunningResponse
+	(*GetWindowResponse)(nil),        // 46: sikuli.v1.GetWindowResponse
+	(*ListWindowsResponse)(nil),      // 47: sikuli.v1.ListWindowsResponse
 }
 var file_sikuli_v1_sikuli_proto_depIdxs = []int32{
 	1,  // 0: sikuli.v1.Pattern.image:type_name -> sikuli.v1.GrayImage
@@ -2333,87 +3030,121 @@ var file_sikuli_v1_sikuli_proto_depIdxs = []int32{
 	2,  // 4: sikuli.v1.Match.target:type_name -> sikuli.v1.Point
 	3,  // 5: sikuli.v1.TextMatch.rect:type_name -> sikuli.v1.Rect
 	3,  // 6: sikuli.v1.Window.bounds:type_name -> sikuli.v1.Rect
-	5,  // 7: sikuli.v1.ObserveEvent.match:type_name -> sikuli.v1.Match
-	1,  // 8: sikuli.v1.FindRequest.source:type_name -> sikuli.v1.GrayImage
-	4,  // 9: sikuli.v1.FindRequest.pattern:type_name -> sikuli.v1.Pattern
-	0,  // 10: sikuli.v1.FindRequest.matcher_engine:type_name -> sikuli.v1.MatcherEngine
-	5,  // 11: sikuli.v1.FindResponse.match:type_name -> sikuli.v1.Match
-	5,  // 12: sikuli.v1.FindAllResponse.matches:type_name -> sikuli.v1.Match
-	3,  // 13: sikuli.v1.ScreenQueryOptions.region:type_name -> sikuli.v1.Rect
-	0,  // 14: sikuli.v1.ScreenQueryOptions.matcher_engine:type_name -> sikuli.v1.MatcherEngine
-	4,  // 15: sikuli.v1.FindOnScreenRequest.pattern:type_name -> sikuli.v1.Pattern
-	16, // 16: sikuli.v1.FindOnScreenRequest.opts:type_name -> sikuli.v1.ScreenQueryOptions
-	4,  // 17: sikuli.v1.ExistsOnScreenRequest.pattern:type_name -> sikuli.v1.Pattern
-	16, // 18: sikuli.v1.ExistsOnScreenRequest.opts:type_name -> sikuli.v1.ScreenQueryOptions
-	5,  // 19: sikuli.v1.ExistsOnScreenResponse.match:type_name -> sikuli.v1.Match
-	4,  // 20: sikuli.v1.WaitOnScreenRequest.pattern:type_name -> sikuli.v1.Pattern
-	16, // 21: sikuli.v1.WaitOnScreenRequest.opts:type_name -> sikuli.v1.ScreenQueryOptions
-	4,  // 22: sikuli.v1.ClickOnScreenRequest.pattern:type_name -> sikuli.v1.Pattern
-	16, // 23: sikuli.v1.ClickOnScreenRequest.opts:type_name -> sikuli.v1.ScreenQueryOptions
-	8,  // 24: sikuli.v1.ClickOnScreenRequest.click_opts:type_name -> sikuli.v1.InputOptions
-	1,  // 25: sikuli.v1.ReadTextRequest.source:type_name -> sikuli.v1.GrayImage
-	7,  // 26: sikuli.v1.ReadTextRequest.params:type_name -> sikuli.v1.OCRParams
-	1,  // 27: sikuli.v1.FindTextRequest.source:type_name -> sikuli.v1.GrayImage
-	7,  // 28: sikuli.v1.FindTextRequest.params:type_name -> sikuli.v1.OCRParams
-	6,  // 29: sikuli.v1.FindTextResponse.matches:type_name -> sikuli.v1.TextMatch
-	8,  // 30: sikuli.v1.MoveMouseRequest.opts:type_name -> sikuli.v1.InputOptions
-	8,  // 31: sikuli.v1.ClickRequest.opts:type_name -> sikuli.v1.InputOptions
-	8,  // 32: sikuli.v1.TypeTextRequest.opts:type_name -> sikuli.v1.InputOptions
-	1,  // 33: sikuli.v1.ObserveRequest.source:type_name -> sikuli.v1.GrayImage
-	3,  // 34: sikuli.v1.ObserveRequest.region:type_name -> sikuli.v1.Rect
-	4,  // 35: sikuli.v1.ObserveRequest.pattern:type_name -> sikuli.v1.Pattern
-	9,  // 36: sikuli.v1.ObserveRequest.opts:type_name -> sikuli.v1.ObserveOptions
-	1,  // 37: sikuli.v1.ObserveChangeRequest.source:type_name -> sikuli.v1.GrayImage
-	3,  // 38: sikuli.v1.ObserveChangeRequest.region:type_name -> sikuli.v1.Rect
-	9,  // 39: sikuli.v1.ObserveChangeRequest.opts:type_name -> sikuli.v1.ObserveOptions
-	12, // 40: sikuli.v1.ObserveResponse.events:type_name -> sikuli.v1.ObserveEvent
-	10, // 41: sikuli.v1.AppActionRequest.opts:type_name -> sikuli.v1.AppOptions
-	11, // 42: sikuli.v1.ListWindowsResponse.windows:type_name -> sikuli.v1.Window
-	13, // 43: sikuli.v1.SikuliService.Find:input_type -> sikuli.v1.FindRequest
-	13, // 44: sikuli.v1.SikuliService.FindAll:input_type -> sikuli.v1.FindRequest
-	17, // 45: sikuli.v1.SikuliService.FindOnScreen:input_type -> sikuli.v1.FindOnScreenRequest
-	18, // 46: sikuli.v1.SikuliService.ExistsOnScreen:input_type -> sikuli.v1.ExistsOnScreenRequest
-	20, // 47: sikuli.v1.SikuliService.WaitOnScreen:input_type -> sikuli.v1.WaitOnScreenRequest
-	21, // 48: sikuli.v1.SikuliService.ClickOnScreen:input_type -> sikuli.v1.ClickOnScreenRequest
-	22, // 49: sikuli.v1.SikuliService.ReadText:input_type -> sikuli.v1.ReadTextRequest
-	24, // 50: sikuli.v1.SikuliService.FindText:input_type -> sikuli.v1.FindTextRequest
-	26, // 51: sikuli.v1.SikuliService.MoveMouse:input_type -> sikuli.v1.MoveMouseRequest
-	27, // 52: sikuli.v1.SikuliService.Click:input_type -> sikuli.v1.ClickRequest
-	28, // 53: sikuli.v1.SikuliService.TypeText:input_type -> sikuli.v1.TypeTextRequest
-	29, // 54: sikuli.v1.SikuliService.Hotkey:input_type -> sikuli.v1.HotkeyRequest
-	31, // 55: sikuli.v1.SikuliService.ObserveAppear:input_type -> sikuli.v1.ObserveRequest
-	31, // 56: sikuli.v1.SikuliService.ObserveVanish:input_type -> sikuli.v1.ObserveRequest
-	32, // 57: sikuli.v1.SikuliService.ObserveChange:input_type -> sikuli.v1.ObserveChangeRequest
-	34, // 58: sikuli.v1.SikuliService.OpenApp:input_type -> sikuli.v1.AppActionRequest
-	34, // 59: sikuli.v1.SikuliService.FocusApp:input_type -> sikuli.v1.AppActionRequest
-	34, // 60: sikuli.v1.SikuliService.CloseApp:input_type -> sikuli.v1.AppActionRequest
-	34, // 61: sikuli.v1.SikuliService.IsAppRunning:input_type -> sikuli.v1.AppActionRequest
-	34, // 62: sikuli.v1.SikuliService.ListWindows:input_type -> sikuli.v1.AppActionRequest
-	14, // 63: sikuli.v1.SikuliService.Find:output_type -> sikuli.v1.FindResponse
-	15, // 64: sikuli.v1.SikuliService.FindAll:output_type -> sikuli.v1.FindAllResponse
-	14, // 65: sikuli.v1.SikuliService.FindOnScreen:output_type -> sikuli.v1.FindResponse
-	19, // 66: sikuli.v1.SikuliService.ExistsOnScreen:output_type -> sikuli.v1.ExistsOnScreenResponse
-	14, // 67: sikuli.v1.SikuliService.WaitOnScreen:output_type -> sikuli.v1.FindResponse
-	14, // 68: sikuli.v1.SikuliService.ClickOnScreen:output_type -> sikuli.v1.FindResponse
-	23, // 69: sikuli.v1.SikuliService.ReadText:output_type -> sikuli.v1.ReadTextResponse
-	25, // 70: sikuli.v1.SikuliService.FindText:output_type -> sikuli.v1.FindTextResponse
-	30, // 71: sikuli.v1.SikuliService.MoveMouse:output_type -> sikuli.v1.ActionResponse
-	30, // 72: sikuli.v1.SikuliService.Click:output_type -> sikuli.v1.ActionResponse
-	30, // 73: sikuli.v1.SikuliService.TypeText:output_type -> sikuli.v1.ActionResponse
-	30, // 74: sikuli.v1.SikuliService.Hotkey:output_type -> sikuli.v1.ActionResponse
-	33, // 75: sikuli.v1.SikuliService.ObserveAppear:output_type -> sikuli.v1.ObserveResponse
-	33, // 76: sikuli.v1.SikuliService.ObserveVanish:output_type -> sikuli.v1.ObserveResponse
-	33, // 77: sikuli.v1.SikuliService.ObserveChange:output_type -> sikuli.v1.ObserveResponse
-	30, // 78: sikuli.v1.SikuliService.OpenApp:output_type -> sikuli.v1.ActionResponse
-	30, // 79: sikuli.v1.SikuliService.FocusApp:output_type -> sikuli.v1.ActionResponse
-	30, // 80: sikuli.v1.SikuliService.CloseApp:output_type -> sikuli.v1.ActionResponse
-	35, // 81: sikuli.v1.SikuliService.IsAppRunning:output_type -> sikuli.v1.IsAppRunningResponse
-	36, // 82: sikuli.v1.SikuliService.ListWindows:output_type -> sikuli.v1.ListWindowsResponse
-	63, // [63:83] is the sub-list for method output_type
-	43, // [43:63] is the sub-list for method input_type
-	43, // [43:43] is the sub-list for extension type_name
-	43, // [43:43] is the sub-list for extension extendee
-	0,  // [0:43] is the sub-list for field type_name
+	3,  // 7: sikuli.v1.ScreenDescriptor.bounds:type_name -> sikuli.v1.Rect
+	5,  // 8: sikuli.v1.ObserveEvent.match:type_name -> sikuli.v1.Match
+	1,  // 9: sikuli.v1.FindRequest.source:type_name -> sikuli.v1.GrayImage
+	4,  // 10: sikuli.v1.FindRequest.pattern:type_name -> sikuli.v1.Pattern
+	0,  // 11: sikuli.v1.FindRequest.matcher_engine:type_name -> sikuli.v1.MatcherEngine
+	5,  // 12: sikuli.v1.FindResponse.match:type_name -> sikuli.v1.Match
+	5,  // 13: sikuli.v1.FindAllResponse.matches:type_name -> sikuli.v1.Match
+	3,  // 14: sikuli.v1.ScreenQueryOptions.region:type_name -> sikuli.v1.Rect
+	0,  // 15: sikuli.v1.ScreenQueryOptions.matcher_engine:type_name -> sikuli.v1.MatcherEngine
+	13, // 16: sikuli.v1.ListScreensResponse.screens:type_name -> sikuli.v1.ScreenDescriptor
+	13, // 17: sikuli.v1.GetPrimaryScreenResponse.screen:type_name -> sikuli.v1.ScreenDescriptor
+	3,  // 18: sikuli.v1.CaptureScreenRequest.region:type_name -> sikuli.v1.Rect
+	1,  // 19: sikuli.v1.CaptureScreenResponse.image:type_name -> sikuli.v1.GrayImage
+	13, // 20: sikuli.v1.CaptureScreenResponse.screen:type_name -> sikuli.v1.ScreenDescriptor
+	4,  // 21: sikuli.v1.FindOnScreenRequest.pattern:type_name -> sikuli.v1.Pattern
+	18, // 22: sikuli.v1.FindOnScreenRequest.opts:type_name -> sikuli.v1.ScreenQueryOptions
+	4,  // 23: sikuli.v1.ExistsOnScreenRequest.pattern:type_name -> sikuli.v1.Pattern
+	18, // 24: sikuli.v1.ExistsOnScreenRequest.opts:type_name -> sikuli.v1.ScreenQueryOptions
+	5,  // 25: sikuli.v1.ExistsOnScreenResponse.match:type_name -> sikuli.v1.Match
+	4,  // 26: sikuli.v1.WaitOnScreenRequest.pattern:type_name -> sikuli.v1.Pattern
+	18, // 27: sikuli.v1.WaitOnScreenRequest.opts:type_name -> sikuli.v1.ScreenQueryOptions
+	4,  // 28: sikuli.v1.ClickOnScreenRequest.pattern:type_name -> sikuli.v1.Pattern
+	18, // 29: sikuli.v1.ClickOnScreenRequest.opts:type_name -> sikuli.v1.ScreenQueryOptions
+	8,  // 30: sikuli.v1.ClickOnScreenRequest.click_opts:type_name -> sikuli.v1.InputOptions
+	1,  // 31: sikuli.v1.ReadTextRequest.source:type_name -> sikuli.v1.GrayImage
+	7,  // 32: sikuli.v1.ReadTextRequest.params:type_name -> sikuli.v1.OCRParams
+	1,  // 33: sikuli.v1.FindTextRequest.source:type_name -> sikuli.v1.GrayImage
+	7,  // 34: sikuli.v1.FindTextRequest.params:type_name -> sikuli.v1.OCRParams
+	6,  // 35: sikuli.v1.FindTextResponse.matches:type_name -> sikuli.v1.TextMatch
+	8,  // 36: sikuli.v1.MoveMouseRequest.opts:type_name -> sikuli.v1.InputOptions
+	8,  // 37: sikuli.v1.ClickRequest.opts:type_name -> sikuli.v1.InputOptions
+	8,  // 38: sikuli.v1.TypeTextRequest.opts:type_name -> sikuli.v1.InputOptions
+	8,  // 39: sikuli.v1.ScrollWheelRequest.opts:type_name -> sikuli.v1.InputOptions
+	1,  // 40: sikuli.v1.ObserveRequest.source:type_name -> sikuli.v1.GrayImage
+	3,  // 41: sikuli.v1.ObserveRequest.region:type_name -> sikuli.v1.Rect
+	4,  // 42: sikuli.v1.ObserveRequest.pattern:type_name -> sikuli.v1.Pattern
+	9,  // 43: sikuli.v1.ObserveRequest.opts:type_name -> sikuli.v1.ObserveOptions
+	1,  // 44: sikuli.v1.ObserveChangeRequest.source:type_name -> sikuli.v1.GrayImage
+	3,  // 45: sikuli.v1.ObserveChangeRequest.region:type_name -> sikuli.v1.Rect
+	9,  // 46: sikuli.v1.ObserveChangeRequest.opts:type_name -> sikuli.v1.ObserveOptions
+	14, // 47: sikuli.v1.ObserveResponse.events:type_name -> sikuli.v1.ObserveEvent
+	10, // 48: sikuli.v1.AppActionRequest.opts:type_name -> sikuli.v1.AppOptions
+	10, // 49: sikuli.v1.WindowQueryRequest.opts:type_name -> sikuli.v1.AppOptions
+	11, // 50: sikuli.v1.WindowQueryRequest.query:type_name -> sikuli.v1.WindowQuery
+	12, // 51: sikuli.v1.GetWindowResponse.window:type_name -> sikuli.v1.Window
+	12, // 52: sikuli.v1.ListWindowsResponse.windows:type_name -> sikuli.v1.Window
+	19, // 53: sikuli.v1.SikuliService.ListScreens:input_type -> sikuli.v1.ListScreensRequest
+	21, // 54: sikuli.v1.SikuliService.GetPrimaryScreen:input_type -> sikuli.v1.GetPrimaryScreenRequest
+	23, // 55: sikuli.v1.SikuliService.CaptureScreen:input_type -> sikuli.v1.CaptureScreenRequest
+	15, // 56: sikuli.v1.SikuliService.Find:input_type -> sikuli.v1.FindRequest
+	15, // 57: sikuli.v1.SikuliService.FindAll:input_type -> sikuli.v1.FindRequest
+	25, // 58: sikuli.v1.SikuliService.FindOnScreen:input_type -> sikuli.v1.FindOnScreenRequest
+	26, // 59: sikuli.v1.SikuliService.ExistsOnScreen:input_type -> sikuli.v1.ExistsOnScreenRequest
+	28, // 60: sikuli.v1.SikuliService.WaitOnScreen:input_type -> sikuli.v1.WaitOnScreenRequest
+	29, // 61: sikuli.v1.SikuliService.ClickOnScreen:input_type -> sikuli.v1.ClickOnScreenRequest
+	30, // 62: sikuli.v1.SikuliService.ReadText:input_type -> sikuli.v1.ReadTextRequest
+	32, // 63: sikuli.v1.SikuliService.FindText:input_type -> sikuli.v1.FindTextRequest
+	34, // 64: sikuli.v1.SikuliService.MoveMouse:input_type -> sikuli.v1.MoveMouseRequest
+	35, // 65: sikuli.v1.SikuliService.Click:input_type -> sikuli.v1.ClickRequest
+	36, // 66: sikuli.v1.SikuliService.TypeText:input_type -> sikuli.v1.TypeTextRequest
+	36, // 67: sikuli.v1.SikuliService.PasteText:input_type -> sikuli.v1.TypeTextRequest
+	37, // 68: sikuli.v1.SikuliService.Hotkey:input_type -> sikuli.v1.HotkeyRequest
+	35, // 69: sikuli.v1.SikuliService.MouseDown:input_type -> sikuli.v1.ClickRequest
+	35, // 70: sikuli.v1.SikuliService.MouseUp:input_type -> sikuli.v1.ClickRequest
+	37, // 71: sikuli.v1.SikuliService.KeyDown:input_type -> sikuli.v1.HotkeyRequest
+	37, // 72: sikuli.v1.SikuliService.KeyUp:input_type -> sikuli.v1.HotkeyRequest
+	38, // 73: sikuli.v1.SikuliService.ScrollWheel:input_type -> sikuli.v1.ScrollWheelRequest
+	40, // 74: sikuli.v1.SikuliService.ObserveAppear:input_type -> sikuli.v1.ObserveRequest
+	40, // 75: sikuli.v1.SikuliService.ObserveVanish:input_type -> sikuli.v1.ObserveRequest
+	41, // 76: sikuli.v1.SikuliService.ObserveChange:input_type -> sikuli.v1.ObserveChangeRequest
+	43, // 77: sikuli.v1.SikuliService.OpenApp:input_type -> sikuli.v1.AppActionRequest
+	43, // 78: sikuli.v1.SikuliService.FocusApp:input_type -> sikuli.v1.AppActionRequest
+	43, // 79: sikuli.v1.SikuliService.CloseApp:input_type -> sikuli.v1.AppActionRequest
+	43, // 80: sikuli.v1.SikuliService.IsAppRunning:input_type -> sikuli.v1.AppActionRequest
+	43, // 81: sikuli.v1.SikuliService.ListWindows:input_type -> sikuli.v1.AppActionRequest
+	44, // 82: sikuli.v1.SikuliService.FindWindows:input_type -> sikuli.v1.WindowQueryRequest
+	44, // 83: sikuli.v1.SikuliService.GetWindow:input_type -> sikuli.v1.WindowQueryRequest
+	43, // 84: sikuli.v1.SikuliService.GetFocusedWindow:input_type -> sikuli.v1.AppActionRequest
+	20, // 85: sikuli.v1.SikuliService.ListScreens:output_type -> sikuli.v1.ListScreensResponse
+	22, // 86: sikuli.v1.SikuliService.GetPrimaryScreen:output_type -> sikuli.v1.GetPrimaryScreenResponse
+	24, // 87: sikuli.v1.SikuliService.CaptureScreen:output_type -> sikuli.v1.CaptureScreenResponse
+	16, // 88: sikuli.v1.SikuliService.Find:output_type -> sikuli.v1.FindResponse
+	17, // 89: sikuli.v1.SikuliService.FindAll:output_type -> sikuli.v1.FindAllResponse
+	16, // 90: sikuli.v1.SikuliService.FindOnScreen:output_type -> sikuli.v1.FindResponse
+	27, // 91: sikuli.v1.SikuliService.ExistsOnScreen:output_type -> sikuli.v1.ExistsOnScreenResponse
+	16, // 92: sikuli.v1.SikuliService.WaitOnScreen:output_type -> sikuli.v1.FindResponse
+	16, // 93: sikuli.v1.SikuliService.ClickOnScreen:output_type -> sikuli.v1.FindResponse
+	31, // 94: sikuli.v1.SikuliService.ReadText:output_type -> sikuli.v1.ReadTextResponse
+	33, // 95: sikuli.v1.SikuliService.FindText:output_type -> sikuli.v1.FindTextResponse
+	39, // 96: sikuli.v1.SikuliService.MoveMouse:output_type -> sikuli.v1.ActionResponse
+	39, // 97: sikuli.v1.SikuliService.Click:output_type -> sikuli.v1.ActionResponse
+	39, // 98: sikuli.v1.SikuliService.TypeText:output_type -> sikuli.v1.ActionResponse
+	39, // 99: sikuli.v1.SikuliService.PasteText:output_type -> sikuli.v1.ActionResponse
+	39, // 100: sikuli.v1.SikuliService.Hotkey:output_type -> sikuli.v1.ActionResponse
+	39, // 101: sikuli.v1.SikuliService.MouseDown:output_type -> sikuli.v1.ActionResponse
+	39, // 102: sikuli.v1.SikuliService.MouseUp:output_type -> sikuli.v1.ActionResponse
+	39, // 103: sikuli.v1.SikuliService.KeyDown:output_type -> sikuli.v1.ActionResponse
+	39, // 104: sikuli.v1.SikuliService.KeyUp:output_type -> sikuli.v1.ActionResponse
+	39, // 105: sikuli.v1.SikuliService.ScrollWheel:output_type -> sikuli.v1.ActionResponse
+	42, // 106: sikuli.v1.SikuliService.ObserveAppear:output_type -> sikuli.v1.ObserveResponse
+	42, // 107: sikuli.v1.SikuliService.ObserveVanish:output_type -> sikuli.v1.ObserveResponse
+	42, // 108: sikuli.v1.SikuliService.ObserveChange:output_type -> sikuli.v1.ObserveResponse
+	39, // 109: sikuli.v1.SikuliService.OpenApp:output_type -> sikuli.v1.ActionResponse
+	39, // 110: sikuli.v1.SikuliService.FocusApp:output_type -> sikuli.v1.ActionResponse
+	39, // 111: sikuli.v1.SikuliService.CloseApp:output_type -> sikuli.v1.ActionResponse
+	45, // 112: sikuli.v1.SikuliService.IsAppRunning:output_type -> sikuli.v1.IsAppRunningResponse
+	47, // 113: sikuli.v1.SikuliService.ListWindows:output_type -> sikuli.v1.ListWindowsResponse
+	47, // 114: sikuli.v1.SikuliService.FindWindows:output_type -> sikuli.v1.ListWindowsResponse
+	46, // 115: sikuli.v1.SikuliService.GetWindow:output_type -> sikuli.v1.GetWindowResponse
+	46, // 116: sikuli.v1.SikuliService.GetFocusedWindow:output_type -> sikuli.v1.GetWindowResponse
+	85, // [85:117] is the sub-list for method output_type
+	53, // [53:85] is the sub-list for method input_type
+	53, // [53:53] is the sub-list for extension type_name
+	53, // [53:53] is the sub-list for extension extendee
+	0,  // [0:53] is the sub-list for field type_name
 }
 
 func init() { file_sikuli_v1_sikuli_proto_init() }
@@ -2426,14 +3157,16 @@ func file_sikuli_v1_sikuli_proto_init() {
 	file_sikuli_v1_sikuli_proto_msgTypes[7].OneofWrappers = []any{}
 	file_sikuli_v1_sikuli_proto_msgTypes[8].OneofWrappers = []any{}
 	file_sikuli_v1_sikuli_proto_msgTypes[9].OneofWrappers = []any{}
-	file_sikuli_v1_sikuli_proto_msgTypes[15].OneofWrappers = []any{}
+	file_sikuli_v1_sikuli_proto_msgTypes[10].OneofWrappers = []any{}
+	file_sikuli_v1_sikuli_proto_msgTypes[17].OneofWrappers = []any{}
+	file_sikuli_v1_sikuli_proto_msgTypes[22].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sikuli_v1_sikuli_proto_rawDesc), len(file_sikuli_v1_sikuli_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   36,
+			NumMessages:   47,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

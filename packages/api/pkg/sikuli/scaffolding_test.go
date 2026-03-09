@@ -255,6 +255,63 @@ func TestRuntimeSettingsLifecycle(t *testing.T) {
 	}
 }
 
+func TestLegacyThrowFlagsDoNotChangeGoSearchContract(t *testing.T) {
+	t.Cleanup(func() {
+		ResetSettings()
+	})
+	UpdateSettings(func(in *RuntimeSettings) {
+		in.FindFailedThrows = false
+	})
+
+	hay, err := NewImageFromMatrix("hay", [][]uint8{
+		{1, 1, 1, 1},
+		{1, 1, 1, 1},
+		{1, 1, 1, 1},
+		{1, 1, 1, 1},
+	})
+	if err != nil {
+		t.Fatalf("new hay image: %v", err)
+	}
+	needle, err := NewImageFromMatrix("needle", [][]uint8{
+		{0, 255},
+		{255, 0},
+	})
+	if err != nil {
+		t.Fatalf("new needle image: %v", err)
+	}
+	pattern, err := NewPattern(needle)
+	if err != nil {
+		t.Fatalf("new pattern: %v", err)
+	}
+	pattern.Exact()
+
+	finder, err := NewFinder(hay)
+	if err != nil {
+		t.Fatalf("new finder: %v", err)
+	}
+	if _, err := finder.Find(pattern); !errors.Is(err, ErrFindFailed) {
+		t.Fatalf("finder miss mismatch: got=%v", err)
+	}
+	if _, ok, err := finder.Exists(pattern); err != nil || ok {
+		t.Fatalf("finder exists mismatch: ok=%v err=%v", ok, err)
+	}
+	if _, err := finder.Wait(pattern, 2*time.Millisecond); !errors.Is(err, ErrTimeout) {
+		t.Fatalf("finder wait mismatch: got=%v", err)
+	}
+
+	region := NewRegion(0, 0, 4, 4)
+	region.SetThrowException(false)
+	if _, err := region.Find(hay, pattern); !errors.Is(err, ErrFindFailed) {
+		t.Fatalf("region miss mismatch: got=%v", err)
+	}
+	if _, ok, err := region.Exists(hay, pattern, 2*time.Millisecond); err != nil || ok {
+		t.Fatalf("region exists mismatch: ok=%v err=%v", ok, err)
+	}
+	if _, err := region.Wait(hay, pattern, 2*time.Millisecond); !errors.Is(err, ErrTimeout) {
+		t.Fatalf("region wait mismatch: got=%v", err)
+	}
+}
+
 func TestOptionsLifecycle(t *testing.T) {
 	o := NewOptions()
 	if o.Has("alpha") {
@@ -713,9 +770,94 @@ func TestRegionOCRMethods(t *testing.T) {
 	if len(matches) != 1 || matches[0].Text != "Zone" {
 		t.Fatalf("region find text mismatch: %+v", matches)
 	}
+
+	words, err := region.CollectWords(src, OCRParams{})
+	if err != nil {
+		t.Fatalf("region collect words failed: %v", err)
+	}
+	if len(words) != 1 || words[0].Text != "Zone" || words[0].X != 1 || words[0].Y != 1 {
+		t.Fatalf("region collect words mismatch: %+v", words)
+	}
+
+	lines, err := region.CollectLines(src, OCRParams{})
+	if err != nil {
+		t.Fatalf("region collect lines failed: %v", err)
+	}
+	if len(lines) != 1 || lines[0].Text != "Zone" || len(lines[0].Words) != 1 {
+		t.Fatalf("region collect lines mismatch: %+v", lines)
+	}
+}
+
+func TestFinderCollectWordsAndLines(t *testing.T) {
+	img, err := NewImageFromMatrix("ocr-lines", [][]uint8{
+		{1, 1, 1, 1},
+		{1, 1, 1, 1},
+		{1, 1, 1, 1},
+		{1, 1, 1, 1},
+	})
+	if err != nil {
+		t.Fatalf("new image: %v", err)
+	}
+	f, err := NewFinder(img)
+	if err != nil {
+		t.Fatalf("new finder: %v", err)
+	}
+	stub := &stubOCRBackend{
+		result: core.OCRResult{
+			Text: "hello world\nsecond line",
+			Words: []core.OCRWord{
+				{Text: "hello", X: 0, Y: 0, W: 5, H: 2, Confidence: 0.90},
+				{Text: "world", X: 6, Y: 0, W: 5, H: 2, Confidence: 0.80},
+				{Text: "second", X: 0, Y: 5, W: 6, H: 2, Confidence: 0.85},
+				{Text: "line", X: 7, Y: 5, W: 4, H: 2, Confidence: 0.75},
+			},
+		},
+	}
+	f.SetOCRBackend(stub)
+
+	words, err := f.CollectWords(OCRParams{Language: "eng", MinConfidence: 0.4, Timeout: 25 * time.Millisecond})
+	if err != nil {
+		t.Fatalf("collect words failed: %v", err)
+	}
+	if len(words) != 4 {
+		t.Fatalf("expected four words, got=%d", len(words))
+	}
+	if words[0].Text != "hello" || words[3].Index != 3 {
+		t.Fatalf("word results mismatch: %+v", words)
+	}
+
+	lines, err := f.CollectLines(OCRParams{})
+	if err != nil {
+		t.Fatalf("collect lines failed: %v", err)
+	}
+	if len(lines) != 2 {
+		t.Fatalf("expected two lines, got=%d", len(lines))
+	}
+	if lines[0].Text != "hello world" || lines[1].Text != "second line" {
+		t.Fatalf("line text mismatch: %+v", lines)
+	}
+	if len(lines[0].Words) != 2 || len(lines[1].Words) != 2 {
+		t.Fatalf("line word grouping mismatch: %+v", lines)
+	}
+
+	fallbackStub := &stubOCRBackend{result: core.OCRResult{Text: "Alpha\nBeta"}}
+	f.SetOCRBackend(fallbackStub)
+	fallbackLines, err := f.CollectLines(OCRParams{})
+	if err != nil {
+		t.Fatalf("collect fallback lines failed: %v", err)
+	}
+	if len(fallbackLines) != 2 || fallbackLines[0].Text != "Alpha" || fallbackLines[1].Text != "Beta" {
+		t.Fatalf("fallback line mismatch: %+v", fallbackLines)
+	}
 }
 
 func TestInputControllerUnsupportedByDefault(t *testing.T) {
+	prevFactory := newInputBackend
+	newInputBackend = func() core.Input { return nil }
+	defer func() {
+		newInputBackend = prevFactory
+	}()
+
 	c := NewInputController()
 	err := c.Click(10, 20, InputOptions{})
 	if !errors.Is(err, ErrBackendUnsupported) {
@@ -737,12 +879,33 @@ func TestInputControllerDispatchWithStub(t *testing.T) {
 	if err := c.TypeText("  hello  ", InputOptions{}); err != nil {
 		t.Fatalf("type text failed: %v", err)
 	}
+	if err := c.Paste("  world  ", InputOptions{}); err != nil {
+		t.Fatalf("paste failed: %v", err)
+	}
 	if err := c.Hotkey("CMD", "SHIFT", "P"); err != nil {
 		t.Fatalf("hotkey failed: %v", err)
 	}
+	if err := c.KeyDown("CMD", "SHIFT"); err != nil {
+		t.Fatalf("key down failed: %v", err)
+	}
+	if err := c.KeyUp("CMD", "SHIFT"); err != nil {
+		t.Fatalf("key up failed: %v", err)
+	}
+	if err := c.MouseDown(50, 60, InputOptions{}); err != nil {
+		t.Fatalf("mouse down failed: %v", err)
+	}
+	if err := c.MouseUp(50, 60, InputOptions{}); err != nil {
+		t.Fatalf("mouse up failed: %v", err)
+	}
+	if err := c.Wheel(70, 80, WheelDirectionDown, 2, InputOptions{}); err != nil {
+		t.Fatalf("wheel failed: %v", err)
+	}
+	if err := c.DragDrop(90, 100, 110, 120, InputOptions{}); err != nil {
+		t.Fatalf("drag drop failed: %v", err)
+	}
 
-	if len(stub.requests) != 4 {
-		t.Fatalf("expected 4 requests, got=%d", len(stub.requests))
+	if len(stub.requests) != 14 {
+		t.Fatalf("expected 14 requests, got=%d", len(stub.requests))
 	}
 	if stub.requests[0].Action != core.InputActionMouseMove || stub.requests[0].Delay != 0 {
 		t.Fatalf("move request mismatch: %+v", stub.requests[0])
@@ -753,8 +916,38 @@ func TestInputControllerDispatchWithStub(t *testing.T) {
 	if stub.requests[2].Action != core.InputActionTypeText || stub.requests[2].Text != "hello" {
 		t.Fatalf("type request mismatch: %+v", stub.requests[2])
 	}
-	if stub.requests[3].Action != core.InputActionHotkey || len(stub.requests[3].Keys) != 3 {
-		t.Fatalf("hotkey request mismatch: %+v", stub.requests[3])
+	if stub.requests[3].Action != core.InputActionPasteText || stub.requests[3].Text != "world" {
+		t.Fatalf("paste request mismatch: %+v", stub.requests[3])
+	}
+	if stub.requests[4].Action != core.InputActionHotkey || len(stub.requests[4].Keys) != 3 {
+		t.Fatalf("hotkey request mismatch: %+v", stub.requests[4])
+	}
+	if stub.requests[5].Action != core.InputActionKeyDown || len(stub.requests[5].Keys) != 2 {
+		t.Fatalf("key down request mismatch: %+v", stub.requests[5])
+	}
+	if stub.requests[6].Action != core.InputActionKeyUp || len(stub.requests[6].Keys) != 2 {
+		t.Fatalf("key up request mismatch: %+v", stub.requests[6])
+	}
+	if stub.requests[7].Action != core.InputActionMouseDown || stub.requests[7].X != 50 || stub.requests[7].Y != 60 {
+		t.Fatalf("mouse down request mismatch: %+v", stub.requests[7])
+	}
+	if stub.requests[8].Action != core.InputActionMouseUp || stub.requests[8].X != 50 || stub.requests[8].Y != 60 {
+		t.Fatalf("mouse up request mismatch: %+v", stub.requests[8])
+	}
+	if stub.requests[9].Action != core.InputActionWheel || stub.requests[9].X != 70 || stub.requests[9].Y != 80 || stub.requests[9].ScrollDirection != "down" || stub.requests[9].ScrollSteps != 2 {
+		t.Fatalf("wheel request mismatch: %+v", stub.requests[9])
+	}
+	if stub.requests[10].Action != core.InputActionMouseMove || stub.requests[10].X != 90 || stub.requests[10].Y != 100 {
+		t.Fatalf("drag move start mismatch: %+v", stub.requests[10])
+	}
+	if stub.requests[11].Action != core.InputActionMouseDown || stub.requests[11].X != 90 || stub.requests[11].Y != 100 {
+		t.Fatalf("drag mouse down mismatch: %+v", stub.requests[11])
+	}
+	if stub.requests[12].Action != core.InputActionMouseMove || stub.requests[12].X != 110 || stub.requests[12].Y != 120 {
+		t.Fatalf("drag move end mismatch: %+v", stub.requests[12])
+	}
+	if stub.requests[13].Action != core.InputActionMouseUp || stub.requests[13].X != 110 || stub.requests[13].Y != 120 {
+		t.Fatalf("drag mouse up mismatch: %+v", stub.requests[13])
 	}
 }
 
@@ -766,8 +959,23 @@ func TestInputControllerValidation(t *testing.T) {
 	if err := c.TypeText("   ", InputOptions{}); !errors.Is(err, ErrInvalidTarget) {
 		t.Fatalf("expected ErrInvalidTarget for empty type text, got=%v", err)
 	}
+	if err := c.Paste("   ", InputOptions{}); !errors.Is(err, ErrInvalidTarget) {
+		t.Fatalf("expected ErrInvalidTarget for empty paste text, got=%v", err)
+	}
 	if err := c.Hotkey(); !errors.Is(err, ErrInvalidTarget) {
 		t.Fatalf("expected ErrInvalidTarget for empty hotkey, got=%v", err)
+	}
+	if err := c.KeyDown(); !errors.Is(err, ErrInvalidTarget) {
+		t.Fatalf("expected ErrInvalidTarget for empty key down, got=%v", err)
+	}
+	if err := c.KeyUp(); !errors.Is(err, ErrInvalidTarget) {
+		t.Fatalf("expected ErrInvalidTarget for empty key up, got=%v", err)
+	}
+	if err := c.Wheel(1, 2, "", 1, InputOptions{}); !errors.Is(err, ErrInvalidTarget) {
+		t.Fatalf("expected ErrInvalidTarget for invalid wheel direction, got=%v", err)
+	}
+	if err := c.Wheel(1, 2, WheelDirectionDown, 0, InputOptions{}); !errors.Is(err, ErrInvalidTarget) {
+		t.Fatalf("expected ErrInvalidTarget for invalid wheel steps, got=%v", err)
 	}
 
 	stub.err = errors.New("custom backend error")
@@ -990,7 +1198,7 @@ func TestAppControllerDispatchWithStub(t *testing.T) {
 			Running: true,
 			PID:     42,
 			Windows: []core.WindowInfo{
-				{Title: "Demo", X: 1, Y: 2, W: 300, H: 200, Focused: true},
+				{ID: "win-1", App: "DemoApp", PID: 42, Title: "Demo", X: 1, Y: 2, W: 300, H: 200, Focused: true},
 			},
 		},
 	}
@@ -1019,6 +1227,9 @@ func TestAppControllerDispatchWithStub(t *testing.T) {
 	}
 	if len(windows) != 1 || windows[0].Title != "Demo" || !windows[0].Focused {
 		t.Fatalf("windows mismatch: %+v", windows)
+	}
+	if windows[0].ID != "win-1" || windows[0].App != "DemoApp" || windows[0].PID != 42 {
+		t.Fatalf("window metadata mismatch: %+v", windows[0])
 	}
 	if len(stub.requests) != 5 {
 		t.Fatalf("expected 5 backend requests, got=%d", len(stub.requests))
@@ -1057,5 +1268,52 @@ func TestAppControllerValidation(t *testing.T) {
 	stub.err = errors.New("custom backend error")
 	if err := controller.Close("Demo", AppOptions{}); err == nil || errors.Is(err, ErrInvalidTarget) {
 		t.Fatalf("expected raw backend error, got=%v", err)
+	}
+}
+
+func TestAppControllerWindowQueries(t *testing.T) {
+	stub := &stubAppBackend{
+		result: core.AppResult{
+			Running: true,
+			Windows: []core.WindowInfo{
+				{ID: "win-1", App: "DemoApp", PID: 42, Title: "Main", X: 1, Y: 2, W: 300, H: 200, Focused: false},
+				{ID: "win-2", App: "DemoApp", PID: 42, Title: "Tools", X: 10, Y: 20, W: 120, H: 80, Focused: true},
+				{ID: "win-3", App: "DemoApp", PID: 42, Title: "Tools Secondary", X: 30, Y: 40, W: 120, H: 80, Focused: false},
+			},
+		},
+	}
+	controller := NewAppController()
+	controller.SetBackend(stub)
+
+	filtered, err := controller.FindWindows("Demo", WindowQuery{TitleContains: "tools"}, AppOptions{})
+	if err != nil {
+		t.Fatalf("find windows failed: %v", err)
+	}
+	if len(filtered) != 2 || filtered[0].ID != "win-2" || filtered[1].ID != "win-3" {
+		t.Fatalf("filtered windows mismatch: %+v", filtered)
+	}
+
+	focused, found, err := controller.FocusedWindow("Demo", AppOptions{})
+	if err != nil {
+		t.Fatalf("focused window failed: %v", err)
+	}
+	if !found || focused.ID != "win-2" {
+		t.Fatalf("focused window mismatch: found=%v window=%+v", found, focused)
+	}
+
+	window, found, err := controller.GetWindow("Demo", WindowQuery{TitleContains: "tools", Index: 1}, AppOptions{})
+	if err != nil {
+		t.Fatalf("get window failed: %v", err)
+	}
+	if !found || window.ID != "win-3" {
+		t.Fatalf("indexed window mismatch: found=%v window=%+v", found, window)
+	}
+
+	_, found, err = controller.GetWindow("Demo", WindowQuery{ID: "missing"}, AppOptions{})
+	if err != nil {
+		t.Fatalf("missing window query should not fail: %v", err)
+	}
+	if found {
+		t.Fatalf("expected missing window query to return found=false")
 	}
 }

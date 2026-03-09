@@ -19,6 +19,15 @@ const (
 	MouseButtonMiddle MouseButton = "middle"
 )
 
+type WheelDirection string
+
+const (
+	WheelDirectionUp    WheelDirection = "up"
+	WheelDirectionDown  WheelDirection = "down"
+	WheelDirectionLeft  WheelDirection = "left"
+	WheelDirectionRight WheelDirection = "right"
+)
+
 type InputOptions struct {
 	Delay  time.Duration
 	Button MouseButton
@@ -55,10 +64,49 @@ func (c *InputController) MoveMouse(x, y int, opts InputOptions) error {
 	})
 }
 
+func (c *InputController) Hover(x, y int, opts InputOptions) error {
+	return c.MoveMouse(x, y, opts)
+}
+
 func (c *InputController) Click(x, y int, opts InputOptions) error {
 	opts = normalizeInputOptions(opts)
 	return c.execute(core.InputRequest{
 		Action: core.InputActionClick,
+		X:      x,
+		Y:      y,
+		Button: string(opts.Button),
+		Delay:  opts.Delay,
+	})
+}
+
+func (c *InputController) RightClick(x, y int, opts InputOptions) error {
+	opts = normalizeInputOptions(opts)
+	opts.Button = MouseButtonRight
+	return c.Click(x, y, opts)
+}
+
+func (c *InputController) DoubleClick(x, y int, opts InputOptions) error {
+	if err := c.Click(x, y, opts); err != nil {
+		return err
+	}
+	return c.Click(x, y, opts)
+}
+
+func (c *InputController) MouseDown(x, y int, opts InputOptions) error {
+	opts = normalizeInputOptions(opts)
+	return c.execute(core.InputRequest{
+		Action: core.InputActionMouseDown,
+		X:      x,
+		Y:      y,
+		Button: string(opts.Button),
+		Delay:  opts.Delay,
+	})
+}
+
+func (c *InputController) MouseUp(x, y int, opts InputOptions) error {
+	opts = normalizeInputOptions(opts)
+	return c.execute(core.InputRequest{
+		Action: core.InputActionMouseUp,
 		X:      x,
 		Y:      y,
 		Button: string(opts.Button),
@@ -74,6 +122,19 @@ func (c *InputController) TypeText(text string, opts InputOptions) error {
 	}
 	return c.execute(core.InputRequest{
 		Action: core.InputActionTypeText,
+		Text:   text,
+		Delay:  opts.Delay,
+	})
+}
+
+func (c *InputController) Paste(text string, opts InputOptions) error {
+	opts = normalizeInputOptions(opts)
+	text = strings.TrimSpace(text)
+	if text == "" {
+		return fmt.Errorf("%w: paste text cannot be empty", ErrInvalidTarget)
+	}
+	return c.execute(core.InputRequest{
+		Action: core.InputActionPasteText,
 		Text:   text,
 		Delay:  opts.Delay,
 	})
@@ -97,6 +158,62 @@ func (c *InputController) Hotkey(keys ...string) error {
 	})
 }
 
+func (c *InputController) KeyDown(keys ...string) error {
+	normalized, err := normalizeHotkeyKeys(keys)
+	if err != nil {
+		return err
+	}
+	return c.execute(core.InputRequest{
+		Action: core.InputActionKeyDown,
+		Keys:   normalized,
+	})
+}
+
+func (c *InputController) KeyUp(keys ...string) error {
+	normalized, err := normalizeHotkeyKeys(keys)
+	if err != nil {
+		return err
+	}
+	return c.execute(core.InputRequest{
+		Action: core.InputActionKeyUp,
+		Keys:   normalized,
+	})
+}
+
+func (c *InputController) Wheel(x, y int, direction WheelDirection, steps int, opts InputOptions) error {
+	opts = normalizeInputOptions(opts)
+	dir := WheelDirection(strings.ToLower(strings.TrimSpace(string(direction))))
+	switch dir {
+	case WheelDirectionUp, WheelDirectionDown, WheelDirectionLeft, WheelDirectionRight:
+	default:
+		return fmt.Errorf("%w: wheel direction %q invalid", ErrInvalidTarget, direction)
+	}
+	if steps <= 0 {
+		return fmt.Errorf("%w: wheel steps must be positive", ErrInvalidTarget)
+	}
+	return c.execute(core.InputRequest{
+		Action:          core.InputActionWheel,
+		X:               x,
+		Y:               y,
+		Delay:           opts.Delay,
+		ScrollDirection: string(dir),
+		ScrollSteps:     steps,
+	})
+}
+
+func (c *InputController) DragDrop(fromX, fromY, toX, toY int, opts InputOptions) error {
+	if err := c.MoveMouse(fromX, fromY, opts); err != nil {
+		return err
+	}
+	if err := c.MouseDown(fromX, fromY, opts); err != nil {
+		return err
+	}
+	if err := c.MoveMouse(toX, toY, opts); err != nil {
+		return err
+	}
+	return c.MouseUp(toX, toY, opts)
+}
+
 func normalizeInputOptions(in InputOptions) InputOptions {
 	out := in
 	if out.Delay < 0 {
@@ -108,6 +225,21 @@ func normalizeInputOptions(in InputOptions) InputOptions {
 		out.Button = MouseButtonLeft
 	}
 	return out
+}
+
+func normalizeHotkeyKeys(keys []string) ([]string, error) {
+	if len(keys) == 0 {
+		return nil, fmt.Errorf("%w: hotkey requires at least one key", ErrInvalidTarget)
+	}
+	normalized := make([]string, 0, len(keys))
+	for _, key := range keys {
+		key = strings.TrimSpace(key)
+		if key == "" {
+			return nil, fmt.Errorf("%w: hotkey keys cannot be empty", ErrInvalidTarget)
+		}
+		normalized = append(normalized, key)
+	}
+	return normalized, nil
 }
 
 func (c *InputController) execute(req core.InputRequest) error {

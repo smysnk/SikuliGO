@@ -7,7 +7,11 @@ source "${THIS_DIR}/paths.sh"
 CLIENT_DIR="$CLIENT_NODE_DIR"
 OUT_DIR="$CLIENT_DIR/generated"
 PROTO_FILE="$API_DIR/proto/sikuli/v1/sikuli.proto"
-NODE_BIN="$CLIENT_DIR/node_modules/.bin"
+NODE_BIN_CANDIDATES=(
+  "$CLIENT_DIR/node_modules/.bin"
+  "$ROOT_DIR/node_modules/.bin"
+)
+NODE_BIN=""
 REQUIRED_GENERATED=(
   "$OUT_DIR/sikuli/v1/sikuli_pb.js"
   "$OUT_DIR/sikuli/v1/sikuli_pb.d.ts"
@@ -25,8 +29,15 @@ has_generated_artifacts() {
 }
 
 missing_tools=()
+for candidate in "${NODE_BIN_CANDIDATES[@]}"; do
+  if [[ -x "$candidate/grpc_tools_node_protoc" && -x "$candidate/grpc_tools_node_protoc_plugin" && -x "$candidate/protoc-gen-ts" ]]; then
+    NODE_BIN="$candidate"
+    break
+  fi
+done
+
 for tool in grpc_tools_node_protoc grpc_tools_node_protoc_plugin protoc-gen-ts; do
-  if [[ ! -x "$NODE_BIN/$tool" ]]; then
+  if [[ -z "$NODE_BIN" || ! -x "$NODE_BIN/$tool" ]]; then
     missing_tools+=("$tool")
   fi
 done

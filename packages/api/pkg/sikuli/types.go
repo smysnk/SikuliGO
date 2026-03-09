@@ -1,7 +1,6 @@
 package sikuli
 
 import (
-	"errors"
 	"fmt"
 	"time"
 )
@@ -13,6 +12,10 @@ type Point struct {
 
 func NewPoint(x, y int) Point {
 	return Point{X: x, Y: y}
+}
+
+func (p Point) TargetPoint() Point {
+	return p
 }
 
 // ToLocation converts a point to a parity-friendly Location value.
@@ -50,6 +53,8 @@ func (r Rect) String() string {
 
 type Region struct {
 	Rect
+	// ThrowException is retained as parity metadata for SikuliX-style ports.
+	// The Go API uses explicit return values for misses and timeouts regardless of this flag.
 	ThrowException  bool
 	AutoWaitTimeout float64
 	WaitScanRate    float64
@@ -73,6 +78,10 @@ func (r Region) Center() Point {
 		X: r.X + r.W/2,
 		Y: r.Y + r.H/2,
 	}
+}
+
+func (r Region) TargetPoint() Point {
+	return r.Center()
 }
 
 // Grow expands the region outward in both directions.
@@ -197,46 +206,13 @@ func (r Region) Find(source *Image, pattern *Pattern) (Match, error) {
 
 // Exists checks for pattern presence within timeout and returns first match when found.
 func (r Region) Exists(source *Image, pattern *Pattern, timeout time.Duration) (Match, bool, error) {
-	checkOnce := func() (Match, bool, error) {
+	return SearchExists(func() (Match, error) {
 		f, err := r.newFinder(source)
 		if err != nil {
-			return Match{}, false, err
+			return Match{}, err
 		}
-		m, err := f.Find(pattern)
-		if err != nil {
-			if errors.Is(err, ErrFindFailed) {
-				return Match{}, false, nil
-			}
-			return Match{}, false, err
-		}
-		return m, true, nil
-	}
-
-	if timeout <= 0 {
-		return checkOnce()
-	}
-
-	deadline := time.Now().Add(timeout)
-	interval := r.waitInterval()
-	for {
-		m, ok, err := checkOnce()
-		if err != nil {
-			return Match{}, false, err
-		}
-		if ok {
-			return m, true, nil
-		}
-		if time.Now().After(deadline) {
-			return Match{}, false, nil
-		}
-		sleep := interval
-		if remaining := time.Until(deadline); remaining < sleep {
-			sleep = remaining
-		}
-		if sleep > 0 {
-			time.Sleep(sleep)
-		}
-	}
+		return f.Find(pattern)
+	}, timeout, r.waitInterval())
 }
 
 func (r Region) Has(source *Image, pattern *Pattern, timeout time.Duration) (bool, error) {
@@ -249,51 +225,24 @@ func (r Region) Wait(source *Image, pattern *Pattern, timeout time.Duration) (Ma
 	if effectiveTimeout <= 0 {
 		effectiveTimeout = time.Duration(r.AutoWaitTimeout * float64(time.Second))
 	}
-	m, ok, err := r.Exists(source, pattern, effectiveTimeout)
-	if err != nil {
-		return Match{}, err
-	}
-	if !ok {
-		return Match{}, ErrTimeout
-	}
-	return m, nil
+	return SearchWait(func() (Match, error) {
+		f, err := r.newFinder(source)
+		if err != nil {
+			return Match{}, err
+		}
+		return f.Find(pattern)
+	}, effectiveTimeout, r.waitInterval())
 }
 
 // WaitVanish waits until pattern disappears or timeout expires.
 func (r Region) WaitVanish(source *Image, pattern *Pattern, timeout time.Duration) (bool, error) {
-	checkOnce := func() (bool, error) {
-		_, ok, err := r.Exists(source, pattern, 0)
+	return SearchWaitVanish(func() (Match, error) {
+		f, err := r.newFinder(source)
 		if err != nil {
-			return false, err
+			return Match{}, err
 		}
-		return !ok, nil
-	}
-
-	if timeout <= 0 {
-		return checkOnce()
-	}
-
-	deadline := time.Now().Add(timeout)
-	interval := r.waitInterval()
-	for {
-		vanished, err := checkOnce()
-		if err != nil {
-			return false, err
-		}
-		if vanished {
-			return true, nil
-		}
-		if time.Now().After(deadline) {
-			return false, nil
-		}
-		sleep := interval
-		if remaining := time.Until(deadline); remaining < sleep {
-			sleep = remaining
-		}
-		if sleep > 0 {
-			time.Sleep(sleep)
-		}
-	}
+		return f.Find(pattern)
+	}, timeout, r.waitInterval())
 }
 
 // FindAll returns all matches in this region.
@@ -336,6 +285,24 @@ func (r Region) ReadText(source *Image, params OCRParams) (string, error) {
 		return "", err
 	}
 	return f.ReadText(params)
+}
+
+// CollectWords runs OCR in region and returns word-level results.
+func (r Region) CollectWords(source *Image, params OCRParams) ([]OCRWord, error) {
+	f, err := r.newFinder(source)
+	if err != nil {
+		return nil, err
+	}
+	return f.CollectWords(params)
+}
+
+// CollectLines runs OCR in region and returns line-level results.
+func (r Region) CollectLines(source *Image, params OCRParams) ([]OCRLine, error) {
+	f, err := r.newFinder(source)
+	if err != nil {
+		return nil, err
+	}
+	return f.CollectLines(params)
 }
 
 // FindText runs OCR in region and returns matches for the query.
@@ -388,8 +355,11 @@ func max(a, b int) int {
 }
 
 type Screen struct {
-	ID     int
-	Bounds Rect
+	ID      int
+	Name    string
+	Bounds  Rect
+	Primary bool
+	runtime *Runtime
 }
 
 // NewScreen constructs a logical screen descriptor.

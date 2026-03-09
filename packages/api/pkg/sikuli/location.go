@@ -11,6 +11,10 @@ func NewLocation(x, y int) Location {
 	return Location{X: x, Y: y}
 }
 
+func (l Location) TargetPoint() Point {
+	return l.ToPoint()
+}
+
 func (l Location) ToPoint() Point {
 	return NewPoint(l.X, l.Y)
 }

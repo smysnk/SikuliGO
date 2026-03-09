@@ -99,7 +99,7 @@ func TestDarwinBackendIsRunningAndListWindows(t *testing.T) {
 		responses: []fakeRunnerResponse{
 			{out: "true\n"},
 			{out: "true\n"},
-			{out: "Main||10||20||800||600||true\nTools||30||40||300||200||false\n"},
+			{out: "Main||10||20||800||600||true||||Demo||1234\nTools||30||40||300||200||false||||Demo||1234\n"},
 		},
 	}
 	backend := &darwinBackend{runner: runner}
@@ -130,6 +130,9 @@ func TestDarwinBackendIsRunningAndListWindows(t *testing.T) {
 	}
 	if list.Windows[0].Title != "Main" || list.Windows[0].X != 10 || list.Windows[0].Y != 20 || !list.Windows[0].Focused {
 		t.Fatalf("first window mismatch: %+v", list.Windows[0])
+	}
+	if list.Windows[0].App != "Demo" || list.Windows[0].PID != 1234 {
+		t.Fatalf("first window metadata mismatch: %+v", list.Windows[0])
 	}
 	if list.Windows[1].Title != "Tools" || list.Windows[1].W != 300 || list.Windows[1].H != 200 || list.Windows[1].Focused {
 		t.Fatalf("second window mismatch: %+v", list.Windows[1])

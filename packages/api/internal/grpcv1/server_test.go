@@ -4,6 +4,7 @@ import (
 	"context"
 	"image"
 	"testing"
+	"time"
 
 	"github.com/smysnk/sikuligo/internal/cv"
 	pb "github.com/smysnk/sikuligo/internal/grpcv1/pb"
@@ -264,6 +265,64 @@ func TestWaitOnScreenTimeoutMapsToDeadlineExceeded(t *testing.T) {
 	}
 	if code := status.Code(err); code != codes.DeadlineExceeded {
 		t.Fatalf("expected deadline exceeded, got %s", code)
+	}
+}
+
+func TestScreenSearchSemanticsIgnoreLegacyThrowSetting(t *testing.T) {
+	t.Cleanup(func() {
+		sikuli.ResetSettings()
+	})
+	sikuli.UpdateSettings(func(in *sikuli.RuntimeSettings) {
+		in.FindFailedThrows = false
+	})
+
+	srv := NewServer()
+	withMockScreenCapture(
+		t,
+		sikuliImageFromRows(t, "screen", [][]uint8{
+			{1, 1, 1, 1},
+			{1, 1, 1, 1},
+			{1, 1, 1, 1},
+			{1, 1, 1, 1},
+		}),
+	)
+
+	pattern := &pb.Pattern{
+		Image: grayImage("needle", [][]uint8{
+			{0, 255},
+			{255, 0},
+		}),
+		Exact: boolPtr(true),
+	}
+
+	_, err := srv.FindOnScreen(context.Background(), &pb.FindOnScreenRequest{Pattern: pattern})
+	if code := status.Code(err); code != codes.NotFound {
+		t.Fatalf("find_on_screen miss mismatch: got %s err=%v", code, err)
+	}
+
+	existsRes, err := srv.ExistsOnScreen(context.Background(), &pb.ExistsOnScreenRequest{
+		Pattern: pattern,
+		Opts: &pb.ScreenQueryOptions{
+			TimeoutMillis:  int64Ptr(int64((2 * time.Millisecond) / time.Millisecond)),
+			IntervalMillis: int64Ptr(1),
+		},
+	})
+	if err != nil {
+		t.Fatalf("exists_on_screen failed: %v", err)
+	}
+	if existsRes.GetExists() {
+		t.Fatalf("expected exists=false on miss")
+	}
+
+	_, err = srv.WaitOnScreen(context.Background(), &pb.WaitOnScreenRequest{
+		Pattern: pattern,
+		Opts: &pb.ScreenQueryOptions{
+			TimeoutMillis:  int64Ptr(int64((2 * time.Millisecond) / time.Millisecond)),
+			IntervalMillis: int64Ptr(1),
+		},
+	})
+	if code := status.Code(err); code != codes.DeadlineExceeded {
+		t.Fatalf("wait_on_screen miss mismatch: got %s err=%v", code, err)
 	}
 }
 

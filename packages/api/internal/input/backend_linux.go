@@ -49,7 +49,21 @@ func (b *linuxBackend) Execute(req core.InputRequest) error {
 			return err
 		}
 		return b.runXdotool(ctx, "mousemove", strconv.Itoa(req.X), strconv.Itoa(req.Y), "click", code)
+	case core.InputActionMouseDown:
+		code, err := linuxMouseButtonCode(req.Button)
+		if err != nil {
+			return err
+		}
+		return b.runXdotool(ctx, "mousemove", strconv.Itoa(req.X), strconv.Itoa(req.Y), "mousedown", code)
+	case core.InputActionMouseUp:
+		code, err := linuxMouseButtonCode(req.Button)
+		if err != nil {
+			return err
+		}
+		return b.runXdotool(ctx, "mousemove", strconv.Itoa(req.X), strconv.Itoa(req.Y), "mouseup", code)
 	case core.InputActionTypeText:
+		return b.runXdotool(ctx, "type", "--", req.Text)
+	case core.InputActionPasteText:
 		return b.runXdotool(ctx, "type", "--", req.Text)
 	case core.InputActionHotkey:
 		chord, err := linuxHotkeyChord(req.Keys)
@@ -57,6 +71,34 @@ func (b *linuxBackend) Execute(req core.InputRequest) error {
 			return err
 		}
 		return b.runXdotool(ctx, "key", chord)
+	case core.InputActionKeyDown:
+		for _, key := range req.Keys {
+			norm := normalizeLinuxKey(key)
+			if norm == "" {
+				return fmt.Errorf("key down requires non-empty keys")
+			}
+			if err := b.runXdotool(ctx, "keydown", norm); err != nil {
+				return err
+			}
+		}
+		return nil
+	case core.InputActionKeyUp:
+		for _, key := range req.Keys {
+			norm := normalizeLinuxKey(key)
+			if norm == "" {
+				return fmt.Errorf("key up requires non-empty keys")
+			}
+			if err := b.runXdotool(ctx, "keyup", norm); err != nil {
+				return err
+			}
+		}
+		return nil
+	case core.InputActionWheel:
+		code, err := linuxWheelButtonCode(req.ScrollDirection)
+		if err != nil {
+			return err
+		}
+		return b.runXdotool(ctx, "mousemove", strconv.Itoa(req.X), strconv.Itoa(req.Y), "click", "--repeat", strconv.Itoa(req.ScrollSteps), code)
 	default:
 		return fmt.Errorf("unsupported input action %q", req.Action)
 	}
@@ -110,6 +152,21 @@ func linuxHotkeyChord(keys []string) (string, error) {
 	}
 	parts := append(mods, mainKey)
 	return strings.Join(parts, "+"), nil
+}
+
+func linuxWheelButtonCode(direction string) (string, error) {
+	switch strings.ToLower(strings.TrimSpace(direction)) {
+	case "up":
+		return "4", nil
+	case "down":
+		return "5", nil
+	case "left":
+		return "6", nil
+	case "right":
+		return "7", nil
+	default:
+		return "", fmt.Errorf("wheel requires supported direction, got %q", direction)
+	}
 }
 
 func normalizeLinuxKey(key string) string {

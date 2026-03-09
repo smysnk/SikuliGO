@@ -15,9 +15,20 @@ type AppOptions struct {
 }
 
 type Window struct {
+	ID      string
+	App     string
+	PID     int
 	Title   string
 	Bounds  Rect
 	Focused bool
+}
+
+type WindowQuery struct {
+	ID            string
+	TitleExact    string
+	TitleContains string
+	FocusedOnly   bool
+	Index         int
 }
 
 type AppController struct {
@@ -69,15 +80,34 @@ func (c *AppController) ListWindows(name string, opts AppOptions) ([]Window, err
 	if err != nil {
 		return nil, err
 	}
-	out := make([]Window, 0, len(res.Windows))
-	for _, w := range res.Windows {
-		out = append(out, Window{
-			Title:   w.Title,
-			Bounds:  NewRect(w.X, w.Y, w.W, w.H),
-			Focused: w.Focused,
-		})
+	return windowsFromCore(res.Windows), nil
+}
+
+func (c *AppController) FindWindows(name string, query WindowQuery, opts AppOptions) ([]Window, error) {
+	windows, err := c.ListWindows(name, opts)
+	if err != nil {
+		return nil, err
 	}
-	return out, nil
+	return filterWindows(windows, query), nil
+}
+
+func (c *AppController) GetWindow(name string, query WindowQuery, opts AppOptions) (Window, bool, error) {
+	windows, err := c.FindWindows(name, query, opts)
+	if err != nil {
+		return Window{}, false, err
+	}
+	if len(windows) == 0 {
+		return Window{}, false, nil
+	}
+	index := normalizeWindowQuery(query).Index
+	if index < 0 || index >= len(windows) {
+		return Window{}, false, nil
+	}
+	return windows[index], true, nil
+}
+
+func (c *AppController) FocusedWindow(name string, opts AppOptions) (Window, bool, error) {
+	return c.GetWindow(name, WindowQuery{FocusedOnly: true}, opts)
 }
 
 func (c *AppController) execute(action core.AppAction, name string, args []string, opts AppOptions) (core.AppResult, error) {
@@ -122,4 +152,51 @@ func mapAppError(err error) error {
 		return fmt.Errorf("%w: %v", ErrInvalidTarget, err)
 	}
 	return err
+}
+
+func windowsFromCore(in []core.WindowInfo) []Window {
+	out := make([]Window, 0, len(in))
+	for _, w := range in {
+		out = append(out, Window{
+			ID:      w.ID,
+			App:     w.App,
+			PID:     w.PID,
+			Title:   w.Title,
+			Bounds:  NewRect(w.X, w.Y, w.W, w.H),
+			Focused: w.Focused,
+		})
+	}
+	return out
+}
+
+func normalizeWindowQuery(in WindowQuery) WindowQuery {
+	out := in
+	out.ID = strings.TrimSpace(out.ID)
+	out.TitleExact = strings.TrimSpace(out.TitleExact)
+	out.TitleContains = strings.TrimSpace(out.TitleContains)
+	if out.Index < 0 {
+		out.Index = 0
+	}
+	return out
+}
+
+func filterWindows(windows []Window, query WindowQuery) []Window {
+	query = normalizeWindowQuery(query)
+	matches := make([]Window, 0, len(windows))
+	for _, window := range windows {
+		if query.ID != "" && window.ID != query.ID {
+			continue
+		}
+		if query.FocusedOnly && !window.Focused {
+			continue
+		}
+		if query.TitleExact != "" && window.Title != query.TitleExact {
+			continue
+		}
+		if query.TitleContains != "" && !strings.Contains(strings.ToLower(window.Title), strings.ToLower(query.TitleContains)) {
+			continue
+		}
+		matches = append(matches, window)
+	}
+	return matches
 }

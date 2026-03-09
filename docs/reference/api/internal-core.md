@@ -215,18 +215,26 @@ type InputAction string
 const (
 	InputActionMouseMove InputAction = "mouse_move"
 	InputActionClick     InputAction = "click"
+	InputActionMouseDown InputAction = "mouse_down"
+	InputActionMouseUp   InputAction = "mouse_up"
 	InputActionTypeText  InputAction = "type_text"
+	InputActionPasteText InputAction = "paste_text"
 	InputActionHotkey    InputAction = "hotkey"
+	InputActionKeyDown   InputAction = "key_down"
+	InputActionKeyUp     InputAction = "key_up"
+	InputActionWheel     InputAction = "wheel"
 )
 type InputRequest struct {
-	Action  InputAction
-	X       int
-	Y       int
-	Button  string
-	Text    string
-	Keys    []string
-	Delay   time.Duration
-	Options map[string]string
+	Action          InputAction
+	X               int
+	Y               int
+	Button          string
+	Text            string
+	Keys            []string
+	Delay           time.Duration
+	ScrollDirection string
+	ScrollSteps     int
+	Options         map[string]string
 }
 
 func (r InputRequest) Validate() error
@@ -316,6 +324,9 @@ type SearchRequest struct {
 func (r SearchRequest) Validate() error
 
 type WindowInfo struct {
+	ID      string
+	App     string
+	PID     int
 	Title   string
 	X       int
 	Y       int

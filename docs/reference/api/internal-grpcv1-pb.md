@@ -20,6 +20,8 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 - <span class="api-type">[`ActionResponse`](#type-actionresponse)</span>
 - <span class="api-type">[`AppActionRequest`](#type-appactionrequest)</span>
 - <span class="api-type">[`AppOptions`](#type-appoptions)</span>
+- <span class="api-type">[`CaptureScreenRequest`](#type-capturescreenrequest)</span>
+- <span class="api-type">[`CaptureScreenResponse`](#type-capturescreenresponse)</span>
 - <span class="api-type">[`ClickOnScreenRequest`](#type-clickonscreenrequest)</span>
 - <span class="api-type">[`ClickRequest`](#type-clickrequest)</span>
 - <span class="api-type">[`ExistsOnScreenRequest`](#type-existsonscreenrequest)</span>
@@ -30,10 +32,15 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 - <span class="api-type">[`FindResponse`](#type-findresponse)</span>
 - <span class="api-type">[`FindTextRequest`](#type-findtextrequest)</span>
 - <span class="api-type">[`FindTextResponse`](#type-findtextresponse)</span>
+- <span class="api-type">[`GetPrimaryScreenRequest`](#type-getprimaryscreenrequest)</span>
+- <span class="api-type">[`GetPrimaryScreenResponse`](#type-getprimaryscreenresponse)</span>
+- <span class="api-type">[`GetWindowResponse`](#type-getwindowresponse)</span>
 - <span class="api-type">[`GrayImage`](#type-grayimage)</span>
 - <span class="api-type">[`HotkeyRequest`](#type-hotkeyrequest)</span>
 - <span class="api-type">[`InputOptions`](#type-inputoptions)</span>
 - <span class="api-type">[`IsAppRunningResponse`](#type-isapprunningresponse)</span>
+- <span class="api-type">[`ListScreensRequest`](#type-listscreensrequest)</span>
+- <span class="api-type">[`ListScreensResponse`](#type-listscreensresponse)</span>
 - <span class="api-type">[`ListWindowsResponse`](#type-listwindowsresponse)</span>
 - <span class="api-type">[`Match`](#type-match)</span>
 - <span class="api-type">[`MatcherEngine`](#type-matcherengine)</span>
@@ -49,7 +56,9 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 - <span class="api-type">[`ReadTextRequest`](#type-readtextrequest)</span>
 - <span class="api-type">[`ReadTextResponse`](#type-readtextresponse)</span>
 - <span class="api-type">[`Rect`](#type-rect)</span>
+- <span class="api-type">[`ScreenDescriptor`](#type-screendescriptor)</span>
 - <span class="api-type">[`ScreenQueryOptions`](#type-screenqueryoptions)</span>
+- <span class="api-type">[`ScrollWheelRequest`](#type-scrollwheelrequest)</span>
 - <span class="api-type">[`SikuliServiceClient`](#type-sikuliserviceclient)</span>
 - <span class="api-type">[`SikuliServiceServer`](#type-sikuliserviceserver)</span>
 - <span class="api-type">[`TextMatch`](#type-textmatch)</span>
@@ -58,6 +67,8 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 - <span class="api-type">[`UnsafeSikuliServiceServer`](#type-unsafesikuliserviceserver)</span>
 - <span class="api-type">[`WaitOnScreenRequest`](#type-waitonscreenrequest)</span>
 - <span class="api-type">[`Window`](#type-window)</span>
+- <span class="api-type">[`WindowQuery`](#type-windowquery)</span>
+- <span class="api-type">[`WindowQueryRequest`](#type-windowqueryrequest)</span>
 
 ### Functions
 
@@ -85,6 +96,20 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 - <span class="api-method">[`AppOptions.ProtoReflect`](#method-appoptions-protoreflect)</span>
 - <span class="api-method">[`AppOptions.Reset`](#method-appoptions-reset)</span>
 - <span class="api-method">[`AppOptions.String`](#method-appoptions-string)</span>
+- <span class="api-method">[`CaptureScreenRequest.Descriptor`](#method-capturescreenrequest-descriptor)</span>
+- <span class="api-method">[`CaptureScreenRequest.GetRegion`](#method-capturescreenrequest-getregion)</span>
+- <span class="api-method">[`CaptureScreenRequest.GetScreenId`](#method-capturescreenrequest-getscreenid)</span>
+- <span class="api-method">[`CaptureScreenRequest.ProtoMessage`](#method-capturescreenrequest-protomessage)</span>
+- <span class="api-method">[`CaptureScreenRequest.ProtoReflect`](#method-capturescreenrequest-protoreflect)</span>
+- <span class="api-method">[`CaptureScreenRequest.Reset`](#method-capturescreenrequest-reset)</span>
+- <span class="api-method">[`CaptureScreenRequest.String`](#method-capturescreenrequest-string)</span>
+- <span class="api-method">[`CaptureScreenResponse.Descriptor`](#method-capturescreenresponse-descriptor)</span>
+- <span class="api-method">[`CaptureScreenResponse.GetImage`](#method-capturescreenresponse-getimage)</span>
+- <span class="api-method">[`CaptureScreenResponse.GetScreen`](#method-capturescreenresponse-getscreen)</span>
+- <span class="api-method">[`CaptureScreenResponse.ProtoMessage`](#method-capturescreenresponse-protomessage)</span>
+- <span class="api-method">[`CaptureScreenResponse.ProtoReflect`](#method-capturescreenresponse-protoreflect)</span>
+- <span class="api-method">[`CaptureScreenResponse.Reset`](#method-capturescreenresponse-reset)</span>
+- <span class="api-method">[`CaptureScreenResponse.String`](#method-capturescreenresponse-string)</span>
 - <span class="api-method">[`ClickOnScreenRequest.Descriptor`](#method-clickonscreenrequest-descriptor)</span>
 - <span class="api-method">[`ClickOnScreenRequest.GetClickOpts`](#method-clickonscreenrequest-getclickopts)</span>
 - <span class="api-method">[`ClickOnScreenRequest.GetOpts`](#method-clickonscreenrequest-getopts)</span>
@@ -156,6 +181,24 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 - <span class="api-method">[`FindTextResponse.ProtoReflect`](#method-findtextresponse-protoreflect)</span>
 - <span class="api-method">[`FindTextResponse.Reset`](#method-findtextresponse-reset)</span>
 - <span class="api-method">[`FindTextResponse.String`](#method-findtextresponse-string)</span>
+- <span class="api-method">[`GetPrimaryScreenRequest.Descriptor`](#method-getprimaryscreenrequest-descriptor)</span>
+- <span class="api-method">[`GetPrimaryScreenRequest.ProtoMessage`](#method-getprimaryscreenrequest-protomessage)</span>
+- <span class="api-method">[`GetPrimaryScreenRequest.ProtoReflect`](#method-getprimaryscreenrequest-protoreflect)</span>
+- <span class="api-method">[`GetPrimaryScreenRequest.Reset`](#method-getprimaryscreenrequest-reset)</span>
+- <span class="api-method">[`GetPrimaryScreenRequest.String`](#method-getprimaryscreenrequest-string)</span>
+- <span class="api-method">[`GetPrimaryScreenResponse.Descriptor`](#method-getprimaryscreenresponse-descriptor)</span>
+- <span class="api-method">[`GetPrimaryScreenResponse.GetScreen`](#method-getprimaryscreenresponse-getscreen)</span>
+- <span class="api-method">[`GetPrimaryScreenResponse.ProtoMessage`](#method-getprimaryscreenresponse-protomessage)</span>
+- <span class="api-method">[`GetPrimaryScreenResponse.ProtoReflect`](#method-getprimaryscreenresponse-protoreflect)</span>
+- <span class="api-method">[`GetPrimaryScreenResponse.Reset`](#method-getprimaryscreenresponse-reset)</span>
+- <span class="api-method">[`GetPrimaryScreenResponse.String`](#method-getprimaryscreenresponse-string)</span>
+- <span class="api-method">[`GetWindowResponse.Descriptor`](#method-getwindowresponse-descriptor)</span>
+- <span class="api-method">[`GetWindowResponse.GetFound`](#method-getwindowresponse-getfound)</span>
+- <span class="api-method">[`GetWindowResponse.GetWindow`](#method-getwindowresponse-getwindow)</span>
+- <span class="api-method">[`GetWindowResponse.ProtoMessage`](#method-getwindowresponse-protomessage)</span>
+- <span class="api-method">[`GetWindowResponse.ProtoReflect`](#method-getwindowresponse-protoreflect)</span>
+- <span class="api-method">[`GetWindowResponse.Reset`](#method-getwindowresponse-reset)</span>
+- <span class="api-method">[`GetWindowResponse.String`](#method-getwindowresponse-string)</span>
 - <span class="api-method">[`GrayImage.Descriptor`](#method-grayimage-descriptor)</span>
 - <span class="api-method">[`GrayImage.GetHeight`](#method-grayimage-getheight)</span>
 - <span class="api-method">[`GrayImage.GetName`](#method-grayimage-getname)</span>
@@ -184,6 +227,17 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 - <span class="api-method">[`IsAppRunningResponse.ProtoReflect`](#method-isapprunningresponse-protoreflect)</span>
 - <span class="api-method">[`IsAppRunningResponse.Reset`](#method-isapprunningresponse-reset)</span>
 - <span class="api-method">[`IsAppRunningResponse.String`](#method-isapprunningresponse-string)</span>
+- <span class="api-method">[`ListScreensRequest.Descriptor`](#method-listscreensrequest-descriptor)</span>
+- <span class="api-method">[`ListScreensRequest.ProtoMessage`](#method-listscreensrequest-protomessage)</span>
+- <span class="api-method">[`ListScreensRequest.ProtoReflect`](#method-listscreensrequest-protoreflect)</span>
+- <span class="api-method">[`ListScreensRequest.Reset`](#method-listscreensrequest-reset)</span>
+- <span class="api-method">[`ListScreensRequest.String`](#method-listscreensrequest-string)</span>
+- <span class="api-method">[`ListScreensResponse.Descriptor`](#method-listscreensresponse-descriptor)</span>
+- <span class="api-method">[`ListScreensResponse.GetScreens`](#method-listscreensresponse-getscreens)</span>
+- <span class="api-method">[`ListScreensResponse.ProtoMessage`](#method-listscreensresponse-protomessage)</span>
+- <span class="api-method">[`ListScreensResponse.ProtoReflect`](#method-listscreensresponse-protoreflect)</span>
+- <span class="api-method">[`ListScreensResponse.Reset`](#method-listscreensresponse-reset)</span>
+- <span class="api-method">[`ListScreensResponse.String`](#method-listscreensresponse-string)</span>
 - <span class="api-method">[`ListWindowsResponse.Descriptor`](#method-listwindowsresponse-descriptor)</span>
 - <span class="api-method">[`ListWindowsResponse.GetWindows`](#method-listwindowsresponse-getwindows)</span>
 - <span class="api-method">[`ListWindowsResponse.ProtoMessage`](#method-listwindowsresponse-protomessage)</span>
@@ -301,15 +355,35 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 - <span class="api-method">[`Rect.ProtoReflect`](#method-rect-protoreflect)</span>
 - <span class="api-method">[`Rect.Reset`](#method-rect-reset)</span>
 - <span class="api-method">[`Rect.String`](#method-rect-string)</span>
+- <span class="api-method">[`ScreenDescriptor.Descriptor`](#method-screendescriptor-descriptor)</span>
+- <span class="api-method">[`ScreenDescriptor.GetBounds`](#method-screendescriptor-getbounds)</span>
+- <span class="api-method">[`ScreenDescriptor.GetId`](#method-screendescriptor-getid)</span>
+- <span class="api-method">[`ScreenDescriptor.GetName`](#method-screendescriptor-getname)</span>
+- <span class="api-method">[`ScreenDescriptor.GetPrimary`](#method-screendescriptor-getprimary)</span>
+- <span class="api-method">[`ScreenDescriptor.ProtoMessage`](#method-screendescriptor-protomessage)</span>
+- <span class="api-method">[`ScreenDescriptor.ProtoReflect`](#method-screendescriptor-protoreflect)</span>
+- <span class="api-method">[`ScreenDescriptor.Reset`](#method-screendescriptor-reset)</span>
+- <span class="api-method">[`ScreenDescriptor.String`](#method-screendescriptor-string)</span>
 - <span class="api-method">[`ScreenQueryOptions.Descriptor`](#method-screenqueryoptions-descriptor)</span>
 - <span class="api-method">[`ScreenQueryOptions.GetIntervalMillis`](#method-screenqueryoptions-getintervalmillis)</span>
 - <span class="api-method">[`ScreenQueryOptions.GetMatcherEngine`](#method-screenqueryoptions-getmatcherengine)</span>
 - <span class="api-method">[`ScreenQueryOptions.GetRegion`](#method-screenqueryoptions-getregion)</span>
+- <span class="api-method">[`ScreenQueryOptions.GetScreenId`](#method-screenqueryoptions-getscreenid)</span>
 - <span class="api-method">[`ScreenQueryOptions.GetTimeoutMillis`](#method-screenqueryoptions-gettimeoutmillis)</span>
 - <span class="api-method">[`ScreenQueryOptions.ProtoMessage`](#method-screenqueryoptions-protomessage)</span>
 - <span class="api-method">[`ScreenQueryOptions.ProtoReflect`](#method-screenqueryoptions-protoreflect)</span>
 - <span class="api-method">[`ScreenQueryOptions.Reset`](#method-screenqueryoptions-reset)</span>
 - <span class="api-method">[`ScreenQueryOptions.String`](#method-screenqueryoptions-string)</span>
+- <span class="api-method">[`ScrollWheelRequest.Descriptor`](#method-scrollwheelrequest-descriptor)</span>
+- <span class="api-method">[`ScrollWheelRequest.GetDirection`](#method-scrollwheelrequest-getdirection)</span>
+- <span class="api-method">[`ScrollWheelRequest.GetOpts`](#method-scrollwheelrequest-getopts)</span>
+- <span class="api-method">[`ScrollWheelRequest.GetSteps`](#method-scrollwheelrequest-getsteps)</span>
+- <span class="api-method">[`ScrollWheelRequest.GetX`](#method-scrollwheelrequest-getx)</span>
+- <span class="api-method">[`ScrollWheelRequest.GetY`](#method-scrollwheelrequest-gety)</span>
+- <span class="api-method">[`ScrollWheelRequest.ProtoMessage`](#method-scrollwheelrequest-protomessage)</span>
+- <span class="api-method">[`ScrollWheelRequest.ProtoReflect`](#method-scrollwheelrequest-protoreflect)</span>
+- <span class="api-method">[`ScrollWheelRequest.Reset`](#method-scrollwheelrequest-reset)</span>
+- <span class="api-method">[`ScrollWheelRequest.String`](#method-scrollwheelrequest-string)</span>
 - <span class="api-method">[`TextMatch.Descriptor`](#method-textmatch-descriptor)</span>
 - <span class="api-method">[`TextMatch.GetConfidence`](#method-textmatch-getconfidence)</span>
 - <span class="api-method">[`TextMatch.GetIndex`](#method-textmatch-getindex)</span>
@@ -326,6 +400,7 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 - <span class="api-method">[`TypeTextRequest.ProtoReflect`](#method-typetextrequest-protoreflect)</span>
 - <span class="api-method">[`TypeTextRequest.Reset`](#method-typetextrequest-reset)</span>
 - <span class="api-method">[`TypeTextRequest.String`](#method-typetextrequest-string)</span>
+- <span class="api-method">[`UnimplementedSikuliServiceServer.CaptureScreen`](#method-unimplementedsikuliserviceserver-capturescreen)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.Click`](#method-unimplementedsikuliserviceserver-click)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.ClickOnScreen`](#method-unimplementedsikuliserviceserver-clickonscreen)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.CloseApp`](#method-unimplementedsikuliserviceserver-closeapp)</span>
@@ -334,16 +409,27 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 - <span class="api-method">[`UnimplementedSikuliServiceServer.FindAll`](#method-unimplementedsikuliserviceserver-findall)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.FindOnScreen`](#method-unimplementedsikuliserviceserver-findonscreen)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.FindText`](#method-unimplementedsikuliserviceserver-findtext)</span>
+- <span class="api-method">[`UnimplementedSikuliServiceServer.FindWindows`](#method-unimplementedsikuliserviceserver-findwindows)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.FocusApp`](#method-unimplementedsikuliserviceserver-focusapp)</span>
+- <span class="api-method">[`UnimplementedSikuliServiceServer.GetFocusedWindow`](#method-unimplementedsikuliserviceserver-getfocusedwindow)</span>
+- <span class="api-method">[`UnimplementedSikuliServiceServer.GetPrimaryScreen`](#method-unimplementedsikuliserviceserver-getprimaryscreen)</span>
+- <span class="api-method">[`UnimplementedSikuliServiceServer.GetWindow`](#method-unimplementedsikuliserviceserver-getwindow)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.Hotkey`](#method-unimplementedsikuliserviceserver-hotkey)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.IsAppRunning`](#method-unimplementedsikuliserviceserver-isapprunning)</span>
+- <span class="api-method">[`UnimplementedSikuliServiceServer.KeyDown`](#method-unimplementedsikuliserviceserver-keydown)</span>
+- <span class="api-method">[`UnimplementedSikuliServiceServer.KeyUp`](#method-unimplementedsikuliserviceserver-keyup)</span>
+- <span class="api-method">[`UnimplementedSikuliServiceServer.ListScreens`](#method-unimplementedsikuliserviceserver-listscreens)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.ListWindows`](#method-unimplementedsikuliserviceserver-listwindows)</span>
+- <span class="api-method">[`UnimplementedSikuliServiceServer.MouseDown`](#method-unimplementedsikuliserviceserver-mousedown)</span>
+- <span class="api-method">[`UnimplementedSikuliServiceServer.MouseUp`](#method-unimplementedsikuliserviceserver-mouseup)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.MoveMouse`](#method-unimplementedsikuliserviceserver-movemouse)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.ObserveAppear`](#method-unimplementedsikuliserviceserver-observeappear)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.ObserveChange`](#method-unimplementedsikuliserviceserver-observechange)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.ObserveVanish`](#method-unimplementedsikuliserviceserver-observevanish)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.OpenApp`](#method-unimplementedsikuliserviceserver-openapp)</span>
+- <span class="api-method">[`UnimplementedSikuliServiceServer.PasteText`](#method-unimplementedsikuliserviceserver-pastetext)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.ReadText`](#method-unimplementedsikuliserviceserver-readtext)</span>
+- <span class="api-method">[`UnimplementedSikuliServiceServer.ScrollWheel`](#method-unimplementedsikuliserviceserver-scrollwheel)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.TypeText`](#method-unimplementedsikuliserviceserver-typetext)</span>
 - <span class="api-method">[`UnimplementedSikuliServiceServer.WaitOnScreen`](#method-unimplementedsikuliserviceserver-waitonscreen)</span>
 - <span class="api-method">[`WaitOnScreenRequest.Descriptor`](#method-waitonscreenrequest-descriptor)</span>
@@ -354,13 +440,34 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 - <span class="api-method">[`WaitOnScreenRequest.Reset`](#method-waitonscreenrequest-reset)</span>
 - <span class="api-method">[`WaitOnScreenRequest.String`](#method-waitonscreenrequest-string)</span>
 - <span class="api-method">[`Window.Descriptor`](#method-window-descriptor)</span>
+- <span class="api-method">[`Window.GetApp`](#method-window-getapp)</span>
 - <span class="api-method">[`Window.GetBounds`](#method-window-getbounds)</span>
 - <span class="api-method">[`Window.GetFocused`](#method-window-getfocused)</span>
+- <span class="api-method">[`Window.GetId`](#method-window-getid)</span>
+- <span class="api-method">[`Window.GetPid`](#method-window-getpid)</span>
 - <span class="api-method">[`Window.GetTitle`](#method-window-gettitle)</span>
 - <span class="api-method">[`Window.ProtoMessage`](#method-window-protomessage)</span>
 - <span class="api-method">[`Window.ProtoReflect`](#method-window-protoreflect)</span>
 - <span class="api-method">[`Window.Reset`](#method-window-reset)</span>
 - <span class="api-method">[`Window.String`](#method-window-string)</span>
+- <span class="api-method">[`WindowQuery.Descriptor`](#method-windowquery-descriptor)</span>
+- <span class="api-method">[`WindowQuery.GetFocusedOnly`](#method-windowquery-getfocusedonly)</span>
+- <span class="api-method">[`WindowQuery.GetId`](#method-windowquery-getid)</span>
+- <span class="api-method">[`WindowQuery.GetIndex`](#method-windowquery-getindex)</span>
+- <span class="api-method">[`WindowQuery.GetTitleContains`](#method-windowquery-gettitlecontains)</span>
+- <span class="api-method">[`WindowQuery.GetTitleExact`](#method-windowquery-gettitleexact)</span>
+- <span class="api-method">[`WindowQuery.ProtoMessage`](#method-windowquery-protomessage)</span>
+- <span class="api-method">[`WindowQuery.ProtoReflect`](#method-windowquery-protoreflect)</span>
+- <span class="api-method">[`WindowQuery.Reset`](#method-windowquery-reset)</span>
+- <span class="api-method">[`WindowQuery.String`](#method-windowquery-string)</span>
+- <span class="api-method">[`WindowQueryRequest.Descriptor`](#method-windowqueryrequest-descriptor)</span>
+- <span class="api-method">[`WindowQueryRequest.GetName`](#method-windowqueryrequest-getname)</span>
+- <span class="api-method">[`WindowQueryRequest.GetOpts`](#method-windowqueryrequest-getopts)</span>
+- <span class="api-method">[`WindowQueryRequest.GetQuery`](#method-windowqueryrequest-getquery)</span>
+- <span class="api-method">[`WindowQueryRequest.ProtoMessage`](#method-windowqueryrequest-protomessage)</span>
+- <span class="api-method">[`WindowQueryRequest.ProtoReflect`](#method-windowqueryrequest-protoreflect)</span>
+- <span class="api-method">[`WindowQueryRequest.Reset`](#method-windowqueryrequest-reset)</span>
+- <span class="api-method">[`WindowQueryRequest.String`](#method-windowqueryrequest-string)</span>
 
 ## Declarations
 
@@ -377,6 +484,14 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 #### <a id="type-appoptions"></a><span class="api-type">Type</span> `AppOptions`
 
 - Signature: <span class="api-signature">`type AppOptions struct {`</span>
+
+#### <a id="type-capturescreenrequest"></a><span class="api-type">Type</span> `CaptureScreenRequest`
+
+- Signature: <span class="api-signature">`type CaptureScreenRequest struct {`</span>
+
+#### <a id="type-capturescreenresponse"></a><span class="api-type">Type</span> `CaptureScreenResponse`
+
+- Signature: <span class="api-signature">`type CaptureScreenResponse struct {`</span>
 
 #### <a id="type-clickonscreenrequest"></a><span class="api-type">Type</span> `ClickOnScreenRequest`
 
@@ -418,6 +533,18 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 
 - Signature: <span class="api-signature">`type FindTextResponse struct {`</span>
 
+#### <a id="type-getprimaryscreenrequest"></a><span class="api-type">Type</span> `GetPrimaryScreenRequest`
+
+- Signature: <span class="api-signature">`type GetPrimaryScreenRequest struct {`</span>
+
+#### <a id="type-getprimaryscreenresponse"></a><span class="api-type">Type</span> `GetPrimaryScreenResponse`
+
+- Signature: <span class="api-signature">`type GetPrimaryScreenResponse struct {`</span>
+
+#### <a id="type-getwindowresponse"></a><span class="api-type">Type</span> `GetWindowResponse`
+
+- Signature: <span class="api-signature">`type GetWindowResponse struct {`</span>
+
 #### <a id="type-grayimage"></a><span class="api-type">Type</span> `GrayImage`
 
 - Signature: <span class="api-signature">`type GrayImage struct {`</span>
@@ -433,6 +560,14 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 #### <a id="type-isapprunningresponse"></a><span class="api-type">Type</span> `IsAppRunningResponse`
 
 - Signature: <span class="api-signature">`type IsAppRunningResponse struct {`</span>
+
+#### <a id="type-listscreensrequest"></a><span class="api-type">Type</span> `ListScreensRequest`
+
+- Signature: <span class="api-signature">`type ListScreensRequest struct {`</span>
+
+#### <a id="type-listscreensresponse"></a><span class="api-type">Type</span> `ListScreensResponse`
+
+- Signature: <span class="api-signature">`type ListScreensResponse struct {`</span>
 
 #### <a id="type-listwindowsresponse"></a><span class="api-type">Type</span> `ListWindowsResponse`
 
@@ -494,9 +629,17 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 
 - Signature: <span class="api-signature">`type Rect struct {`</span>
 
+#### <a id="type-screendescriptor"></a><span class="api-type">Type</span> `ScreenDescriptor`
+
+- Signature: <span class="api-signature">`type ScreenDescriptor struct {`</span>
+
 #### <a id="type-screenqueryoptions"></a><span class="api-type">Type</span> `ScreenQueryOptions`
 
 - Signature: <span class="api-signature">`type ScreenQueryOptions struct {`</span>
+
+#### <a id="type-scrollwheelrequest"></a><span class="api-type">Type</span> `ScrollWheelRequest`
+
+- Signature: <span class="api-signature">`type ScrollWheelRequest struct {`</span>
 
 #### <a id="type-sikuliserviceclient"></a><span class="api-type">Type</span> `SikuliServiceClient`
 
@@ -530,6 +673,14 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 #### <a id="type-window"></a><span class="api-type">Type</span> `Window`
 
 - Signature: <span class="api-signature">`type Window struct {`</span>
+
+#### <a id="type-windowquery"></a><span class="api-type">Type</span> `WindowQuery`
+
+- Signature: <span class="api-signature">`type WindowQuery struct {`</span>
+
+#### <a id="type-windowqueryrequest"></a><span class="api-type">Type</span> `WindowQueryRequest`
+
+- Signature: <span class="api-signature">`type WindowQueryRequest struct {`</span>
 
 ### Functions
 
@@ -624,6 +775,67 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 #### <a id="method-appoptions-string"></a><span class="api-method">Method</span> `AppOptions.String`
 
 - Signature: <span class="api-signature">`func (x *AppOptions) String() string`</span>
+
+#### <a id="method-capturescreenrequest-descriptor"></a><span class="api-method">Method</span> `CaptureScreenRequest.Descriptor`
+
+- Signature: <span class="api-signature">`func (*CaptureScreenRequest) Descriptor() ([]byte, []int)`</span>
+- Notes: Deprecated: Use CaptureScreenRequest.ProtoReflect.Descriptor instead.
+
+#### <a id="method-capturescreenrequest-getregion"></a><span class="api-method">Method</span> `CaptureScreenRequest.GetRegion`
+
+- Signature: <span class="api-signature">`func (x *CaptureScreenRequest) GetRegion() *Rect`</span>
+- Uses: [`Rect`](#type-rect)
+
+#### <a id="method-capturescreenrequest-getscreenid"></a><span class="api-method">Method</span> `CaptureScreenRequest.GetScreenId`
+
+- Signature: <span class="api-signature">`func (x *CaptureScreenRequest) GetScreenId() int32`</span>
+
+#### <a id="method-capturescreenrequest-protomessage"></a><span class="api-method">Method</span> `CaptureScreenRequest.ProtoMessage`
+
+- Signature: <span class="api-signature">`func (*CaptureScreenRequest) ProtoMessage()`</span>
+
+#### <a id="method-capturescreenrequest-protoreflect"></a><span class="api-method">Method</span> `CaptureScreenRequest.ProtoReflect`
+
+- Signature: <span class="api-signature">`func (x *CaptureScreenRequest) ProtoReflect() protoreflect.Message`</span>
+
+#### <a id="method-capturescreenrequest-reset"></a><span class="api-method">Method</span> `CaptureScreenRequest.Reset`
+
+- Signature: <span class="api-signature">`func (x *CaptureScreenRequest) Reset()`</span>
+
+#### <a id="method-capturescreenrequest-string"></a><span class="api-method">Method</span> `CaptureScreenRequest.String`
+
+- Signature: <span class="api-signature">`func (x *CaptureScreenRequest) String() string`</span>
+
+#### <a id="method-capturescreenresponse-descriptor"></a><span class="api-method">Method</span> `CaptureScreenResponse.Descriptor`
+
+- Signature: <span class="api-signature">`func (*CaptureScreenResponse) Descriptor() ([]byte, []int)`</span>
+- Notes: Deprecated: Use CaptureScreenResponse.ProtoReflect.Descriptor instead.
+
+#### <a id="method-capturescreenresponse-getimage"></a><span class="api-method">Method</span> `CaptureScreenResponse.GetImage`
+
+- Signature: <span class="api-signature">`func (x *CaptureScreenResponse) GetImage() *GrayImage`</span>
+- Uses: [`GrayImage`](#type-grayimage)
+
+#### <a id="method-capturescreenresponse-getscreen"></a><span class="api-method">Method</span> `CaptureScreenResponse.GetScreen`
+
+- Signature: <span class="api-signature">`func (x *CaptureScreenResponse) GetScreen() *ScreenDescriptor`</span>
+- Uses: [`ScreenDescriptor`](#type-screendescriptor)
+
+#### <a id="method-capturescreenresponse-protomessage"></a><span class="api-method">Method</span> `CaptureScreenResponse.ProtoMessage`
+
+- Signature: <span class="api-signature">`func (*CaptureScreenResponse) ProtoMessage()`</span>
+
+#### <a id="method-capturescreenresponse-protoreflect"></a><span class="api-method">Method</span> `CaptureScreenResponse.ProtoReflect`
+
+- Signature: <span class="api-signature">`func (x *CaptureScreenResponse) ProtoReflect() protoreflect.Message`</span>
+
+#### <a id="method-capturescreenresponse-reset"></a><span class="api-method">Method</span> `CaptureScreenResponse.Reset`
+
+- Signature: <span class="api-signature">`func (x *CaptureScreenResponse) Reset()`</span>
+
+#### <a id="method-capturescreenresponse-string"></a><span class="api-method">Method</span> `CaptureScreenResponse.String`
+
+- Signature: <span class="api-signature">`func (x *CaptureScreenResponse) String() string`</span>
 
 #### <a id="method-clickonscreenrequest-descriptor"></a><span class="api-method">Method</span> `ClickOnScreenRequest.Descriptor`
 
@@ -936,6 +1148,83 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 
 - Signature: <span class="api-signature">`func (x *FindTextResponse) String() string`</span>
 
+#### <a id="method-getprimaryscreenrequest-descriptor"></a><span class="api-method">Method</span> `GetPrimaryScreenRequest.Descriptor`
+
+- Signature: <span class="api-signature">`func (*GetPrimaryScreenRequest) Descriptor() ([]byte, []int)`</span>
+- Notes: Deprecated: Use GetPrimaryScreenRequest.ProtoReflect.Descriptor instead.
+
+#### <a id="method-getprimaryscreenrequest-protomessage"></a><span class="api-method">Method</span> `GetPrimaryScreenRequest.ProtoMessage`
+
+- Signature: <span class="api-signature">`func (*GetPrimaryScreenRequest) ProtoMessage()`</span>
+
+#### <a id="method-getprimaryscreenrequest-protoreflect"></a><span class="api-method">Method</span> `GetPrimaryScreenRequest.ProtoReflect`
+
+- Signature: <span class="api-signature">`func (x *GetPrimaryScreenRequest) ProtoReflect() protoreflect.Message`</span>
+
+#### <a id="method-getprimaryscreenrequest-reset"></a><span class="api-method">Method</span> `GetPrimaryScreenRequest.Reset`
+
+- Signature: <span class="api-signature">`func (x *GetPrimaryScreenRequest) Reset()`</span>
+
+#### <a id="method-getprimaryscreenrequest-string"></a><span class="api-method">Method</span> `GetPrimaryScreenRequest.String`
+
+- Signature: <span class="api-signature">`func (x *GetPrimaryScreenRequest) String() string`</span>
+
+#### <a id="method-getprimaryscreenresponse-descriptor"></a><span class="api-method">Method</span> `GetPrimaryScreenResponse.Descriptor`
+
+- Signature: <span class="api-signature">`func (*GetPrimaryScreenResponse) Descriptor() ([]byte, []int)`</span>
+- Notes: Deprecated: Use GetPrimaryScreenResponse.ProtoReflect.Descriptor instead.
+
+#### <a id="method-getprimaryscreenresponse-getscreen"></a><span class="api-method">Method</span> `GetPrimaryScreenResponse.GetScreen`
+
+- Signature: <span class="api-signature">`func (x *GetPrimaryScreenResponse) GetScreen() *ScreenDescriptor`</span>
+- Uses: [`ScreenDescriptor`](#type-screendescriptor)
+
+#### <a id="method-getprimaryscreenresponse-protomessage"></a><span class="api-method">Method</span> `GetPrimaryScreenResponse.ProtoMessage`
+
+- Signature: <span class="api-signature">`func (*GetPrimaryScreenResponse) ProtoMessage()`</span>
+
+#### <a id="method-getprimaryscreenresponse-protoreflect"></a><span class="api-method">Method</span> `GetPrimaryScreenResponse.ProtoReflect`
+
+- Signature: <span class="api-signature">`func (x *GetPrimaryScreenResponse) ProtoReflect() protoreflect.Message`</span>
+
+#### <a id="method-getprimaryscreenresponse-reset"></a><span class="api-method">Method</span> `GetPrimaryScreenResponse.Reset`
+
+- Signature: <span class="api-signature">`func (x *GetPrimaryScreenResponse) Reset()`</span>
+
+#### <a id="method-getprimaryscreenresponse-string"></a><span class="api-method">Method</span> `GetPrimaryScreenResponse.String`
+
+- Signature: <span class="api-signature">`func (x *GetPrimaryScreenResponse) String() string`</span>
+
+#### <a id="method-getwindowresponse-descriptor"></a><span class="api-method">Method</span> `GetWindowResponse.Descriptor`
+
+- Signature: <span class="api-signature">`func (*GetWindowResponse) Descriptor() ([]byte, []int)`</span>
+- Notes: Deprecated: Use GetWindowResponse.ProtoReflect.Descriptor instead.
+
+#### <a id="method-getwindowresponse-getfound"></a><span class="api-method">Method</span> `GetWindowResponse.GetFound`
+
+- Signature: <span class="api-signature">`func (x *GetWindowResponse) GetFound() bool`</span>
+
+#### <a id="method-getwindowresponse-getwindow"></a><span class="api-method">Method</span> `GetWindowResponse.GetWindow`
+
+- Signature: <span class="api-signature">`func (x *GetWindowResponse) GetWindow() *Window`</span>
+- Uses: [`Window`](#type-window)
+
+#### <a id="method-getwindowresponse-protomessage"></a><span class="api-method">Method</span> `GetWindowResponse.ProtoMessage`
+
+- Signature: <span class="api-signature">`func (*GetWindowResponse) ProtoMessage()`</span>
+
+#### <a id="method-getwindowresponse-protoreflect"></a><span class="api-method">Method</span> `GetWindowResponse.ProtoReflect`
+
+- Signature: <span class="api-signature">`func (x *GetWindowResponse) ProtoReflect() protoreflect.Message`</span>
+
+#### <a id="method-getwindowresponse-reset"></a><span class="api-method">Method</span> `GetWindowResponse.Reset`
+
+- Signature: <span class="api-signature">`func (x *GetWindowResponse) Reset()`</span>
+
+#### <a id="method-getwindowresponse-string"></a><span class="api-method">Method</span> `GetWindowResponse.String`
+
+- Signature: <span class="api-signature">`func (x *GetWindowResponse) String() string`</span>
+
 #### <a id="method-grayimage-descriptor"></a><span class="api-method">Method</span> `GrayImage.Descriptor`
 
 - Signature: <span class="api-signature">`func (*GrayImage) Descriptor() ([]byte, []int)`</span>
@@ -1051,6 +1340,53 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 #### <a id="method-isapprunningresponse-string"></a><span class="api-method">Method</span> `IsAppRunningResponse.String`
 
 - Signature: <span class="api-signature">`func (x *IsAppRunningResponse) String() string`</span>
+
+#### <a id="method-listscreensrequest-descriptor"></a><span class="api-method">Method</span> `ListScreensRequest.Descriptor`
+
+- Signature: <span class="api-signature">`func (*ListScreensRequest) Descriptor() ([]byte, []int)`</span>
+- Notes: Deprecated: Use ListScreensRequest.ProtoReflect.Descriptor instead.
+
+#### <a id="method-listscreensrequest-protomessage"></a><span class="api-method">Method</span> `ListScreensRequest.ProtoMessage`
+
+- Signature: <span class="api-signature">`func (*ListScreensRequest) ProtoMessage()`</span>
+
+#### <a id="method-listscreensrequest-protoreflect"></a><span class="api-method">Method</span> `ListScreensRequest.ProtoReflect`
+
+- Signature: <span class="api-signature">`func (x *ListScreensRequest) ProtoReflect() protoreflect.Message`</span>
+
+#### <a id="method-listscreensrequest-reset"></a><span class="api-method">Method</span> `ListScreensRequest.Reset`
+
+- Signature: <span class="api-signature">`func (x *ListScreensRequest) Reset()`</span>
+
+#### <a id="method-listscreensrequest-string"></a><span class="api-method">Method</span> `ListScreensRequest.String`
+
+- Signature: <span class="api-signature">`func (x *ListScreensRequest) String() string`</span>
+
+#### <a id="method-listscreensresponse-descriptor"></a><span class="api-method">Method</span> `ListScreensResponse.Descriptor`
+
+- Signature: <span class="api-signature">`func (*ListScreensResponse) Descriptor() ([]byte, []int)`</span>
+- Notes: Deprecated: Use ListScreensResponse.ProtoReflect.Descriptor instead.
+
+#### <a id="method-listscreensresponse-getscreens"></a><span class="api-method">Method</span> `ListScreensResponse.GetScreens`
+
+- Signature: <span class="api-signature">`func (x *ListScreensResponse) GetScreens() []*ScreenDescriptor`</span>
+- Uses: [`ScreenDescriptor`](#type-screendescriptor)
+
+#### <a id="method-listscreensresponse-protomessage"></a><span class="api-method">Method</span> `ListScreensResponse.ProtoMessage`
+
+- Signature: <span class="api-signature">`func (*ListScreensResponse) ProtoMessage()`</span>
+
+#### <a id="method-listscreensresponse-protoreflect"></a><span class="api-method">Method</span> `ListScreensResponse.ProtoReflect`
+
+- Signature: <span class="api-signature">`func (x *ListScreensResponse) ProtoReflect() protoreflect.Message`</span>
+
+#### <a id="method-listscreensresponse-reset"></a><span class="api-method">Method</span> `ListScreensResponse.Reset`
+
+- Signature: <span class="api-signature">`func (x *ListScreensResponse) Reset()`</span>
+
+#### <a id="method-listscreensresponse-string"></a><span class="api-method">Method</span> `ListScreensResponse.String`
+
+- Signature: <span class="api-signature">`func (x *ListScreensResponse) String() string`</span>
 
 #### <a id="method-listwindowsresponse-descriptor"></a><span class="api-method">Method</span> `ListWindowsResponse.Descriptor`
 
@@ -1553,6 +1889,44 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 
 - Signature: <span class="api-signature">`func (x *Rect) String() string`</span>
 
+#### <a id="method-screendescriptor-descriptor"></a><span class="api-method">Method</span> `ScreenDescriptor.Descriptor`
+
+- Signature: <span class="api-signature">`func (*ScreenDescriptor) Descriptor() ([]byte, []int)`</span>
+- Notes: Deprecated: Use ScreenDescriptor.ProtoReflect.Descriptor instead.
+
+#### <a id="method-screendescriptor-getbounds"></a><span class="api-method">Method</span> `ScreenDescriptor.GetBounds`
+
+- Signature: <span class="api-signature">`func (x *ScreenDescriptor) GetBounds() *Rect`</span>
+- Uses: [`Rect`](#type-rect)
+
+#### <a id="method-screendescriptor-getid"></a><span class="api-method">Method</span> `ScreenDescriptor.GetId`
+
+- Signature: <span class="api-signature">`func (x *ScreenDescriptor) GetId() int32`</span>
+
+#### <a id="method-screendescriptor-getname"></a><span class="api-method">Method</span> `ScreenDescriptor.GetName`
+
+- Signature: <span class="api-signature">`func (x *ScreenDescriptor) GetName() string`</span>
+
+#### <a id="method-screendescriptor-getprimary"></a><span class="api-method">Method</span> `ScreenDescriptor.GetPrimary`
+
+- Signature: <span class="api-signature">`func (x *ScreenDescriptor) GetPrimary() bool`</span>
+
+#### <a id="method-screendescriptor-protomessage"></a><span class="api-method">Method</span> `ScreenDescriptor.ProtoMessage`
+
+- Signature: <span class="api-signature">`func (*ScreenDescriptor) ProtoMessage()`</span>
+
+#### <a id="method-screendescriptor-protoreflect"></a><span class="api-method">Method</span> `ScreenDescriptor.ProtoReflect`
+
+- Signature: <span class="api-signature">`func (x *ScreenDescriptor) ProtoReflect() protoreflect.Message`</span>
+
+#### <a id="method-screendescriptor-reset"></a><span class="api-method">Method</span> `ScreenDescriptor.Reset`
+
+- Signature: <span class="api-signature">`func (x *ScreenDescriptor) Reset()`</span>
+
+#### <a id="method-screendescriptor-string"></a><span class="api-method">Method</span> `ScreenDescriptor.String`
+
+- Signature: <span class="api-signature">`func (x *ScreenDescriptor) String() string`</span>
+
 #### <a id="method-screenqueryoptions-descriptor"></a><span class="api-method">Method</span> `ScreenQueryOptions.Descriptor`
 
 - Signature: <span class="api-signature">`func (*ScreenQueryOptions) Descriptor() ([]byte, []int)`</span>
@@ -1571,6 +1945,10 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 
 - Signature: <span class="api-signature">`func (x *ScreenQueryOptions) GetRegion() *Rect`</span>
 - Uses: [`Rect`](#type-rect)
+
+#### <a id="method-screenqueryoptions-getscreenid"></a><span class="api-method">Method</span> `ScreenQueryOptions.GetScreenId`
+
+- Signature: <span class="api-signature">`func (x *ScreenQueryOptions) GetScreenId() int32`</span>
 
 #### <a id="method-screenqueryoptions-gettimeoutmillis"></a><span class="api-method">Method</span> `ScreenQueryOptions.GetTimeoutMillis`
 
@@ -1591,6 +1969,48 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 #### <a id="method-screenqueryoptions-string"></a><span class="api-method">Method</span> `ScreenQueryOptions.String`
 
 - Signature: <span class="api-signature">`func (x *ScreenQueryOptions) String() string`</span>
+
+#### <a id="method-scrollwheelrequest-descriptor"></a><span class="api-method">Method</span> `ScrollWheelRequest.Descriptor`
+
+- Signature: <span class="api-signature">`func (*ScrollWheelRequest) Descriptor() ([]byte, []int)`</span>
+- Notes: Deprecated: Use ScrollWheelRequest.ProtoReflect.Descriptor instead.
+
+#### <a id="method-scrollwheelrequest-getdirection"></a><span class="api-method">Method</span> `ScrollWheelRequest.GetDirection`
+
+- Signature: <span class="api-signature">`func (x *ScrollWheelRequest) GetDirection() string`</span>
+
+#### <a id="method-scrollwheelrequest-getopts"></a><span class="api-method">Method</span> `ScrollWheelRequest.GetOpts`
+
+- Signature: <span class="api-signature">`func (x *ScrollWheelRequest) GetOpts() *InputOptions`</span>
+- Uses: [`InputOptions`](#type-inputoptions)
+
+#### <a id="method-scrollwheelrequest-getsteps"></a><span class="api-method">Method</span> `ScrollWheelRequest.GetSteps`
+
+- Signature: <span class="api-signature">`func (x *ScrollWheelRequest) GetSteps() int32`</span>
+
+#### <a id="method-scrollwheelrequest-getx"></a><span class="api-method">Method</span> `ScrollWheelRequest.GetX`
+
+- Signature: <span class="api-signature">`func (x *ScrollWheelRequest) GetX() int32`</span>
+
+#### <a id="method-scrollwheelrequest-gety"></a><span class="api-method">Method</span> `ScrollWheelRequest.GetY`
+
+- Signature: <span class="api-signature">`func (x *ScrollWheelRequest) GetY() int32`</span>
+
+#### <a id="method-scrollwheelrequest-protomessage"></a><span class="api-method">Method</span> `ScrollWheelRequest.ProtoMessage`
+
+- Signature: <span class="api-signature">`func (*ScrollWheelRequest) ProtoMessage()`</span>
+
+#### <a id="method-scrollwheelrequest-protoreflect"></a><span class="api-method">Method</span> `ScrollWheelRequest.ProtoReflect`
+
+- Signature: <span class="api-signature">`func (x *ScrollWheelRequest) ProtoReflect() protoreflect.Message`</span>
+
+#### <a id="method-scrollwheelrequest-reset"></a><span class="api-method">Method</span> `ScrollWheelRequest.Reset`
+
+- Signature: <span class="api-signature">`func (x *ScrollWheelRequest) Reset()`</span>
+
+#### <a id="method-scrollwheelrequest-string"></a><span class="api-method">Method</span> `ScrollWheelRequest.String`
+
+- Signature: <span class="api-signature">`func (x *ScrollWheelRequest) String() string`</span>
 
 #### <a id="method-textmatch-descriptor"></a><span class="api-method">Method</span> `TextMatch.Descriptor`
 
@@ -1660,6 +2080,11 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 
 - Signature: <span class="api-signature">`func (x *TypeTextRequest) String() string`</span>
 
+#### <a id="method-unimplementedsikuliserviceserver-capturescreen"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.CaptureScreen`
+
+- Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) CaptureScreen(context.Context, *CaptureScreenRequest) (*CaptureScreenResponse, error)`</span>
+- Uses: [`CaptureScreenRequest`](#type-capturescreenrequest), [`CaptureScreenResponse`](#type-capturescreenresponse)
+
 #### <a id="method-unimplementedsikuliserviceserver-click"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.Click`
 
 - Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) Click(context.Context, *ClickRequest) (*ActionResponse, error)`</span>
@@ -1700,10 +2125,30 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 - Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) FindText(context.Context, *FindTextRequest) (*FindTextResponse, error)`</span>
 - Uses: [`FindTextRequest`](#type-findtextrequest), [`FindTextResponse`](#type-findtextresponse)
 
+#### <a id="method-unimplementedsikuliserviceserver-findwindows"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.FindWindows`
+
+- Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) FindWindows(context.Context, *WindowQueryRequest) (*ListWindowsResponse, error)`</span>
+- Uses: [`ListWindowsResponse`](#type-listwindowsresponse), [`WindowQueryRequest`](#type-windowqueryrequest)
+
 #### <a id="method-unimplementedsikuliserviceserver-focusapp"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.FocusApp`
 
 - Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) FocusApp(context.Context, *AppActionRequest) (*ActionResponse, error)`</span>
 - Uses: [`ActionResponse`](#type-actionresponse), [`AppActionRequest`](#type-appactionrequest)
+
+#### <a id="method-unimplementedsikuliserviceserver-getfocusedwindow"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.GetFocusedWindow`
+
+- Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) GetFocusedWindow(context.Context, *AppActionRequest) (*GetWindowResponse, error)`</span>
+- Uses: [`AppActionRequest`](#type-appactionrequest), [`GetWindowResponse`](#type-getwindowresponse)
+
+#### <a id="method-unimplementedsikuliserviceserver-getprimaryscreen"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.GetPrimaryScreen`
+
+- Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) GetPrimaryScreen(context.Context, *GetPrimaryScreenRequest) (*GetPrimaryScreenResponse, error)`</span>
+- Uses: [`GetPrimaryScreenRequest`](#type-getprimaryscreenrequest), [`GetPrimaryScreenResponse`](#type-getprimaryscreenresponse)
+
+#### <a id="method-unimplementedsikuliserviceserver-getwindow"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.GetWindow`
+
+- Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) GetWindow(context.Context, *WindowQueryRequest) (*GetWindowResponse, error)`</span>
+- Uses: [`GetWindowResponse`](#type-getwindowresponse), [`WindowQueryRequest`](#type-windowqueryrequest)
 
 #### <a id="method-unimplementedsikuliserviceserver-hotkey"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.Hotkey`
 
@@ -1715,10 +2160,35 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 - Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) IsAppRunning(context.Context, *AppActionRequest) (*IsAppRunningResponse, error)`</span>
 - Uses: [`AppActionRequest`](#type-appactionrequest), [`IsAppRunningResponse`](#type-isapprunningresponse)
 
+#### <a id="method-unimplementedsikuliserviceserver-keydown"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.KeyDown`
+
+- Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) KeyDown(context.Context, *HotkeyRequest) (*ActionResponse, error)`</span>
+- Uses: [`ActionResponse`](#type-actionresponse), [`HotkeyRequest`](#type-hotkeyrequest)
+
+#### <a id="method-unimplementedsikuliserviceserver-keyup"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.KeyUp`
+
+- Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) KeyUp(context.Context, *HotkeyRequest) (*ActionResponse, error)`</span>
+- Uses: [`ActionResponse`](#type-actionresponse), [`HotkeyRequest`](#type-hotkeyrequest)
+
+#### <a id="method-unimplementedsikuliserviceserver-listscreens"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.ListScreens`
+
+- Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) ListScreens(context.Context, *ListScreensRequest) (*ListScreensResponse, error)`</span>
+- Uses: [`ListScreensRequest`](#type-listscreensrequest), [`ListScreensResponse`](#type-listscreensresponse)
+
 #### <a id="method-unimplementedsikuliserviceserver-listwindows"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.ListWindows`
 
 - Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) ListWindows(context.Context, *AppActionRequest) (*ListWindowsResponse, error)`</span>
 - Uses: [`AppActionRequest`](#type-appactionrequest), [`ListWindowsResponse`](#type-listwindowsresponse)
+
+#### <a id="method-unimplementedsikuliserviceserver-mousedown"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.MouseDown`
+
+- Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) MouseDown(context.Context, *ClickRequest) (*ActionResponse, error)`</span>
+- Uses: [`ActionResponse`](#type-actionresponse), [`ClickRequest`](#type-clickrequest)
+
+#### <a id="method-unimplementedsikuliserviceserver-mouseup"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.MouseUp`
+
+- Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) MouseUp(context.Context, *ClickRequest) (*ActionResponse, error)`</span>
+- Uses: [`ActionResponse`](#type-actionresponse), [`ClickRequest`](#type-clickrequest)
 
 #### <a id="method-unimplementedsikuliserviceserver-movemouse"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.MoveMouse`
 
@@ -1745,10 +2215,20 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 - Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) OpenApp(context.Context, *AppActionRequest) (*ActionResponse, error)`</span>
 - Uses: [`ActionResponse`](#type-actionresponse), [`AppActionRequest`](#type-appactionrequest)
 
+#### <a id="method-unimplementedsikuliserviceserver-pastetext"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.PasteText`
+
+- Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) PasteText(context.Context, *TypeTextRequest) (*ActionResponse, error)`</span>
+- Uses: [`ActionResponse`](#type-actionresponse), [`TypeTextRequest`](#type-typetextrequest)
+
 #### <a id="method-unimplementedsikuliserviceserver-readtext"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.ReadText`
 
 - Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) ReadText(context.Context, *ReadTextRequest) (*ReadTextResponse, error)`</span>
 - Uses: [`ReadTextRequest`](#type-readtextrequest), [`ReadTextResponse`](#type-readtextresponse)
+
+#### <a id="method-unimplementedsikuliserviceserver-scrollwheel"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.ScrollWheel`
+
+- Signature: <span class="api-signature">`func (UnimplementedSikuliServiceServer) ScrollWheel(context.Context, *ScrollWheelRequest) (*ActionResponse, error)`</span>
+- Uses: [`ActionResponse`](#type-actionresponse), [`ScrollWheelRequest`](#type-scrollwheelrequest)
 
 #### <a id="method-unimplementedsikuliserviceserver-typetext"></a><span class="api-method">Method</span> `UnimplementedSikuliServiceServer.TypeText`
 
@@ -1796,6 +2276,10 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 - Signature: <span class="api-signature">`func (*Window) Descriptor() ([]byte, []int)`</span>
 - Notes: Deprecated: Use Window.ProtoReflect.Descriptor instead.
 
+#### <a id="method-window-getapp"></a><span class="api-method">Method</span> `Window.GetApp`
+
+- Signature: <span class="api-signature">`func (x *Window) GetApp() string`</span>
+
 #### <a id="method-window-getbounds"></a><span class="api-method">Method</span> `Window.GetBounds`
 
 - Signature: <span class="api-signature">`func (x *Window) GetBounds() *Rect`</span>
@@ -1804,6 +2288,14 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 #### <a id="method-window-getfocused"></a><span class="api-method">Method</span> `Window.GetFocused`
 
 - Signature: <span class="api-signature">`func (x *Window) GetFocused() bool`</span>
+
+#### <a id="method-window-getid"></a><span class="api-method">Method</span> `Window.GetId`
+
+- Signature: <span class="api-signature">`func (x *Window) GetId() string`</span>
+
+#### <a id="method-window-getpid"></a><span class="api-method">Method</span> `Window.GetPid`
+
+- Signature: <span class="api-signature">`func (x *Window) GetPid() int32`</span>
 
 #### <a id="method-window-gettitle"></a><span class="api-method">Method</span> `Window.GetTitle`
 
@@ -1825,6 +2317,82 @@ Package: `package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1
 
 - Signature: <span class="api-signature">`func (x *Window) String() string`</span>
 
+#### <a id="method-windowquery-descriptor"></a><span class="api-method">Method</span> `WindowQuery.Descriptor`
+
+- Signature: <span class="api-signature">`func (*WindowQuery) Descriptor() ([]byte, []int)`</span>
+- Notes: Deprecated: Use WindowQuery.ProtoReflect.Descriptor instead.
+
+#### <a id="method-windowquery-getfocusedonly"></a><span class="api-method">Method</span> `WindowQuery.GetFocusedOnly`
+
+- Signature: <span class="api-signature">`func (x *WindowQuery) GetFocusedOnly() bool`</span>
+
+#### <a id="method-windowquery-getid"></a><span class="api-method">Method</span> `WindowQuery.GetId`
+
+- Signature: <span class="api-signature">`func (x *WindowQuery) GetId() string`</span>
+
+#### <a id="method-windowquery-getindex"></a><span class="api-method">Method</span> `WindowQuery.GetIndex`
+
+- Signature: <span class="api-signature">`func (x *WindowQuery) GetIndex() int32`</span>
+
+#### <a id="method-windowquery-gettitlecontains"></a><span class="api-method">Method</span> `WindowQuery.GetTitleContains`
+
+- Signature: <span class="api-signature">`func (x *WindowQuery) GetTitleContains() string`</span>
+
+#### <a id="method-windowquery-gettitleexact"></a><span class="api-method">Method</span> `WindowQuery.GetTitleExact`
+
+- Signature: <span class="api-signature">`func (x *WindowQuery) GetTitleExact() string`</span>
+
+#### <a id="method-windowquery-protomessage"></a><span class="api-method">Method</span> `WindowQuery.ProtoMessage`
+
+- Signature: <span class="api-signature">`func (*WindowQuery) ProtoMessage()`</span>
+
+#### <a id="method-windowquery-protoreflect"></a><span class="api-method">Method</span> `WindowQuery.ProtoReflect`
+
+- Signature: <span class="api-signature">`func (x *WindowQuery) ProtoReflect() protoreflect.Message`</span>
+
+#### <a id="method-windowquery-reset"></a><span class="api-method">Method</span> `WindowQuery.Reset`
+
+- Signature: <span class="api-signature">`func (x *WindowQuery) Reset()`</span>
+
+#### <a id="method-windowquery-string"></a><span class="api-method">Method</span> `WindowQuery.String`
+
+- Signature: <span class="api-signature">`func (x *WindowQuery) String() string`</span>
+
+#### <a id="method-windowqueryrequest-descriptor"></a><span class="api-method">Method</span> `WindowQueryRequest.Descriptor`
+
+- Signature: <span class="api-signature">`func (*WindowQueryRequest) Descriptor() ([]byte, []int)`</span>
+- Notes: Deprecated: Use WindowQueryRequest.ProtoReflect.Descriptor instead.
+
+#### <a id="method-windowqueryrequest-getname"></a><span class="api-method">Method</span> `WindowQueryRequest.GetName`
+
+- Signature: <span class="api-signature">`func (x *WindowQueryRequest) GetName() string`</span>
+
+#### <a id="method-windowqueryrequest-getopts"></a><span class="api-method">Method</span> `WindowQueryRequest.GetOpts`
+
+- Signature: <span class="api-signature">`func (x *WindowQueryRequest) GetOpts() *AppOptions`</span>
+- Uses: [`AppOptions`](#type-appoptions)
+
+#### <a id="method-windowqueryrequest-getquery"></a><span class="api-method">Method</span> `WindowQueryRequest.GetQuery`
+
+- Signature: <span class="api-signature">`func (x *WindowQueryRequest) GetQuery() *WindowQuery`</span>
+- Uses: [`WindowQuery`](#type-windowquery)
+
+#### <a id="method-windowqueryrequest-protomessage"></a><span class="api-method">Method</span> `WindowQueryRequest.ProtoMessage`
+
+- Signature: <span class="api-signature">`func (*WindowQueryRequest) ProtoMessage()`</span>
+
+#### <a id="method-windowqueryrequest-protoreflect"></a><span class="api-method">Method</span> `WindowQueryRequest.ProtoReflect`
+
+- Signature: <span class="api-signature">`func (x *WindowQueryRequest) ProtoReflect() protoreflect.Message`</span>
+
+#### <a id="method-windowqueryrequest-reset"></a><span class="api-method">Method</span> `WindowQueryRequest.Reset`
+
+- Signature: <span class="api-signature">`func (x *WindowQueryRequest) Reset()`</span>
+
+#### <a id="method-windowqueryrequest-string"></a><span class="api-method">Method</span> `WindowQueryRequest.String`
+
+- Signature: <span class="api-signature">`func (x *WindowQueryRequest) String() string`</span>
+
 ## Raw Package Doc
 
 ```text
@@ -1834,26 +2402,38 @@ package sikuliv1 // import "github.com/smysnk/sikuligo/internal/grpcv1/pb"
 CONSTANTS
 
 const (
-	SikuliService_Find_FullMethodName           = "/sikuli.v1.SikuliService/Find"
-	SikuliService_FindAll_FullMethodName        = "/sikuli.v1.SikuliService/FindAll"
-	SikuliService_FindOnScreen_FullMethodName   = "/sikuli.v1.SikuliService/FindOnScreen"
-	SikuliService_ExistsOnScreen_FullMethodName = "/sikuli.v1.SikuliService/ExistsOnScreen"
-	SikuliService_WaitOnScreen_FullMethodName   = "/sikuli.v1.SikuliService/WaitOnScreen"
-	SikuliService_ClickOnScreen_FullMethodName  = "/sikuli.v1.SikuliService/ClickOnScreen"
-	SikuliService_ReadText_FullMethodName       = "/sikuli.v1.SikuliService/ReadText"
-	SikuliService_FindText_FullMethodName       = "/sikuli.v1.SikuliService/FindText"
-	SikuliService_MoveMouse_FullMethodName      = "/sikuli.v1.SikuliService/MoveMouse"
-	SikuliService_Click_FullMethodName          = "/sikuli.v1.SikuliService/Click"
-	SikuliService_TypeText_FullMethodName       = "/sikuli.v1.SikuliService/TypeText"
-	SikuliService_Hotkey_FullMethodName         = "/sikuli.v1.SikuliService/Hotkey"
-	SikuliService_ObserveAppear_FullMethodName  = "/sikuli.v1.SikuliService/ObserveAppear"
-	SikuliService_ObserveVanish_FullMethodName  = "/sikuli.v1.SikuliService/ObserveVanish"
-	SikuliService_ObserveChange_FullMethodName  = "/sikuli.v1.SikuliService/ObserveChange"
-	SikuliService_OpenApp_FullMethodName        = "/sikuli.v1.SikuliService/OpenApp"
-	SikuliService_FocusApp_FullMethodName       = "/sikuli.v1.SikuliService/FocusApp"
-	SikuliService_CloseApp_FullMethodName       = "/sikuli.v1.SikuliService/CloseApp"
-	SikuliService_IsAppRunning_FullMethodName   = "/sikuli.v1.SikuliService/IsAppRunning"
-	SikuliService_ListWindows_FullMethodName    = "/sikuli.v1.SikuliService/ListWindows"
+	SikuliService_ListScreens_FullMethodName      = "/sikuli.v1.SikuliService/ListScreens"
+	SikuliService_GetPrimaryScreen_FullMethodName = "/sikuli.v1.SikuliService/GetPrimaryScreen"
+	SikuliService_CaptureScreen_FullMethodName    = "/sikuli.v1.SikuliService/CaptureScreen"
+	SikuliService_Find_FullMethodName             = "/sikuli.v1.SikuliService/Find"
+	SikuliService_FindAll_FullMethodName          = "/sikuli.v1.SikuliService/FindAll"
+	SikuliService_FindOnScreen_FullMethodName     = "/sikuli.v1.SikuliService/FindOnScreen"
+	SikuliService_ExistsOnScreen_FullMethodName   = "/sikuli.v1.SikuliService/ExistsOnScreen"
+	SikuliService_WaitOnScreen_FullMethodName     = "/sikuli.v1.SikuliService/WaitOnScreen"
+	SikuliService_ClickOnScreen_FullMethodName    = "/sikuli.v1.SikuliService/ClickOnScreen"
+	SikuliService_ReadText_FullMethodName         = "/sikuli.v1.SikuliService/ReadText"
+	SikuliService_FindText_FullMethodName         = "/sikuli.v1.SikuliService/FindText"
+	SikuliService_MoveMouse_FullMethodName        = "/sikuli.v1.SikuliService/MoveMouse"
+	SikuliService_Click_FullMethodName            = "/sikuli.v1.SikuliService/Click"
+	SikuliService_TypeText_FullMethodName         = "/sikuli.v1.SikuliService/TypeText"
+	SikuliService_PasteText_FullMethodName        = "/sikuli.v1.SikuliService/PasteText"
+	SikuliService_Hotkey_FullMethodName           = "/sikuli.v1.SikuliService/Hotkey"
+	SikuliService_MouseDown_FullMethodName        = "/sikuli.v1.SikuliService/MouseDown"
+	SikuliService_MouseUp_FullMethodName          = "/sikuli.v1.SikuliService/MouseUp"
+	SikuliService_KeyDown_FullMethodName          = "/sikuli.v1.SikuliService/KeyDown"
+	SikuliService_KeyUp_FullMethodName            = "/sikuli.v1.SikuliService/KeyUp"
+	SikuliService_ScrollWheel_FullMethodName      = "/sikuli.v1.SikuliService/ScrollWheel"
+	SikuliService_ObserveAppear_FullMethodName    = "/sikuli.v1.SikuliService/ObserveAppear"
+	SikuliService_ObserveVanish_FullMethodName    = "/sikuli.v1.SikuliService/ObserveVanish"
+	SikuliService_ObserveChange_FullMethodName    = "/sikuli.v1.SikuliService/ObserveChange"
+	SikuliService_OpenApp_FullMethodName          = "/sikuli.v1.SikuliService/OpenApp"
+	SikuliService_FocusApp_FullMethodName         = "/sikuli.v1.SikuliService/FocusApp"
+	SikuliService_CloseApp_FullMethodName         = "/sikuli.v1.SikuliService/CloseApp"
+	SikuliService_IsAppRunning_FullMethodName     = "/sikuli.v1.SikuliService/IsAppRunning"
+	SikuliService_ListWindows_FullMethodName      = "/sikuli.v1.SikuliService/ListWindows"
+	SikuliService_FindWindows_FullMethodName      = "/sikuli.v1.SikuliService/FindWindows"
+	SikuliService_GetWindow_FullMethodName        = "/sikuli.v1.SikuliService/GetWindow"
+	SikuliService_GetFocusedWindow_FullMethodName = "/sikuli.v1.SikuliService/GetFocusedWindow"
 )
 
 VARIABLES
@@ -1887,6 +2467,18 @@ var SikuliService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "sikuli.v1.SikuliService",
 	HandlerType: (*SikuliServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListScreens",
+			Handler:    _SikuliService_ListScreens_Handler,
+		},
+		{
+			MethodName: "GetPrimaryScreen",
+			Handler:    _SikuliService_GetPrimaryScreen_Handler,
+		},
+		{
+			MethodName: "CaptureScreen",
+			Handler:    _SikuliService_CaptureScreen_Handler,
+		},
 		{
 			MethodName: "Find",
 			Handler:    _SikuliService_Find_Handler,
@@ -1932,8 +2524,32 @@ var SikuliService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _SikuliService_TypeText_Handler,
 		},
 		{
+			MethodName: "PasteText",
+			Handler:    _SikuliService_PasteText_Handler,
+		},
+		{
 			MethodName: "Hotkey",
 			Handler:    _SikuliService_Hotkey_Handler,
+		},
+		{
+			MethodName: "MouseDown",
+			Handler:    _SikuliService_MouseDown_Handler,
+		},
+		{
+			MethodName: "MouseUp",
+			Handler:    _SikuliService_MouseUp_Handler,
+		},
+		{
+			MethodName: "KeyDown",
+			Handler:    _SikuliService_KeyDown_Handler,
+		},
+		{
+			MethodName: "KeyUp",
+			Handler:    _SikuliService_KeyUp_Handler,
+		},
+		{
+			MethodName: "ScrollWheel",
+			Handler:    _SikuliService_ScrollWheel_Handler,
 		},
 		{
 			MethodName: "ObserveAppear",
@@ -1966,6 +2582,18 @@ var SikuliService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListWindows",
 			Handler:    _SikuliService_ListWindows_Handler,
+		},
+		{
+			MethodName: "FindWindows",
+			Handler:    _SikuliService_FindWindows_Handler,
+		},
+		{
+			MethodName: "GetWindow",
+			Handler:    _SikuliService_GetWindow_Handler,
+		},
+		{
+			MethodName: "GetFocusedWindow",
+			Handler:    _SikuliService_GetFocusedWindow_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -2040,6 +2668,50 @@ func (x *AppOptions) ProtoReflect() protoreflect.Message
 func (x *AppOptions) Reset()
 
 func (x *AppOptions) String() string
+
+type CaptureScreenRequest struct {
+	ScreenId *int32 `protobuf:"varint,1,opt,name=screen_id,json=screenId,proto3,oneof" json:"screen_id,omitempty"`
+	Region   *Rect  `protobuf:"bytes,2,opt,name=region,proto3" json:"region,omitempty"`
+
+	// Has unexported fields.
+}
+
+func (*CaptureScreenRequest) Descriptor() ([]byte, []int)
+    Deprecated: Use CaptureScreenRequest.ProtoReflect.Descriptor instead.
+
+func (x *CaptureScreenRequest) GetRegion() *Rect
+
+func (x *CaptureScreenRequest) GetScreenId() int32
+
+func (*CaptureScreenRequest) ProtoMessage()
+
+func (x *CaptureScreenRequest) ProtoReflect() protoreflect.Message
+
+func (x *CaptureScreenRequest) Reset()
+
+func (x *CaptureScreenRequest) String() string
+
+type CaptureScreenResponse struct {
+	Image  *GrayImage        `protobuf:"bytes,1,opt,name=image,proto3" json:"image,omitempty"`
+	Screen *ScreenDescriptor `protobuf:"bytes,2,opt,name=screen,proto3" json:"screen,omitempty"`
+
+	// Has unexported fields.
+}
+
+func (*CaptureScreenResponse) Descriptor() ([]byte, []int)
+    Deprecated: Use CaptureScreenResponse.ProtoReflect.Descriptor instead.
+
+func (x *CaptureScreenResponse) GetImage() *GrayImage
+
+func (x *CaptureScreenResponse) GetScreen() *ScreenDescriptor
+
+func (*CaptureScreenResponse) ProtoMessage()
+
+func (x *CaptureScreenResponse) ProtoReflect() protoreflect.Message
+
+func (x *CaptureScreenResponse) Reset()
+
+func (x *CaptureScreenResponse) String() string
 
 type ClickOnScreenRequest struct {
 	Pattern   *Pattern            `protobuf:"bytes,1,opt,name=pattern,proto3" json:"pattern,omitempty"`
@@ -2264,6 +2936,62 @@ func (x *FindTextResponse) Reset()
 
 func (x *FindTextResponse) String() string
 
+type GetPrimaryScreenRequest struct {
+	// Has unexported fields.
+}
+
+func (*GetPrimaryScreenRequest) Descriptor() ([]byte, []int)
+    Deprecated: Use GetPrimaryScreenRequest.ProtoReflect.Descriptor instead.
+
+func (*GetPrimaryScreenRequest) ProtoMessage()
+
+func (x *GetPrimaryScreenRequest) ProtoReflect() protoreflect.Message
+
+func (x *GetPrimaryScreenRequest) Reset()
+
+func (x *GetPrimaryScreenRequest) String() string
+
+type GetPrimaryScreenResponse struct {
+	Screen *ScreenDescriptor `protobuf:"bytes,1,opt,name=screen,proto3" json:"screen,omitempty"`
+
+	// Has unexported fields.
+}
+
+func (*GetPrimaryScreenResponse) Descriptor() ([]byte, []int)
+    Deprecated: Use GetPrimaryScreenResponse.ProtoReflect.Descriptor instead.
+
+func (x *GetPrimaryScreenResponse) GetScreen() *ScreenDescriptor
+
+func (*GetPrimaryScreenResponse) ProtoMessage()
+
+func (x *GetPrimaryScreenResponse) ProtoReflect() protoreflect.Message
+
+func (x *GetPrimaryScreenResponse) Reset()
+
+func (x *GetPrimaryScreenResponse) String() string
+
+type GetWindowResponse struct {
+	Found  bool    `protobuf:"varint,1,opt,name=found,proto3" json:"found,omitempty"`
+	Window *Window `protobuf:"bytes,2,opt,name=window,proto3" json:"window,omitempty"`
+
+	// Has unexported fields.
+}
+
+func (*GetWindowResponse) Descriptor() ([]byte, []int)
+    Deprecated: Use GetWindowResponse.ProtoReflect.Descriptor instead.
+
+func (x *GetWindowResponse) GetFound() bool
+
+func (x *GetWindowResponse) GetWindow() *Window
+
+func (*GetWindowResponse) ProtoMessage()
+
+func (x *GetWindowResponse) ProtoReflect() protoreflect.Message
+
+func (x *GetWindowResponse) Reset()
+
+func (x *GetWindowResponse) String() string
+
 type GrayImage struct {
 	Name   string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Width  int32  `protobuf:"varint,2,opt,name=width,proto3" json:"width,omitempty"`
@@ -2351,6 +3079,40 @@ func (x *IsAppRunningResponse) ProtoReflect() protoreflect.Message
 func (x *IsAppRunningResponse) Reset()
 
 func (x *IsAppRunningResponse) String() string
+
+type ListScreensRequest struct {
+	// Has unexported fields.
+}
+
+func (*ListScreensRequest) Descriptor() ([]byte, []int)
+    Deprecated: Use ListScreensRequest.ProtoReflect.Descriptor instead.
+
+func (*ListScreensRequest) ProtoMessage()
+
+func (x *ListScreensRequest) ProtoReflect() protoreflect.Message
+
+func (x *ListScreensRequest) Reset()
+
+func (x *ListScreensRequest) String() string
+
+type ListScreensResponse struct {
+	Screens []*ScreenDescriptor `protobuf:"bytes,1,rep,name=screens,proto3" json:"screens,omitempty"`
+
+	// Has unexported fields.
+}
+
+func (*ListScreensResponse) Descriptor() ([]byte, []int)
+    Deprecated: Use ListScreensResponse.ProtoReflect.Descriptor instead.
+
+func (x *ListScreensResponse) GetScreens() []*ScreenDescriptor
+
+func (*ListScreensResponse) ProtoMessage()
+
+func (x *ListScreensResponse) ProtoReflect() protoreflect.Message
+
+func (x *ListScreensResponse) Reset()
+
+func (x *ListScreensResponse) String() string
 
 type ListWindowsResponse struct {
 	Windows []*Window `protobuf:"bytes,1,rep,name=windows,proto3" json:"windows,omitempty"`
@@ -2724,11 +3486,40 @@ func (x *Rect) Reset()
 
 func (x *Rect) String() string
 
+type ScreenDescriptor struct {
+	Id      int32  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name    string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Bounds  *Rect  `protobuf:"bytes,3,opt,name=bounds,proto3" json:"bounds,omitempty"`
+	Primary bool   `protobuf:"varint,4,opt,name=primary,proto3" json:"primary,omitempty"`
+
+	// Has unexported fields.
+}
+
+func (*ScreenDescriptor) Descriptor() ([]byte, []int)
+    Deprecated: Use ScreenDescriptor.ProtoReflect.Descriptor instead.
+
+func (x *ScreenDescriptor) GetBounds() *Rect
+
+func (x *ScreenDescriptor) GetId() int32
+
+func (x *ScreenDescriptor) GetName() string
+
+func (x *ScreenDescriptor) GetPrimary() bool
+
+func (*ScreenDescriptor) ProtoMessage()
+
+func (x *ScreenDescriptor) ProtoReflect() protoreflect.Message
+
+func (x *ScreenDescriptor) Reset()
+
+func (x *ScreenDescriptor) String() string
+
 type ScreenQueryOptions struct {
 	Region         *Rect         `protobuf:"bytes,1,opt,name=region,proto3" json:"region,omitempty"`
 	TimeoutMillis  *int64        `protobuf:"varint,2,opt,name=timeout_millis,json=timeoutMillis,proto3,oneof" json:"timeout_millis,omitempty"`
 	IntervalMillis *int64        `protobuf:"varint,3,opt,name=interval_millis,json=intervalMillis,proto3,oneof" json:"interval_millis,omitempty"`
 	MatcherEngine  MatcherEngine `protobuf:"varint,4,opt,name=matcher_engine,json=matcherEngine,proto3,enum=sikuli.v1.MatcherEngine" json:"matcher_engine,omitempty"`
+	ScreenId       *int32        `protobuf:"varint,5,opt,name=screen_id,json=screenId,proto3,oneof" json:"screen_id,omitempty"`
 
 	// Has unexported fields.
 }
@@ -2742,6 +3533,8 @@ func (x *ScreenQueryOptions) GetMatcherEngine() MatcherEngine
 
 func (x *ScreenQueryOptions) GetRegion() *Rect
 
+func (x *ScreenQueryOptions) GetScreenId() int32
+
 func (x *ScreenQueryOptions) GetTimeoutMillis() int64
 
 func (*ScreenQueryOptions) ProtoMessage()
@@ -2752,7 +3545,41 @@ func (x *ScreenQueryOptions) Reset()
 
 func (x *ScreenQueryOptions) String() string
 
+type ScrollWheelRequest struct {
+	X         int32         `protobuf:"varint,1,opt,name=x,proto3" json:"x,omitempty"`
+	Y         int32         `protobuf:"varint,2,opt,name=y,proto3" json:"y,omitempty"`
+	Direction string        `protobuf:"bytes,3,opt,name=direction,proto3" json:"direction,omitempty"`
+	Steps     int32         `protobuf:"varint,4,opt,name=steps,proto3" json:"steps,omitempty"`
+	Opts      *InputOptions `protobuf:"bytes,5,opt,name=opts,proto3" json:"opts,omitempty"`
+
+	// Has unexported fields.
+}
+
+func (*ScrollWheelRequest) Descriptor() ([]byte, []int)
+    Deprecated: Use ScrollWheelRequest.ProtoReflect.Descriptor instead.
+
+func (x *ScrollWheelRequest) GetDirection() string
+
+func (x *ScrollWheelRequest) GetOpts() *InputOptions
+
+func (x *ScrollWheelRequest) GetSteps() int32
+
+func (x *ScrollWheelRequest) GetX() int32
+
+func (x *ScrollWheelRequest) GetY() int32
+
+func (*ScrollWheelRequest) ProtoMessage()
+
+func (x *ScrollWheelRequest) ProtoReflect() protoreflect.Message
+
+func (x *ScrollWheelRequest) Reset()
+
+func (x *ScrollWheelRequest) String() string
+
 type SikuliServiceClient interface {
+	ListScreens(ctx context.Context, in *ListScreensRequest, opts ...grpc.CallOption) (*ListScreensResponse, error)
+	GetPrimaryScreen(ctx context.Context, in *GetPrimaryScreenRequest, opts ...grpc.CallOption) (*GetPrimaryScreenResponse, error)
+	CaptureScreen(ctx context.Context, in *CaptureScreenRequest, opts ...grpc.CallOption) (*CaptureScreenResponse, error)
 	Find(ctx context.Context, in *FindRequest, opts ...grpc.CallOption) (*FindResponse, error)
 	FindAll(ctx context.Context, in *FindRequest, opts ...grpc.CallOption) (*FindAllResponse, error)
 	FindOnScreen(ctx context.Context, in *FindOnScreenRequest, opts ...grpc.CallOption) (*FindResponse, error)
@@ -2764,7 +3591,13 @@ type SikuliServiceClient interface {
 	MoveMouse(ctx context.Context, in *MoveMouseRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 	Click(ctx context.Context, in *ClickRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 	TypeText(ctx context.Context, in *TypeTextRequest, opts ...grpc.CallOption) (*ActionResponse, error)
+	PasteText(ctx context.Context, in *TypeTextRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 	Hotkey(ctx context.Context, in *HotkeyRequest, opts ...grpc.CallOption) (*ActionResponse, error)
+	MouseDown(ctx context.Context, in *ClickRequest, opts ...grpc.CallOption) (*ActionResponse, error)
+	MouseUp(ctx context.Context, in *ClickRequest, opts ...grpc.CallOption) (*ActionResponse, error)
+	KeyDown(ctx context.Context, in *HotkeyRequest, opts ...grpc.CallOption) (*ActionResponse, error)
+	KeyUp(ctx context.Context, in *HotkeyRequest, opts ...grpc.CallOption) (*ActionResponse, error)
+	ScrollWheel(ctx context.Context, in *ScrollWheelRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 	ObserveAppear(ctx context.Context, in *ObserveRequest, opts ...grpc.CallOption) (*ObserveResponse, error)
 	ObserveVanish(ctx context.Context, in *ObserveRequest, opts ...grpc.CallOption) (*ObserveResponse, error)
 	ObserveChange(ctx context.Context, in *ObserveChangeRequest, opts ...grpc.CallOption) (*ObserveResponse, error)
@@ -2773,6 +3606,9 @@ type SikuliServiceClient interface {
 	CloseApp(ctx context.Context, in *AppActionRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 	IsAppRunning(ctx context.Context, in *AppActionRequest, opts ...grpc.CallOption) (*IsAppRunningResponse, error)
 	ListWindows(ctx context.Context, in *AppActionRequest, opts ...grpc.CallOption) (*ListWindowsResponse, error)
+	FindWindows(ctx context.Context, in *WindowQueryRequest, opts ...grpc.CallOption) (*ListWindowsResponse, error)
+	GetWindow(ctx context.Context, in *WindowQueryRequest, opts ...grpc.CallOption) (*GetWindowResponse, error)
+	GetFocusedWindow(ctx context.Context, in *AppActionRequest, opts ...grpc.CallOption) (*GetWindowResponse, error)
 }
     SikuliServiceClient is the client API for SikuliService service.
 
@@ -2782,6 +3618,9 @@ type SikuliServiceClient interface {
 func NewSikuliServiceClient(cc grpc.ClientConnInterface) SikuliServiceClient
 
 type SikuliServiceServer interface {
+	ListScreens(context.Context, *ListScreensRequest) (*ListScreensResponse, error)
+	GetPrimaryScreen(context.Context, *GetPrimaryScreenRequest) (*GetPrimaryScreenResponse, error)
+	CaptureScreen(context.Context, *CaptureScreenRequest) (*CaptureScreenResponse, error)
 	Find(context.Context, *FindRequest) (*FindResponse, error)
 	FindAll(context.Context, *FindRequest) (*FindAllResponse, error)
 	FindOnScreen(context.Context, *FindOnScreenRequest) (*FindResponse, error)
@@ -2793,7 +3632,13 @@ type SikuliServiceServer interface {
 	MoveMouse(context.Context, *MoveMouseRequest) (*ActionResponse, error)
 	Click(context.Context, *ClickRequest) (*ActionResponse, error)
 	TypeText(context.Context, *TypeTextRequest) (*ActionResponse, error)
+	PasteText(context.Context, *TypeTextRequest) (*ActionResponse, error)
 	Hotkey(context.Context, *HotkeyRequest) (*ActionResponse, error)
+	MouseDown(context.Context, *ClickRequest) (*ActionResponse, error)
+	MouseUp(context.Context, *ClickRequest) (*ActionResponse, error)
+	KeyDown(context.Context, *HotkeyRequest) (*ActionResponse, error)
+	KeyUp(context.Context, *HotkeyRequest) (*ActionResponse, error)
+	ScrollWheel(context.Context, *ScrollWheelRequest) (*ActionResponse, error)
 	ObserveAppear(context.Context, *ObserveRequest) (*ObserveResponse, error)
 	ObserveVanish(context.Context, *ObserveRequest) (*ObserveResponse, error)
 	ObserveChange(context.Context, *ObserveChangeRequest) (*ObserveResponse, error)
@@ -2802,6 +3647,9 @@ type SikuliServiceServer interface {
 	CloseApp(context.Context, *AppActionRequest) (*ActionResponse, error)
 	IsAppRunning(context.Context, *AppActionRequest) (*IsAppRunningResponse, error)
 	ListWindows(context.Context, *AppActionRequest) (*ListWindowsResponse, error)
+	FindWindows(context.Context, *WindowQueryRequest) (*ListWindowsResponse, error)
+	GetWindow(context.Context, *WindowQueryRequest) (*GetWindowResponse, error)
+	GetFocusedWindow(context.Context, *AppActionRequest) (*GetWindowResponse, error)
 	// Has unexported methods.
 }
     SikuliServiceServer is the server API for SikuliService service.
@@ -2865,6 +3713,8 @@ type UnimplementedSikuliServiceServer struct{}
     NOTE: this should be embedded by value instead of pointer to avoid a nil
     pointer dereference when methods are called.
 
+func (UnimplementedSikuliServiceServer) CaptureScreen(context.Context, *CaptureScreenRequest) (*CaptureScreenResponse, error)
+
 func (UnimplementedSikuliServiceServer) Click(context.Context, *ClickRequest) (*ActionResponse, error)
 
 func (UnimplementedSikuliServiceServer) ClickOnScreen(context.Context, *ClickOnScreenRequest) (*FindResponse, error)
@@ -2881,13 +3731,31 @@ func (UnimplementedSikuliServiceServer) FindOnScreen(context.Context, *FindOnScr
 
 func (UnimplementedSikuliServiceServer) FindText(context.Context, *FindTextRequest) (*FindTextResponse, error)
 
+func (UnimplementedSikuliServiceServer) FindWindows(context.Context, *WindowQueryRequest) (*ListWindowsResponse, error)
+
 func (UnimplementedSikuliServiceServer) FocusApp(context.Context, *AppActionRequest) (*ActionResponse, error)
+
+func (UnimplementedSikuliServiceServer) GetFocusedWindow(context.Context, *AppActionRequest) (*GetWindowResponse, error)
+
+func (UnimplementedSikuliServiceServer) GetPrimaryScreen(context.Context, *GetPrimaryScreenRequest) (*GetPrimaryScreenResponse, error)
+
+func (UnimplementedSikuliServiceServer) GetWindow(context.Context, *WindowQueryRequest) (*GetWindowResponse, error)
 
 func (UnimplementedSikuliServiceServer) Hotkey(context.Context, *HotkeyRequest) (*ActionResponse, error)
 
 func (UnimplementedSikuliServiceServer) IsAppRunning(context.Context, *AppActionRequest) (*IsAppRunningResponse, error)
 
+func (UnimplementedSikuliServiceServer) KeyDown(context.Context, *HotkeyRequest) (*ActionResponse, error)
+
+func (UnimplementedSikuliServiceServer) KeyUp(context.Context, *HotkeyRequest) (*ActionResponse, error)
+
+func (UnimplementedSikuliServiceServer) ListScreens(context.Context, *ListScreensRequest) (*ListScreensResponse, error)
+
 func (UnimplementedSikuliServiceServer) ListWindows(context.Context, *AppActionRequest) (*ListWindowsResponse, error)
+
+func (UnimplementedSikuliServiceServer) MouseDown(context.Context, *ClickRequest) (*ActionResponse, error)
+
+func (UnimplementedSikuliServiceServer) MouseUp(context.Context, *ClickRequest) (*ActionResponse, error)
 
 func (UnimplementedSikuliServiceServer) MoveMouse(context.Context, *MoveMouseRequest) (*ActionResponse, error)
 
@@ -2899,7 +3767,11 @@ func (UnimplementedSikuliServiceServer) ObserveVanish(context.Context, *ObserveR
 
 func (UnimplementedSikuliServiceServer) OpenApp(context.Context, *AppActionRequest) (*ActionResponse, error)
 
+func (UnimplementedSikuliServiceServer) PasteText(context.Context, *TypeTextRequest) (*ActionResponse, error)
+
 func (UnimplementedSikuliServiceServer) ReadText(context.Context, *ReadTextRequest) (*ReadTextResponse, error)
+
+func (UnimplementedSikuliServiceServer) ScrollWheel(context.Context, *ScrollWheelRequest) (*ActionResponse, error)
 
 func (UnimplementedSikuliServiceServer) TypeText(context.Context, *TypeTextRequest) (*ActionResponse, error)
 
@@ -2935,9 +3807,12 @@ func (x *WaitOnScreenRequest) Reset()
 func (x *WaitOnScreenRequest) String() string
 
 type Window struct {
-	Title   string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
-	Bounds  *Rect  `protobuf:"bytes,2,opt,name=bounds,proto3" json:"bounds,omitempty"`
-	Focused bool   `protobuf:"varint,3,opt,name=focused,proto3" json:"focused,omitempty"`
+	Id      string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	App     string `protobuf:"bytes,2,opt,name=app,proto3" json:"app,omitempty"`
+	Pid     int32  `protobuf:"varint,3,opt,name=pid,proto3" json:"pid,omitempty"`
+	Title   string `protobuf:"bytes,4,opt,name=title,proto3" json:"title,omitempty"`
+	Bounds  *Rect  `protobuf:"bytes,5,opt,name=bounds,proto3" json:"bounds,omitempty"`
+	Focused bool   `protobuf:"varint,6,opt,name=focused,proto3" json:"focused,omitempty"`
 
 	// Has unexported fields.
 }
@@ -2945,9 +3820,15 @@ type Window struct {
 func (*Window) Descriptor() ([]byte, []int)
     Deprecated: Use Window.ProtoReflect.Descriptor instead.
 
+func (x *Window) GetApp() string
+
 func (x *Window) GetBounds() *Rect
 
 func (x *Window) GetFocused() bool
+
+func (x *Window) GetId() string
+
+func (x *Window) GetPid() int32
 
 func (x *Window) GetTitle() string
 
@@ -2958,5 +3839,61 @@ func (x *Window) ProtoReflect() protoreflect.Message
 func (x *Window) Reset()
 
 func (x *Window) String() string
+
+type WindowQuery struct {
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	TitleExact    string `protobuf:"bytes,2,opt,name=title_exact,json=titleExact,proto3" json:"title_exact,omitempty"`
+	TitleContains string `protobuf:"bytes,3,opt,name=title_contains,json=titleContains,proto3" json:"title_contains,omitempty"`
+	FocusedOnly   bool   `protobuf:"varint,4,opt,name=focused_only,json=focusedOnly,proto3" json:"focused_only,omitempty"`
+	Index         *int32 `protobuf:"varint,5,opt,name=index,proto3,oneof" json:"index,omitempty"`
+
+	// Has unexported fields.
+}
+
+func (*WindowQuery) Descriptor() ([]byte, []int)
+    Deprecated: Use WindowQuery.ProtoReflect.Descriptor instead.
+
+func (x *WindowQuery) GetFocusedOnly() bool
+
+func (x *WindowQuery) GetId() string
+
+func (x *WindowQuery) GetIndex() int32
+
+func (x *WindowQuery) GetTitleContains() string
+
+func (x *WindowQuery) GetTitleExact() string
+
+func (*WindowQuery) ProtoMessage()
+
+func (x *WindowQuery) ProtoReflect() protoreflect.Message
+
+func (x *WindowQuery) Reset()
+
+func (x *WindowQuery) String() string
+
+type WindowQueryRequest struct {
+	Name  string       `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Opts  *AppOptions  `protobuf:"bytes,2,opt,name=opts,proto3" json:"opts,omitempty"`
+	Query *WindowQuery `protobuf:"bytes,3,opt,name=query,proto3" json:"query,omitempty"`
+
+	// Has unexported fields.
+}
+
+func (*WindowQueryRequest) Descriptor() ([]byte, []int)
+    Deprecated: Use WindowQueryRequest.ProtoReflect.Descriptor instead.
+
+func (x *WindowQueryRequest) GetName() string
+
+func (x *WindowQueryRequest) GetOpts() *AppOptions
+
+func (x *WindowQueryRequest) GetQuery() *WindowQuery
+
+func (*WindowQueryRequest) ProtoMessage()
+
+func (x *WindowQueryRequest) ProtoReflect() protoreflect.Message
+
+func (x *WindowQueryRequest) Reset()
+
+func (x *WindowQueryRequest) String() string
 
 ```

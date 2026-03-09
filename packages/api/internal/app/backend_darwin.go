@@ -121,7 +121,7 @@ tell application "System Events"
 		return ""
 	end if
 	set proc to item 1 of matched
-	set focusedState to frontmost of proc as string
+	set procPID to unix id of proc as string
 	set rows to {}
 	repeat with w in windows of proc
 		set winTitle to ""
@@ -138,7 +138,15 @@ tell application "System Events"
 		try
 			set {wSize, hSize} to size of w
 		end try
-		set row to winTitle & "||" & (xPos as string) & "||" & (yPos as string) & "||" & (wSize as string) & "||" & (hSize as string) & "||" & focusedState
+		set focusedState to "false"
+		try
+			set focusedState to (value of attribute "AXFocused" of w) as string
+		on error
+			try
+				set focusedState to (value of attribute "AXMain" of w) as string
+			end try
+		end try
+		set row to winTitle & "||" & (xPos as string) & "||" & (yPos as string) & "||" & (wSize as string) & "||" & (hSize as string) & "||" & focusedState & "||" & "" & "||" & appName & "||" & procPID
 		copy row to end of rows
 	end repeat
 	set AppleScript's text item delimiters to linefeed

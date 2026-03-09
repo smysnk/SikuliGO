@@ -37,6 +37,7 @@ Package: `package grpcv1 // import "github.com/smysnk/sikuligo/internal/grpcv1"`
 - <span class="api-func">[`WithClickOnScreen`](#func-withclickonscreen)</span>
 - <span class="api-func">[`WithFinderFactory`](#func-withfinderfactory)</span>
 - <span class="api-func">[`WithFinderWithEngineFactory`](#func-withfinderwithenginefactory)</span>
+- <span class="api-func">[`WithScreenLister`](#func-withscreenlister)</span>
 - <span class="api-func">[`NewSessionTracker`](#func-newsessiontracker)</span>
 - <span class="api-func">[`NewStoreMetricsProvider`](#func-newstoremetricsprovider)</span>
 
@@ -47,6 +48,7 @@ Package: `package grpcv1 // import "github.com/smysnk/sikuligo/internal/grpcv1"`
 - <span class="api-method">[`MetricsRegistry.RecordAuthFailure`](#method-metricsregistry-recordauthfailure)</span>
 - <span class="api-method">[`MetricsRegistry.Snapshot`](#method-metricsregistry-snapshot)</span>
 - <span class="api-method">[`MetricsRegistry.StartRequest`](#method-metricsregistry-startrequest)</span>
+- <span class="api-method">[`Server.CaptureScreen`](#method-server-capturescreen)</span>
 - <span class="api-method">[`Server.Click`](#method-server-click)</span>
 - <span class="api-method">[`Server.ClickOnScreen`](#method-server-clickonscreen)</span>
 - <span class="api-method">[`Server.CloseApp`](#method-server-closeapp)</span>
@@ -55,16 +57,27 @@ Package: `package grpcv1 // import "github.com/smysnk/sikuligo/internal/grpcv1"`
 - <span class="api-method">[`Server.FindAll`](#method-server-findall)</span>
 - <span class="api-method">[`Server.FindOnScreen`](#method-server-findonscreen)</span>
 - <span class="api-method">[`Server.FindText`](#method-server-findtext)</span>
+- <span class="api-method">[`Server.FindWindows`](#method-server-findwindows)</span>
 - <span class="api-method">[`Server.FocusApp`](#method-server-focusapp)</span>
+- <span class="api-method">[`Server.GetFocusedWindow`](#method-server-getfocusedwindow)</span>
+- <span class="api-method">[`Server.GetPrimaryScreen`](#method-server-getprimaryscreen)</span>
+- <span class="api-method">[`Server.GetWindow`](#method-server-getwindow)</span>
 - <span class="api-method">[`Server.Hotkey`](#method-server-hotkey)</span>
 - <span class="api-method">[`Server.IsAppRunning`](#method-server-isapprunning)</span>
+- <span class="api-method">[`Server.KeyDown`](#method-server-keydown)</span>
+- <span class="api-method">[`Server.KeyUp`](#method-server-keyup)</span>
+- <span class="api-method">[`Server.ListScreens`](#method-server-listscreens)</span>
 - <span class="api-method">[`Server.ListWindows`](#method-server-listwindows)</span>
+- <span class="api-method">[`Server.MouseDown`](#method-server-mousedown)</span>
+- <span class="api-method">[`Server.MouseUp`](#method-server-mouseup)</span>
 - <span class="api-method">[`Server.MoveMouse`](#method-server-movemouse)</span>
 - <span class="api-method">[`Server.ObserveAppear`](#method-server-observeappear)</span>
 - <span class="api-method">[`Server.ObserveChange`](#method-server-observechange)</span>
 - <span class="api-method">[`Server.ObserveVanish`](#method-server-observevanish)</span>
 - <span class="api-method">[`Server.OpenApp`](#method-server-openapp)</span>
+- <span class="api-method">[`Server.PasteText`](#method-server-pastetext)</span>
 - <span class="api-method">[`Server.ReadText`](#method-server-readtext)</span>
+- <span class="api-method">[`Server.ScrollWheel`](#method-server-scrollwheel)</span>
 - <span class="api-method">[`Server.TypeText`](#method-server-typetext)</span>
 - <span class="api-method">[`Server.WaitOnScreen`](#method-server-waitonscreen)</span>
 - <span class="api-method">[`SessionTracker.HandleConn`](#method-sessiontracker-handleconn)</span>
@@ -158,6 +171,11 @@ Package: `package grpcv1 // import "github.com/smysnk/sikuligo/internal/grpcv1"`
 - Signature: <span class="api-signature">`func WithFinderWithEngineFactory(fn func(*sikuli.Image, cv.MatcherEngine) (*sikuli.Finder, error)) ServerOption`</span>
 - Uses: [`ServerOption`](#type-serveroption)
 
+#### <a id="func-withscreenlister"></a><span class="api-func">Function</span> `WithScreenLister`
+
+- Signature: <span class="api-signature">`func WithScreenLister(fn func(context.Context) ([]sikuli.Screen, error)) ServerOption`</span>
+- Uses: [`ServerOption`](#type-serveroption)
+
 #### <a id="func-newsessiontracker"></a><span class="api-func">Function</span> `NewSessionTracker`
 
 - Signature: <span class="api-signature">`func NewSessionTracker(store *sessionstore.Store, apiSessionID uint, logger *log.Logger) *SessionTracker`</span>
@@ -191,6 +209,10 @@ Package: `package grpcv1 // import "github.com/smysnk/sikuligo/internal/grpcv1"`
 
 - Signature: <span class="api-signature">`func (m *MetricsRegistry) StartRequest()`</span>
 
+#### <a id="method-server-capturescreen"></a><span class="api-method">Method</span> `Server.CaptureScreen`
+
+- Signature: <span class="api-signature">`func (s *Server) CaptureScreen(ctx context.Context, req *pb.CaptureScreenRequest) (*pb.CaptureScreenResponse, error)`</span>
+
 #### <a id="method-server-click"></a><span class="api-method">Method</span> `Server.Click`
 
 - Signature: <span class="api-signature">`func (s *Server) Click(_ context.Context, req *pb.ClickRequest) (*pb.ActionResponse, error)`</span>
@@ -223,9 +245,25 @@ Package: `package grpcv1 // import "github.com/smysnk/sikuligo/internal/grpcv1"`
 
 - Signature: <span class="api-signature">`func (s *Server) FindText(_ context.Context, req *pb.FindTextRequest) (*pb.FindTextResponse, error)`</span>
 
+#### <a id="method-server-findwindows"></a><span class="api-method">Method</span> `Server.FindWindows`
+
+- Signature: <span class="api-signature">`func (s *Server) FindWindows(_ context.Context, req *pb.WindowQueryRequest) (*pb.ListWindowsResponse, error)`</span>
+
 #### <a id="method-server-focusapp"></a><span class="api-method">Method</span> `Server.FocusApp`
 
 - Signature: <span class="api-signature">`func (s *Server) FocusApp(_ context.Context, req *pb.AppActionRequest) (*pb.ActionResponse, error)`</span>
+
+#### <a id="method-server-getfocusedwindow"></a><span class="api-method">Method</span> `Server.GetFocusedWindow`
+
+- Signature: <span class="api-signature">`func (s *Server) GetFocusedWindow(_ context.Context, req *pb.AppActionRequest) (*pb.GetWindowResponse, error)`</span>
+
+#### <a id="method-server-getprimaryscreen"></a><span class="api-method">Method</span> `Server.GetPrimaryScreen`
+
+- Signature: <span class="api-signature">`func (s *Server) GetPrimaryScreen(ctx context.Context, _ *pb.GetPrimaryScreenRequest) (*pb.GetPrimaryScreenResponse, error)`</span>
+
+#### <a id="method-server-getwindow"></a><span class="api-method">Method</span> `Server.GetWindow`
+
+- Signature: <span class="api-signature">`func (s *Server) GetWindow(_ context.Context, req *pb.WindowQueryRequest) (*pb.GetWindowResponse, error)`</span>
 
 #### <a id="method-server-hotkey"></a><span class="api-method">Method</span> `Server.Hotkey`
 
@@ -235,9 +273,29 @@ Package: `package grpcv1 // import "github.com/smysnk/sikuligo/internal/grpcv1"`
 
 - Signature: <span class="api-signature">`func (s *Server) IsAppRunning(_ context.Context, req *pb.AppActionRequest) (*pb.IsAppRunningResponse, error)`</span>
 
+#### <a id="method-server-keydown"></a><span class="api-method">Method</span> `Server.KeyDown`
+
+- Signature: <span class="api-signature">`func (s *Server) KeyDown(_ context.Context, req *pb.HotkeyRequest) (*pb.ActionResponse, error)`</span>
+
+#### <a id="method-server-keyup"></a><span class="api-method">Method</span> `Server.KeyUp`
+
+- Signature: <span class="api-signature">`func (s *Server) KeyUp(_ context.Context, req *pb.HotkeyRequest) (*pb.ActionResponse, error)`</span>
+
+#### <a id="method-server-listscreens"></a><span class="api-method">Method</span> `Server.ListScreens`
+
+- Signature: <span class="api-signature">`func (s *Server) ListScreens(ctx context.Context, _ *pb.ListScreensRequest) (*pb.ListScreensResponse, error)`</span>
+
 #### <a id="method-server-listwindows"></a><span class="api-method">Method</span> `Server.ListWindows`
 
 - Signature: <span class="api-signature">`func (s *Server) ListWindows(_ context.Context, req *pb.AppActionRequest) (*pb.ListWindowsResponse, error)`</span>
+
+#### <a id="method-server-mousedown"></a><span class="api-method">Method</span> `Server.MouseDown`
+
+- Signature: <span class="api-signature">`func (s *Server) MouseDown(_ context.Context, req *pb.ClickRequest) (*pb.ActionResponse, error)`</span>
+
+#### <a id="method-server-mouseup"></a><span class="api-method">Method</span> `Server.MouseUp`
+
+- Signature: <span class="api-signature">`func (s *Server) MouseUp(_ context.Context, req *pb.ClickRequest) (*pb.ActionResponse, error)`</span>
 
 #### <a id="method-server-movemouse"></a><span class="api-method">Method</span> `Server.MoveMouse`
 
@@ -259,9 +317,17 @@ Package: `package grpcv1 // import "github.com/smysnk/sikuligo/internal/grpcv1"`
 
 - Signature: <span class="api-signature">`func (s *Server) OpenApp(_ context.Context, req *pb.AppActionRequest) (*pb.ActionResponse, error)`</span>
 
+#### <a id="method-server-pastetext"></a><span class="api-method">Method</span> `Server.PasteText`
+
+- Signature: <span class="api-signature">`func (s *Server) PasteText(_ context.Context, req *pb.TypeTextRequest) (*pb.ActionResponse, error)`</span>
+
 #### <a id="method-server-readtext"></a><span class="api-method">Method</span> `Server.ReadText`
 
 - Signature: <span class="api-signature">`func (s *Server) ReadText(_ context.Context, req *pb.ReadTextRequest) (*pb.ReadTextResponse, error)`</span>
+
+#### <a id="method-server-scrollwheel"></a><span class="api-method">Method</span> `Server.ScrollWheel`
+
+- Signature: <span class="api-signature">`func (s *Server) ScrollWheel(_ context.Context, req *pb.ScrollWheelRequest) (*pb.ActionResponse, error)`</span>
 
 #### <a id="method-server-typetext"></a><span class="api-method">Method</span> `Server.TypeText`
 
@@ -362,6 +428,8 @@ type Server struct {
 
 func NewServer(opts ...ServerOption) *Server
 
+func (s *Server) CaptureScreen(ctx context.Context, req *pb.CaptureScreenRequest) (*pb.CaptureScreenResponse, error)
+
 func (s *Server) Click(_ context.Context, req *pb.ClickRequest) (*pb.ActionResponse, error)
 
 func (s *Server) ClickOnScreen(ctx context.Context, req *pb.ClickOnScreenRequest) (*pb.FindResponse, error)
@@ -378,13 +446,31 @@ func (s *Server) FindOnScreen(ctx context.Context, req *pb.FindOnScreenRequest) 
 
 func (s *Server) FindText(_ context.Context, req *pb.FindTextRequest) (*pb.FindTextResponse, error)
 
+func (s *Server) FindWindows(_ context.Context, req *pb.WindowQueryRequest) (*pb.ListWindowsResponse, error)
+
 func (s *Server) FocusApp(_ context.Context, req *pb.AppActionRequest) (*pb.ActionResponse, error)
+
+func (s *Server) GetFocusedWindow(_ context.Context, req *pb.AppActionRequest) (*pb.GetWindowResponse, error)
+
+func (s *Server) GetPrimaryScreen(ctx context.Context, _ *pb.GetPrimaryScreenRequest) (*pb.GetPrimaryScreenResponse, error)
+
+func (s *Server) GetWindow(_ context.Context, req *pb.WindowQueryRequest) (*pb.GetWindowResponse, error)
 
 func (s *Server) Hotkey(_ context.Context, req *pb.HotkeyRequest) (*pb.ActionResponse, error)
 
 func (s *Server) IsAppRunning(_ context.Context, req *pb.AppActionRequest) (*pb.IsAppRunningResponse, error)
 
+func (s *Server) KeyDown(_ context.Context, req *pb.HotkeyRequest) (*pb.ActionResponse, error)
+
+func (s *Server) KeyUp(_ context.Context, req *pb.HotkeyRequest) (*pb.ActionResponse, error)
+
+func (s *Server) ListScreens(ctx context.Context, _ *pb.ListScreensRequest) (*pb.ListScreensResponse, error)
+
 func (s *Server) ListWindows(_ context.Context, req *pb.AppActionRequest) (*pb.ListWindowsResponse, error)
+
+func (s *Server) MouseDown(_ context.Context, req *pb.ClickRequest) (*pb.ActionResponse, error)
+
+func (s *Server) MouseUp(_ context.Context, req *pb.ClickRequest) (*pb.ActionResponse, error)
 
 func (s *Server) MoveMouse(_ context.Context, req *pb.MoveMouseRequest) (*pb.ActionResponse, error)
 
@@ -396,7 +482,11 @@ func (s *Server) ObserveVanish(_ context.Context, req *pb.ObserveRequest) (*pb.O
 
 func (s *Server) OpenApp(_ context.Context, req *pb.AppActionRequest) (*pb.ActionResponse, error)
 
+func (s *Server) PasteText(_ context.Context, req *pb.TypeTextRequest) (*pb.ActionResponse, error)
+
 func (s *Server) ReadText(_ context.Context, req *pb.ReadTextRequest) (*pb.ReadTextResponse, error)
+
+func (s *Server) ScrollWheel(_ context.Context, req *pb.ScrollWheelRequest) (*pb.ActionResponse, error)
 
 func (s *Server) TypeText(_ context.Context, req *pb.TypeTextRequest) (*pb.ActionResponse, error)
 
@@ -411,6 +501,8 @@ func WithClickOnScreen(fn func(int, int, sikuli.InputOptions) error) ServerOptio
 func WithFinderFactory(fn func(*sikuli.Image) (*sikuli.Finder, error)) ServerOption
 
 func WithFinderWithEngineFactory(fn func(*sikuli.Image, cv.MatcherEngine) (*sikuli.Finder, error)) ServerOption
+
+func WithScreenLister(fn func(context.Context) ([]sikuli.Screen, error)) ServerOption
 
 type SessionTracker struct {
 	// Has unexported fields.

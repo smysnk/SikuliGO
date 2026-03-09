@@ -9,6 +9,7 @@ import (
 	"time"
 
 	pb "github.com/smysnk/sikuligo/internal/grpcv1/pb"
+	"github.com/smysnk/sikuligo/pkg/sikuli"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
@@ -24,7 +25,19 @@ func TestRPCSurfaceIntegrationViaBufconn(t *testing.T) {
 	srv := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(UnaryInterceptors("", log.Default(), NewMetricsRegistry(), nil)...),
 	)
-	pb.RegisterSikuliServiceServer(srv, NewServer())
+	pb.RegisterSikuliServiceServer(srv, NewServer(
+		WithCaptureScreen(func(_ context.Context, _ string) (*sikuli.Image, error) {
+			return sikuliImageFromRows(t, "screen", [][]uint8{
+				{10, 10},
+				{10, 10},
+			}), nil
+		}),
+		WithScreenLister(func(context.Context) ([]sikuli.Screen, error) {
+			return []sikuli.Screen{
+				{ID: 1, Name: "primary", Bounds: sikuli.NewRect(0, 0, 2, 2), Primary: true},
+			}, nil
+		}),
+	))
 
 	go func() {
 		_ = srv.Serve(lis)
@@ -82,6 +95,18 @@ func TestRPCSurfaceIntegrationViaBufconn(t *testing.T) {
 		_, err := client.FindOnScreen(c, &pb.FindOnScreenRequest{Pattern: pattern, Opts: screenOpts})
 		return err
 	})
+	check("ListScreens", func(c context.Context) error {
+		_, err := client.ListScreens(c, &pb.ListScreensRequest{})
+		return err
+	})
+	check("GetPrimaryScreen", func(c context.Context) error {
+		_, err := client.GetPrimaryScreen(c, &pb.GetPrimaryScreenRequest{})
+		return err
+	})
+	check("CaptureScreen", func(c context.Context) error {
+		_, err := client.CaptureScreen(c, &pb.CaptureScreenRequest{})
+		return err
+	})
 	check("ExistsOnScreen", func(c context.Context) error {
 		_, err := client.ExistsOnScreen(c, &pb.ExistsOnScreenRequest{Pattern: pattern, Opts: screenOpts})
 		return err
@@ -114,8 +139,32 @@ func TestRPCSurfaceIntegrationViaBufconn(t *testing.T) {
 		_, err := client.TypeText(c, &pb.TypeTextRequest{Text: "x", Opts: &pb.InputOptions{}})
 		return err
 	})
+	check("PasteText", func(c context.Context) error {
+		_, err := client.PasteText(c, &pb.TypeTextRequest{Text: "x", Opts: &pb.InputOptions{}})
+		return err
+	})
 	check("Hotkey", func(c context.Context) error {
 		_, err := client.Hotkey(c, &pb.HotkeyRequest{Keys: []string{"cmd", "c"}})
+		return err
+	})
+	check("MouseDown", func(c context.Context) error {
+		_, err := client.MouseDown(c, &pb.ClickRequest{X: 0, Y: 0, Opts: &pb.InputOptions{}})
+		return err
+	})
+	check("MouseUp", func(c context.Context) error {
+		_, err := client.MouseUp(c, &pb.ClickRequest{X: 0, Y: 0, Opts: &pb.InputOptions{}})
+		return err
+	})
+	check("KeyDown", func(c context.Context) error {
+		_, err := client.KeyDown(c, &pb.HotkeyRequest{Keys: []string{"cmd"}})
+		return err
+	})
+	check("KeyUp", func(c context.Context) error {
+		_, err := client.KeyUp(c, &pb.HotkeyRequest{Keys: []string{"cmd"}})
+		return err
+	})
+	check("ScrollWheel", func(c context.Context) error {
+		_, err := client.ScrollWheel(c, &pb.ScrollWheelRequest{X: 0, Y: 0, Direction: "down", Steps: 1, Opts: &pb.InputOptions{}})
 		return err
 	})
 	check("ObserveAppear", func(c context.Context) error {
@@ -148,6 +197,19 @@ func TestRPCSurfaceIntegrationViaBufconn(t *testing.T) {
 	})
 	check("ListWindows", func(c context.Context) error {
 		_, err := client.ListWindows(c, &pb.AppActionRequest{Name: "TestApp"})
+		return err
+	})
+	check("FindWindows", func(c context.Context) error {
+		_, err := client.FindWindows(c, &pb.WindowQueryRequest{Name: "TestApp", Query: &pb.WindowQuery{TitleContains: "main"}})
+		return err
+	})
+	check("GetWindow", func(c context.Context) error {
+		idx := int32(0)
+		_, err := client.GetWindow(c, &pb.WindowQueryRequest{Name: "TestApp", Query: &pb.WindowQuery{TitleContains: "main", Index: &idx}})
+		return err
+	})
+	check("GetFocusedWindow", func(c context.Context) error {
+		_, err := client.GetFocusedWindow(c, &pb.AppActionRequest{Name: "TestApp"})
 		return err
 	})
 }

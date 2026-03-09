@@ -43,6 +43,7 @@ func TestLinuxBackendCommandDispatch(t *testing.T) {
 			{out: "123\n"}, // is-running
 			{out: "123\n"}, // list-windows is-running precheck
 			{out: "0x001 0 10 20 640 480 host app.Demo Demo Main Window\n"},
+			{out: "_NET_ACTIVE_WINDOW(WINDOW): window id # 0x001\n"},
 		},
 	}
 	backend := &linuxBackend{runner: runner}
@@ -76,22 +77,34 @@ func TestLinuxBackendCommandDispatch(t *testing.T) {
 	if windows.Windows[0].X != 10 || windows.Windows[0].Y != 20 || windows.Windows[0].W != 640 || windows.Windows[0].H != 480 {
 		t.Fatalf("window geometry mismatch: %+v", windows.Windows[0])
 	}
-	if len(runner.calls) != 6 {
-		t.Fatalf("expected 6 command calls, got=%d", len(runner.calls))
+	if windows.Windows[0].ID != "0x001" || windows.Windows[0].App != "app.Demo" || !windows.Windows[0].Focused {
+		t.Fatalf("window metadata mismatch: %+v", windows.Windows[0])
+	}
+	if len(runner.calls) != 7 {
+		t.Fatalf("expected 7 command calls, got=%d", len(runner.calls))
 	}
 	if runner.calls[1].name != "wmctrl" || runner.calls[2].name != "pkill" || runner.calls[3].name != "pgrep" {
 		t.Fatalf("command dispatch mismatch: %+v", runner.calls)
+	}
+	if runner.calls[6].name != "xprop" {
+		t.Fatalf("expected active-window probe, got=%+v", runner.calls[6])
 	}
 }
 
 func TestLinuxBackendParsersAndErrors(t *testing.T) {
 	rows := "0x001 0 10 20 640 480 host app.Demo Demo Main Window\n0x002 0 1 2 3 4 host app.Other Other"
-	windows, err := parseLinuxWindowRows(rows, "demo")
+	windows, err := parseLinuxWindowRows(rows, "demo", "0x001")
 	if err != nil {
 		t.Fatalf("parse rows failed: %v", err)
 	}
 	if len(windows) != 1 || windows[0].Title != "Demo Main Window" {
 		t.Fatalf("row filter mismatch: %+v", windows)
+	}
+	if windows[0].ID != "0x001" || windows[0].App != "app.Demo" || !windows[0].Focused {
+		t.Fatalf("parsed window metadata mismatch: %+v", windows[0])
+	}
+	if got := parseLinuxActiveWindowID("_NET_ACTIVE_WINDOW(WINDOW): window id # 0x04600007"); got != "0x04600007" {
+		t.Fatalf("active-window parse mismatch: %q", got)
 	}
 
 	runner := &linuxFakeRunner{

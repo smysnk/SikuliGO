@@ -3,12 +3,14 @@ package sikuli
 import "sync"
 
 type RuntimeSettings struct {
-	ImageCache       int
-	ShowActions      bool
-	WaitScanRate     float64
-	ObserveScanRate  float64
-	AutoWaitTimeout  float64
-	MinSimilarity    float64
+	ImageCache      int
+	ShowActions     bool
+	WaitScanRate    float64
+	ObserveScanRate float64
+	AutoWaitTimeout float64
+	MinSimilarity   float64
+	// FindFailedThrows is retained as parity metadata for SikuliX-style ports.
+	// The Go API uses explicit return values for misses and timeouts regardless of this flag.
 	FindFailedThrows bool
 }
 
@@ -52,4 +54,3 @@ func ResetSettings() RuntimeSettings {
 	}
 	return settings
 }
-

@@ -89,7 +89,50 @@ func (b *windowsBackend) isRunning(ctx context.Context, name string) (core.AppRe
 }
 
 func (b *windowsBackend) listWindows(ctx context.Context, name string) (core.AppResult, error) {
-	script := fmt.Sprintf(`Get-Process | Where-Object { $_.ProcessName -like %s } | ForEach-Object { $title = $_.MainWindowTitle; if ([string]::IsNullOrWhiteSpace($title)) { $title = $_.ProcessName }; "$title||0||0||0||0||false" }`, psQuote(name+"*"))
+	script := fmt.Sprintf(`Add-Type -TypeDefinition @"
+using System;
+using System.Runtime.InteropServices;
+public static class WindowProbe {
+	[StructLayout(LayoutKind.Sequential)]
+	public struct RECT {
+		public int Left;
+		public int Top;
+		public int Right;
+		public int Bottom;
+	}
+
+	[DllImport("user32.dll")]
+	public static extern IntPtr GetForegroundWindow();
+
+	[DllImport("user32.dll")]
+	[return: MarshalAs(UnmanagedType.Bool)]
+	public static extern bool GetWindowRect(IntPtr hWnd, out RECT rect);
+}
+"@ -ErrorAction SilentlyContinue
+$fg = [WindowProbe]::GetForegroundWindow()
+Get-Process | Where-Object { $_.ProcessName -like %s } | ForEach-Object {
+	$title = $_.MainWindowTitle
+	if ([string]::IsNullOrWhiteSpace($title)) { $title = $_.ProcessName }
+	$handle = $_.MainWindowHandle
+	$focused = "false"
+	$id = ""
+	$x = 0
+	$y = 0
+	$w = 0
+	$h = 0
+	if ($handle -ne 0) {
+		$id = [string]::Format("0x{0:x}", [Int64]$handle)
+		if ([Int64]$handle -eq [Int64]$fg) { $focused = "true" }
+		$rect = New-Object WindowProbe+RECT
+		if ([WindowProbe]::GetWindowRect($handle, [ref]$rect)) {
+			$x = $rect.Left
+			$y = $rect.Top
+			$w = $rect.Right - $rect.Left
+			$h = $rect.Bottom - $rect.Top
+		}
+	}
+	"$title||$x||$y||$w||$h||$focused||$id||$($_.ProcessName)||$($_.Id)"
+}`, psQuote(name+"*"))
 	out, err := b.runner.Run(ctx, "powershell", "-NoProfile", "-Command", script)
 	if err != nil {
 		return core.AppResult{}, commandError("list-windows", err, out)

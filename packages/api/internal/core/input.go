@@ -14,19 +14,27 @@ type InputAction string
 const (
 	InputActionMouseMove InputAction = "mouse_move"
 	InputActionClick     InputAction = "click"
+	InputActionMouseDown InputAction = "mouse_down"
+	InputActionMouseUp   InputAction = "mouse_up"
 	InputActionTypeText  InputAction = "type_text"
+	InputActionPasteText InputAction = "paste_text"
 	InputActionHotkey    InputAction = "hotkey"
+	InputActionKeyDown   InputAction = "key_down"
+	InputActionKeyUp     InputAction = "key_up"
+	InputActionWheel     InputAction = "wheel"
 )
 
 type InputRequest struct {
-	Action  InputAction
-	X       int
-	Y       int
-	Button  string
-	Text    string
-	Keys    []string
-	Delay   time.Duration
-	Options map[string]string
+	Action          InputAction
+	X               int
+	Y               int
+	Button          string
+	Text            string
+	Keys            []string
+	Delay           time.Duration
+	ScrollDirection string
+	ScrollSteps     int
+	Options         map[string]string
 }
 
 func (r InputRequest) Validate() error {
@@ -39,17 +47,17 @@ func (r InputRequest) Validate() error {
 	switch r.Action {
 	case InputActionMouseMove:
 		return nil
-	case InputActionClick:
+	case InputActionClick, InputActionMouseDown, InputActionMouseUp:
 		if strings.TrimSpace(r.Button) == "" {
 			return fmt.Errorf("click button cannot be empty")
 		}
 		return nil
-	case InputActionTypeText:
+	case InputActionTypeText, InputActionPasteText:
 		if strings.TrimSpace(r.Text) == "" {
 			return fmt.Errorf("type text cannot be empty")
 		}
 		return nil
-	case InputActionHotkey:
+	case InputActionHotkey, InputActionKeyDown, InputActionKeyUp:
 		if len(r.Keys) == 0 {
 			return fmt.Errorf("hotkey requires at least one key")
 		}
@@ -57,6 +65,14 @@ func (r InputRequest) Validate() error {
 			if strings.TrimSpace(k) == "" {
 				return fmt.Errorf("hotkey keys cannot be empty")
 			}
+		}
+		return nil
+	case InputActionWheel:
+		if strings.TrimSpace(r.ScrollDirection) == "" {
+			return fmt.Errorf("wheel direction cannot be empty")
+		}
+		if r.ScrollSteps <= 0 {
+			return fmt.Errorf("wheel steps must be positive")
 		}
 		return nil
 	default:

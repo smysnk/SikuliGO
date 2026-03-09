@@ -7,5 +7,5 @@ var (
 	ErrTimeout            = errors.New("sikuli: timeout")
 	ErrInvalidTarget      = errors.New("sikuli: invalid target")
 	ErrBackendUnsupported = errors.New("sikuli: backend unsupported")
+	ErrRuntimeUnavailable = errors.New("sikuli: live runtime unavailable")
 )
-

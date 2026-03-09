@@ -19,32 +19,47 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	SikuliService_Find_FullMethodName           = "/sikuli.v1.SikuliService/Find"
-	SikuliService_FindAll_FullMethodName        = "/sikuli.v1.SikuliService/FindAll"
-	SikuliService_FindOnScreen_FullMethodName   = "/sikuli.v1.SikuliService/FindOnScreen"
-	SikuliService_ExistsOnScreen_FullMethodName = "/sikuli.v1.SikuliService/ExistsOnScreen"
-	SikuliService_WaitOnScreen_FullMethodName   = "/sikuli.v1.SikuliService/WaitOnScreen"
-	SikuliService_ClickOnScreen_FullMethodName  = "/sikuli.v1.SikuliService/ClickOnScreen"
-	SikuliService_ReadText_FullMethodName       = "/sikuli.v1.SikuliService/ReadText"
-	SikuliService_FindText_FullMethodName       = "/sikuli.v1.SikuliService/FindText"
-	SikuliService_MoveMouse_FullMethodName      = "/sikuli.v1.SikuliService/MoveMouse"
-	SikuliService_Click_FullMethodName          = "/sikuli.v1.SikuliService/Click"
-	SikuliService_TypeText_FullMethodName       = "/sikuli.v1.SikuliService/TypeText"
-	SikuliService_Hotkey_FullMethodName         = "/sikuli.v1.SikuliService/Hotkey"
-	SikuliService_ObserveAppear_FullMethodName  = "/sikuli.v1.SikuliService/ObserveAppear"
-	SikuliService_ObserveVanish_FullMethodName  = "/sikuli.v1.SikuliService/ObserveVanish"
-	SikuliService_ObserveChange_FullMethodName  = "/sikuli.v1.SikuliService/ObserveChange"
-	SikuliService_OpenApp_FullMethodName        = "/sikuli.v1.SikuliService/OpenApp"
-	SikuliService_FocusApp_FullMethodName       = "/sikuli.v1.SikuliService/FocusApp"
-	SikuliService_CloseApp_FullMethodName       = "/sikuli.v1.SikuliService/CloseApp"
-	SikuliService_IsAppRunning_FullMethodName   = "/sikuli.v1.SikuliService/IsAppRunning"
-	SikuliService_ListWindows_FullMethodName    = "/sikuli.v1.SikuliService/ListWindows"
+	SikuliService_ListScreens_FullMethodName      = "/sikuli.v1.SikuliService/ListScreens"
+	SikuliService_GetPrimaryScreen_FullMethodName = "/sikuli.v1.SikuliService/GetPrimaryScreen"
+	SikuliService_CaptureScreen_FullMethodName    = "/sikuli.v1.SikuliService/CaptureScreen"
+	SikuliService_Find_FullMethodName             = "/sikuli.v1.SikuliService/Find"
+	SikuliService_FindAll_FullMethodName          = "/sikuli.v1.SikuliService/FindAll"
+	SikuliService_FindOnScreen_FullMethodName     = "/sikuli.v1.SikuliService/FindOnScreen"
+	SikuliService_ExistsOnScreen_FullMethodName   = "/sikuli.v1.SikuliService/ExistsOnScreen"
+	SikuliService_WaitOnScreen_FullMethodName     = "/sikuli.v1.SikuliService/WaitOnScreen"
+	SikuliService_ClickOnScreen_FullMethodName    = "/sikuli.v1.SikuliService/ClickOnScreen"
+	SikuliService_ReadText_FullMethodName         = "/sikuli.v1.SikuliService/ReadText"
+	SikuliService_FindText_FullMethodName         = "/sikuli.v1.SikuliService/FindText"
+	SikuliService_MoveMouse_FullMethodName        = "/sikuli.v1.SikuliService/MoveMouse"
+	SikuliService_Click_FullMethodName            = "/sikuli.v1.SikuliService/Click"
+	SikuliService_TypeText_FullMethodName         = "/sikuli.v1.SikuliService/TypeText"
+	SikuliService_PasteText_FullMethodName        = "/sikuli.v1.SikuliService/PasteText"
+	SikuliService_Hotkey_FullMethodName           = "/sikuli.v1.SikuliService/Hotkey"
+	SikuliService_MouseDown_FullMethodName        = "/sikuli.v1.SikuliService/MouseDown"
+	SikuliService_MouseUp_FullMethodName          = "/sikuli.v1.SikuliService/MouseUp"
+	SikuliService_KeyDown_FullMethodName          = "/sikuli.v1.SikuliService/KeyDown"
+	SikuliService_KeyUp_FullMethodName            = "/sikuli.v1.SikuliService/KeyUp"
+	SikuliService_ScrollWheel_FullMethodName      = "/sikuli.v1.SikuliService/ScrollWheel"
+	SikuliService_ObserveAppear_FullMethodName    = "/sikuli.v1.SikuliService/ObserveAppear"
+	SikuliService_ObserveVanish_FullMethodName    = "/sikuli.v1.SikuliService/ObserveVanish"
+	SikuliService_ObserveChange_FullMethodName    = "/sikuli.v1.SikuliService/ObserveChange"
+	SikuliService_OpenApp_FullMethodName          = "/sikuli.v1.SikuliService/OpenApp"
+	SikuliService_FocusApp_FullMethodName         = "/sikuli.v1.SikuliService/FocusApp"
+	SikuliService_CloseApp_FullMethodName         = "/sikuli.v1.SikuliService/CloseApp"
+	SikuliService_IsAppRunning_FullMethodName     = "/sikuli.v1.SikuliService/IsAppRunning"
+	SikuliService_ListWindows_FullMethodName      = "/sikuli.v1.SikuliService/ListWindows"
+	SikuliService_FindWindows_FullMethodName      = "/sikuli.v1.SikuliService/FindWindows"
+	SikuliService_GetWindow_FullMethodName        = "/sikuli.v1.SikuliService/GetWindow"
+	SikuliService_GetFocusedWindow_FullMethodName = "/sikuli.v1.SikuliService/GetFocusedWindow"
 )
 
 // SikuliServiceClient is the client API for SikuliService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SikuliServiceClient interface {
+	ListScreens(ctx context.Context, in *ListScreensRequest, opts ...grpc.CallOption) (*ListScreensResponse, error)
+	GetPrimaryScreen(ctx context.Context, in *GetPrimaryScreenRequest, opts ...grpc.CallOption) (*GetPrimaryScreenResponse, error)
+	CaptureScreen(ctx context.Context, in *CaptureScreenRequest, opts ...grpc.CallOption) (*CaptureScreenResponse, error)
 	Find(ctx context.Context, in *FindRequest, opts ...grpc.CallOption) (*FindResponse, error)
 	FindAll(ctx context.Context, in *FindRequest, opts ...grpc.CallOption) (*FindAllResponse, error)
 	FindOnScreen(ctx context.Context, in *FindOnScreenRequest, opts ...grpc.CallOption) (*FindResponse, error)
@@ -56,7 +71,13 @@ type SikuliServiceClient interface {
 	MoveMouse(ctx context.Context, in *MoveMouseRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 	Click(ctx context.Context, in *ClickRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 	TypeText(ctx context.Context, in *TypeTextRequest, opts ...grpc.CallOption) (*ActionResponse, error)
+	PasteText(ctx context.Context, in *TypeTextRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 	Hotkey(ctx context.Context, in *HotkeyRequest, opts ...grpc.CallOption) (*ActionResponse, error)
+	MouseDown(ctx context.Context, in *ClickRequest, opts ...grpc.CallOption) (*ActionResponse, error)
+	MouseUp(ctx context.Context, in *ClickRequest, opts ...grpc.CallOption) (*ActionResponse, error)
+	KeyDown(ctx context.Context, in *HotkeyRequest, opts ...grpc.CallOption) (*ActionResponse, error)
+	KeyUp(ctx context.Context, in *HotkeyRequest, opts ...grpc.CallOption) (*ActionResponse, error)
+	ScrollWheel(ctx context.Context, in *ScrollWheelRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 	ObserveAppear(ctx context.Context, in *ObserveRequest, opts ...grpc.CallOption) (*ObserveResponse, error)
 	ObserveVanish(ctx context.Context, in *ObserveRequest, opts ...grpc.CallOption) (*ObserveResponse, error)
 	ObserveChange(ctx context.Context, in *ObserveChangeRequest, opts ...grpc.CallOption) (*ObserveResponse, error)
@@ -65,6 +86,9 @@ type SikuliServiceClient interface {
 	CloseApp(ctx context.Context, in *AppActionRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 	IsAppRunning(ctx context.Context, in *AppActionRequest, opts ...grpc.CallOption) (*IsAppRunningResponse, error)
 	ListWindows(ctx context.Context, in *AppActionRequest, opts ...grpc.CallOption) (*ListWindowsResponse, error)
+	FindWindows(ctx context.Context, in *WindowQueryRequest, opts ...grpc.CallOption) (*ListWindowsResponse, error)
+	GetWindow(ctx context.Context, in *WindowQueryRequest, opts ...grpc.CallOption) (*GetWindowResponse, error)
+	GetFocusedWindow(ctx context.Context, in *AppActionRequest, opts ...grpc.CallOption) (*GetWindowResponse, error)
 }
 
 type sikuliServiceClient struct {
@@ -73,6 +97,36 @@ type sikuliServiceClient struct {
 
 func NewSikuliServiceClient(cc grpc.ClientConnInterface) SikuliServiceClient {
 	return &sikuliServiceClient{cc}
+}
+
+func (c *sikuliServiceClient) ListScreens(ctx context.Context, in *ListScreensRequest, opts ...grpc.CallOption) (*ListScreensResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListScreensResponse)
+	err := c.cc.Invoke(ctx, SikuliService_ListScreens_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *sikuliServiceClient) GetPrimaryScreen(ctx context.Context, in *GetPrimaryScreenRequest, opts ...grpc.CallOption) (*GetPrimaryScreenResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetPrimaryScreenResponse)
+	err := c.cc.Invoke(ctx, SikuliService_GetPrimaryScreen_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *sikuliServiceClient) CaptureScreen(ctx context.Context, in *CaptureScreenRequest, opts ...grpc.CallOption) (*CaptureScreenResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CaptureScreenResponse)
+	err := c.cc.Invoke(ctx, SikuliService_CaptureScreen_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *sikuliServiceClient) Find(ctx context.Context, in *FindRequest, opts ...grpc.CallOption) (*FindResponse, error) {
@@ -185,10 +239,70 @@ func (c *sikuliServiceClient) TypeText(ctx context.Context, in *TypeTextRequest,
 	return out, nil
 }
 
+func (c *sikuliServiceClient) PasteText(ctx context.Context, in *TypeTextRequest, opts ...grpc.CallOption) (*ActionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ActionResponse)
+	err := c.cc.Invoke(ctx, SikuliService_PasteText_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *sikuliServiceClient) Hotkey(ctx context.Context, in *HotkeyRequest, opts ...grpc.CallOption) (*ActionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ActionResponse)
 	err := c.cc.Invoke(ctx, SikuliService_Hotkey_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *sikuliServiceClient) MouseDown(ctx context.Context, in *ClickRequest, opts ...grpc.CallOption) (*ActionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ActionResponse)
+	err := c.cc.Invoke(ctx, SikuliService_MouseDown_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *sikuliServiceClient) MouseUp(ctx context.Context, in *ClickRequest, opts ...grpc.CallOption) (*ActionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ActionResponse)
+	err := c.cc.Invoke(ctx, SikuliService_MouseUp_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *sikuliServiceClient) KeyDown(ctx context.Context, in *HotkeyRequest, opts ...grpc.CallOption) (*ActionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ActionResponse)
+	err := c.cc.Invoke(ctx, SikuliService_KeyDown_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *sikuliServiceClient) KeyUp(ctx context.Context, in *HotkeyRequest, opts ...grpc.CallOption) (*ActionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ActionResponse)
+	err := c.cc.Invoke(ctx, SikuliService_KeyUp_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *sikuliServiceClient) ScrollWheel(ctx context.Context, in *ScrollWheelRequest, opts ...grpc.CallOption) (*ActionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ActionResponse)
+	err := c.cc.Invoke(ctx, SikuliService_ScrollWheel_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -275,10 +389,43 @@ func (c *sikuliServiceClient) ListWindows(ctx context.Context, in *AppActionRequ
 	return out, nil
 }
 
+func (c *sikuliServiceClient) FindWindows(ctx context.Context, in *WindowQueryRequest, opts ...grpc.CallOption) (*ListWindowsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListWindowsResponse)
+	err := c.cc.Invoke(ctx, SikuliService_FindWindows_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *sikuliServiceClient) GetWindow(ctx context.Context, in *WindowQueryRequest, opts ...grpc.CallOption) (*GetWindowResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetWindowResponse)
+	err := c.cc.Invoke(ctx, SikuliService_GetWindow_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *sikuliServiceClient) GetFocusedWindow(ctx context.Context, in *AppActionRequest, opts ...grpc.CallOption) (*GetWindowResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetWindowResponse)
+	err := c.cc.Invoke(ctx, SikuliService_GetFocusedWindow_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SikuliServiceServer is the server API for SikuliService service.
 // All implementations must embed UnimplementedSikuliServiceServer
 // for forward compatibility.
 type SikuliServiceServer interface {
+	ListScreens(context.Context, *ListScreensRequest) (*ListScreensResponse, error)
+	GetPrimaryScreen(context.Context, *GetPrimaryScreenRequest) (*GetPrimaryScreenResponse, error)
+	CaptureScreen(context.Context, *CaptureScreenRequest) (*CaptureScreenResponse, error)
 	Find(context.Context, *FindRequest) (*FindResponse, error)
 	FindAll(context.Context, *FindRequest) (*FindAllResponse, error)
 	FindOnScreen(context.Context, *FindOnScreenRequest) (*FindResponse, error)
@@ -290,7 +437,13 @@ type SikuliServiceServer interface {
 	MoveMouse(context.Context, *MoveMouseRequest) (*ActionResponse, error)
 	Click(context.Context, *ClickRequest) (*ActionResponse, error)
 	TypeText(context.Context, *TypeTextRequest) (*ActionResponse, error)
+	PasteText(context.Context, *TypeTextRequest) (*ActionResponse, error)
 	Hotkey(context.Context, *HotkeyRequest) (*ActionResponse, error)
+	MouseDown(context.Context, *ClickRequest) (*ActionResponse, error)
+	MouseUp(context.Context, *ClickRequest) (*ActionResponse, error)
+	KeyDown(context.Context, *HotkeyRequest) (*ActionResponse, error)
+	KeyUp(context.Context, *HotkeyRequest) (*ActionResponse, error)
+	ScrollWheel(context.Context, *ScrollWheelRequest) (*ActionResponse, error)
 	ObserveAppear(context.Context, *ObserveRequest) (*ObserveResponse, error)
 	ObserveVanish(context.Context, *ObserveRequest) (*ObserveResponse, error)
 	ObserveChange(context.Context, *ObserveChangeRequest) (*ObserveResponse, error)
@@ -299,6 +452,9 @@ type SikuliServiceServer interface {
 	CloseApp(context.Context, *AppActionRequest) (*ActionResponse, error)
 	IsAppRunning(context.Context, *AppActionRequest) (*IsAppRunningResponse, error)
 	ListWindows(context.Context, *AppActionRequest) (*ListWindowsResponse, error)
+	FindWindows(context.Context, *WindowQueryRequest) (*ListWindowsResponse, error)
+	GetWindow(context.Context, *WindowQueryRequest) (*GetWindowResponse, error)
+	GetFocusedWindow(context.Context, *AppActionRequest) (*GetWindowResponse, error)
 	mustEmbedUnimplementedSikuliServiceServer()
 }
 
@@ -309,6 +465,15 @@ type SikuliServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedSikuliServiceServer struct{}
 
+func (UnimplementedSikuliServiceServer) ListScreens(context.Context, *ListScreensRequest) (*ListScreensResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListScreens not implemented")
+}
+func (UnimplementedSikuliServiceServer) GetPrimaryScreen(context.Context, *GetPrimaryScreenRequest) (*GetPrimaryScreenResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetPrimaryScreen not implemented")
+}
+func (UnimplementedSikuliServiceServer) CaptureScreen(context.Context, *CaptureScreenRequest) (*CaptureScreenResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CaptureScreen not implemented")
+}
 func (UnimplementedSikuliServiceServer) Find(context.Context, *FindRequest) (*FindResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Find not implemented")
 }
@@ -342,8 +507,26 @@ func (UnimplementedSikuliServiceServer) Click(context.Context, *ClickRequest) (*
 func (UnimplementedSikuliServiceServer) TypeText(context.Context, *TypeTextRequest) (*ActionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method TypeText not implemented")
 }
+func (UnimplementedSikuliServiceServer) PasteText(context.Context, *TypeTextRequest) (*ActionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PasteText not implemented")
+}
 func (UnimplementedSikuliServiceServer) Hotkey(context.Context, *HotkeyRequest) (*ActionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Hotkey not implemented")
+}
+func (UnimplementedSikuliServiceServer) MouseDown(context.Context, *ClickRequest) (*ActionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method MouseDown not implemented")
+}
+func (UnimplementedSikuliServiceServer) MouseUp(context.Context, *ClickRequest) (*ActionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method MouseUp not implemented")
+}
+func (UnimplementedSikuliServiceServer) KeyDown(context.Context, *HotkeyRequest) (*ActionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method KeyDown not implemented")
+}
+func (UnimplementedSikuliServiceServer) KeyUp(context.Context, *HotkeyRequest) (*ActionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method KeyUp not implemented")
+}
+func (UnimplementedSikuliServiceServer) ScrollWheel(context.Context, *ScrollWheelRequest) (*ActionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ScrollWheel not implemented")
 }
 func (UnimplementedSikuliServiceServer) ObserveAppear(context.Context, *ObserveRequest) (*ObserveResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ObserveAppear not implemented")
@@ -369,6 +552,15 @@ func (UnimplementedSikuliServiceServer) IsAppRunning(context.Context, *AppAction
 func (UnimplementedSikuliServiceServer) ListWindows(context.Context, *AppActionRequest) (*ListWindowsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListWindows not implemented")
 }
+func (UnimplementedSikuliServiceServer) FindWindows(context.Context, *WindowQueryRequest) (*ListWindowsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method FindWindows not implemented")
+}
+func (UnimplementedSikuliServiceServer) GetWindow(context.Context, *WindowQueryRequest) (*GetWindowResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetWindow not implemented")
+}
+func (UnimplementedSikuliServiceServer) GetFocusedWindow(context.Context, *AppActionRequest) (*GetWindowResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetFocusedWindow not implemented")
+}
 func (UnimplementedSikuliServiceServer) mustEmbedUnimplementedSikuliServiceServer() {}
 func (UnimplementedSikuliServiceServer) testEmbeddedByValue()                       {}
 
@@ -388,6 +580,60 @@ func RegisterSikuliServiceServer(s grpc.ServiceRegistrar, srv SikuliServiceServe
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&SikuliService_ServiceDesc, srv)
+}
+
+func _SikuliService_ListScreens_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListScreensRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SikuliServiceServer).ListScreens(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SikuliService_ListScreens_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SikuliServiceServer).ListScreens(ctx, req.(*ListScreensRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SikuliService_GetPrimaryScreen_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPrimaryScreenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SikuliServiceServer).GetPrimaryScreen(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SikuliService_GetPrimaryScreen_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SikuliServiceServer).GetPrimaryScreen(ctx, req.(*GetPrimaryScreenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SikuliService_CaptureScreen_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CaptureScreenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SikuliServiceServer).CaptureScreen(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SikuliService_CaptureScreen_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SikuliServiceServer).CaptureScreen(ctx, req.(*CaptureScreenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _SikuliService_Find_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -588,6 +834,24 @@ func _SikuliService_TypeText_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SikuliService_PasteText_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TypeTextRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SikuliServiceServer).PasteText(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SikuliService_PasteText_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SikuliServiceServer).PasteText(ctx, req.(*TypeTextRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _SikuliService_Hotkey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(HotkeyRequest)
 	if err := dec(in); err != nil {
@@ -602,6 +866,96 @@ func _SikuliService_Hotkey_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SikuliServiceServer).Hotkey(ctx, req.(*HotkeyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SikuliService_MouseDown_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ClickRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SikuliServiceServer).MouseDown(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SikuliService_MouseDown_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SikuliServiceServer).MouseDown(ctx, req.(*ClickRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SikuliService_MouseUp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ClickRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SikuliServiceServer).MouseUp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SikuliService_MouseUp_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SikuliServiceServer).MouseUp(ctx, req.(*ClickRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SikuliService_KeyDown_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HotkeyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SikuliServiceServer).KeyDown(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SikuliService_KeyDown_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SikuliServiceServer).KeyDown(ctx, req.(*HotkeyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SikuliService_KeyUp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HotkeyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SikuliServiceServer).KeyUp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SikuliService_KeyUp_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SikuliServiceServer).KeyUp(ctx, req.(*HotkeyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SikuliService_ScrollWheel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ScrollWheelRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SikuliServiceServer).ScrollWheel(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SikuliService_ScrollWheel_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SikuliServiceServer).ScrollWheel(ctx, req.(*ScrollWheelRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -750,6 +1104,60 @@ func _SikuliService_ListWindows_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SikuliService_FindWindows_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WindowQueryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SikuliServiceServer).FindWindows(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SikuliService_FindWindows_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SikuliServiceServer).FindWindows(ctx, req.(*WindowQueryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SikuliService_GetWindow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WindowQueryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SikuliServiceServer).GetWindow(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SikuliService_GetWindow_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SikuliServiceServer).GetWindow(ctx, req.(*WindowQueryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SikuliService_GetFocusedWindow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AppActionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SikuliServiceServer).GetFocusedWindow(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SikuliService_GetFocusedWindow_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SikuliServiceServer).GetFocusedWindow(ctx, req.(*AppActionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SikuliService_ServiceDesc is the grpc.ServiceDesc for SikuliService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -757,6 +1165,18 @@ var SikuliService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "sikuli.v1.SikuliService",
 	HandlerType: (*SikuliServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListScreens",
+			Handler:    _SikuliService_ListScreens_Handler,
+		},
+		{
+			MethodName: "GetPrimaryScreen",
+			Handler:    _SikuliService_GetPrimaryScreen_Handler,
+		},
+		{
+			MethodName: "CaptureScreen",
+			Handler:    _SikuliService_CaptureScreen_Handler,
+		},
 		{
 			MethodName: "Find",
 			Handler:    _SikuliService_Find_Handler,
@@ -802,8 +1222,32 @@ var SikuliService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _SikuliService_TypeText_Handler,
 		},
 		{
+			MethodName: "PasteText",
+			Handler:    _SikuliService_PasteText_Handler,
+		},
+		{
 			MethodName: "Hotkey",
 			Handler:    _SikuliService_Hotkey_Handler,
+		},
+		{
+			MethodName: "MouseDown",
+			Handler:    _SikuliService_MouseDown_Handler,
+		},
+		{
+			MethodName: "MouseUp",
+			Handler:    _SikuliService_MouseUp_Handler,
+		},
+		{
+			MethodName: "KeyDown",
+			Handler:    _SikuliService_KeyDown_Handler,
+		},
+		{
+			MethodName: "KeyUp",
+			Handler:    _SikuliService_KeyUp_Handler,
+		},
+		{
+			MethodName: "ScrollWheel",
+			Handler:    _SikuliService_ScrollWheel_Handler,
 		},
 		{
 			MethodName: "ObserveAppear",
@@ -836,6 +1280,18 @@ var SikuliService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListWindows",
 			Handler:    _SikuliService_ListWindows_Handler,
+		},
+		{
+			MethodName: "FindWindows",
+			Handler:    _SikuliService_FindWindows_Handler,
+		},
+		{
+			MethodName: "GetWindow",
+			Handler:    _SikuliService_GetWindow_Handler,
+		},
+		{
+			MethodName: "GetFocusedWindow",
+			Handler:    _SikuliService_GetFocusedWindow_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

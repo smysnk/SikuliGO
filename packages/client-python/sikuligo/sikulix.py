@@ -25,6 +25,7 @@ from .client import (
 
 
 DEFAULT_STARTUP_TIMEOUT_SECONDS = 10.0
+DEFAULT_WAIT_VANISH_INTERVAL_MILLIS = 100
 
 
 @dataclass(frozen=True)
@@ -87,6 +88,22 @@ def _to_pattern(target: ImageInput | Pattern) -> Pattern:
     if isinstance(target, Pattern):
         return target
     return Pattern(target)
+
+
+def _has_message_field(message: object, field_name: str) -> bool:
+    has_field = getattr(message, "HasField", None)
+    if callable(has_field):
+        try:
+            return bool(has_field(field_name))
+        except ValueError:
+            return False
+    return getattr(message, field_name, None) is not None
+
+
+def _require_match(response: object, method_name: str):
+    if not _has_message_field(response, "match"):
+        raise RuntimeError(f"invalid successful {method_name} response: missing match")
+    return response.match
 
 
 def _find_open_port() -> int:
@@ -233,9 +250,7 @@ class Region:
             timeout_seconds=timeout_seconds,
             engine=engine,
         )
-        if not out.match:
-            raise RuntimeError("match not found")
-        return Match(out.match)
+        return Match(_require_match(out, "find"))
 
     def exists(
         self,
@@ -255,7 +270,7 @@ class Region:
             timeout_seconds=timeout_seconds,
             engine=engine,
         )
-        if not out.exists or not out.match:
+        if not out.exists or not _has_message_field(out, "match"):
             return None
         return Match(out.match)
 
@@ -277,11 +292,38 @@ class Region:
             timeout_seconds=timeout_seconds,
             engine=engine,
         )
-        if not out.match:
-            if timeout_millis <= 0:
-                raise TimeoutError("wait timeout")
-            raise TimeoutError(f"wait timeout after {timeout_millis}ms")
-        return Match(out.match)
+        return Match(_require_match(out, "wait"))
+
+    def wait_vanish(
+        self,
+        target: ImageInput | Pattern,
+        timeout_millis: int = 3000,
+        *,
+        interval_millis: int | None = DEFAULT_WAIT_VANISH_INTERVAL_MILLIS,
+        timeout_seconds: float | None = None,
+        engine: str | None = None,
+    ) -> bool:
+        pattern = _to_pattern(target)
+        deadline = time.monotonic() + (max(int(timeout_millis), 0) / 1000.0) if timeout_millis > 0 else None
+
+        while True:
+            out = self._session.exists_on_screen(
+                **pattern._request_kwargs(),
+                region=self._bounds,
+                timeout_millis=0,
+                interval_millis=None,
+                timeout_seconds=timeout_seconds,
+                engine=engine,
+            )
+            if not out.exists or not _has_message_field(out, "match"):
+                return True
+            if deadline is None:
+                return False
+            remaining_seconds = deadline - time.monotonic()
+            if remaining_seconds <= 0:
+                return False
+            poll_millis = interval_millis if interval_millis and interval_millis > 0 else DEFAULT_WAIT_VANISH_INTERVAL_MILLIS
+            time.sleep(min(poll_millis / 1000.0, remaining_seconds))
 
     def click(
         self,
@@ -305,9 +347,7 @@ class Region:
             timeout_seconds=timeout_seconds,
             engine=engine,
         )
-        if not out.match:
-            raise RuntimeError("match not found")
-        return Match(out.match)
+        return Match(_require_match(out, "click"))
 
     def hover(
         self,

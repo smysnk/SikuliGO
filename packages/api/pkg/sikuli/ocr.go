@@ -15,6 +15,21 @@ type OCRParams struct {
 	CaseSensitive    bool
 }
 
+type OCRWord struct {
+	Rect
+	Text       string
+	Confidence float64
+	Index      int
+}
+
+type OCRLine struct {
+	Rect
+	Text       string
+	Confidence float64
+	Index      int
+	Words      []OCRWord
+}
+
 type TextMatch struct {
 	Rect
 	Text       string

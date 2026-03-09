@@ -8,6 +8,9 @@ import * as grpc from "@grpc/grpc-js";
 import * as sikuli_v1_sikuli_pb from "../../sikuli/v1/sikuli_pb";
 
 interface ISikuliServiceService extends grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {
+    listScreens: ISikuliServiceService_IListScreens;
+    getPrimaryScreen: ISikuliServiceService_IGetPrimaryScreen;
+    captureScreen: ISikuliServiceService_ICaptureScreen;
     find: ISikuliServiceService_IFind;
     findAll: ISikuliServiceService_IFindAll;
     findOnScreen: ISikuliServiceService_IFindOnScreen;
@@ -19,7 +22,13 @@ interface ISikuliServiceService extends grpc.ServiceDefinition<grpc.UntypedServi
     moveMouse: ISikuliServiceService_IMoveMouse;
     click: ISikuliServiceService_IClick;
     typeText: ISikuliServiceService_ITypeText;
+    pasteText: ISikuliServiceService_IPasteText;
     hotkey: ISikuliServiceService_IHotkey;
+    mouseDown: ISikuliServiceService_IMouseDown;
+    mouseUp: ISikuliServiceService_IMouseUp;
+    keyDown: ISikuliServiceService_IKeyDown;
+    keyUp: ISikuliServiceService_IKeyUp;
+    scrollWheel: ISikuliServiceService_IScrollWheel;
     observeAppear: ISikuliServiceService_IObserveAppear;
     observeVanish: ISikuliServiceService_IObserveVanish;
     observeChange: ISikuliServiceService_IObserveChange;
@@ -28,8 +37,38 @@ interface ISikuliServiceService extends grpc.ServiceDefinition<grpc.UntypedServi
     closeApp: ISikuliServiceService_ICloseApp;
     isAppRunning: ISikuliServiceService_IIsAppRunning;
     listWindows: ISikuliServiceService_IListWindows;
+    findWindows: ISikuliServiceService_IFindWindows;
+    getWindow: ISikuliServiceService_IGetWindow;
+    getFocusedWindow: ISikuliServiceService_IGetFocusedWindow;
 }
 
+interface ISikuliServiceService_IListScreens extends grpc.MethodDefinition<sikuli_v1_sikuli_pb.ListScreensRequest, sikuli_v1_sikuli_pb.ListScreensResponse> {
+    path: "/sikuli.v1.SikuliService/ListScreens";
+    requestStream: false;
+    responseStream: false;
+    requestSerialize: grpc.serialize<sikuli_v1_sikuli_pb.ListScreensRequest>;
+    requestDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.ListScreensRequest>;
+    responseSerialize: grpc.serialize<sikuli_v1_sikuli_pb.ListScreensResponse>;
+    responseDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.ListScreensResponse>;
+}
+interface ISikuliServiceService_IGetPrimaryScreen extends grpc.MethodDefinition<sikuli_v1_sikuli_pb.GetPrimaryScreenRequest, sikuli_v1_sikuli_pb.GetPrimaryScreenResponse> {
+    path: "/sikuli.v1.SikuliService/GetPrimaryScreen";
+    requestStream: false;
+    responseStream: false;
+    requestSerialize: grpc.serialize<sikuli_v1_sikuli_pb.GetPrimaryScreenRequest>;
+    requestDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.GetPrimaryScreenRequest>;
+    responseSerialize: grpc.serialize<sikuli_v1_sikuli_pb.GetPrimaryScreenResponse>;
+    responseDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.GetPrimaryScreenResponse>;
+}
+interface ISikuliServiceService_ICaptureScreen extends grpc.MethodDefinition<sikuli_v1_sikuli_pb.CaptureScreenRequest, sikuli_v1_sikuli_pb.CaptureScreenResponse> {
+    path: "/sikuli.v1.SikuliService/CaptureScreen";
+    requestStream: false;
+    responseStream: false;
+    requestSerialize: grpc.serialize<sikuli_v1_sikuli_pb.CaptureScreenRequest>;
+    requestDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.CaptureScreenRequest>;
+    responseSerialize: grpc.serialize<sikuli_v1_sikuli_pb.CaptureScreenResponse>;
+    responseDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.CaptureScreenResponse>;
+}
 interface ISikuliServiceService_IFind extends grpc.MethodDefinition<sikuli_v1_sikuli_pb.FindRequest, sikuli_v1_sikuli_pb.FindResponse> {
     path: "/sikuli.v1.SikuliService/Find";
     requestStream: false;
@@ -129,12 +168,66 @@ interface ISikuliServiceService_ITypeText extends grpc.MethodDefinition<sikuli_v
     responseSerialize: grpc.serialize<sikuli_v1_sikuli_pb.ActionResponse>;
     responseDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.ActionResponse>;
 }
+interface ISikuliServiceService_IPasteText extends grpc.MethodDefinition<sikuli_v1_sikuli_pb.TypeTextRequest, sikuli_v1_sikuli_pb.ActionResponse> {
+    path: "/sikuli.v1.SikuliService/PasteText";
+    requestStream: false;
+    responseStream: false;
+    requestSerialize: grpc.serialize<sikuli_v1_sikuli_pb.TypeTextRequest>;
+    requestDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.TypeTextRequest>;
+    responseSerialize: grpc.serialize<sikuli_v1_sikuli_pb.ActionResponse>;
+    responseDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.ActionResponse>;
+}
 interface ISikuliServiceService_IHotkey extends grpc.MethodDefinition<sikuli_v1_sikuli_pb.HotkeyRequest, sikuli_v1_sikuli_pb.ActionResponse> {
     path: "/sikuli.v1.SikuliService/Hotkey";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<sikuli_v1_sikuli_pb.HotkeyRequest>;
     requestDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.HotkeyRequest>;
+    responseSerialize: grpc.serialize<sikuli_v1_sikuli_pb.ActionResponse>;
+    responseDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.ActionResponse>;
+}
+interface ISikuliServiceService_IMouseDown extends grpc.MethodDefinition<sikuli_v1_sikuli_pb.ClickRequest, sikuli_v1_sikuli_pb.ActionResponse> {
+    path: "/sikuli.v1.SikuliService/MouseDown";
+    requestStream: false;
+    responseStream: false;
+    requestSerialize: grpc.serialize<sikuli_v1_sikuli_pb.ClickRequest>;
+    requestDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.ClickRequest>;
+    responseSerialize: grpc.serialize<sikuli_v1_sikuli_pb.ActionResponse>;
+    responseDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.ActionResponse>;
+}
+interface ISikuliServiceService_IMouseUp extends grpc.MethodDefinition<sikuli_v1_sikuli_pb.ClickRequest, sikuli_v1_sikuli_pb.ActionResponse> {
+    path: "/sikuli.v1.SikuliService/MouseUp";
+    requestStream: false;
+    responseStream: false;
+    requestSerialize: grpc.serialize<sikuli_v1_sikuli_pb.ClickRequest>;
+    requestDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.ClickRequest>;
+    responseSerialize: grpc.serialize<sikuli_v1_sikuli_pb.ActionResponse>;
+    responseDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.ActionResponse>;
+}
+interface ISikuliServiceService_IKeyDown extends grpc.MethodDefinition<sikuli_v1_sikuli_pb.HotkeyRequest, sikuli_v1_sikuli_pb.ActionResponse> {
+    path: "/sikuli.v1.SikuliService/KeyDown";
+    requestStream: false;
+    responseStream: false;
+    requestSerialize: grpc.serialize<sikuli_v1_sikuli_pb.HotkeyRequest>;
+    requestDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.HotkeyRequest>;
+    responseSerialize: grpc.serialize<sikuli_v1_sikuli_pb.ActionResponse>;
+    responseDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.ActionResponse>;
+}
+interface ISikuliServiceService_IKeyUp extends grpc.MethodDefinition<sikuli_v1_sikuli_pb.HotkeyRequest, sikuli_v1_sikuli_pb.ActionResponse> {
+    path: "/sikuli.v1.SikuliService/KeyUp";
+    requestStream: false;
+    responseStream: false;
+    requestSerialize: grpc.serialize<sikuli_v1_sikuli_pb.HotkeyRequest>;
+    requestDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.HotkeyRequest>;
+    responseSerialize: grpc.serialize<sikuli_v1_sikuli_pb.ActionResponse>;
+    responseDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.ActionResponse>;
+}
+interface ISikuliServiceService_IScrollWheel extends grpc.MethodDefinition<sikuli_v1_sikuli_pb.ScrollWheelRequest, sikuli_v1_sikuli_pb.ActionResponse> {
+    path: "/sikuli.v1.SikuliService/ScrollWheel";
+    requestStream: false;
+    responseStream: false;
+    requestSerialize: grpc.serialize<sikuli_v1_sikuli_pb.ScrollWheelRequest>;
+    requestDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.ScrollWheelRequest>;
     responseSerialize: grpc.serialize<sikuli_v1_sikuli_pb.ActionResponse>;
     responseDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.ActionResponse>;
 }
@@ -210,10 +303,40 @@ interface ISikuliServiceService_IListWindows extends grpc.MethodDefinition<sikul
     responseSerialize: grpc.serialize<sikuli_v1_sikuli_pb.ListWindowsResponse>;
     responseDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.ListWindowsResponse>;
 }
+interface ISikuliServiceService_IFindWindows extends grpc.MethodDefinition<sikuli_v1_sikuli_pb.WindowQueryRequest, sikuli_v1_sikuli_pb.ListWindowsResponse> {
+    path: "/sikuli.v1.SikuliService/FindWindows";
+    requestStream: false;
+    responseStream: false;
+    requestSerialize: grpc.serialize<sikuli_v1_sikuli_pb.WindowQueryRequest>;
+    requestDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.WindowQueryRequest>;
+    responseSerialize: grpc.serialize<sikuli_v1_sikuli_pb.ListWindowsResponse>;
+    responseDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.ListWindowsResponse>;
+}
+interface ISikuliServiceService_IGetWindow extends grpc.MethodDefinition<sikuli_v1_sikuli_pb.WindowQueryRequest, sikuli_v1_sikuli_pb.GetWindowResponse> {
+    path: "/sikuli.v1.SikuliService/GetWindow";
+    requestStream: false;
+    responseStream: false;
+    requestSerialize: grpc.serialize<sikuli_v1_sikuli_pb.WindowQueryRequest>;
+    requestDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.WindowQueryRequest>;
+    responseSerialize: grpc.serialize<sikuli_v1_sikuli_pb.GetWindowResponse>;
+    responseDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.GetWindowResponse>;
+}
+interface ISikuliServiceService_IGetFocusedWindow extends grpc.MethodDefinition<sikuli_v1_sikuli_pb.AppActionRequest, sikuli_v1_sikuli_pb.GetWindowResponse> {
+    path: "/sikuli.v1.SikuliService/GetFocusedWindow";
+    requestStream: false;
+    responseStream: false;
+    requestSerialize: grpc.serialize<sikuli_v1_sikuli_pb.AppActionRequest>;
+    requestDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.AppActionRequest>;
+    responseSerialize: grpc.serialize<sikuli_v1_sikuli_pb.GetWindowResponse>;
+    responseDeserialize: grpc.deserialize<sikuli_v1_sikuli_pb.GetWindowResponse>;
+}
 
 export const SikuliServiceService: ISikuliServiceService;
 
 export interface ISikuliServiceServer extends grpc.UntypedServiceImplementation {
+    listScreens: grpc.handleUnaryCall<sikuli_v1_sikuli_pb.ListScreensRequest, sikuli_v1_sikuli_pb.ListScreensResponse>;
+    getPrimaryScreen: grpc.handleUnaryCall<sikuli_v1_sikuli_pb.GetPrimaryScreenRequest, sikuli_v1_sikuli_pb.GetPrimaryScreenResponse>;
+    captureScreen: grpc.handleUnaryCall<sikuli_v1_sikuli_pb.CaptureScreenRequest, sikuli_v1_sikuli_pb.CaptureScreenResponse>;
     find: grpc.handleUnaryCall<sikuli_v1_sikuli_pb.FindRequest, sikuli_v1_sikuli_pb.FindResponse>;
     findAll: grpc.handleUnaryCall<sikuli_v1_sikuli_pb.FindRequest, sikuli_v1_sikuli_pb.FindAllResponse>;
     findOnScreen: grpc.handleUnaryCall<sikuli_v1_sikuli_pb.FindOnScreenRequest, sikuli_v1_sikuli_pb.FindResponse>;
@@ -225,7 +348,13 @@ export interface ISikuliServiceServer extends grpc.UntypedServiceImplementation 
     moveMouse: grpc.handleUnaryCall<sikuli_v1_sikuli_pb.MoveMouseRequest, sikuli_v1_sikuli_pb.ActionResponse>;
     click: grpc.handleUnaryCall<sikuli_v1_sikuli_pb.ClickRequest, sikuli_v1_sikuli_pb.ActionResponse>;
     typeText: grpc.handleUnaryCall<sikuli_v1_sikuli_pb.TypeTextRequest, sikuli_v1_sikuli_pb.ActionResponse>;
+    pasteText: grpc.handleUnaryCall<sikuli_v1_sikuli_pb.TypeTextRequest, sikuli_v1_sikuli_pb.ActionResponse>;
     hotkey: grpc.handleUnaryCall<sikuli_v1_sikuli_pb.HotkeyRequest, sikuli_v1_sikuli_pb.ActionResponse>;
+    mouseDown: grpc.handleUnaryCall<sikuli_v1_sikuli_pb.ClickRequest, sikuli_v1_sikuli_pb.ActionResponse>;
+    mouseUp: grpc.handleUnaryCall<sikuli_v1_sikuli_pb.ClickRequest, sikuli_v1_sikuli_pb.ActionResponse>;
+    keyDown: grpc.handleUnaryCall<sikuli_v1_sikuli_pb.HotkeyRequest, sikuli_v1_sikuli_pb.ActionResponse>;
+    keyUp: grpc.handleUnaryCall<sikuli_v1_sikuli_pb.HotkeyRequest, sikuli_v1_sikuli_pb.ActionResponse>;
+    scrollWheel: grpc.handleUnaryCall<sikuli_v1_sikuli_pb.ScrollWheelRequest, sikuli_v1_sikuli_pb.ActionResponse>;
     observeAppear: grpc.handleUnaryCall<sikuli_v1_sikuli_pb.ObserveRequest, sikuli_v1_sikuli_pb.ObserveResponse>;
     observeVanish: grpc.handleUnaryCall<sikuli_v1_sikuli_pb.ObserveRequest, sikuli_v1_sikuli_pb.ObserveResponse>;
     observeChange: grpc.handleUnaryCall<sikuli_v1_sikuli_pb.ObserveChangeRequest, sikuli_v1_sikuli_pb.ObserveResponse>;
@@ -234,9 +363,21 @@ export interface ISikuliServiceServer extends grpc.UntypedServiceImplementation 
     closeApp: grpc.handleUnaryCall<sikuli_v1_sikuli_pb.AppActionRequest, sikuli_v1_sikuli_pb.ActionResponse>;
     isAppRunning: grpc.handleUnaryCall<sikuli_v1_sikuli_pb.AppActionRequest, sikuli_v1_sikuli_pb.IsAppRunningResponse>;
     listWindows: grpc.handleUnaryCall<sikuli_v1_sikuli_pb.AppActionRequest, sikuli_v1_sikuli_pb.ListWindowsResponse>;
+    findWindows: grpc.handleUnaryCall<sikuli_v1_sikuli_pb.WindowQueryRequest, sikuli_v1_sikuli_pb.ListWindowsResponse>;
+    getWindow: grpc.handleUnaryCall<sikuli_v1_sikuli_pb.WindowQueryRequest, sikuli_v1_sikuli_pb.GetWindowResponse>;
+    getFocusedWindow: grpc.handleUnaryCall<sikuli_v1_sikuli_pb.AppActionRequest, sikuli_v1_sikuli_pb.GetWindowResponse>;
 }
 
 export interface ISikuliServiceClient {
+    listScreens(request: sikuli_v1_sikuli_pb.ListScreensRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ListScreensResponse) => void): grpc.ClientUnaryCall;
+    listScreens(request: sikuli_v1_sikuli_pb.ListScreensRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ListScreensResponse) => void): grpc.ClientUnaryCall;
+    listScreens(request: sikuli_v1_sikuli_pb.ListScreensRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ListScreensResponse) => void): grpc.ClientUnaryCall;
+    getPrimaryScreen(request: sikuli_v1_sikuli_pb.GetPrimaryScreenRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.GetPrimaryScreenResponse) => void): grpc.ClientUnaryCall;
+    getPrimaryScreen(request: sikuli_v1_sikuli_pb.GetPrimaryScreenRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.GetPrimaryScreenResponse) => void): grpc.ClientUnaryCall;
+    getPrimaryScreen(request: sikuli_v1_sikuli_pb.GetPrimaryScreenRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.GetPrimaryScreenResponse) => void): grpc.ClientUnaryCall;
+    captureScreen(request: sikuli_v1_sikuli_pb.CaptureScreenRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.CaptureScreenResponse) => void): grpc.ClientUnaryCall;
+    captureScreen(request: sikuli_v1_sikuli_pb.CaptureScreenRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.CaptureScreenResponse) => void): grpc.ClientUnaryCall;
+    captureScreen(request: sikuli_v1_sikuli_pb.CaptureScreenRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.CaptureScreenResponse) => void): grpc.ClientUnaryCall;
     find(request: sikuli_v1_sikuli_pb.FindRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.FindResponse) => void): grpc.ClientUnaryCall;
     find(request: sikuli_v1_sikuli_pb.FindRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.FindResponse) => void): grpc.ClientUnaryCall;
     find(request: sikuli_v1_sikuli_pb.FindRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.FindResponse) => void): grpc.ClientUnaryCall;
@@ -270,9 +411,27 @@ export interface ISikuliServiceClient {
     typeText(request: sikuli_v1_sikuli_pb.TypeTextRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
     typeText(request: sikuli_v1_sikuli_pb.TypeTextRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
     typeText(request: sikuli_v1_sikuli_pb.TypeTextRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    pasteText(request: sikuli_v1_sikuli_pb.TypeTextRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    pasteText(request: sikuli_v1_sikuli_pb.TypeTextRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    pasteText(request: sikuli_v1_sikuli_pb.TypeTextRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
     hotkey(request: sikuli_v1_sikuli_pb.HotkeyRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
     hotkey(request: sikuli_v1_sikuli_pb.HotkeyRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
     hotkey(request: sikuli_v1_sikuli_pb.HotkeyRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    mouseDown(request: sikuli_v1_sikuli_pb.ClickRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    mouseDown(request: sikuli_v1_sikuli_pb.ClickRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    mouseDown(request: sikuli_v1_sikuli_pb.ClickRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    mouseUp(request: sikuli_v1_sikuli_pb.ClickRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    mouseUp(request: sikuli_v1_sikuli_pb.ClickRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    mouseUp(request: sikuli_v1_sikuli_pb.ClickRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    keyDown(request: sikuli_v1_sikuli_pb.HotkeyRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    keyDown(request: sikuli_v1_sikuli_pb.HotkeyRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    keyDown(request: sikuli_v1_sikuli_pb.HotkeyRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    keyUp(request: sikuli_v1_sikuli_pb.HotkeyRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    keyUp(request: sikuli_v1_sikuli_pb.HotkeyRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    keyUp(request: sikuli_v1_sikuli_pb.HotkeyRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    scrollWheel(request: sikuli_v1_sikuli_pb.ScrollWheelRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    scrollWheel(request: sikuli_v1_sikuli_pb.ScrollWheelRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    scrollWheel(request: sikuli_v1_sikuli_pb.ScrollWheelRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
     observeAppear(request: sikuli_v1_sikuli_pb.ObserveRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ObserveResponse) => void): grpc.ClientUnaryCall;
     observeAppear(request: sikuli_v1_sikuli_pb.ObserveRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ObserveResponse) => void): grpc.ClientUnaryCall;
     observeAppear(request: sikuli_v1_sikuli_pb.ObserveRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ObserveResponse) => void): grpc.ClientUnaryCall;
@@ -297,10 +456,28 @@ export interface ISikuliServiceClient {
     listWindows(request: sikuli_v1_sikuli_pb.AppActionRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ListWindowsResponse) => void): grpc.ClientUnaryCall;
     listWindows(request: sikuli_v1_sikuli_pb.AppActionRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ListWindowsResponse) => void): grpc.ClientUnaryCall;
     listWindows(request: sikuli_v1_sikuli_pb.AppActionRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ListWindowsResponse) => void): grpc.ClientUnaryCall;
+    findWindows(request: sikuli_v1_sikuli_pb.WindowQueryRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ListWindowsResponse) => void): grpc.ClientUnaryCall;
+    findWindows(request: sikuli_v1_sikuli_pb.WindowQueryRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ListWindowsResponse) => void): grpc.ClientUnaryCall;
+    findWindows(request: sikuli_v1_sikuli_pb.WindowQueryRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ListWindowsResponse) => void): grpc.ClientUnaryCall;
+    getWindow(request: sikuli_v1_sikuli_pb.WindowQueryRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.GetWindowResponse) => void): grpc.ClientUnaryCall;
+    getWindow(request: sikuli_v1_sikuli_pb.WindowQueryRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.GetWindowResponse) => void): grpc.ClientUnaryCall;
+    getWindow(request: sikuli_v1_sikuli_pb.WindowQueryRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.GetWindowResponse) => void): grpc.ClientUnaryCall;
+    getFocusedWindow(request: sikuli_v1_sikuli_pb.AppActionRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.GetWindowResponse) => void): grpc.ClientUnaryCall;
+    getFocusedWindow(request: sikuli_v1_sikuli_pb.AppActionRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.GetWindowResponse) => void): grpc.ClientUnaryCall;
+    getFocusedWindow(request: sikuli_v1_sikuli_pb.AppActionRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.GetWindowResponse) => void): grpc.ClientUnaryCall;
 }
 
 export class SikuliServiceClient extends grpc.Client implements ISikuliServiceClient {
     constructor(address: string, credentials: grpc.ChannelCredentials, options?: Partial<grpc.ClientOptions>);
+    public listScreens(request: sikuli_v1_sikuli_pb.ListScreensRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ListScreensResponse) => void): grpc.ClientUnaryCall;
+    public listScreens(request: sikuli_v1_sikuli_pb.ListScreensRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ListScreensResponse) => void): grpc.ClientUnaryCall;
+    public listScreens(request: sikuli_v1_sikuli_pb.ListScreensRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ListScreensResponse) => void): grpc.ClientUnaryCall;
+    public getPrimaryScreen(request: sikuli_v1_sikuli_pb.GetPrimaryScreenRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.GetPrimaryScreenResponse) => void): grpc.ClientUnaryCall;
+    public getPrimaryScreen(request: sikuli_v1_sikuli_pb.GetPrimaryScreenRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.GetPrimaryScreenResponse) => void): grpc.ClientUnaryCall;
+    public getPrimaryScreen(request: sikuli_v1_sikuli_pb.GetPrimaryScreenRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.GetPrimaryScreenResponse) => void): grpc.ClientUnaryCall;
+    public captureScreen(request: sikuli_v1_sikuli_pb.CaptureScreenRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.CaptureScreenResponse) => void): grpc.ClientUnaryCall;
+    public captureScreen(request: sikuli_v1_sikuli_pb.CaptureScreenRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.CaptureScreenResponse) => void): grpc.ClientUnaryCall;
+    public captureScreen(request: sikuli_v1_sikuli_pb.CaptureScreenRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.CaptureScreenResponse) => void): grpc.ClientUnaryCall;
     public find(request: sikuli_v1_sikuli_pb.FindRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.FindResponse) => void): grpc.ClientUnaryCall;
     public find(request: sikuli_v1_sikuli_pb.FindRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.FindResponse) => void): grpc.ClientUnaryCall;
     public find(request: sikuli_v1_sikuli_pb.FindRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.FindResponse) => void): grpc.ClientUnaryCall;
@@ -334,9 +511,27 @@ export class SikuliServiceClient extends grpc.Client implements ISikuliServiceCl
     public typeText(request: sikuli_v1_sikuli_pb.TypeTextRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
     public typeText(request: sikuli_v1_sikuli_pb.TypeTextRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
     public typeText(request: sikuli_v1_sikuli_pb.TypeTextRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    public pasteText(request: sikuli_v1_sikuli_pb.TypeTextRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    public pasteText(request: sikuli_v1_sikuli_pb.TypeTextRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    public pasteText(request: sikuli_v1_sikuli_pb.TypeTextRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
     public hotkey(request: sikuli_v1_sikuli_pb.HotkeyRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
     public hotkey(request: sikuli_v1_sikuli_pb.HotkeyRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
     public hotkey(request: sikuli_v1_sikuli_pb.HotkeyRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    public mouseDown(request: sikuli_v1_sikuli_pb.ClickRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    public mouseDown(request: sikuli_v1_sikuli_pb.ClickRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    public mouseDown(request: sikuli_v1_sikuli_pb.ClickRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    public mouseUp(request: sikuli_v1_sikuli_pb.ClickRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    public mouseUp(request: sikuli_v1_sikuli_pb.ClickRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    public mouseUp(request: sikuli_v1_sikuli_pb.ClickRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    public keyDown(request: sikuli_v1_sikuli_pb.HotkeyRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    public keyDown(request: sikuli_v1_sikuli_pb.HotkeyRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    public keyDown(request: sikuli_v1_sikuli_pb.HotkeyRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    public keyUp(request: sikuli_v1_sikuli_pb.HotkeyRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    public keyUp(request: sikuli_v1_sikuli_pb.HotkeyRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    public keyUp(request: sikuli_v1_sikuli_pb.HotkeyRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    public scrollWheel(request: sikuli_v1_sikuli_pb.ScrollWheelRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    public scrollWheel(request: sikuli_v1_sikuli_pb.ScrollWheelRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
+    public scrollWheel(request: sikuli_v1_sikuli_pb.ScrollWheelRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ActionResponse) => void): grpc.ClientUnaryCall;
     public observeAppear(request: sikuli_v1_sikuli_pb.ObserveRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ObserveResponse) => void): grpc.ClientUnaryCall;
     public observeAppear(request: sikuli_v1_sikuli_pb.ObserveRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ObserveResponse) => void): grpc.ClientUnaryCall;
     public observeAppear(request: sikuli_v1_sikuli_pb.ObserveRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ObserveResponse) => void): grpc.ClientUnaryCall;
@@ -361,4 +556,13 @@ export class SikuliServiceClient extends grpc.Client implements ISikuliServiceCl
     public listWindows(request: sikuli_v1_sikuli_pb.AppActionRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ListWindowsResponse) => void): grpc.ClientUnaryCall;
     public listWindows(request: sikuli_v1_sikuli_pb.AppActionRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ListWindowsResponse) => void): grpc.ClientUnaryCall;
     public listWindows(request: sikuli_v1_sikuli_pb.AppActionRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ListWindowsResponse) => void): grpc.ClientUnaryCall;
+    public findWindows(request: sikuli_v1_sikuli_pb.WindowQueryRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ListWindowsResponse) => void): grpc.ClientUnaryCall;
+    public findWindows(request: sikuli_v1_sikuli_pb.WindowQueryRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ListWindowsResponse) => void): grpc.ClientUnaryCall;
+    public findWindows(request: sikuli_v1_sikuli_pb.WindowQueryRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.ListWindowsResponse) => void): grpc.ClientUnaryCall;
+    public getWindow(request: sikuli_v1_sikuli_pb.WindowQueryRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.GetWindowResponse) => void): grpc.ClientUnaryCall;
+    public getWindow(request: sikuli_v1_sikuli_pb.WindowQueryRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.GetWindowResponse) => void): grpc.ClientUnaryCall;
+    public getWindow(request: sikuli_v1_sikuli_pb.WindowQueryRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.GetWindowResponse) => void): grpc.ClientUnaryCall;
+    public getFocusedWindow(request: sikuli_v1_sikuli_pb.AppActionRequest, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.GetWindowResponse) => void): grpc.ClientUnaryCall;
+    public getFocusedWindow(request: sikuli_v1_sikuli_pb.AppActionRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.GetWindowResponse) => void): grpc.ClientUnaryCall;
+    public getFocusedWindow(request: sikuli_v1_sikuli_pb.AppActionRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: sikuli_v1_sikuli_pb.GetWindowResponse) => void): grpc.ClientUnaryCall;
 }

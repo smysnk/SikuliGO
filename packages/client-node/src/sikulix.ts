@@ -7,6 +7,7 @@ type ProtoPoint = { x?: number; y?: number };
 type ProtoRect = { x?: number; y?: number; w?: number; h?: number };
 type ProtoMatch = { rect?: ProtoRect; target?: ProtoPoint; score?: number; index?: number };
 type ScreenQueryOptions = { region?: RegionBounds; timeout_millis?: number };
+const DEFAULT_WAIT_VANISH_INTERVAL_MS = 100;
 
 /**
  * Pattern mirrors SikuliX Pattern semantics:
@@ -99,6 +100,17 @@ function toPattern(target: ImageInput | Image | Pattern): Pattern {
   return new Pattern(target);
 }
 
+function requireMatch(response: { match?: ProtoMatch }, methodName: string): ProtoMatch {
+  if (!response.match) {
+    throw new Error(`invalid successful ${methodName} response: missing match`);
+  }
+  return response.match;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 /**
  * Region is a scoped search surface similar to SikuliX Region.
  * All find/wait/click calls run within this region when bounds are set.
@@ -119,10 +131,7 @@ export class Region {
       pattern: pattern.toRequestPattern(),
       opts: this.toScreenQueryOptions()
     }, this.toUnaryOptions(engine))) as { match?: ProtoMatch };
-    if (!out.match) {
-      throw new Error("match not found");
-    }
-    return new Match(out.match);
+    return new Match(requireMatch(out, "find"));
   }
 
   /** Check for presence with optional timeout; returns null if not found. */
@@ -145,11 +154,32 @@ export class Region {
       pattern: pattern.toRequestPattern(),
       opts: this.toScreenQueryOptions(timeoutMs)
     }, this.toUnaryOptions(engine))) as { match?: ProtoMatch };
-    if (!out.match) {
-      const msg = timeoutMs <= 0 ? "wait timeout" : `wait timeout after ${timeoutMs}ms`;
-      throw new Error(msg);
+    return new Match(requireMatch(out, "wait"));
+  }
+
+  /** Wait until pattern disappears; returns false after timeout without throwing. */
+  async waitVanish(
+    target: ImageInput | Image | Pattern,
+    timeoutMs = 3000,
+    intervalMs = DEFAULT_WAIT_VANISH_INTERVAL_MS,
+    engine?: MatcherEngine
+  ): Promise<boolean> {
+    const deadline = timeoutMs > 0 ? Date.now() + timeoutMs : 0;
+    while (true) {
+      const match = await this.exists(target, 0, engine);
+      if (!match) {
+        return true;
+      }
+      if (timeoutMs <= 0) {
+        return false;
+      }
+      const remainingMs = deadline - Date.now();
+      if (remainingMs <= 0) {
+        return false;
+      }
+      const sleepMs = Math.min(intervalMs > 0 ? intervalMs : DEFAULT_WAIT_VANISH_INTERVAL_MS, remainingMs);
+      await sleep(sleepMs);
     }
-    return new Match(out.match);
   }
 
   /** Wait for match and click its target point. */
@@ -159,10 +189,7 @@ export class Region {
       pattern: pattern.toRequestPattern(),
       opts: this.toScreenQueryOptions()
     }, this.toUnaryOptions(engine))) as { match?: ProtoMatch };
-    if (!out.match) {
-      throw new Error("match not found");
-    }
-    return new Match(out.match);
+    return new Match(requireMatch(out, "click"));
   }
 
   /** Move mouse to matched target point. */

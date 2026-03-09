@@ -40,6 +40,55 @@ func TestInputRequestValidate(t *testing.T) {
 			},
 		},
 		{
+			name: "mouse down valid",
+			req: InputRequest{
+				Action: InputActionMouseDown,
+				X:      1,
+				Y:      2,
+				Button: "left",
+			},
+		},
+		{
+			name: "mouse up valid",
+			req: InputRequest{
+				Action: InputActionMouseUp,
+				X:      1,
+				Y:      2,
+				Button: "left",
+			},
+		},
+		{
+			name: "paste valid",
+			req: InputRequest{
+				Action: InputActionPasteText,
+				Text:   "hello",
+			},
+		},
+		{
+			name: "key down valid",
+			req: InputRequest{
+				Action: InputActionKeyDown,
+				Keys:   []string{"CMD"},
+			},
+		},
+		{
+			name: "key up valid",
+			req: InputRequest{
+				Action: InputActionKeyUp,
+				Keys:   []string{"CMD"},
+			},
+		},
+		{
+			name: "wheel valid",
+			req: InputRequest{
+				Action:          InputActionWheel,
+				X:               1,
+				Y:               2,
+				ScrollDirection: "down",
+				ScrollSteps:     2,
+			},
+		},
+		{
 			name: "invalid empty action",
 			req: InputRequest{
 				Action: "",
@@ -75,6 +124,22 @@ func TestInputRequestValidate(t *testing.T) {
 			name: "invalid hotkey empty",
 			req: InputRequest{
 				Action: InputActionHotkey,
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid wheel missing direction",
+			req: InputRequest{
+				Action:      InputActionWheel,
+				ScrollSteps: 1,
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid wheel missing steps",
+			req: InputRequest{
+				Action:          InputActionWheel,
+				ScrollDirection: "down",
 			},
 			wantErr: true,
 		},

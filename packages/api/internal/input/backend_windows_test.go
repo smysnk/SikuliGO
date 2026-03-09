@@ -52,15 +52,33 @@ func TestWindowsInputBackendDispatch(t *testing.T) {
 	if err := backend.Execute(core.InputRequest{Action: core.InputActionClick, X: 30, Y: 40, Button: "left"}); err != nil {
 		t.Fatalf("click failed: %v", err)
 	}
+	if err := backend.Execute(core.InputRequest{Action: core.InputActionMouseDown, X: 31, Y: 41, Button: "left"}); err != nil {
+		t.Fatalf("mouse down failed: %v", err)
+	}
+	if err := backend.Execute(core.InputRequest{Action: core.InputActionMouseUp, X: 31, Y: 41, Button: "left"}); err != nil {
+		t.Fatalf("mouse up failed: %v", err)
+	}
 	if err := backend.Execute(core.InputRequest{Action: core.InputActionTypeText, Text: "hello", Delay: 5 * time.Millisecond}); err != nil {
 		t.Fatalf("type failed: %v", err)
+	}
+	if err := backend.Execute(core.InputRequest{Action: core.InputActionPasteText, Text: "world"}); err != nil {
+		t.Fatalf("paste failed: %v", err)
 	}
 	if err := backend.Execute(core.InputRequest{Action: core.InputActionHotkey, Keys: []string{"ctrl", "shift", "p"}}); err != nil {
 		t.Fatalf("hotkey failed: %v", err)
 	}
+	if err := backend.Execute(core.InputRequest{Action: core.InputActionKeyDown, Keys: []string{"ctrl", "shift"}}); err != nil {
+		t.Fatalf("key down failed: %v", err)
+	}
+	if err := backend.Execute(core.InputRequest{Action: core.InputActionKeyUp, Keys: []string{"ctrl", "shift"}}); err != nil {
+		t.Fatalf("key up failed: %v", err)
+	}
+	if err := backend.Execute(core.InputRequest{Action: core.InputActionWheel, X: 32, Y: 42, ScrollDirection: "down", ScrollSteps: 2}); err != nil {
+		t.Fatalf("wheel failed: %v", err)
+	}
 
-	if len(runner.calls) != 4 {
-		t.Fatalf("expected 4 commands, got=%d", len(runner.calls))
+	if len(runner.calls) != 10 {
+		t.Fatalf("expected 10 commands, got=%d", len(runner.calls))
 	}
 	for i, call := range runner.calls {
 		if call.name != "powershell" {
@@ -76,14 +94,44 @@ func TestWindowsInputBackendDispatch(t *testing.T) {
 	if !strings.Contains(runner.calls[1].args[2], "SetCursorPos(30, 40)") || !strings.Contains(runner.calls[1].args[2], "mouse_event") {
 		t.Fatalf("click script mismatch: %s", runner.calls[1].args[2])
 	}
-	if !strings.Contains(runner.calls[2].args[2], "SendWait") || !strings.Contains(runner.calls[2].args[2], "'hello'") {
-		t.Fatalf("type script mismatch: %s", runner.calls[2].args[2])
+	if !strings.Contains(runner.calls[2].args[2], "SetCursorPos(31, 41)") || !strings.Contains(runner.calls[2].args[2], "0x0002") {
+		t.Fatalf("mouse down script mismatch: %s", runner.calls[2].args[2])
 	}
-	if !strings.Contains(runner.calls[3].args[2], "SendWait") || !strings.Contains(runner.calls[3].args[2], "'^+p'") {
-		t.Fatalf("hotkey script mismatch: %s", runner.calls[3].args[2])
+	if !strings.Contains(runner.calls[3].args[2], "SetCursorPos(31, 41)") || !strings.Contains(runner.calls[3].args[2], "0x0004") {
+		t.Fatalf("mouse up script mismatch: %s", runner.calls[3].args[2])
+	}
+	if !strings.Contains(runner.calls[4].args[2], "SendWait") || !strings.Contains(runner.calls[4].args[2], "'hello'") {
+		t.Fatalf("type script mismatch: %s", runner.calls[4].args[2])
+	}
+	if !strings.Contains(runner.calls[5].args[2], "Set-Clipboard -Value 'world'") || !strings.Contains(runner.calls[5].args[2], "SendWait('^v')") {
+		t.Fatalf("paste script mismatch: %s", runner.calls[5].args[2])
+	}
+	if !strings.Contains(runner.calls[6].args[2], "SendWait") || !strings.Contains(runner.calls[6].args[2], "'^+p'") {
+		t.Fatalf("hotkey script mismatch: %s", runner.calls[6].args[2])
+	}
+	if !strings.Contains(runner.calls[7].args[2], "keybd_event") || !strings.Contains(runner.calls[7].args[2], "0x11") || !strings.Contains(runner.calls[7].args[2], "0x10") {
+		t.Fatalf("key down script mismatch: %s", runner.calls[7].args[2])
+	}
+	if !strings.Contains(runner.calls[8].args[2], "keybd_event") || !strings.Contains(runner.calls[8].args[2], "0x0002") {
+		t.Fatalf("key up script mismatch: %s", runner.calls[8].args[2])
+	}
+	if !strings.Contains(runner.calls[9].args[2], "mouse_event") || !strings.Contains(runner.calls[9].args[2], "0x0800") || !strings.Contains(runner.calls[9].args[2], "-240") {
+		t.Fatalf("wheel script mismatch: %s", runner.calls[9].args[2])
 	}
 	if slept != 5*time.Millisecond {
 		t.Fatalf("delay sleep mismatch: got=%v", slept)
+	}
+}
+
+func TestWindowsInputBackendKeyUp(t *testing.T) {
+	runner := &windowsFakeRunner{}
+	backend := &windowsBackend{runner: runner}
+
+	if err := backend.Execute(core.InputRequest{Action: core.InputActionKeyUp, Keys: []string{"ctrl", "shift"}}); err != nil {
+		t.Fatalf("key up failed: %v", err)
+	}
+	if !strings.Contains(runner.calls[0].args[2], "keybd_event") || !strings.Contains(runner.calls[0].args[2], "0x0002") {
+		t.Fatalf("key up script mismatch: %s", runner.calls[0].args[2])
 	}
 }
 

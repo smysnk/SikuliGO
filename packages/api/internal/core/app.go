@@ -46,6 +46,9 @@ func (r AppRequest) Validate() error {
 }
 
 type WindowInfo struct {
+	ID      string
+	App     string
+	PID     int
 	Title   string
 	X       int
 	Y       int

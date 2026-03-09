@@ -14,6 +14,21 @@ class SikuliServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
+        self.ListScreens = channel.unary_unary(
+                '/sikuli.v1.SikuliService/ListScreens',
+                request_serializer=sikuli_dot_v1_dot_sikuli__pb2.ListScreensRequest.SerializeToString,
+                response_deserializer=sikuli_dot_v1_dot_sikuli__pb2.ListScreensResponse.FromString,
+                _registered_method=True)
+        self.GetPrimaryScreen = channel.unary_unary(
+                '/sikuli.v1.SikuliService/GetPrimaryScreen',
+                request_serializer=sikuli_dot_v1_dot_sikuli__pb2.GetPrimaryScreenRequest.SerializeToString,
+                response_deserializer=sikuli_dot_v1_dot_sikuli__pb2.GetPrimaryScreenResponse.FromString,
+                _registered_method=True)
+        self.CaptureScreen = channel.unary_unary(
+                '/sikuli.v1.SikuliService/CaptureScreen',
+                request_serializer=sikuli_dot_v1_dot_sikuli__pb2.CaptureScreenRequest.SerializeToString,
+                response_deserializer=sikuli_dot_v1_dot_sikuli__pb2.CaptureScreenResponse.FromString,
+                _registered_method=True)
         self.Find = channel.unary_unary(
                 '/sikuli.v1.SikuliService/Find',
                 request_serializer=sikuli_dot_v1_dot_sikuli__pb2.FindRequest.SerializeToString,
@@ -69,9 +84,39 @@ class SikuliServiceStub(object):
                 request_serializer=sikuli_dot_v1_dot_sikuli__pb2.TypeTextRequest.SerializeToString,
                 response_deserializer=sikuli_dot_v1_dot_sikuli__pb2.ActionResponse.FromString,
                 _registered_method=True)
+        self.PasteText = channel.unary_unary(
+                '/sikuli.v1.SikuliService/PasteText',
+                request_serializer=sikuli_dot_v1_dot_sikuli__pb2.TypeTextRequest.SerializeToString,
+                response_deserializer=sikuli_dot_v1_dot_sikuli__pb2.ActionResponse.FromString,
+                _registered_method=True)
         self.Hotkey = channel.unary_unary(
                 '/sikuli.v1.SikuliService/Hotkey',
                 request_serializer=sikuli_dot_v1_dot_sikuli__pb2.HotkeyRequest.SerializeToString,
+                response_deserializer=sikuli_dot_v1_dot_sikuli__pb2.ActionResponse.FromString,
+                _registered_method=True)
+        self.MouseDown = channel.unary_unary(
+                '/sikuli.v1.SikuliService/MouseDown',
+                request_serializer=sikuli_dot_v1_dot_sikuli__pb2.ClickRequest.SerializeToString,
+                response_deserializer=sikuli_dot_v1_dot_sikuli__pb2.ActionResponse.FromString,
+                _registered_method=True)
+        self.MouseUp = channel.unary_unary(
+                '/sikuli.v1.SikuliService/MouseUp',
+                request_serializer=sikuli_dot_v1_dot_sikuli__pb2.ClickRequest.SerializeToString,
+                response_deserializer=sikuli_dot_v1_dot_sikuli__pb2.ActionResponse.FromString,
+                _registered_method=True)
+        self.KeyDown = channel.unary_unary(
+                '/sikuli.v1.SikuliService/KeyDown',
+                request_serializer=sikuli_dot_v1_dot_sikuli__pb2.HotkeyRequest.SerializeToString,
+                response_deserializer=sikuli_dot_v1_dot_sikuli__pb2.ActionResponse.FromString,
+                _registered_method=True)
+        self.KeyUp = channel.unary_unary(
+                '/sikuli.v1.SikuliService/KeyUp',
+                request_serializer=sikuli_dot_v1_dot_sikuli__pb2.HotkeyRequest.SerializeToString,
+                response_deserializer=sikuli_dot_v1_dot_sikuli__pb2.ActionResponse.FromString,
+                _registered_method=True)
+        self.ScrollWheel = channel.unary_unary(
+                '/sikuli.v1.SikuliService/ScrollWheel',
+                request_serializer=sikuli_dot_v1_dot_sikuli__pb2.ScrollWheelRequest.SerializeToString,
                 response_deserializer=sikuli_dot_v1_dot_sikuli__pb2.ActionResponse.FromString,
                 _registered_method=True)
         self.ObserveAppear = channel.unary_unary(
@@ -114,10 +159,43 @@ class SikuliServiceStub(object):
                 request_serializer=sikuli_dot_v1_dot_sikuli__pb2.AppActionRequest.SerializeToString,
                 response_deserializer=sikuli_dot_v1_dot_sikuli__pb2.ListWindowsResponse.FromString,
                 _registered_method=True)
+        self.FindWindows = channel.unary_unary(
+                '/sikuli.v1.SikuliService/FindWindows',
+                request_serializer=sikuli_dot_v1_dot_sikuli__pb2.WindowQueryRequest.SerializeToString,
+                response_deserializer=sikuli_dot_v1_dot_sikuli__pb2.ListWindowsResponse.FromString,
+                _registered_method=True)
+        self.GetWindow = channel.unary_unary(
+                '/sikuli.v1.SikuliService/GetWindow',
+                request_serializer=sikuli_dot_v1_dot_sikuli__pb2.WindowQueryRequest.SerializeToString,
+                response_deserializer=sikuli_dot_v1_dot_sikuli__pb2.GetWindowResponse.FromString,
+                _registered_method=True)
+        self.GetFocusedWindow = channel.unary_unary(
+                '/sikuli.v1.SikuliService/GetFocusedWindow',
+                request_serializer=sikuli_dot_v1_dot_sikuli__pb2.AppActionRequest.SerializeToString,
+                response_deserializer=sikuli_dot_v1_dot_sikuli__pb2.GetWindowResponse.FromString,
+                _registered_method=True)
 
 
 class SikuliServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
+
+    def ListScreens(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetPrimaryScreen(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def CaptureScreen(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
 
     def Find(self, request, context):
         """Missing associated documentation comment in .proto file."""
@@ -185,7 +263,43 @@ class SikuliServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def PasteText(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def Hotkey(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def MouseDown(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def MouseUp(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def KeyDown(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def KeyUp(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ScrollWheel(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -239,9 +353,42 @@ class SikuliServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def FindWindows(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetWindow(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetFocusedWindow(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_SikuliServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
+            'ListScreens': grpc.unary_unary_rpc_method_handler(
+                    servicer.ListScreens,
+                    request_deserializer=sikuli_dot_v1_dot_sikuli__pb2.ListScreensRequest.FromString,
+                    response_serializer=sikuli_dot_v1_dot_sikuli__pb2.ListScreensResponse.SerializeToString,
+            ),
+            'GetPrimaryScreen': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetPrimaryScreen,
+                    request_deserializer=sikuli_dot_v1_dot_sikuli__pb2.GetPrimaryScreenRequest.FromString,
+                    response_serializer=sikuli_dot_v1_dot_sikuli__pb2.GetPrimaryScreenResponse.SerializeToString,
+            ),
+            'CaptureScreen': grpc.unary_unary_rpc_method_handler(
+                    servicer.CaptureScreen,
+                    request_deserializer=sikuli_dot_v1_dot_sikuli__pb2.CaptureScreenRequest.FromString,
+                    response_serializer=sikuli_dot_v1_dot_sikuli__pb2.CaptureScreenResponse.SerializeToString,
+            ),
             'Find': grpc.unary_unary_rpc_method_handler(
                     servicer.Find,
                     request_deserializer=sikuli_dot_v1_dot_sikuli__pb2.FindRequest.FromString,
@@ -297,9 +444,39 @@ def add_SikuliServiceServicer_to_server(servicer, server):
                     request_deserializer=sikuli_dot_v1_dot_sikuli__pb2.TypeTextRequest.FromString,
                     response_serializer=sikuli_dot_v1_dot_sikuli__pb2.ActionResponse.SerializeToString,
             ),
+            'PasteText': grpc.unary_unary_rpc_method_handler(
+                    servicer.PasteText,
+                    request_deserializer=sikuli_dot_v1_dot_sikuli__pb2.TypeTextRequest.FromString,
+                    response_serializer=sikuli_dot_v1_dot_sikuli__pb2.ActionResponse.SerializeToString,
+            ),
             'Hotkey': grpc.unary_unary_rpc_method_handler(
                     servicer.Hotkey,
                     request_deserializer=sikuli_dot_v1_dot_sikuli__pb2.HotkeyRequest.FromString,
+                    response_serializer=sikuli_dot_v1_dot_sikuli__pb2.ActionResponse.SerializeToString,
+            ),
+            'MouseDown': grpc.unary_unary_rpc_method_handler(
+                    servicer.MouseDown,
+                    request_deserializer=sikuli_dot_v1_dot_sikuli__pb2.ClickRequest.FromString,
+                    response_serializer=sikuli_dot_v1_dot_sikuli__pb2.ActionResponse.SerializeToString,
+            ),
+            'MouseUp': grpc.unary_unary_rpc_method_handler(
+                    servicer.MouseUp,
+                    request_deserializer=sikuli_dot_v1_dot_sikuli__pb2.ClickRequest.FromString,
+                    response_serializer=sikuli_dot_v1_dot_sikuli__pb2.ActionResponse.SerializeToString,
+            ),
+            'KeyDown': grpc.unary_unary_rpc_method_handler(
+                    servicer.KeyDown,
+                    request_deserializer=sikuli_dot_v1_dot_sikuli__pb2.HotkeyRequest.FromString,
+                    response_serializer=sikuli_dot_v1_dot_sikuli__pb2.ActionResponse.SerializeToString,
+            ),
+            'KeyUp': grpc.unary_unary_rpc_method_handler(
+                    servicer.KeyUp,
+                    request_deserializer=sikuli_dot_v1_dot_sikuli__pb2.HotkeyRequest.FromString,
+                    response_serializer=sikuli_dot_v1_dot_sikuli__pb2.ActionResponse.SerializeToString,
+            ),
+            'ScrollWheel': grpc.unary_unary_rpc_method_handler(
+                    servicer.ScrollWheel,
+                    request_deserializer=sikuli_dot_v1_dot_sikuli__pb2.ScrollWheelRequest.FromString,
                     response_serializer=sikuli_dot_v1_dot_sikuli__pb2.ActionResponse.SerializeToString,
             ),
             'ObserveAppear': grpc.unary_unary_rpc_method_handler(
@@ -342,6 +519,21 @@ def add_SikuliServiceServicer_to_server(servicer, server):
                     request_deserializer=sikuli_dot_v1_dot_sikuli__pb2.AppActionRequest.FromString,
                     response_serializer=sikuli_dot_v1_dot_sikuli__pb2.ListWindowsResponse.SerializeToString,
             ),
+            'FindWindows': grpc.unary_unary_rpc_method_handler(
+                    servicer.FindWindows,
+                    request_deserializer=sikuli_dot_v1_dot_sikuli__pb2.WindowQueryRequest.FromString,
+                    response_serializer=sikuli_dot_v1_dot_sikuli__pb2.ListWindowsResponse.SerializeToString,
+            ),
+            'GetWindow': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetWindow,
+                    request_deserializer=sikuli_dot_v1_dot_sikuli__pb2.WindowQueryRequest.FromString,
+                    response_serializer=sikuli_dot_v1_dot_sikuli__pb2.GetWindowResponse.SerializeToString,
+            ),
+            'GetFocusedWindow': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetFocusedWindow,
+                    request_deserializer=sikuli_dot_v1_dot_sikuli__pb2.AppActionRequest.FromString,
+                    response_serializer=sikuli_dot_v1_dot_sikuli__pb2.GetWindowResponse.SerializeToString,
+            ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
             'sikuli.v1.SikuliService', rpc_method_handlers)
@@ -352,6 +544,87 @@ def add_SikuliServiceServicer_to_server(servicer, server):
  # This class is part of an EXPERIMENTAL API.
 class SikuliService(object):
     """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def ListScreens(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/sikuli.v1.SikuliService/ListScreens',
+            sikuli_dot_v1_dot_sikuli__pb2.ListScreensRequest.SerializeToString,
+            sikuli_dot_v1_dot_sikuli__pb2.ListScreensResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetPrimaryScreen(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/sikuli.v1.SikuliService/GetPrimaryScreen',
+            sikuli_dot_v1_dot_sikuli__pb2.GetPrimaryScreenRequest.SerializeToString,
+            sikuli_dot_v1_dot_sikuli__pb2.GetPrimaryScreenResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def CaptureScreen(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/sikuli.v1.SikuliService/CaptureScreen',
+            sikuli_dot_v1_dot_sikuli__pb2.CaptureScreenRequest.SerializeToString,
+            sikuli_dot_v1_dot_sikuli__pb2.CaptureScreenResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def Find(request,
@@ -651,6 +924,33 @@ class SikuliService(object):
             _registered_method=True)
 
     @staticmethod
+    def PasteText(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/sikuli.v1.SikuliService/PasteText',
+            sikuli_dot_v1_dot_sikuli__pb2.TypeTextRequest.SerializeToString,
+            sikuli_dot_v1_dot_sikuli__pb2.ActionResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
     def Hotkey(request,
             target,
             options=(),
@@ -666,6 +966,141 @@ class SikuliService(object):
             target,
             '/sikuli.v1.SikuliService/Hotkey',
             sikuli_dot_v1_dot_sikuli__pb2.HotkeyRequest.SerializeToString,
+            sikuli_dot_v1_dot_sikuli__pb2.ActionResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def MouseDown(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/sikuli.v1.SikuliService/MouseDown',
+            sikuli_dot_v1_dot_sikuli__pb2.ClickRequest.SerializeToString,
+            sikuli_dot_v1_dot_sikuli__pb2.ActionResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def MouseUp(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/sikuli.v1.SikuliService/MouseUp',
+            sikuli_dot_v1_dot_sikuli__pb2.ClickRequest.SerializeToString,
+            sikuli_dot_v1_dot_sikuli__pb2.ActionResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def KeyDown(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/sikuli.v1.SikuliService/KeyDown',
+            sikuli_dot_v1_dot_sikuli__pb2.HotkeyRequest.SerializeToString,
+            sikuli_dot_v1_dot_sikuli__pb2.ActionResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def KeyUp(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/sikuli.v1.SikuliService/KeyUp',
+            sikuli_dot_v1_dot_sikuli__pb2.HotkeyRequest.SerializeToString,
+            sikuli_dot_v1_dot_sikuli__pb2.ActionResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ScrollWheel(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/sikuli.v1.SikuliService/ScrollWheel',
+            sikuli_dot_v1_dot_sikuli__pb2.ScrollWheelRequest.SerializeToString,
             sikuli_dot_v1_dot_sikuli__pb2.ActionResponse.FromString,
             options,
             channel_credentials,
@@ -883,6 +1318,87 @@ class SikuliService(object):
             '/sikuli.v1.SikuliService/ListWindows',
             sikuli_dot_v1_dot_sikuli__pb2.AppActionRequest.SerializeToString,
             sikuli_dot_v1_dot_sikuli__pb2.ListWindowsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def FindWindows(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/sikuli.v1.SikuliService/FindWindows',
+            sikuli_dot_v1_dot_sikuli__pb2.WindowQueryRequest.SerializeToString,
+            sikuli_dot_v1_dot_sikuli__pb2.ListWindowsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetWindow(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/sikuli.v1.SikuliService/GetWindow',
+            sikuli_dot_v1_dot_sikuli__pb2.WindowQueryRequest.SerializeToString,
+            sikuli_dot_v1_dot_sikuli__pb2.GetWindowResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetFocusedWindow(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/sikuli.v1.SikuliService/GetFocusedWindow',
+            sikuli_dot_v1_dot_sikuli__pb2.AppActionRequest.SerializeToString,
+            sikuli_dot_v1_dot_sikuli__pb2.GetWindowResponse.FromString,
             options,
             channel_credentials,
             insecure,

@@ -41,7 +41,7 @@ func TestWindowsBackendCommandDispatch(t *testing.T) {
 			{},              // focus
 			{},              // close
 			{out: "true\n"}, // is-running
-			{out: "Demo||0||0||0||0||false\n"},
+			{out: "Demo||10||20||640||480||true||0x001||DemoApp||4321\n"},
 		},
 	}
 	backend := &windowsBackend{runner: runner}
@@ -72,6 +72,9 @@ func TestWindowsBackendCommandDispatch(t *testing.T) {
 	if len(list.Windows) != 1 || list.Windows[0].Title != "Demo" {
 		t.Fatalf("windows mismatch: %+v", list.Windows)
 	}
+	if list.Windows[0].ID != "0x001" || list.Windows[0].App != "DemoApp" || list.Windows[0].PID != 4321 || !list.Windows[0].Focused {
+		t.Fatalf("window metadata mismatch: %+v", list.Windows[0])
+	}
 	if len(runner.calls) != 5 {
 		t.Fatalf("expected 5 command calls, got=%d", len(runner.calls))
 	}
@@ -92,5 +95,18 @@ func TestWindowsBackendCommandErrors(t *testing.T) {
 	_, err := backend.Execute(core.AppRequest{Action: core.AppActionClose, Name: "Denied"})
 	if err == nil {
 		t.Fatalf("expected close error")
+	}
+}
+
+func TestParseWindowsOutputRichMetadata(t *testing.T) {
+	windows, err := parseWindowsOutput("Demo||10||20||640||480||true||0x001||DemoApp||4321\n")
+	if err != nil {
+		t.Fatalf("parse windows output failed: %v", err)
+	}
+	if len(windows) != 1 {
+		t.Fatalf("expected one window, got=%d", len(windows))
+	}
+	if windows[0].ID != "0x001" || windows[0].App != "DemoApp" || windows[0].PID != 4321 || !windows[0].Focused {
+		t.Fatalf("parsed metadata mismatch: %+v", windows[0])
 	}
 }

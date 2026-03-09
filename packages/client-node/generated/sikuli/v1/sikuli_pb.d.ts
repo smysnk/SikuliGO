@@ -328,7 +328,48 @@ export namespace AppOptions {
     }
 }
 
+export class WindowQuery extends jspb.Message { 
+    getId(): string;
+    setId(value: string): WindowQuery;
+    getTitleExact(): string;
+    setTitleExact(value: string): WindowQuery;
+    getTitleContains(): string;
+    setTitleContains(value: string): WindowQuery;
+    getFocusedOnly(): boolean;
+    setFocusedOnly(value: boolean): WindowQuery;
+
+    hasIndex(): boolean;
+    clearIndex(): void;
+    getIndex(): number | undefined;
+    setIndex(value: number): WindowQuery;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): WindowQuery.AsObject;
+    static toObject(includeInstance: boolean, msg: WindowQuery): WindowQuery.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: WindowQuery, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): WindowQuery;
+    static deserializeBinaryFromReader(message: WindowQuery, reader: jspb.BinaryReader): WindowQuery;
+}
+
+export namespace WindowQuery {
+    export type AsObject = {
+        id: string,
+        titleExact: string,
+        titleContains: string,
+        focusedOnly: boolean,
+        index?: number,
+    }
+}
+
 export class Window extends jspb.Message { 
+    getId(): string;
+    setId(value: string): Window;
+    getApp(): string;
+    setApp(value: string): Window;
+    getPid(): number;
+    setPid(value: number): Window;
     getTitle(): string;
     setTitle(value: string): Window;
 
@@ -351,9 +392,44 @@ export class Window extends jspb.Message {
 
 export namespace Window {
     export type AsObject = {
+        id: string,
+        app: string,
+        pid: number,
         title: string,
         bounds?: Rect.AsObject,
         focused: boolean,
+    }
+}
+
+export class ScreenDescriptor extends jspb.Message { 
+    getId(): number;
+    setId(value: number): ScreenDescriptor;
+    getName(): string;
+    setName(value: string): ScreenDescriptor;
+
+    hasBounds(): boolean;
+    clearBounds(): void;
+    getBounds(): Rect | undefined;
+    setBounds(value?: Rect): ScreenDescriptor;
+    getPrimary(): boolean;
+    setPrimary(value: boolean): ScreenDescriptor;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): ScreenDescriptor.AsObject;
+    static toObject(includeInstance: boolean, msg: ScreenDescriptor): ScreenDescriptor.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: ScreenDescriptor, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): ScreenDescriptor;
+    static deserializeBinaryFromReader(message: ScreenDescriptor, reader: jspb.BinaryReader): ScreenDescriptor;
+}
+
+export namespace ScreenDescriptor {
+    export type AsObject = {
+        id: number,
+        name: string,
+        bounds?: Rect.AsObject,
+        primary: boolean,
     }
 }
 
@@ -482,6 +558,11 @@ export class ScreenQueryOptions extends jspb.Message {
     getMatcherEngine(): MatcherEngine;
     setMatcherEngine(value: MatcherEngine): ScreenQueryOptions;
 
+    hasScreenId(): boolean;
+    clearScreenId(): void;
+    getScreenId(): number | undefined;
+    setScreenId(value: number): ScreenQueryOptions;
+
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): ScreenQueryOptions.AsObject;
     static toObject(includeInstance: boolean, msg: ScreenQueryOptions): ScreenQueryOptions.AsObject;
@@ -498,6 +579,144 @@ export namespace ScreenQueryOptions {
         timeoutMillis?: number,
         intervalMillis?: number,
         matcherEngine: MatcherEngine,
+        screenId?: number,
+    }
+}
+
+export class ListScreensRequest extends jspb.Message { 
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): ListScreensRequest.AsObject;
+    static toObject(includeInstance: boolean, msg: ListScreensRequest): ListScreensRequest.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: ListScreensRequest, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): ListScreensRequest;
+    static deserializeBinaryFromReader(message: ListScreensRequest, reader: jspb.BinaryReader): ListScreensRequest;
+}
+
+export namespace ListScreensRequest {
+    export type AsObject = {
+    }
+}
+
+export class ListScreensResponse extends jspb.Message { 
+    clearScreensList(): void;
+    getScreensList(): Array<ScreenDescriptor>;
+    setScreensList(value: Array<ScreenDescriptor>): ListScreensResponse;
+    addScreens(value?: ScreenDescriptor, index?: number): ScreenDescriptor;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): ListScreensResponse.AsObject;
+    static toObject(includeInstance: boolean, msg: ListScreensResponse): ListScreensResponse.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: ListScreensResponse, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): ListScreensResponse;
+    static deserializeBinaryFromReader(message: ListScreensResponse, reader: jspb.BinaryReader): ListScreensResponse;
+}
+
+export namespace ListScreensResponse {
+    export type AsObject = {
+        screensList: Array<ScreenDescriptor.AsObject>,
+    }
+}
+
+export class GetPrimaryScreenRequest extends jspb.Message { 
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): GetPrimaryScreenRequest.AsObject;
+    static toObject(includeInstance: boolean, msg: GetPrimaryScreenRequest): GetPrimaryScreenRequest.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: GetPrimaryScreenRequest, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): GetPrimaryScreenRequest;
+    static deserializeBinaryFromReader(message: GetPrimaryScreenRequest, reader: jspb.BinaryReader): GetPrimaryScreenRequest;
+}
+
+export namespace GetPrimaryScreenRequest {
+    export type AsObject = {
+    }
+}
+
+export class GetPrimaryScreenResponse extends jspb.Message { 
+
+    hasScreen(): boolean;
+    clearScreen(): void;
+    getScreen(): ScreenDescriptor | undefined;
+    setScreen(value?: ScreenDescriptor): GetPrimaryScreenResponse;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): GetPrimaryScreenResponse.AsObject;
+    static toObject(includeInstance: boolean, msg: GetPrimaryScreenResponse): GetPrimaryScreenResponse.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: GetPrimaryScreenResponse, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): GetPrimaryScreenResponse;
+    static deserializeBinaryFromReader(message: GetPrimaryScreenResponse, reader: jspb.BinaryReader): GetPrimaryScreenResponse;
+}
+
+export namespace GetPrimaryScreenResponse {
+    export type AsObject = {
+        screen?: ScreenDescriptor.AsObject,
+    }
+}
+
+export class CaptureScreenRequest extends jspb.Message { 
+
+    hasScreenId(): boolean;
+    clearScreenId(): void;
+    getScreenId(): number | undefined;
+    setScreenId(value: number): CaptureScreenRequest;
+
+    hasRegion(): boolean;
+    clearRegion(): void;
+    getRegion(): Rect | undefined;
+    setRegion(value?: Rect): CaptureScreenRequest;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): CaptureScreenRequest.AsObject;
+    static toObject(includeInstance: boolean, msg: CaptureScreenRequest): CaptureScreenRequest.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: CaptureScreenRequest, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): CaptureScreenRequest;
+    static deserializeBinaryFromReader(message: CaptureScreenRequest, reader: jspb.BinaryReader): CaptureScreenRequest;
+}
+
+export namespace CaptureScreenRequest {
+    export type AsObject = {
+        screenId?: number,
+        region?: Rect.AsObject,
+    }
+}
+
+export class CaptureScreenResponse extends jspb.Message { 
+
+    hasImage(): boolean;
+    clearImage(): void;
+    getImage(): GrayImage | undefined;
+    setImage(value?: GrayImage): CaptureScreenResponse;
+
+    hasScreen(): boolean;
+    clearScreen(): void;
+    getScreen(): ScreenDescriptor | undefined;
+    setScreen(value?: ScreenDescriptor): CaptureScreenResponse;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): CaptureScreenResponse.AsObject;
+    static toObject(includeInstance: boolean, msg: CaptureScreenResponse): CaptureScreenResponse.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: CaptureScreenResponse, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): CaptureScreenResponse;
+    static deserializeBinaryFromReader(message: CaptureScreenResponse, reader: jspb.BinaryReader): CaptureScreenResponse;
+}
+
+export namespace CaptureScreenResponse {
+    export type AsObject = {
+        image?: GrayImage.AsObject,
+        screen?: ScreenDescriptor.AsObject,
     }
 }
 
@@ -858,6 +1077,41 @@ export namespace HotkeyRequest {
     }
 }
 
+export class ScrollWheelRequest extends jspb.Message { 
+    getX(): number;
+    setX(value: number): ScrollWheelRequest;
+    getY(): number;
+    setY(value: number): ScrollWheelRequest;
+    getDirection(): string;
+    setDirection(value: string): ScrollWheelRequest;
+    getSteps(): number;
+    setSteps(value: number): ScrollWheelRequest;
+
+    hasOpts(): boolean;
+    clearOpts(): void;
+    getOpts(): InputOptions | undefined;
+    setOpts(value?: InputOptions): ScrollWheelRequest;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): ScrollWheelRequest.AsObject;
+    static toObject(includeInstance: boolean, msg: ScrollWheelRequest): ScrollWheelRequest.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: ScrollWheelRequest, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): ScrollWheelRequest;
+    static deserializeBinaryFromReader(message: ScrollWheelRequest, reader: jspb.BinaryReader): ScrollWheelRequest;
+}
+
+export namespace ScrollWheelRequest {
+    export type AsObject = {
+        x: number,
+        y: number,
+        direction: string,
+        steps: number,
+        opts?: InputOptions.AsObject,
+    }
+}
+
 export class ActionResponse extends jspb.Message { 
 
     serializeBinary(): Uint8Array;
@@ -1004,6 +1258,38 @@ export namespace AppActionRequest {
     }
 }
 
+export class WindowQueryRequest extends jspb.Message { 
+    getName(): string;
+    setName(value: string): WindowQueryRequest;
+
+    hasOpts(): boolean;
+    clearOpts(): void;
+    getOpts(): AppOptions | undefined;
+    setOpts(value?: AppOptions): WindowQueryRequest;
+
+    hasQuery(): boolean;
+    clearQuery(): void;
+    getQuery(): WindowQuery | undefined;
+    setQuery(value?: WindowQuery): WindowQueryRequest;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): WindowQueryRequest.AsObject;
+    static toObject(includeInstance: boolean, msg: WindowQueryRequest): WindowQueryRequest.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: WindowQueryRequest, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): WindowQueryRequest;
+    static deserializeBinaryFromReader(message: WindowQueryRequest, reader: jspb.BinaryReader): WindowQueryRequest;
+}
+
+export namespace WindowQueryRequest {
+    export type AsObject = {
+        name: string,
+        opts?: AppOptions.AsObject,
+        query?: WindowQuery.AsObject,
+    }
+}
+
 export class IsAppRunningResponse extends jspb.Message { 
     getRunning(): boolean;
     setRunning(value: boolean): IsAppRunningResponse;
@@ -1021,6 +1307,32 @@ export class IsAppRunningResponse extends jspb.Message {
 export namespace IsAppRunningResponse {
     export type AsObject = {
         running: boolean,
+    }
+}
+
+export class GetWindowResponse extends jspb.Message { 
+    getFound(): boolean;
+    setFound(value: boolean): GetWindowResponse;
+
+    hasWindow(): boolean;
+    clearWindow(): void;
+    getWindow(): Window | undefined;
+    setWindow(value?: Window): GetWindowResponse;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): GetWindowResponse.AsObject;
+    static toObject(includeInstance: boolean, msg: GetWindowResponse): GetWindowResponse.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: GetWindowResponse, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): GetWindowResponse;
+    static deserializeBinaryFromReader(message: GetWindowResponse, reader: jspb.BinaryReader): GetWindowResponse;
+}
+
+export namespace GetWindowResponse {
+    export type AsObject = {
+        found: boolean,
+        window?: Window.AsObject,
     }
 }
 

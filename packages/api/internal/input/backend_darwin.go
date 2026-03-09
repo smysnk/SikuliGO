@@ -51,10 +51,36 @@ func (b *darwinBackend) Execute(req core.InputRequest) error {
 			prefix = "mc"
 		}
 		return b.runCliclick(ctx, fmt.Sprintf("%s:%d,%d", prefix, req.X, req.Y))
+	case core.InputActionMouseDown:
+		if strings.ToLower(strings.TrimSpace(req.Button)) != "left" {
+			return fmt.Errorf("%w: darwin mouse down supports left button only", core.ErrInputUnsupported)
+		}
+		return b.runCliclick(ctx, fmt.Sprintf("dd:%d,%d", req.X, req.Y))
+	case core.InputActionMouseUp:
+		if strings.ToLower(strings.TrimSpace(req.Button)) != "left" {
+			return fmt.Errorf("%w: darwin mouse up supports left button only", core.ErrInputUnsupported)
+		}
+		return b.runCliclick(ctx, fmt.Sprintf("du:%d,%d", req.X, req.Y))
 	case core.InputActionTypeText:
 		return b.runOSA(ctx, fmt.Sprintf(`tell application "System Events" to keystroke %s`, asQuote(req.Text)))
+	case core.InputActionPasteText:
+		return b.runPaste(ctx, req.Text)
 	case core.InputActionHotkey:
 		return b.runHotkey(ctx, req.Keys)
+	case core.InputActionKeyDown:
+		keys, err := darwinModifierKeys(req.Keys)
+		if err != nil {
+			return err
+		}
+		return b.runCliclick(ctx, "kd:"+strings.Join(keys, ","))
+	case core.InputActionKeyUp:
+		keys, err := darwinModifierKeys(req.Keys)
+		if err != nil {
+			return err
+		}
+		return b.runCliclick(ctx, "ku:"+strings.Join(keys, ","))
+	case core.InputActionWheel:
+		return fmt.Errorf("%w: wheel scrolling unsupported on darwin backend", core.ErrInputUnsupported)
 	default:
 		return fmt.Errorf("unsupported input action %q", req.Action)
 	}
@@ -104,6 +130,35 @@ func (b *darwinBackend) runOSA(ctx context.Context, script string) error {
 		return inputCommandError("osascript", err, out)
 	}
 	return nil
+}
+
+func (b *darwinBackend) runPaste(ctx context.Context, text string) error {
+	setClipboard := fmt.Sprintf(`set the clipboard to %s`, asQuote(text))
+	if err := b.runOSA(ctx, setClipboard); err != nil {
+		return err
+	}
+	return b.runOSA(ctx, `tell application "System Events" to keystroke "v" using command down`)
+}
+
+func darwinModifierKeys(keys []string) ([]string, error) {
+	out := make([]string, 0, len(keys))
+	for _, key := range keys {
+		switch strings.ToLower(strings.TrimSpace(key)) {
+		case "cmd", "command":
+			out = append(out, "cmd")
+		case "ctrl", "control":
+			out = append(out, "ctrl")
+		case "alt", "option":
+			out = append(out, "alt")
+		case "shift":
+			out = append(out, "shift")
+		case "fn":
+			out = append(out, "fn")
+		default:
+			return nil, fmt.Errorf("darwin key down/up supports modifier keys only, got %q", key)
+		}
+	}
+	return out, nil
 }
 
 func asQuote(s string) string {

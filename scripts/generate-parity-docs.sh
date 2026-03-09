@@ -3,13 +3,19 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SEED_FILE="$ROOT_DIR/docs/reference/parity/java-to-go-seed.tsv"
+STATUS_SEED_FILE="$ROOT_DIR/docs/reference/parity/api-parity-status.tsv"
 OUT_DIR="${PARITY_DOCS_OUT_DIR:-$ROOT_DIR/docs/reference/parity}"
 OUT_FILE="$OUT_DIR/java-to-go-mapping.md"
+STATUS_OUT_FILE="$OUT_DIR/api-parity-status.md"
 SIG_FILE="$ROOT_DIR/packages/api/pkg/sikuli/signatures.go"
 PROTO_FILE="$ROOT_DIR/packages/api/proto/sikuli/v1/sikuli.proto"
 
 if [[ ! -f "$SEED_FILE" ]]; then
   echo "Missing seed mapping: $SEED_FILE" >&2
+  exit 1
+fi
+if [[ ! -f "$STATUS_SEED_FILE" ]]; then
+  echo "Missing API parity status seed: $STATUS_SEED_FILE" >&2
   exit 1
 fi
 
@@ -92,4 +98,42 @@ mkdir -p "$OUT_DIR"
   echo "- CI verifies this file is up to date."
 } > "$OUT_FILE"
 
+{
+  echo "# API Parity Status"
+  echo
+  echo "This document is generated from \`docs/reference/parity/api-parity-status.tsv\`. It tracks API-level implementation maturity independently from client wrapper maturity."
+  echo
+  echo "| Area | API Status | Test Location | Primary Contract Test | Migration Examples | Notes |"
+  echo "|---|---|---|---|---|---|"
+  awk -F '\t' '!/^#/ && NF >= 6 {
+    area=$1; status=$2; testloc=$3; testname=$4; anchor=$5; notes=$6;
+    gsub(/\|/, "\\|", area);
+    gsub(/\|/, "\\|", status);
+    gsub(/\|/, "\\|", testloc);
+    gsub(/\|/, "\\|", testname);
+    gsub(/\|/, "\\|", anchor);
+    gsub(/\|/, "\\|", notes);
+    printf("| %s | `%s` | `%s` | `%s` | [Examples](%s) | %s |\n", area, status, testloc, testname, anchor, notes);
+  }' "$STATUS_SEED_FILE"
+  echo
+  echo "## Status Summary"
+  echo
+  awk -F '\t' '!/^#/ && NF >= 6 { c[$2]++ } END {
+    order[1]="closed"; order[2]="partial"; order[3]="gap";
+    for (i=1; i<=3; i++) {
+      k=order[i];
+      if ((c[k]+0) > 0) {
+        printf("- `%s`: %d\n", k, c[k]+0);
+      }
+    }
+  }' "$STATUS_SEED_FILE"
+  echo
+  echo "## Maintenance"
+  echo
+  echo "- Update the status seed when API parity maturity changes."
+  echo "- Run \`./scripts/generate-parity-docs.sh\` after updates."
+  echo "- CI verifies this file is up to date."
+} > "$STATUS_OUT_FILE"
+
 echo "Generated parity mapping: $OUT_FILE"
+echo "Generated API parity status: $STATUS_OUT_FILE"
