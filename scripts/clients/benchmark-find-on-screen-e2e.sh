@@ -51,7 +51,7 @@ PATCH_READMES="1"
 README_PATHS="${FIND_BENCH_README_PATHS:-${ROOT_DIR}/README.md}"
 README_SECTION_TITLE="${FIND_BENCH_README_SECTION_TITLE:-FindOnScreen Benchmark Test Results}"
 README_INLINE_IMAGES="${FIND_BENCH_README_INLINE_IMAGES:-6}"
-README_LINK_MODE="${FIND_BENCH_README_LINK_MODE:-pages}"
+README_LINK_MODE="${FIND_BENCH_README_LINK_MODE:-relative}"
 README_BASE_URL="${FIND_BENCH_README_BASE_URL:-https://smysnk.github.io/sikuli-go}"
 CONSOLE_MODE="${FIND_BENCH_CONSOLE_MODE:-pretty}"
 CONSOLE_HEARTBEAT_SEC="${FIND_BENCH_CONSOLE_HEARTBEAT_SEC:-20}"
@@ -265,7 +265,7 @@ patch_readmes = os.environ.get("PATCH_READMES", "")
 readme_paths = os.environ.get("README_PATHS", "")
 readme_section_title = os.environ.get("README_SECTION_TITLE", "FindOnScreen Benchmark Test Results")
 readme_inline_images = int(os.environ.get("README_INLINE_IMAGES", "6"))
-readme_link_mode = os.environ.get("README_LINK_MODE", "pages").strip().lower()
+readme_link_mode = os.environ.get("README_LINK_MODE", "relative").strip().lower()
 readme_base_url = os.environ.get("README_BASE_URL", "https://smysnk.github.io/sikuli-go").strip().rstrip("/")
 root_dir = Path(os.environ.get("PROJECT_ROOT", "")).resolve()
 report_dir = Path(os.environ.get("REPORT_DIR", "")).resolve()
@@ -1781,9 +1781,13 @@ if env_true(patch_readmes):
             section.append("")
             section.append("### Artifact Directories")
             section.append("")
-            section.append(f"- [Visual Root]({to_readme_link(readme.parent, root_visual / 'index.html')})")
-            section.append(f"- [Scenario Summaries]({to_readme_link(readme.parent, root_visual / 'summaries' / 'index.html')})")
-            section.append(f"- [Attempt Images]({to_readme_link(readme.parent, root_visual / 'attempts' / 'index.html')})")
+            if readme_link_mode == "pages":
+                section.append(f"- [Visual Root]({to_readme_link(readme.parent, root_visual / 'index.html')})")
+                section.append(f"- [Scenario Summaries]({to_readme_link(readme.parent, root_visual / 'summaries' / 'index.html')})")
+                section.append(f"- [Attempt Images]({to_readme_link(readme.parent, root_visual / 'attempts' / 'index.html')})")
+            else:
+                section.append(f"- [Visual Root]({to_readme_link(readme.parent, root_visual)})")
+                section.append(f"- [Scenario Summaries]({to_readme_link(readme.parent, root_visual / 'summaries')})")
 
         if scenario_summaries:
             section.append("")

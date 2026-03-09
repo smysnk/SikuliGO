@@ -213,6 +213,8 @@ README patch controls:
 - `FIND_BENCH_README_PATHS` comma-separated paths (absolute or repo-root relative)
 - `FIND_BENCH_README_SECTION_TITLE` section heading text
 - `FIND_BENCH_README_INLINE_IMAGES` number of scenario images embedded inline per README
+- `FIND_BENCH_README_LINK_MODE` link style for README artifacts; default `relative` uses repo-local `docs/bench/...` paths, `pages` emits published Pages URLs
+- `FIND_BENCH_README_BASE_URL` Pages base URL used when `FIND_BENCH_README_LINK_MODE=pages`
 
 ## Optional OCR-Tagged Tests
 

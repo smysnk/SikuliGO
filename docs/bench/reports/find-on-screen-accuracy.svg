@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="560" viewBox="0 0 980 560">
+<style>text{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;fill:#0f172a} .muted{fill:#475569}</style>
+<rect x="0" y="0" width="100%" height="100%" fill="#f8fafc"/>
+<text x="490" y="34" font-size="22" text-anchor="middle">Engine Accuracy vs False Positive Rate (%)</text>
+<line x1="90" y1="65" x2="90" y2="450" stroke="#334155" stroke-width="2"/>
+<line x1="90" y1="450" x2="940" y2="450" stroke="#334155" stroke-width="2"/>
+<line x1="90" y1="450.0" x2="940" y2="450.0" stroke="#e2e8f0" stroke-width="1"/>
+<text x="80" y="455.0" font-size="12" text-anchor="end" class="muted">0</text>
+<line x1="90" y1="373.0" x2="940" y2="373.0" stroke="#e2e8f0" stroke-width="1"/>
+<text x="80" y="378.0" font-size="12" text-anchor="end" class="muted">20</text>
+<line x1="90" y1="296.0" x2="940" y2="296.0" stroke="#e2e8f0" stroke-width="1"/>
+<text x="80" y="301.0" font-size="12" text-anchor="end" class="muted">40</text>
+<line x1="90" y1="219.0" x2="940" y2="219.0" stroke="#e2e8f0" stroke-width="1"/>
+<text x="80" y="224.0" font-size="12" text-anchor="end" class="muted">60</text>
+<line x1="90" y1="142.0" x2="940" y2="142.0" stroke="#e2e8f0" stroke-width="1"/>
+<text x="80" y="147.0" font-size="12" text-anchor="end" class="muted">80</text>
+<line x1="90" y1="65.0" x2="940" y2="65.0" stroke="#e2e8f0" stroke-width="1"/>
+<text x="80" y="70.0" font-size="12" text-anchor="end" class="muted">100</text>
+<rect x="114.0" y="324.9" width="47" height="125.1" fill="#16a34a" rx="3"/>
+<rect x="167.0" y="440.4" width="47" height="9.6" fill="#dc2626" rx="3"/>
+<text x="137.5" y="318.9" font-size="11" text-anchor="middle">32.5</text>
+<text x="190.5" y="434.4" font-size="11" text-anchor="middle">2.5</text>
+<text x="164.0" y="470.0" font-size="11" text-anchor="middle" class="muted">akaze</text>
+<rect x="232.0" y="299.1" width="47" height="150.9" fill="#16a34a" rx="3"/>
+<rect x="285.0" y="418.0" width="47" height="32.0" fill="#dc2626" rx="3"/>
+<text x="255.5" y="293.1" font-size="11" text-anchor="middle">39.2</text>
+<text x="308.5" y="412.0" font-size="11" text-anchor="middle">8.3</text>
+<text x="282.0" y="470.0" font-size="11" text-anchor="middle" class="muted">brisk</text>
+<rect x="350.0" y="228.6" width="47" height="221.4" fill="#16a34a" rx="3"/>
+<rect x="403.0" y="430.8" width="47" height="19.2" fill="#dc2626" rx="3"/>
+<text x="373.5" y="222.6" font-size="11" text-anchor="middle">57.5</text>
+<text x="426.5" y="424.8" font-size="11" text-anchor="middle">5.0</text>
+<text x="400.0" y="470.0" font-size="11" text-anchor="middle" class="muted">hybrid</text>
+<rect x="468.0" y="247.9" width="47" height="202.1" fill="#16a34a" rx="3"/>
+<rect x="521.0" y="427.7" width="47" height="22.3" fill="#dc2626" rx="3"/>
+<text x="491.5" y="241.9" font-size="11" text-anchor="middle">52.5</text>
+<text x="544.5" y="421.7" font-size="11" text-anchor="middle">5.8</text>
+<text x="518.0" y="470.0" font-size="11" text-anchor="middle" class="muted">kaze</text>
+<rect x="586.0" y="408.4" width="47" height="41.6" fill="#16a34a" rx="3"/>
+<rect x="639.0" y="414.6" width="47" height="35.4" fill="#dc2626" rx="3"/>
+<text x="609.5" y="402.4" font-size="11" text-anchor="middle">10.8</text>
+<text x="662.5" y="408.6" font-size="11" text-anchor="middle">9.2</text>
+<text x="636.0" y="470.0" font-size="11" text-anchor="middle" class="muted">orb</text>
+<rect x="704.0" y="270.2" width="47" height="179.8" fill="#16a34a" rx="3"/>
+<rect x="757.0" y="421.1" width="47" height="28.9" fill="#dc2626" rx="3"/>
+<text x="727.5" y="264.2" font-size="11" text-anchor="middle">46.7</text>
+<text x="780.5" y="415.1" font-size="11" text-anchor="middle">7.5</text>
+<text x="754.0" y="470.0" font-size="11" text-anchor="middle" class="muted">sift</text>
+<rect x="822.0" y="244.8" width="47" height="205.2" fill="#16a34a" rx="3"/>
+<rect x="875.0" y="450.0" width="47" height="0.0" fill="#dc2626" rx="3"/>
+<text x="845.5" y="238.8" font-size="11" text-anchor="middle">53.3</text>
+<text x="898.5" y="444.0" font-size="11" text-anchor="middle">0.0</text>
+<text x="872.0" y="470.0" font-size="11" text-anchor="middle" class="muted">template</text>
+<rect x="90" y="528" width="14" height="14" fill="#16a34a" rx="2"/>
+<text x="112" y="540" font-size="12" class="muted">Success %</text>
+<rect x="220" y="528" width="14" height="14" fill="#dc2626" rx="2"/>
+<text x="242" y="540" font-size="12" class="muted">False Positive %</text>
+</svg>

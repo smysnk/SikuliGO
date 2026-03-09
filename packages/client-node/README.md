@@ -80,10 +80,3 @@ By default it serves the monitor UI on `:8080` and reads `sikuli-go.db` from the
 - `screen.region(x, y, w, h)` scopes the search area
 
 For the full runtime model, diagnostics flow, and troubleshooting notes, use the Node.js guide pages above.
-
-## Links
-
-- Main repository: [github.com/smysnk/SikuliGO](https://github.com/smysnk/SikuliGO)
-- API reference: [smysnk.github.io/sikuli-go/reference/api](https://smysnk.github.io/sikuli-go/reference/api/)
-- Node package user flow: [smysnk.github.io/sikuli-go/guides/node-package-user-flow](https://smysnk.github.io/sikuli-go/guides/node-package-user-flow)
-- Benchmarks: [smysnk.github.io/sikuli-go/bench/](https://smysnk.github.io/sikuli-go/bench/)

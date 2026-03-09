@@ -88,10 +88,3 @@ By default it serves the monitor UI on `:8080` and reads `sikuli-go.db` from the
 - `screen.region(x, y, w, h)` scopes the search area
 
 For the full runtime model, environment inputs, and troubleshooting notes, use the Python guide pages above.
-
-## Links
-
-- Main repository: [github.com/smysnk/SikuliGO](https://github.com/smysnk/SikuliGO)
-- API reference: [smysnk.github.io/sikuli-go/reference/api](https://smysnk.github.io/sikuli-go/reference/api/)
-- Client strategy: [smysnk.github.io/sikuli-go/strategy/client-strategy](https://smysnk.github.io/sikuli-go/strategy/client-strategy)
-- Benchmarks: [smysnk.github.io/sikuli-go/bench/](https://smysnk.github.io/sikuli-go/bench/)
