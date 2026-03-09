@@ -8,6 +8,7 @@ CLIENT_DIR="$CLIENT_PYTHON_DIR"
 
 cd "$ROOT_DIR"
 ./scripts/clients/generate-python-stubs.sh
+./scripts/clients/sync-python-runtimes.sh
 
 cd "$CLIENT_DIR"
 if [[ "${SKIP_INSTALL:-0}" != "1" ]]; then

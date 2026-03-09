@@ -1,1 +1,2 @@
 recursive-include sikuligo/scaffold *.py *.png
+recursive-include sikuligo/runtime *

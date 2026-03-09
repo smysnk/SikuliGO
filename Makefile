@@ -198,6 +198,7 @@ clean:
 	packages/client-python/dist \
 	packages/client-python/build \
 	packages/client-python/*.egg-info \
+	packages/client-python/sikuligo/runtime/bin-* \
 	packages/api/internal/grpcv1/pb \
 	packages/api/sikuli-go \
 	packages/api/sikuli-go-monitor

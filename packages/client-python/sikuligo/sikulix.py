@@ -118,6 +118,10 @@ def _resolve_sikuli_binary(binary_path: str | None = None) -> str:
     if env_path:
         return resolve_path(env_path, "SIKULI_GO_BINARY_PATH")
 
+    packaged_runtime = _resolve_packaged_runtime_binary(exe_names)
+    if packaged_runtime:
+        return packaged_runtime
+
     # Try common repo-local locations so examples work without env vars.
     probe_dirs: list[Path] = []
     cwd = Path.cwd()
@@ -148,6 +152,38 @@ def _resolve_sikuli_binary(binary_path: str | None = None) -> str:
     raise FileNotFoundError(
         "Unable to resolve sikuli-go binary. Build it in repo root, install it on PATH, or set SIKULI_GO_BINARY_PATH."
     )
+
+
+def _packaged_runtime_platform_dirs() -> list[str]:
+    platform_dirs: list[str] = []
+    if os.name == "nt" and os.environ.get("PROCESSOR_ARCHITECTURE", "").lower() in ("amd64", "x86_64"):
+        platform_dirs.append("bin-win32-x64")
+    elif os.name == "posix":
+        uname = os.uname()
+        machine = uname.machine.lower()
+        sysname = uname.sysname.lower()
+        if sysname == "darwin":
+            if machine in ("arm64", "aarch64"):
+                platform_dirs.append("bin-darwin-arm64")
+            elif machine in ("x86_64", "amd64"):
+                platform_dirs.append("bin-darwin-x64")
+        elif sysname == "linux" and machine in ("x86_64", "amd64"):
+            platform_dirs.append("bin-linux-x64")
+    return platform_dirs
+
+
+def _resolve_packaged_runtime_binary(
+    exe_names: Sequence[str],
+    package_root: Path | None = None,
+) -> str | None:
+    root = package_root or Path(__file__).resolve().parent
+    for platform_dir in _packaged_runtime_platform_dirs():
+        runtime_dir = root / "runtime" / platform_dir / "bin"
+        for exe_name in exe_names:
+            candidate = runtime_dir / exe_name
+            if candidate.exists() and os.access(candidate, os.X_OK):
+                return str(candidate.resolve())
+    return None
 
 
 def _merge_runtime_path(current_path: str | None) -> str:

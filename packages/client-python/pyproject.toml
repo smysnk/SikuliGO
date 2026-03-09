@@ -43,4 +43,8 @@ include-package-data = true
 include = ["sikuligo*", "generated*"]
 
 [tool.setuptools.package-data]
-sikuligo = ["scaffold/python/examples/*.py", "scaffold/python/examples/assets/*.png"]
+sikuligo = [
+  "scaffold/python/examples/*.py",
+  "scaffold/python/examples/assets/*.png",
+  "runtime/*/bin/*",
+]
