@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Runtime Dashboard</title>
+    <style>
+      :root {
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+        color-scheme: light;
+        --page-bg:
+          radial-gradient(circle at top left, rgba(255,255,255,0.82), transparent 24%),
+          linear-gradient(135deg, #eef4ff 0%, #f5f7f2 56%, #edf8f0 100%);
+        --text: #14213d;
+        --muted: #58657e;
+        --shell-bg: rgba(255,255,255,0.72);
+        --shell-border: rgba(20,33,61,0.08);
+        --shell-shadow: 0 20px 56px rgba(20,33,61,0.08);
+        --panel-bg: rgba(248, 250, 255, 0.9);
+        --panel-border: rgba(20,33,61,0.08);
+        --trace-bg: white;
+        --trace-text: #58657e;
+        --accent-bg: rgba(15,118,110,0.12);
+        --accent-text: #0f766e;
+        --toggle-bg: rgba(255,255,255,0.86);
+        --toggle-border: rgba(20,33,61,0.12);
+        --toggle-text: #14213d;
+        --toggle-active-bg: #14213d;
+        --toggle-active-text: #f8fafc;
+      }
+      body[data-theme="editor"] {
+        color-scheme: dark;
+        --page-bg:
+          radial-gradient(circle at top left, rgba(56,189,248,0.08), transparent 26%),
+          linear-gradient(180deg, #0b1220 0%, #111827 48%, #0f172a 100%);
+        --text: #e5eefb;
+        --muted: #94a3b8;
+        --shell-bg: rgba(2,6,23,0.82);
+        --shell-border: rgba(51,65,85,0.78);
+        --shell-shadow: 0 20px 56px rgba(2,6,23,0.36);
+        --panel-bg: rgba(15,23,42,0.82);
+        --panel-border: rgba(51,65,85,0.62);
+        --trace-bg: rgba(15,23,42,0.92);
+        --trace-text: #94a3b8;
+        --accent-bg: rgba(15,118,110,0.18);
+        --accent-text: #5eead4;
+        --toggle-bg: rgba(15,23,42,0.86);
+        --toggle-border: rgba(71,85,105,0.68);
+        --toggle-text: #cbd5e1;
+        --toggle-active-bg: linear-gradient(135deg, rgba(37,99,235,0.92), rgba(15,118,110,0.74));
+        --toggle-active-text: #eff6ff;
+      }
+      body[data-embed="1"] .theme-group {
+        display: none;
+      }
+      body { margin: 0; padding: 22px; background: var(--page-bg); color: var(--text); }
+      .shell {
+        border-radius: 24px;
+        padding: 22px;
+        background: var(--shell-bg);
+        border: 1px solid var(--shell-border);
+        box-shadow: var(--shell-shadow);
+      }
+      .header, .cards, .grid { display: grid; gap: 16px; }
+      .header { grid-template-columns: 1.4fr 1fr; align-items: start; }
+      .eyebrow { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #8c5e34; font-weight: 700; }
+      h1 { margin: 6px 0 8px; font-size: 28px; line-height: 1.08; }
+      p { margin: 0; color: var(--muted); line-height: 1.55; }
+      .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .card, .panel {
+        border-radius: 18px;
+        background: var(--panel-bg);
+        border: 1px solid var(--panel-border);
+        padding: 16px;
+      }
+      .panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+      .theme-group {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px;
+        border-radius: 999px;
+        background: var(--toggle-bg);
+        border: 1px solid var(--toggle-border);
+      }
+      .theme-group button {
+        border: 0;
+        border-radius: 999px;
+        background: transparent;
+        color: var(--toggle-text);
+        padding: 7px 10px;
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .theme-group button.active {
+        background: var(--toggle-active-bg);
+        color: var(--toggle-active-text);
+      }
+      .label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+      .value { margin-top: 6px; font-size: 24px; font-weight: 700; }
+      .ok { color: #0f766e; }
+      .grid { grid-template-columns: 1.2fr 0.9fr; margin-top: 16px; }
+      .trace {
+        display: grid;
+        gap: 10px;
+      }
+      .trace div {
+        border-radius: 14px;
+        padding: 12px 14px;
+        background: var(--trace-bg);
+        border: 1px solid var(--panel-border);
+      }
+      .trace strong { display: block; font-size: 13px; margin-bottom: 4px; }
+      .trace span { font-size: 12px; color: var(--trace-text); }
+      .sparkline {
+        height: 140px;
+        border-radius: 14px;
+        margin-top: 14px;
+        background:
+          linear-gradient(180deg, rgba(36,92,255,0.12), transparent),
+          linear-gradient(90deg, rgba(20,33,61,0.04) 1px, transparent 1px);
+        background-size: auto, 36px 36px;
+        position: relative;
+        overflow: hidden;
+      }
+      .sparkline::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(135deg, transparent 0%, transparent 18%, rgba(36,92,255,0.85) 18.5%, rgba(36,92,255,0.85) 20%, transparent 20.5%, transparent 34%, rgba(27,143,106,0.85) 34.5%, rgba(27,143,106,0.85) 36%, transparent 36.5%, transparent 55%, rgba(36,92,255,0.7) 55.5%, rgba(36,92,255,0.7) 57%, transparent 57.5%);
+        transform: translateX(-12%);
+        animation: drift 6s linear infinite;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 999px;
+        padding: 8px 12px;
+        background: var(--accent-bg);
+        color: var(--accent-text);
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .pulse {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: currentColor;
+        animation: pulse 1.6s ease-in-out infinite;
+      }
+      @keyframes drift {
+        from { transform: translateX(-12%); }
+        to { transform: translateX(12%); }
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 0.35; transform: scale(0.8); }
+        50% { opacity: 1; transform: scale(1); }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <div class="header">
+        <div>
+          <div class="eyebrow">Runtime Dashboard</div>
+          <h1>Attached to the same live runtime the IDE is stepping through</h1>
+          <p>The dashboard keeps the active session, target coordinates, and runtime health visible while the editor moves between Node.js and Python examples.</p>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <div class="theme-group" aria-label="Dashboard theme">
+              <button type="button" data-theme-option="original" class="active">original</button>
+              <button type="button" data-theme-option="editor">editor</button>
+            </div>
+          </div>
+          <div class="chip"><span class="pulse"></span> Runtime healthy on 127.0.0.1:7310</div>
+          <p style="margin-top: 14px;">Active trace: <strong>trace-7c61f2</strong><br />Bound run: <strong>Click (session-node-live)</strong></p>
+        </div>
+      </div>
+      <div class="cards" style="margin-top: 18px;">
+        <div class="card">
+          <div class="label">Open Sessions</div>
+          <div class="value">2</div>
+        </div>
+        <div class="card">
+          <div class="label">Runtime Calls</div>
+          <div class="value">4</div>
+        </div>
+        <div class="card">
+          <div class="label">Last Match Score</div>
+          <div class="value ok">0.994</div>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="panel">
+          <div class="label">Session Trace</div>
+          <div class="trace" style="margin-top: 14px;">
+            <div><strong>Paused before runtime call</strong><span>line 8 · click.mjs · target line 10 armed</span></div>
+            <div><strong>Click completed</strong><span>rect=(1096,612,54,52) target=(1123,638)</span></div>
+            <div><strong>Python find completed</strong><span>score=0.999 · output buffered to selected session</span></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="label">Request Latency</div>
+          <div class="sparkline"></div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const themeButtons = Array.from(document.querySelectorAll("[data-theme-option]"));
+
+      function applyTheme(theme) {
+        document.body.dataset.theme = theme === "editor" ? "editor" : "original";
+        themeButtons.forEach((button) => {
+          const active = button.getAttribute("data-theme-option") === document.body.dataset.theme;
+          button.classList.toggle("active", active);
+          button.setAttribute("aria-pressed", active ? "true" : "false");
+        });
+      }
+
+      if (params.get("embed") === "1") {
+        document.body.dataset.embed = "1";
+      }
+
+      themeButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          applyTheme(button.getAttribute("data-theme-option") || "original");
+        });
+      });
+
+      applyTheme(params.get("theme") === "editor" ? "editor" : "original");
+    </script>
+  </body>
+</html>

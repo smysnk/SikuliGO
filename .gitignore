@@ -15,6 +15,7 @@ opencvsrc/
 .classpath
 *$py.class
 *.pyc
+.tmp/
 .exe
 original/
 *.sikuli.robot/
@@ -66,4 +67,6 @@ docs/bench/reports/**/go-test.log
 docs/bench/reports/**/attempts/
 references/
 runtime/
+!packages/editor/public/demo/runtime/
+!packages/editor/public/demo/runtime/**
 .sikuli-go

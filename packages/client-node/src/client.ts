@@ -232,6 +232,195 @@ function missingInputDependency(details: string): string {
   return "";
 }
 
+type RuntimeTracePayload = RpcMessage & {
+  type: string;
+  callId: string;
+  method: string;
+};
+
+let runtimeCallCounter = 0;
+
+function currentRuntimeTraceHook():
+  | ((payload: RuntimeTracePayload) => Promise<void> | void)
+  | null {
+  const candidate = (globalThis as Record<string, unknown>).__sikuliRuntimeEvent;
+  return typeof candidate === "function"
+    ? (candidate as (payload: RuntimeTracePayload) => Promise<void> | void)
+    : null;
+}
+
+async function emitRuntimeTrace(payload: RuntimeTracePayload): Promise<void> {
+  const hook = currentRuntimeTraceHook();
+  if (!hook) {
+    return;
+  }
+  try {
+    await hook(payload);
+  } catch {
+    // Ignore IDE trace hook failures so client behavior remains unchanged outside the editor.
+  }
+}
+
+function previewText(value: unknown, maxLength = 48): string {
+  const text = String(value ?? "").replace(/\s+/g, " ").trim();
+  if (!text) {
+    return "";
+  }
+  return text.length > maxLength ? `${text.slice(0, maxLength - 3)}...` : text;
+}
+
+function rectString(value: unknown): string {
+  const rect = value && typeof value === "object" ? (value as Record<string, unknown>) : null;
+  if (!rect) {
+    return "";
+  }
+  const x = Number(rect.x ?? 0);
+  const y = Number(rect.y ?? 0);
+  const w = Number(rect.w ?? 0);
+  const h = Number(rect.h ?? 0);
+  if (!(Number.isFinite(w) && Number.isFinite(h) && w > 0 && h > 0)) {
+    return "";
+  }
+  return `${x},${y},${w},${h}`;
+}
+
+function pointString(value: unknown): string {
+  const point = value && typeof value === "object" ? (value as Record<string, unknown>) : null;
+  if (!point) {
+    return "";
+  }
+  const x = Number(point.x ?? 0);
+  const y = Number(point.y ?? 0);
+  if (!Number.isFinite(x) || !Number.isFinite(y)) {
+    return "";
+  }
+  return `${x},${y}`;
+}
+
+function requestSummaryForMethod(methodName: string, request: RpcMessage): string {
+  const req = request as Record<string, unknown>;
+
+  if (SCREEN_SEARCH_METHODS.has(methodName)) {
+    const pattern = (req.pattern ?? {}) as Record<string, unknown>;
+    const image = (pattern.image ?? {}) as Record<string, unknown>;
+    const opts = (req.opts ?? {}) as Record<string, unknown>;
+    const region = rectString(opts.region);
+    const width = Number(image.width ?? 0);
+    const height = Number(image.height ?? 0);
+    const timeoutMs = Number(opts.timeout_millis ?? 0);
+    const parts = [
+      region ? `region=${region}` : "region=full_screen",
+      Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0 ? `pattern=${width}x${height}` : "",
+      pattern.exact ? "exact" : "",
+      typeof pattern.similarity === "number" ? `sim=${Number(pattern.similarity).toFixed(2)}` : "",
+      timeoutMs > 0 ? `timeout=${timeoutMs}ms` : "",
+    ];
+    if (methodName === "ClickOnScreen") {
+      const clickOpts = (req.click_opts ?? {}) as Record<string, unknown>;
+      if (clickOpts.button) {
+        parts.push(`button=${String(clickOpts.button)}`);
+      }
+    }
+    return parts.filter(Boolean).join(" ");
+  }
+
+  if (methodName === "MoveMouse" || methodName === "Click") {
+    const point = pointString(req);
+    const parts = [point ? `point=${point}` : ""];
+    const opts = (req.opts ?? {}) as Record<string, unknown>;
+    if (methodName === "Click" && opts.button) {
+      parts.push(`button=${String(opts.button)}`);
+    }
+    return parts.filter(Boolean).join(" ");
+  }
+
+  if (methodName === "TypeText") {
+    const text = previewText(req.text);
+    return text ? `text="${text}" len=${String(req.text ?? "").length}` : "";
+  }
+
+  if (methodName === "Hotkey") {
+    const keys = Array.isArray(req.keys) ? req.keys.map((key) => String(key)).join("+") : "";
+    return keys ? `keys=${keys}` : "";
+  }
+
+  if (methodName === "OpenApp" || methodName === "FocusApp" || methodName === "CloseApp" || methodName === "IsAppRunning" || methodName === "ListWindows") {
+    const args = Array.isArray(req.args) ? req.args.length : 0;
+    return req.name ? `app=${String(req.name)}${args > 0 ? ` args=${args}` : ""}` : "";
+  }
+
+  if (methodName === "ReadText" || methodName === "FindText") {
+    return "ocr request";
+  }
+
+  return "";
+}
+
+function responseDetailsForMethod(methodName: string, response: RpcMessage): RpcMessage {
+  const resp = response as Record<string, unknown>;
+
+  if (SCREEN_SEARCH_METHODS.has(methodName)) {
+    const match = (resp.match ?? {}) as Record<string, unknown>;
+    const matchRect = rectString(match.rect);
+    const targetPoint = pointString(match.target);
+    if (matchRect) {
+      const score = typeof match.score === "number" ? Number(match.score) : null;
+      return {
+        responseSummary: [
+          `match=${matchRect}`,
+          targetPoint ? `target=${targetPoint}` : "",
+          typeof score === "number" ? `score=${score.toFixed(3)}` : "",
+        ]
+          .filter(Boolean)
+          .join(" "),
+        matchRect,
+        targetPoint,
+        score,
+      };
+    }
+    if (methodName === "ExistsOnScreen") {
+      return {
+        responseSummary: `exists=${Boolean(resp.exists) ? "yes" : "no"}`,
+        exists: Boolean(resp.exists),
+      };
+    }
+    return {
+      responseSummary: "no match",
+      exists: false,
+    };
+  }
+
+  if (methodName === "IsAppRunning") {
+    return {
+      responseSummary: `running=${Boolean(resp.running) ? "yes" : "no"}`,
+      exists: Boolean(resp.running),
+    };
+  }
+
+  if (methodName === "ListWindows") {
+    const windows = Array.isArray(resp.windows) ? resp.windows.length : 0;
+    return {
+      responseSummary: `windows=${windows}`,
+    };
+  }
+
+  if (methodName === "ReadText") {
+    const text = previewText(resp.text);
+    return {
+      responseSummary: text ? `text="${text}"` : "text=<empty>",
+    };
+  }
+
+  if (methodName === "FindText") {
+    const matches = Array.isArray(resp.matches) ? resp.matches.length : 0;
+    return {
+      responseSummary: `matches=${matches}`,
+    };
+  }
+
+  return {};
+}
+
 export class Sikuli {
   private readonly client: grpc.Client & Record<string, unknown>;
   private readonly address: string;
@@ -358,7 +547,7 @@ export class Sikuli {
     return new SikuliError(code, details, traceId);
   }
 
-  private unary(methodName: string, request: RpcMessage, opts: UnaryCallOptions = {}): Promise<RpcMessage> {
+  private async unary(methodName: string, request: RpcMessage, opts: UnaryCallOptions = {}): Promise<RpcMessage> {
     const callFn = this.client[methodName] as Function | undefined;
     if (typeof callFn !== "function") {
       return Promise.reject(new Error(`unknown gRPC method: ${methodName}`));
@@ -370,6 +559,8 @@ export class Sikuli {
     const matcherEngine = normalizeMatcherEngine(opts.matcherEngine ?? this.matcherEngine);
     const metadata = this.buildMetadata(opts.metadata);
     const wireRequest = withMatcherEngine(methodName, request, matcherEngine);
+    const callId = `${methodName.toLowerCase()}-${Date.now()}-${++runtimeCallCounter}`;
+    const requestSummary = requestSummaryForMethod(methodName, wireRequest);
     const screenFields = screenRequestDebugFields(methodName, wireRequest);
     this.debugLog("rpc.start", {
       method: methodName,
@@ -377,6 +568,13 @@ export class Sikuli {
       timeout_ms: timeoutMs,
       matcher_engine: matcherEngine,
       ...screenFields
+    });
+    await emitRuntimeTrace({
+      type: "runtime:call:start",
+      callId,
+      method: methodName,
+      requestSummary,
+      traceId: this.traceId || undefined,
     });
 
     return new Promise((resolve, reject) => {
@@ -415,7 +613,18 @@ export class Sikuli {
                 });
               }
             }
-            reject(this.clientError(methodName, err, timeoutMs));
+            const runtimeError = this.clientError(methodName, err, timeoutMs);
+            void emitRuntimeTrace({
+              type: "runtime:call:error",
+              callId,
+              method: methodName,
+              requestSummary,
+              durationMs: Date.now() - startedAt,
+              traceId: traceId || this.traceId || undefined,
+              error: runtimeError.message,
+            }).finally(() => {
+              reject(runtimeError);
+            });
             return;
           }
           const screenResponseFields = screenResponseDebugFields(methodName, response);
@@ -426,7 +635,17 @@ export class Sikuli {
             matcher_engine: matcherEngine,
             ...screenResponseFields
           });
-          resolve(response);
+          void emitRuntimeTrace({
+            type: "runtime:call:end",
+            callId,
+            method: methodName,
+            requestSummary,
+            durationMs: Date.now() - startedAt,
+            traceId: this.traceId || undefined,
+            ...responseDetailsForMethod(methodName, response),
+          }).finally(() => {
+            resolve(response);
+          });
         }
       );
     });

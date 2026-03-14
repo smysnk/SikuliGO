@@ -8,6 +8,7 @@ lead: Architecture plans, client strategy, docs ownership, and the guide-format 
 
 - [Documentation Canonical Source Map]({{ '/strategy/documentation-source-map' | relative_url }})
 - [Guide-Format Documentation Plan]({{ '/strategy/guide-format-documentation-plan' | relative_url }})
+- [IDE Editor Implementation Plan]({{ '/strategy/ide-editor-plan' | relative_url }})
 - [Mission]({{ '/strategy/mission' | relative_url }})
 - [Port Strategy]({{ '/strategy/port-strategy' | relative_url }})
 - [gRPC Strategy]({{ '/strategy/grpc-strategy' | relative_url }})

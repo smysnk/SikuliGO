@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Runtime Metrics</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 22px;
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+        background: linear-gradient(135deg, #eef4ff 0%, #f7f9f2 54%, #edf7f0 100%);
+        color: #14213d;
+      }
+      .shell {
+        border-radius: 24px;
+        padding: 22px;
+        background: rgba(255,255,255,0.78);
+        border: 1px solid rgba(20,33,61,0.08);
+        box-shadow: 0 20px 56px rgba(20,33,61,0.08);
+      }
+      h1 { margin: 0 0 16px; font-size: 26px; }
+      pre {
+        margin: 0;
+        padding: 18px;
+        border-radius: 18px;
+        background: linear-gradient(180deg, #182338, #101726);
+        color: #edf2ff;
+        font-family: "SFMono-Regular", "JetBrains Mono", monospace;
+        font-size: 13px;
+        line-height: 1.55;
+        overflow: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <h1>Metrics snapshot</h1>
+      <pre># HELP sikuligo_runtime_sessions Number of active sessions
+# TYPE sikuligo_runtime_sessions gauge
+sikuligo_runtime_sessions 2
+
+# HELP sikuligo_runtime_calls_total Total runtime calls by method
+# TYPE sikuligo_runtime_calls_total counter
+sikuligo_runtime_calls_total{method="Click"} 3
+sikuligo_runtime_calls_total{method="Find"} 1
+
+# HELP sikuligo_runtime_call_duration_ms Last runtime call duration
+# TYPE sikuligo_runtime_call_duration_ms gauge
+sikuligo_runtime_call_duration_ms{method="Click"} 44
+sikuligo_runtime_call_duration_ms{method="Find"} 257
+
+# HELP sikuligo_editor_drafts Number of unsaved drafts in the editor
+# TYPE sikuligo_editor_drafts gauge
+sikuligo_editor_drafts 1</pre>
+    </div>
+  </body>
+</html>

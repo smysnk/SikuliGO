@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "electron .",
     "build": "echo 'no build pipeline configured yet'",
-    "test": "echo 'no tests for api-electron yet'"
+    "test": "node --test test/*.test.js"
   },
   "dependencies": {
     "electron": "31.7.7"

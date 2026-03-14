@@ -508,23 +508,73 @@ var dashboardTemplate = template.Must(template.New("dashboard").Parse(`<!doctype
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sikuli gRPC Dashboard</title>
   <style>
-    body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; color: #111827; background: #f8fafc; }
+    :root {
+      --page-bg: #f8fafc;
+      --text: #111827;
+      --muted: #6b7280;
+      --panel: #ffffff;
+      --surface: #f9fafb;
+      --surface-strong: #f3f4f6;
+      --border: #e5e7eb;
+      --nav-border: #cbd5e1;
+      --nav-active-bg: #111827;
+      --nav-active-text: #f9fafb;
+      --theme-bg: #ffffff;
+      --theme-text: #1f2937;
+      --theme-active-bg: #111827;
+      --theme-active-text: #f9fafb;
+      --code-bg: #f3f4f6;
+      --shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+    }
+    body {
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 0;
+      color: var(--text);
+      background: var(--page-bg);
+    }
+    body[data-theme="editor"] {
+      color-scheme: dark;
+      --page-bg: linear-gradient(180deg, #0b1220 0%, #111827 48%, #0f172a 100%);
+      --text: #e5eefb;
+      --muted: #94a3b8;
+      --panel: rgba(2, 6, 23, 0.92);
+      --surface: rgba(15, 23, 42, 0.78);
+      --surface-strong: rgba(15, 23, 42, 0.92);
+      --border: rgba(51, 65, 85, 0.82);
+      --nav-border: rgba(71, 85, 105, 0.74);
+      --nav-active-bg: linear-gradient(135deg, rgba(37, 99, 235, 0.9), rgba(15, 118, 110, 0.72));
+      --nav-active-text: #eff6ff;
+      --theme-bg: rgba(15, 23, 42, 0.82);
+      --theme-text: #cbd5e1;
+      --theme-active-bg: linear-gradient(135deg, rgba(37, 99, 235, 0.9), rgba(15, 118, 110, 0.72));
+      --theme-active-text: #eff6ff;
+      --code-bg: rgba(15, 23, 42, 0.9);
+      --shadow: 0 18px 40px rgba(2, 6, 23, 0.32);
+    }
+    body[data-embed="1"] {
+      background: transparent;
+    }
     .wrap { padding: 16px 20px; }
-    .menubar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #d1d5db; background: #ffffff; padding: 12px 20px; }
+    .menubar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: var(--panel); padding: 12px 20px; box-shadow: var(--shadow); }
     .title { margin: 0; font-size: 20px; }
-    .btn-group { display: inline-flex; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; background: #ffffff; }
-    .btn-group a { padding: 8px 14px; font-size: 13px; text-decoration: none; color: #1f2937; border-right: 1px solid #cbd5e1; background: #ffffff; }
+    .controls { display: flex; align-items: center; gap: 12px; }
+    .btn-group { display: inline-flex; border: 1px solid var(--nav-border); border-radius: 8px; overflow: hidden; background: var(--panel); }
+    .btn-group a { padding: 8px 14px; font-size: 13px; text-decoration: none; color: var(--text); border-right: 1px solid var(--nav-border); background: transparent; }
     .btn-group a:last-child { border-right: none; }
-    .btn-group a.active { background: #111827; color: #f9fafb; }
-    .muted { color: #6b7280; margin-top: 0; margin-bottom: 12px; }
+    .btn-group a.active { background: var(--nav-active-bg); color: var(--nav-active-text); }
+    .theme-group { display: inline-flex; border: 1px solid var(--nav-border); border-radius: 8px; overflow: hidden; background: var(--theme-bg); }
+    .theme-group button { padding: 8px 12px; font-size: 12px; border: 0; background: transparent; color: var(--theme-text); cursor: pointer; }
+    .theme-group button.active { background: var(--theme-active-bg); color: var(--theme-active-text); font-weight: 700; }
+    body[data-embed="1"] .theme-group { display: none; }
+    .muted { color: var(--muted); margin-top: 0; margin-bottom: 12px; }
     .cards { display: grid; grid-template-columns: repeat(4, minmax(160px, 1fr)); gap: 12px; margin: 16px 0; }
-    .card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; background: #f9fafb; }
-    .k { font-size: 12px; color: #6b7280; }
+    .card { border: 1px solid var(--border); border-radius: 8px; padding: 12px; background: var(--surface); }
+    .k { font-size: 12px; color: var(--muted); }
     .v { font-size: 24px; font-weight: 700; }
     table { border-collapse: collapse; width: 100%; margin-top: 12px; }
-    th, td { border: 1px solid #e5e7eb; padding: 8px; text-align: left; font-size: 13px; }
-    th { background: #f3f4f6; }
-    code { background: #f3f4f6; padding: 1px 4px; border-radius: 4px; }
+    th, td { border: 1px solid var(--border); padding: 8px; text-align: left; font-size: 13px; }
+    th { background: var(--surface-strong); }
+    code { background: var(--code-bg); padding: 1px 4px; border-radius: 4px; }
     @media (max-width: 900px) {
       .cards { grid-template-columns: repeat(2, minmax(160px, 1fr)); }
     }
@@ -533,9 +583,15 @@ var dashboardTemplate = template.Must(template.New("dashboard").Parse(`<!doctype
 <body>
   <div class="menubar">
     <h1 class="title">Sikuli Dashboard</h1>
-    <div class="btn-group">
-      <a href="/dashboard" class="active">live</a>
-      <a href="/sessions">session viewer</a>
+    <div class="controls">
+      <div class="btn-group">
+        <a href="/dashboard" class="active">live</a>
+        <a href="/sessions">session viewer</a>
+      </div>
+      <div class="theme-group" id="themeGroup" aria-label="Dashboard theme">
+        <button type="button" data-theme-option="original" class="active">original</button>
+        <button type="button" data-theme-option="editor">editor</button>
+      </div>
     </div>
   </div>
   <div class="wrap">
@@ -588,6 +644,16 @@ var dashboardTemplate = template.Must(template.New("dashboard").Parse(`<!doctype
     const totalErrorsEl = document.getElementById("totalErrors");
     const totalAuthFailuresEl = document.getElementById("totalAuthFailures");
     const methodsBodyEl = document.getElementById("methodsBody");
+    const themeButtons = Array.from(document.querySelectorAll("[data-theme-option]"));
+
+    function applyTheme(theme) {
+      document.body.dataset.theme = theme === "editor" ? "editor" : "original";
+      themeButtons.forEach((button) => {
+        const active = button.getAttribute("data-theme-option") === document.body.dataset.theme;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", active ? "true" : "false");
+      });
+    }
 
     function esc(v) {
       return String(v ?? "")
@@ -643,6 +709,17 @@ var dashboardTemplate = template.Must(template.New("dashboard").Parse(`<!doctype
       };
     }
 
+    const params = new URLSearchParams(window.location.search);
+    const initialTheme = params.get("theme") === "editor" ? "editor" : "original";
+    if (params.get("embed") === "1") {
+      document.body.dataset.embed = "1";
+    }
+    themeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        applyTheme(button.getAttribute("data-theme-option") || "original");
+      });
+    });
+    applyTheme(initialTheme);
     connectWS();
   </script>
 </body>

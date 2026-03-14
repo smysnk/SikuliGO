@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import builtins
 import inspect
+import itertools
 import os
 import sys
 import time
@@ -29,6 +31,7 @@ ImageInput = str | bytes | bytearray | memoryview
 RegionInput = tuple[int, int, int, int]
 PointInput = tuple[int, int]
 MatcherEngine = Literal["template", "orb", "akaze", "brisk", "kaze", "sift", "hybrid"]
+_RUNTIME_CALL_COUNTER = itertools.count(1)
 
 
 def _format_log_suffix(fields: Mapping[str, object]) -> str:
@@ -87,6 +90,167 @@ def _matcher_engine_proto_value(raw: str | None) -> int:
     if normalized == "hybrid":
         return int(pb.MATCHER_ENGINE_HYBRID)
     return int(pb.MATCHER_ENGINE_TEMPLATE)
+
+
+def _runtime_trace_hook():
+    hook = getattr(builtins, "__sikuli_runtime_event__", None)
+    return hook if callable(hook) else None
+
+
+def _emit_runtime_event(payload: Mapping[str, object]) -> None:
+    hook = _runtime_trace_hook()
+    if hook is None:
+        return
+    try:
+        hook(dict(payload))
+    except Exception:
+        # Ignore IDE trace hook failures so client behavior stays unchanged outside the editor.
+        return
+
+
+def _preview_text(value: object, max_length: int = 48) -> str:
+    text = " ".join(str(value or "").split())
+    if not text:
+        return ""
+    if len(text) <= max_length:
+        return text
+    return f"{text[: max_length - 3]}..."
+
+
+def _rect_string(value: object) -> str:
+    if value is None:
+        return ""
+    width = int(getattr(value, "w", 0) or 0)
+    height = int(getattr(value, "h", 0) or 0)
+    if width <= 0 or height <= 0:
+        return ""
+    x = int(getattr(value, "x", 0) or 0)
+    y = int(getattr(value, "y", 0) or 0)
+    return f"{x},{y},{width},{height}"
+
+
+def _point_string(value: object) -> str:
+    if value is None:
+        return ""
+    x = getattr(value, "x", None)
+    y = getattr(value, "y", None)
+    if x is None or y is None:
+        return ""
+    return f"{int(x)},{int(y)}"
+
+
+def _request_summary_for_method(method_name: str, request: object) -> str:
+    if method_name in ("FindOnScreen", "ExistsOnScreen", "WaitOnScreen", "ClickOnScreen"):
+        pattern = getattr(request, "pattern", None)
+        image = getattr(pattern, "image", None)
+        opts = getattr(request, "opts", None)
+        region = _rect_string(getattr(opts, "region", None))
+        width = int(getattr(image, "width", 0) or 0)
+        height = int(getattr(image, "height", 0) or 0)
+        timeout_ms = int(getattr(opts, "timeout_millis", 0) or 0)
+        parts = [
+            f"region={region}" if region else "region=full_screen",
+            f"pattern={width}x{height}" if width > 0 and height > 0 else "",
+            "exact" if bool(getattr(pattern, "exact", False)) else "",
+            (
+                f"sim={float(getattr(pattern, 'similarity', 0.0)):.2f}"
+                if float(getattr(pattern, "similarity", 0.0) or 0.0) > 0
+                else ""
+            ),
+            f"timeout={timeout_ms}ms" if timeout_ms > 0 else "",
+        ]
+        if method_name == "ClickOnScreen":
+            click_opts = getattr(request, "click_opts", None)
+            button = getattr(click_opts, "button", "")
+            if button:
+                parts.append(f"button={button}")
+        return " ".join(part for part in parts if part)
+
+    if method_name in ("MoveMouse", "Click"):
+        point = _point_string(request)
+        parts = [f"point={point}" if point else ""]
+        opts = getattr(request, "opts", None)
+        button = getattr(opts, "button", "")
+        if method_name == "Click" and button:
+            parts.append(f"button={button}")
+        return " ".join(part for part in parts if part)
+
+    if method_name == "TypeText":
+        text = _preview_text(getattr(request, "text", ""))
+        return f'text="{text}" len={len(str(getattr(request, "text", "") or ""))}' if text else ""
+
+    if method_name == "Hotkey":
+        keys = list(getattr(request, "keys", []) or [])
+        return f"keys={'+'.join(str(key) for key in keys)}" if keys else ""
+
+    if method_name in ("OpenApp", "FocusApp", "CloseApp", "IsAppRunning", "ListWindows"):
+        name = str(getattr(request, "name", "") or "")
+        args = list(getattr(request, "args", []) or [])
+        return f"app={name}{f' args={len(args)}' if args else ''}" if name else ""
+
+    if method_name in ("ReadText", "FindText"):
+        return "ocr request"
+
+    return ""
+
+
+def _response_details_for_method(method_name: str, response: object) -> dict[str, object]:
+    if method_name in ("FindOnScreen", "ExistsOnScreen", "WaitOnScreen", "ClickOnScreen"):
+        match = getattr(response, "match", None)
+        match_rect = _rect_string(getattr(match, "rect", None))
+        target_point = _point_string(getattr(match, "target", None))
+        if match_rect:
+            score = float(getattr(match, "score", 0.0) or 0.0)
+            parts = [f"match={match_rect}"]
+            if target_point:
+                parts.append(f"target={target_point}")
+            if score > 0:
+                parts.append(f"score={score:.3f}")
+            return {
+                "responseSummary": " ".join(parts),
+                "matchRect": match_rect,
+                "targetPoint": target_point,
+                "score": score,
+            }
+        if method_name == "ExistsOnScreen":
+            exists = bool(getattr(response, "exists", False))
+            return {
+                "responseSummary": f"exists={'yes' if exists else 'no'}",
+                "exists": exists,
+            }
+        return {
+            "responseSummary": "no match",
+            "exists": False,
+        }
+
+    if method_name == "IsAppRunning":
+        running = bool(getattr(response, "running", False))
+        return {
+            "responseSummary": f"running={'yes' if running else 'no'}",
+            "exists": running,
+        }
+
+    if method_name == "ListWindows":
+        windows = getattr(response, "windows", None)
+        count = len(windows) if windows is not None else 0
+        return {
+            "responseSummary": f"windows={count}",
+        }
+
+    if method_name == "ReadText":
+        text = _preview_text(getattr(response, "text", ""))
+        return {
+            "responseSummary": f'text="{text}"' if text else "text=<empty>",
+        }
+
+    if method_name == "FindText":
+        matches = getattr(response, "matches", None)
+        count = len(matches) if matches is not None else 0
+        return {
+            "responseSummary": f"matches={count}",
+        }
+
+    return {}
 
 
 class SikuliError(RuntimeError):
@@ -189,14 +353,51 @@ class Sikuli:
     ):
         method = getattr(self._stub, method_name)
         request = self._with_matcher_engine(method_name, request, matcher_engine)
+        call_id = f"{method_name.lower()}-{int(time.time() * 1000)}-{next(_RUNTIME_CALL_COUNTER)}"
+        request_summary = _request_summary_for_method(method_name, request)
+        _emit_runtime_event(
+            {
+                "type": "runtime:call:start",
+                "callId": call_id,
+                "method": method_name,
+                "requestSummary": request_summary,
+                "traceId": self._trace_id or "",
+            }
+        )
+        started_at = time.time()
         try:
-            return method(
+            response = method(
                 request,
                 timeout=timeout_seconds if timeout_seconds is not None else self._timeout_seconds,
                 metadata=self._metadata(metadata),
             )
         except grpc.RpcError as err:
-            raise SikuliError(err.code(), err.details() or "", self._trace_id_from_error(err)) from err
+            trace_id = self._trace_id_from_error(err)
+            runtime_error = SikuliError(err.code(), err.details() or "", trace_id)
+            _emit_runtime_event(
+                {
+                    "type": "runtime:call:error",
+                    "callId": call_id,
+                    "method": method_name,
+                    "requestSummary": request_summary,
+                    "durationMs": int(round((time.time() - started_at) * 1000)),
+                    "traceId": trace_id or self._trace_id or "",
+                    "error": str(runtime_error),
+                }
+            )
+            raise runtime_error from err
+        _emit_runtime_event(
+            {
+                "type": "runtime:call:end",
+                "callId": call_id,
+                "method": method_name,
+                "requestSummary": request_summary,
+                "durationMs": int(round((time.time() - started_at) * 1000)),
+                "traceId": self._trace_id or "",
+                **_response_details_for_method(method_name, response),
+            }
+        )
+        return response
 
     def _with_matcher_engine(self, method_name: str, request: object, matcher_engine: str | None):
         value = _matcher_engine_proto_value(matcher_engine or self._matcher_engine)

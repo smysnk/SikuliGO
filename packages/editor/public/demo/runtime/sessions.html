@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Runtime Sessions</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 22px;
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+        background: linear-gradient(135deg, #eef4ff 0%, #f7f9f2 54%, #edf7f0 100%);
+        color: #14213d;
+      }
+      .shell {
+        border-radius: 24px;
+        padding: 22px;
+        background: rgba(255,255,255,0.78);
+        border: 1px solid rgba(20,33,61,0.08);
+        box-shadow: 0 20px 56px rgba(20,33,61,0.08);
+      }
+      .eyebrow { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #8c5e34; font-weight: 700; }
+      h1 { margin: 8px 0 16px; font-size: 26px; }
+      .row {
+        display: grid;
+        grid-template-columns: 1.4fr 0.9fr 0.7fr 0.8fr;
+        gap: 12px;
+        padding: 14px 16px;
+        margin-top: 12px;
+        border-radius: 18px;
+        border: 1px solid rgba(20,33,61,0.08);
+        background: rgba(249,251,255,0.9);
+      }
+      .active {
+        background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(229,237,255,0.96));
+        border-color: rgba(36,92,255,0.24);
+        box-shadow: 0 12px 28px rgba(36,92,255,0.08);
+      }
+      strong { display: block; font-size: 14px; }
+      span { color: #58657e; font-size: 12px; line-height: 1.45; }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-size: 12px;
+        font-weight: 700;
+        background: rgba(180,83,9,0.18);
+        color: #9a3412;
+      }
+      .done { background: rgba(22,163,74,0.14); color: #166534; }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <div class="eyebrow">Session Viewer</div>
+      <h1>Live and historical runs stay attached to the editor</h1>
+      <div class="row active">
+        <div><strong>Click</strong><span>Node.js · click.mjs<br />Paused before runtime call on line 8</span></div>
+        <div><strong>Trace</strong><span>trace-7c61f2<br />3 runtime calls</span></div>
+        <div><strong>PID</strong><span>48216</span></div>
+        <div><span class="badge">paused</span></div>
+      </div>
+      <div class="row">
+        <div><strong>Capture Investigation</strong><span>Node.js · capture-investigation.mjs<br />Drafted from the editor and saved into the workspace</span></div>
+        <div><strong>Trace</strong><span>n/a<br />prepared for a rerun</span></div>
+        <div><strong>PID</strong><span>not started</span></div>
+        <div><span class="badge done">saved</span></div>
+      </div>
+      <div class="row">
+        <div><strong>Find</strong><span>Python · find.py<br />Completed with a single exact match</span></div>
+        <div><strong>Trace</strong><span>trace-py-118e<br />1 runtime call</span></div>
+        <div><strong>Exit</strong><span>0</span></div>
+        <div><span class="badge done">completed</span></div>
+      </div>
+    </div>
+  </body>
+</html>
