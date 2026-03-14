@@ -1,14 +1,16 @@
-# sikuli-go [![GoLang Tests](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml/badge.svg)](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml) [![Testing Gate](https://img.shields.io/github/actions/workflow/status/smysnk/SikuliGO/go-test.yml?branch=master&label=testing%20gate)](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml) [![PyPI version](https://img.shields.io/pypi/v/sikuli-go)](https://pypi.org/project/sikuli-go/) [![npm version](https://img.shields.io/npm/v/%40sikuligo%2Fsikuli-go)](https://www.npmjs.com/package/@sikuligo/sikuli-go)
+# sikuli-go [![Monorepo Tests](https://github.com/smysnk/SikuliGO/actions/workflows/go-test.yml/badge.svg)](https://test-station.smysnk.com/projects/sikuli-go) [![Coverage](https://img.shields.io/badge/coverage-open%20test--station-0a7ea4)](https://test-station.smysnk.com/projects/sikuli-go) [![PyPI version](https://img.shields.io/pypi/v/sikuli-go)](https://pypi.org/project/sikuli-go/) [![npm version](https://img.shields.io/npm/v/%40sikuligo%2Fsikuli-go)](https://www.npmjs.com/package/@sikuligo/sikuli-go)
 <!-- DOCS_CANONICAL_TARGET: docs/downloads/index.md -->
 <!-- DOCS_CANONICAL_TARGET: docs/getting-started/index.md -->
 <!-- DOCS_SOURCE_MAP: docs/strategy/documentation-source-map.md -->
 <!-- DOCS_WORKFLOW: docs/contribution/docs-workflow.md -->
 
 ![SikuliX Logo](docs/images/logo.png)
+![sikuli-go IDE Demo](docs/images/editor-demo.webp)
 
 Sikuli is an open-source tool for automating anything visible on a computer screen using image recognition. Instead of relying on internal source code or object IDs, it identifies and interacts with graphical user interface (GUI) components (buttons, text boxes, etc.) by using screenshots. **This repo houses a GoLang port of the original concept.**
 
 Docs: [smysnk.github.io/sikuli-go](https://smysnk.github.io/sikuli-go/)
+Latest test report: [test-station.smysnk.com/projects/sikuli-go](https://test-station.smysnk.com/projects/sikuli-go)
 
 ## Project Intent
 

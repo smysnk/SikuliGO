@@ -1,0 +1,54 @@
+{
+  "rules": [
+    {
+      "package": "client-node",
+      "include": ["packages/client-node/test/**/*.mjs"],
+      "module": "clients",
+      "theme": "nodejs"
+    },
+    {
+      "package": "api-electron",
+      "include": ["packages/api-electron/test/**/*.js"],
+      "module": "tooling",
+      "theme": "electron"
+    }
+  ],
+  "coverageRules": [
+    {
+      "package": "api",
+      "include": ["packages/api/**/*.go"],
+      "module": "runtime",
+      "theme": "go"
+    },
+    {
+      "package": "client-node",
+      "include": ["packages/client-node/src/**/*.ts"],
+      "module": "clients",
+      "theme": "nodejs"
+    },
+    {
+      "package": "client-python",
+      "include": ["packages/client-python/**/*.py"],
+      "module": "clients",
+      "theme": "python"
+    },
+    {
+      "package": "api-electron",
+      "include": ["packages/api-electron/src/**/*.js"],
+      "module": "tooling",
+      "theme": "electron"
+    }
+  ],
+  "thresholds": {
+    "modules": [
+      {
+        "module": "runtime",
+        "coverage": {
+          "linesPct": 40,
+          "statementsPct": 43
+        },
+        "enforcement": "error"
+      }
+    ]
+  }
+}
